@@ -1,0 +1,131 @@
+import { writable } from 'svelte/store';
+import { apiClient } from '$lib/utils/api';
+import type { User } from '$lib';
+
+interface AuthState {
+	user: User | null;
+	isAuthenticated: boolean;
+	isLoading: boolean;
+}
+
+// Svelte writable store 생성
+export const authState = writable<AuthState>({
+	user: null,
+	isAuthenticated: false,
+	isLoading: false
+});
+
+class AuthStore {
+	// 사용자 정보 초기화 (앱 시작 시 호출)
+	async initialize() {
+		authState.update((state) => ({ ...state, isLoading: true }));
+
+		try {
+			const token = this.getToken();
+
+			if (token && token.trim() !== '') {
+				// 토큰이 있으면 사용자 정보 가져오기
+				const user = await apiClient.getProfile();
+				authState.update((state) => ({
+					...state,
+					user,
+					isAuthenticated: true,
+					isLoading: false
+				}));
+			} else {
+				authState.update((state) => ({
+					...state,
+					user: null,
+					isAuthenticated: false,
+					isLoading: false
+				}));
+			}
+		} catch {
+			// 토큰이 유효하지 않으면 제거하고 로그아웃 처리
+			this.logout();
+			authState.update((state) => ({
+				...state,
+				user: null,
+				isAuthenticated: false,
+				isLoading: false
+			}));
+		}
+	}
+
+	// 로그인
+	async login(email: string, password: string) {
+		console.log('Attempting login for:', email); // 로그인 시도 로깅
+		authState.update((state) => ({ ...state, isLoading: true }));
+
+		try {
+			const result = await apiClient.login({ email, password });
+			console.log('Login successful for:', email); // 성공 로깅
+			authState.update((state) => ({
+				...state,
+				user: result.user,
+				isAuthenticated: true,
+				isLoading: false
+			}));
+			return result;
+		} catch (error) {
+			console.error('Login failed for:', email, error); // 실패 로깅
+			authState.update((state) => ({ ...state, isLoading: false }));
+			throw error;
+		}
+	}
+
+	// 로그아웃
+	logout() {
+		apiClient.logout();
+		authState.update(() => ({
+			user: null,
+			isAuthenticated: false,
+			isLoading: false
+		}));
+	}
+
+	// 프로필 업데이트
+	async updateProfile(updates: Partial<User>) {
+		const currentState = await this.getCurrentState();
+		if (!currentState.user) throw new Error('Not authenticated');
+
+		authState.update((state) => ({ ...state, isLoading: true }));
+
+		try {
+			const updatedUser = await apiClient.updateProfile(updates);
+			authState.update((state) => ({
+				...state,
+				user: updatedUser,
+				isLoading: false
+			}));
+			return updatedUser;
+		} catch (error) {
+			authState.update((state) => ({ ...state, isLoading: false }));
+			throw error;
+		}
+	}
+
+	// 현재 상태 가져오기 (내부용)
+	private async getCurrentState(): Promise<AuthState> {
+		return new Promise((resolve) => {
+			const unsubscribe = authState.subscribe((state) => {
+				unsubscribe();
+				resolve(state);
+			});
+		});
+	}
+
+	// 토큰 가져오기 (private 메소드)
+	private getToken(): string | null {
+		if (typeof window !== 'undefined') {
+			return localStorage.getItem('auth_token');
+		}
+		return null;
+	}
+}
+
+// 싱글톤 인스턴스 생성
+export const authStore = new AuthStore();
+
+// 편의를 위한 export
+export default authStore;

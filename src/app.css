@@ -37,3 +37,110 @@ body {
 	padding: 0;
 	min-height: 100vh;
 }
+
+/* 공통 애니메이션 */
+@keyframes fade-in {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes slide-up {
+	from {
+		opacity: 0;
+		transform: translateY(40px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes gradient-shift {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+@keyframes spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes card-enter {
+	from {
+		opacity: 0;
+		transform: translateY(20px) scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+@keyframes slide-in-right {
+	from {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+/* 공통 유틸리티 클래스 */
+.animate-fade-in {
+	animation: fade-in 0.8s ease-out;
+}
+
+.animate-slide-up {
+	animation: slide-up 0.8s ease-out;
+}
+
+.animate-card-enter {
+	animation: card-enter 0.3s ease-out;
+}
+
+.animate-slide-in-right {
+	animation: slide-in-right 0.3s ease-out;
+}
+
+.fa-spin {
+	animation: spin 1s linear infinite;
+}
+
+/* 그라데이션 텍스트 */
+.gradient-text {
+	background: linear-gradient(45deg, #3b82f6, #6366f1, #8b5cf6);
+	background-size: 200% 200%;
+	animation: gradient-shift 3s ease infinite;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}
+
+/* 공통 배경 패턴 */
+.bg-grid-slate-100 {
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(148 163 184 / 0.1)'%3e%3cpath d='m0 .5h32m-32 32h32m-32-32v32m32-32v32'/%3e%3c/svg%3e");
+}
+
+/* 포커스 효과 */
+input:focus {
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}

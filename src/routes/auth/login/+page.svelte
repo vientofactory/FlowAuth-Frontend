@@ -1,39 +1,48 @@
 <script lang="ts">
 	import { Card, Button, Input } from '$lib';
-	import { apiClient } from '$lib';
-	import type { LoginData } from '$lib';
+	import { authStore, useToast } from '$lib';
+	import { MESSAGES, APP_CONSTANTS, ROUTES } from '$lib/constants/app.constants';
 
 	let email = $state('');
 	let password = $state('');
 	let isLoading = $state(false);
-	let error = $state('');
 
-	async function handleLogin() {
+	// 중앙화된 토스트 훅 사용
+	const toast = useToast();
+
+	async function handleSubmit(event: SubmitEvent) {
+		event.preventDefault(); // 폼 기본 동작 방지
+		
 		if (!email || !password) {
-			error = '이메일과 비밀번호를 입력해주세요.';
+			toast.warning(MESSAGES.VALIDATION.EMAIL_PASSWORD_REQUIRED);
 			return;
 		}
 
+		if (isLoading) return; // 중복 실행 방지
+
 		isLoading = true;
-		error = '';
 
 		try {
-			const loginData: LoginData = { email, password };
-			const result = await apiClient.login(loginData);
+			await authStore.login(email, password);
+			toast.success(MESSAGES.VALIDATION.LOGIN_SUCCESS);
 
-			// 로그인 성공 - 메인 페이지로 리다이렉트
-			console.log('Login successful:', result);
-			window.location.href = '/dashboard';
+			// 리다이렉트
+			setTimeout(() => {
+				window.location.href = ROUTES.DASHBOARD;
+			}, APP_CONSTANTS.REDIRECT_DELAY);
 		} catch (err) {
-			error = err instanceof Error ? err.message : '로그인에 실패했습니다.';
+			console.error('Login error:', err); // 디버깅용 로그 추가
+			const errorMessage = err instanceof Error ? err.message : MESSAGES.VALIDATION.LOGIN_FAILED;
+			toast.error(errorMessage);
 		} finally {
 			isLoading = false;
 		}
 	}
 
 	function handleKeyPress(event: KeyboardEvent) {
-		if (event.key === 'Enter') {
-			handleLogin();
+		if (event.key === 'Enter' && !isLoading) {
+			// Enter 키는 폼의 기본 submit을 트리거하므로 특별한 처리 불필요
+			// 폼의 onsubmit 이벤트가 처리함
 		}
 	}
 </script>
@@ -66,70 +75,64 @@
 			<p class="text-lg text-gray-600">오픈소스 OAuth2 시스템</p>
 		</div>
 
-		<Card class="card-enter border-0 bg-white/80 shadow-2xl backdrop-blur-sm">
+		<Card class="animate-card-enter border-0 bg-white/80 shadow-2xl backdrop-blur-sm">
 			<div class="mb-8 text-center">
 				<h2 class="mb-2 text-2xl font-bold text-gray-900">로그인</h2>
 				<p class="text-gray-600">계정에 로그인하여 서비스를 이용하세요</p>
 			</div>
 
-			<form onsubmit={handleLogin} class="space-y-6">
-				{#if error}
-					<div
-						class="animate-fade-in rounded-r-lg border-l-4 border-red-500 bg-red-50 px-4 py-3 text-red-700"
-					>
-						<div class="flex items-center">
-							<i class="fas fa-exclamation-triangle mr-2"></i>
-							<span class="font-medium">로그인 실패</span>
-						</div>
-						<p class="mt-1 text-sm">{error}</p>
-					</div>
-				{/if}
-
-				<div class="space-y-5">
-					<div class="relative">
-						<label for="email" class="mb-2 block text-sm font-medium text-gray-700">
-							<i class="fas fa-envelope mr-2 text-blue-500"></i>
-							이메일 주소
-						</label>
-						<Input
-							type="email"
-							placeholder="your@email.com"
-							value={email}
-							oninput={(e: Event) => (email = (e.target as HTMLInputElement).value)}
-							required
-							disabled={isLoading}
-							class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-						/>
-					</div>
-
-					<div class="relative">
-						<label for="password" class="mb-2 block text-sm font-medium text-gray-700">
-							<i class="fas fa-lock mr-2 text-blue-500"></i>
-							비밀번호
-						</label>
-						<Input
-							type="password"
-							placeholder="비밀번호를 입력하세요"
-							value={password}
-							oninput={(e: Event) => (password = (e.target as HTMLInputElement).value)}
-							onkeydown={handleKeyPress}
-							required
-							disabled={isLoading}
-							class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-						/>
-					</div>
+			<!-- SvelteKit 권장 방식의 폼 구조 -->
+			<form method="POST" onsubmit={handleSubmit} class="space-y-6">
+				<!-- 이메일 입력 -->
+				<div class="relative">
+					<label for="email" class="mb-2 block text-sm font-medium text-gray-700">
+						<i class="fas fa-envelope mr-2 text-blue-500"></i>
+						이메일 주소
+					</label>
+					<Input
+						type="email"
+						id="email"
+						name="email"
+						placeholder="your@email.com"
+						value={email}
+						oninput={(e: Event) => (email = (e.target as HTMLInputElement).value)}
+						onkeydown={handleKeyPress}
+						disabled={isLoading}
+						class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+					/>
 				</div>
 
+				<!-- 비밀번호 입력 -->
+				<div class="relative">
+					<label for="password" class="mb-2 block text-sm font-medium text-gray-700">
+						<i class="fas fa-lock mr-2 text-blue-500"></i>
+						비밀번호
+					</label>
+					<Input
+						type="password"
+						id="password"
+						name="password"
+						placeholder="비밀번호를 입력하세요"
+						value={password}
+						oninput={(e: Event) => (password = (e.target as HTMLInputElement).value)}
+						onkeydown={handleKeyPress}
+						disabled={isLoading}
+						class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+					/>
+				</div>
+
+				<!-- 추가 옵션 -->
 				<div class="flex items-center justify-between">
 					<label class="flex items-center">
 						<input
 							type="checkbox"
+							name="remember"
 							class="focus:ring-opacity-50 rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200"
 						/>
 						<span class="ml-2 text-sm text-gray-600">로그인 상태 유지</span>
 					</label>
 					<a
-						href="/auth/forgot-password"
+						href={ROUTES.FORGOT_PASSWORD}
 						data-sveltekit-preload-data
 						class="text-sm font-medium text-blue-600 transition-colors duration-200 hover:text-blue-500"
 					>
@@ -137,6 +140,7 @@
 					</a>
 				</div>
 
+				<!-- 로그인 버튼 -->
 				<Button
 					variant="primary"
 					type="submit"
@@ -184,7 +188,7 @@
 				<p class="text-gray-600">
 					계정이 없으신가요?
 					<a
-						href="/auth/register"
+						href={ROUTES.REGISTER}
 						data-sveltekit-preload-data
 						class="font-semibold text-blue-600 transition-colors duration-200 hover:text-blue-500"
 					>
@@ -192,7 +196,7 @@
 					</a>
 				</p>
 				<a
-					href="/"
+					href={ROUTES.HOME}
 					data-sveltekit-preload-data
 					class="inline-flex items-center text-sm text-gray-500 transition-colors duration-200 hover:text-gray-700"
 				>
@@ -205,79 +209,5 @@
 </div>
 
 <style>
-	.bg-grid-slate-100 {
-		background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(148 163 184 / 0.1)'%3e%3cpath d='m0 .5h32m-32 32h32m-32-32v32m32-32v32'/%3e%3c/svg%3e");
-	}
-
-	@keyframes fade-in {
-		from {
-			opacity: 0;
-			transform: translateY(-10px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-
-	.animate-fade-in {
-		animation: fade-in 0.3s ease-out;
-	}
-
-	/* 입력 필드 포커스 효과 */
-	input:focus {
-		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-	}
-
-	/* 버튼 호버 효과 */
-	/* button:hover {
-    transform: translateY(-1px);
-  } */
-
-	/* 로딩 스피너 애니메이션 */
-	@keyframes spin {
-		from {
-			transform: rotate(0deg);
-		}
-		to {
-			transform: rotate(360deg);
-		}
-	}
-
-	.fa-spin {
-		animation: spin 1s linear infinite;
-	}
-
-	@keyframes card-enter {
-		from {
-			opacity: 0;
-			transform: translateY(20px) scale(0.95);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0) scale(1);
-		}
-	}
-
-	/* 그라데이션 텍스트 애니메이션 */
-	.gradient-text {
-		background: linear-gradient(45deg, #3b82f6, #6366f1, #8b5cf6);
-		background-size: 200% 200%;
-		animation: gradient-shift 3s ease infinite;
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-clip: text;
-	}
-
-	@keyframes gradient-shift {
-		0% {
-			background-position: 0% 50%;
-		}
-		50% {
-			background-position: 100% 50%;
-		}
-		100% {
-			background-position: 0% 50%;
-		}
-	}
+	/* 로그인 페이지 전용 스타일만 유지 */
 </style>

@@ -1,54 +1,70 @@
 <script lang="ts">
 	import { Card, Button, Input } from '$lib';
-	import { apiClient } from '$lib';
+	import { apiClient, useToast } from '$lib';
 	import type { CreateUserDto } from '$lib';
 
 	let email = $state('');
 	let password = $state('');
 	let confirmPassword = $state('');
+	let username = $state('');
+	let firstName = $state('');
+	let lastName = $state('');
 	let isLoading = $state(false);
-	let error = $state('');
 	let agreeToTerms = $state(false);
 
+	// 중앙화된 토스트 훅 사용
+	const toast = useToast();
+
 	async function handleRegister() {
-		if (!email || !password || !confirmPassword) {
-			error = '모든 필드를 입력해주세요.';
+		if (!email || !password || !confirmPassword || !username || !firstName || !lastName) {
+			toast.warning('모든 필드를 입력해주세요.');
 			return;
 		}
 
 		if (password !== confirmPassword) {
-			error = '비밀번호가 일치하지 않습니다.';
+			toast.warning('비밀번호가 일치하지 않습니다.');
 			return;
 		}
 
 		if (password.length < 8) {
-			error = '비밀번호는 최소 8자 이상이어야 합니다.';
+			toast.warning('비밀번호는 최소 8자 이상이어야 합니다.');
 			return;
 		}
 
 		if (!agreeToTerms) {
-			error = '이용약관에 동의해주세요.';
+			toast.warning('이용약관에 동의해주세요.');
 			return;
 		}
 
 		isLoading = true;
-		error = '';
 
 		try {
-			const userData: CreateUserDto = { email, password };
+			const userData: CreateUserDto = {
+				email,
+				password,
+				username,
+				firstName,
+				lastName
+			};
+			
+			console.log('Attempting registration for:', email); // 디버깅용 로그
 			const result = await apiClient.register(userData);
-
-			// 회원가입 성공 - 로그인 페이지로 리다이렉트
-			console.log('Registration successful:', result);
-			window.location.href = '/auth/login?message=회원가입이 완료되었습니다. 로그인해주세요.';
+			console.log('Registration successful:', result); // 성공 로깅
+			
+			toast.success('회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.');
+			
+			// 성공 시 로그인 페이지로 리다이렉트
+			setTimeout(() => {
+				window.location.href = '/auth/login';
+			}, 2000);
 		} catch (err) {
-			error = err instanceof Error ? err.message : '회원가입에 실패했습니다.';
+			console.error('Registration error:', err); // 디버깅용 로그
+			const errorMessage = err instanceof Error ? err.message : '회원가입에 실패했습니다.';
+			toast.error(errorMessage);
 		} finally {
 			isLoading = false;
 		}
-	}
-
-	function handleKeyPress(event: KeyboardEvent) {
+	}	function handleKeyPress(event: KeyboardEvent) {
 		if (event.key === 'Enter') {
 			handleRegister();
 		}
@@ -83,26 +99,65 @@
 			<p class="text-lg text-gray-600">새 계정 만들기</p>
 		</div>
 
-		<Card class="card-enter border-0 bg-white/80 shadow-2xl backdrop-blur-sm">
+		<Card class="animate-card-enter border-0 bg-white/80 shadow-2xl backdrop-blur-sm">
 			<div class="mb-8 text-center">
 				<h2 class="mb-2 text-2xl font-bold text-gray-900">회원가입</h2>
 				<p class="text-gray-600">새 계정을 만들어 FlowAuth를 시작하세요</p>
 			</div>
 
 			<form onsubmit={handleRegister} class="space-y-6">
-				{#if error}
-					<div
-						class="animate-fade-in rounded-r-lg border-l-4 border-red-500 bg-red-50 px-4 py-3 text-red-700"
-					>
-						<div class="flex items-center">
-							<i class="fas fa-exclamation-triangle mr-2"></i>
-							<span class="font-medium">회원가입 실패</span>
-						</div>
-						<p class="mt-1 text-sm">{error}</p>
-					</div>
-				{/if}
-
 				<div class="space-y-5">
+					<div class="relative">
+						<label for="username" class="mb-2 block text-sm font-medium text-gray-700">
+							<i class="fas fa-user mr-2 text-blue-500"></i>
+							사용자 이름
+						</label>
+						<Input
+							type="text"
+							placeholder="사용자 이름을 입력하세요"
+							value={username}
+							oninput={(e: Event) => (username = (e.target as HTMLInputElement).value)}
+							required
+							disabled={isLoading}
+							class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+						/>
+						<p class="mt-1 text-xs text-gray-500">고유한 사용자 이름 (영문, 숫자, 밑줄만 사용)</p>
+					</div>
+
+					<div class="grid grid-cols-2 gap-4">
+						<div class="relative">
+							<label for="firstName" class="mb-2 block text-sm font-medium text-gray-700">
+								<i class="fas fa-id-card mr-2 text-blue-500"></i>
+								이름
+							</label>
+							<Input
+								type="text"
+								placeholder="이름"
+								value={firstName}
+								oninput={(e: Event) => (firstName = (e.target as HTMLInputElement).value)}
+								required
+								disabled={isLoading}
+								class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+							/>
+						</div>
+
+						<div class="relative">
+							<label for="lastName" class="mb-2 block text-sm font-medium text-gray-700">
+								<i class="fas fa-id-card mr-2 text-blue-500"></i>
+								성
+							</label>
+							<Input
+								type="text"
+								placeholder="성"
+								value={lastName}
+								oninput={(e: Event) => (lastName = (e.target as HTMLInputElement).value)}
+								required
+								disabled={isLoading}
+								class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+							/>
+						</div>
+					</div>
+
 					<div class="relative">
 						<label for="email" class="mb-2 block text-sm font-medium text-gray-700">
 							<i class="fas fa-envelope mr-2 text-blue-500"></i>
@@ -247,79 +302,5 @@
 </div>
 
 <style>
-	.bg-grid-slate-100 {
-		background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(148 163 184 / 0.1)'%3e%3cpath d='m0 .5h32m-32 32h32m-32-32v32m32-32v32'/%3e%3c/svg%3e");
-	}
-
-	@keyframes fade-in {
-		from {
-			opacity: 0;
-			transform: translateY(-10px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-
-	.animate-fade-in {
-		animation: fade-in 0.3s ease-out;
-	}
-
-	/* 입력 필드 포커스 효과 */
-	input:focus {
-		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-	}
-
-	/* 버튼 호버 효과 */
-	/* button:hover {
-    transform: translateY(-1px);
-  } */
-
-	/* 로딩 스피너 애니메이션 */
-	@keyframes spin {
-		from {
-			transform: rotate(0deg);
-		}
-		to {
-			transform: rotate(360deg);
-		}
-	}
-
-	.fa-spin {
-		animation: spin 1s linear infinite;
-	}
-
-	@keyframes card-enter {
-		from {
-			opacity: 0;
-			transform: translateY(20px) scale(0.95);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0) scale(1);
-		}
-	}
-
-	/* 그라데이션 텍스트 애니메이션 */
-	.gradient-text {
-		background: linear-gradient(45deg, #3b82f6, #6366f1, #8b5cf6);
-		background-size: 200% 200%;
-		animation: gradient-shift 3s ease infinite;
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-clip: text;
-	}
-
-	@keyframes gradient-shift {
-		0% {
-			background-position: 0% 50%;
-		}
-		50% {
-			background-position: 100% 50%;
-		}
-		100% {
-			background-position: 0% 50%;
-		}
-	}
+	/* 회원가입 페이지 전용 스타일만 유지 */
 </style>

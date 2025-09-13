@@ -57,9 +57,9 @@
 			<!-- 히어로 섹션 -->
 			<div class="mb-20 text-center">
 				<div
-					class="animate-fade-in mb-8 inline-flex items-center rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800"
+					class="mb-8 inline-flex items-center rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800"
 				>
-					<span class="mr-2 h-2 w-2 animate-pulse rounded-full bg-blue-500"></span>
+					<span class="mr-2 h-2 w-2 rounded-full bg-blue-500"></span>
 					OAuth2 인증 시스템의 새로운 표준
 				</div>
 
@@ -294,33 +294,7 @@
 	</div>
 
 	<style>
-		@keyframes fade-in {
-			from {
-				opacity: 0;
-				transform: translateY(20px);
-			}
-			to {
-				opacity: 1;
-				transform: translateY(0);
-			}
-		}
-
-		.animate-fade-in {
-			animation: fade-in 0.8s ease-out;
-		}
-
-		/* 스크롤 기반 애니메이션 */
-		@keyframes slide-up {
-			from {
-				opacity: 0;
-				transform: translateY(40px);
-			}
-			to {
-				opacity: 1;
-				transform: translateY(0);
-			}
-		}
-
+		/* 홈페이지 전용 스타일만 유지 */
 		.animate-on-scroll {
 			animation: slide-up 0.8s ease-out;
 		}
