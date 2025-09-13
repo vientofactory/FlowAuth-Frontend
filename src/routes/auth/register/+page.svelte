@@ -1,16 +1,33 @@
 <script lang="ts">
 	import { Card, Button, Input } from '$lib';
 	import { apiClient } from '$lib';
-	import type { LoginData } from '$lib';
+	import type { CreateUserDto } from '$lib';
 
 	let email = $state('');
 	let password = $state('');
+	let confirmPassword = $state('');
 	let isLoading = $state(false);
 	let error = $state('');
+	let agreeToTerms = $state(false);
 
-	async function handleLogin() {
-		if (!email || !password) {
-			error = '이메일과 비밀번호를 입력해주세요.';
+	async function handleRegister() {
+		if (!email || !password || !confirmPassword) {
+			error = '모든 필드를 입력해주세요.';
+			return;
+		}
+
+		if (password !== confirmPassword) {
+			error = '비밀번호가 일치하지 않습니다.';
+			return;
+		}
+
+		if (password.length < 8) {
+			error = '비밀번호는 최소 8자 이상이어야 합니다.';
+			return;
+		}
+
+		if (!agreeToTerms) {
+			error = '이용약관에 동의해주세요.';
 			return;
 		}
 
@@ -18,14 +35,14 @@
 		error = '';
 
 		try {
-			const loginData: LoginData = { email, password };
-			const result = await apiClient.login(loginData);
+			const userData: CreateUserDto = { email, password };
+			const result = await apiClient.register(userData);
 
-			// 로그인 성공 - 메인 페이지로 리다이렉트
-			console.log('Login successful:', result);
-			window.location.href = '/dashboard';
+			// 회원가입 성공 - 로그인 페이지로 리다이렉트
+			console.log('Registration successful:', result);
+			window.location.href = '/auth/login?message=회원가입이 완료되었습니다. 로그인해주세요.';
 		} catch (err) {
-			error = err instanceof Error ? err.message : '로그인에 실패했습니다.';
+			error = err instanceof Error ? err.message : '회원가입에 실패했습니다.';
 		} finally {
 			isLoading = false;
 		}
@@ -33,13 +50,13 @@
 
 	function handleKeyPress(event: KeyboardEvent) {
 		if (event.key === 'Enter') {
-			handleLogin();
+			handleRegister();
 		}
 	}
 </script>
 
 <svelte:head>
-	<title>로그인 - FlowAuth</title>
+	<title>회원가입 - FlowAuth</title>
 </svelte:head>
 
 <div
@@ -56,30 +73,30 @@
 			<div
 				class="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg"
 			>
-				<i class="fas fa-shield-alt text-2xl text-white"></i>
+				<i class="fas fa-user-plus text-2xl text-white"></i>
 			</div>
 			<h1
 				class="gradient-text mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-3xl font-bold text-transparent"
 			>
 				FlowAuth
 			</h1>
-			<p class="text-lg text-gray-600">오픈소스 OAuth2 시스템</p>
+			<p class="text-lg text-gray-600">새 계정 만들기</p>
 		</div>
 
 		<Card class="card-enter border-0 bg-white/80 shadow-2xl backdrop-blur-sm">
 			<div class="mb-8 text-center">
-				<h2 class="mb-2 text-2xl font-bold text-gray-900">로그인</h2>
-				<p class="text-gray-600">계정에 로그인하여 서비스를 이용하세요</p>
+				<h2 class="mb-2 text-2xl font-bold text-gray-900">회원가입</h2>
+				<p class="text-gray-600">새 계정을 만들어 FlowAuth를 시작하세요</p>
 			</div>
 
-			<form onsubmit={handleLogin} class="space-y-6">
+			<form onsubmit={handleRegister} class="space-y-6">
 				{#if error}
 					<div
 						class="animate-fade-in rounded-r-lg border-l-4 border-red-500 bg-red-50 px-4 py-3 text-red-700"
 					>
 						<div class="flex items-center">
 							<i class="fas fa-exclamation-triangle mr-2"></i>
-							<span class="font-medium">로그인 실패</span>
+							<span class="font-medium">회원가입 실패</span>
 						</div>
 						<p class="mt-1 text-sm">{error}</p>
 					</div>
@@ -100,6 +117,7 @@
 							disabled={isLoading}
 							class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 						/>
+						<p class="mt-1 text-xs text-gray-500">이메일 주소는 계정 복구에 사용됩니다</p>
 					</div>
 
 					<div class="relative">
@@ -112,6 +130,23 @@
 							placeholder="비밀번호를 입력하세요"
 							value={password}
 							oninput={(e: Event) => (password = (e.target as HTMLInputElement).value)}
+							required
+							disabled={isLoading}
+							class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+						/>
+						<p class="mt-1 text-xs text-gray-500">최소 8자 이상, 대소문자 및 숫자 포함 권장</p>
+					</div>
+
+					<div class="relative">
+						<label for="confirmPassword" class="mb-2 block text-sm font-medium text-gray-700">
+							<i class="fas fa-lock mr-2 text-blue-500"></i>
+							비밀번호 확인
+						</label>
+						<Input
+							type="password"
+							placeholder="비밀번호를 다시 입력하세요"
+							value={confirmPassword}
+							oninput={(e: Event) => (confirmPassword = (e.target as HTMLInputElement).value)}
 							onkeydown={handleKeyPress}
 							required
 							disabled={isLoading}
@@ -120,44 +155,51 @@
 					</div>
 				</div>
 
-				<div class="flex items-center justify-between">
-					<label class="flex items-center">
+				<div class="space-y-4">
+					<label class="flex items-start">
 						<input
 							type="checkbox"
-							class="focus:ring-opacity-50 rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200"
+							bind:checked={agreeToTerms}
+							class="focus:ring-opacity-50 mt-0.5 rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200"
+							disabled={isLoading}
 						/>
-						<span class="ml-2 text-sm text-gray-600">로그인 상태 유지</span>
+						<span class="ml-2 text-sm text-gray-600">
+							<a
+								href="/terms"
+								data-sveltekit-preload-data
+								class="font-medium text-blue-600 hover:text-blue-500">이용약관</a
+							>
+							및
+							<a
+								href="/privacy"
+								data-sveltekit-preload-data
+								class="font-medium text-blue-600 hover:text-blue-500">개인정보처리방침</a
+							>에 동의합니다
+						</span>
 					</label>
-					<a
-						href="/auth/forgot-password"
-						data-sveltekit-preload-data
-						class="text-sm font-medium text-blue-600 transition-colors duration-200 hover:text-blue-500"
-					>
-						비밀번호 찾기
-					</a>
 				</div>
 
 				<Button
 					variant="primary"
 					type="submit"
-					disabled={isLoading}
+					disabled={isLoading || !agreeToTerms}
 					class="w-full transform py-3 text-lg font-semibold shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl"
 				>
 					{#if isLoading}
 						<div class="flex items-center justify-center">
 							<i class="fas fa-spinner fa-spin mr-2"></i>
-							로그인 중...
+							회원가입 중...
 						</div>
 					{:else}
 						<div class="flex items-center justify-center">
-							<i class="fas fa-sign-in-alt mr-2"></i>
-							로그인
+							<i class="fas fa-user-plus mr-2"></i>
+							회원가입
 						</div>
 					{/if}
 				</Button>
 			</form>
 
-			<!-- 소셜 로그인 (추후 확장 가능) -->
+			<!-- 소셜 회원가입 (추후 확장 가능) -->
 			<!-- <div class="mt-8">
         <div class="relative">
           <div class="absolute inset-0 flex items-center">
@@ -182,13 +224,13 @@
 
 			<div class="mt-8 space-y-2 text-center">
 				<p class="text-gray-600">
-					계정이 없으신가요?
+					이미 계정이 있으신가요?
 					<a
-						href="/auth/register"
+						href="/auth/login"
 						data-sveltekit-preload-data
 						class="font-semibold text-blue-600 transition-colors duration-200 hover:text-blue-500"
 					>
-						회원가입
+						로그인
 					</a>
 				</p>
 				<a
