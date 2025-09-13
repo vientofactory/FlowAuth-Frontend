@@ -54,12 +54,10 @@ class AuthStore {
 
 	// 로그인
 	async login(email: string, password: string) {
-		console.log('Attempting login for:', email); // 로그인 시도 로깅
 		authState.update((state) => ({ ...state, isLoading: true }));
 
 		try {
 			const result = await apiClient.login({ email, password });
-			console.log('Login successful for:', email); // 성공 로깅
 			authState.update((state) => ({
 				...state,
 				user: result.user,
@@ -68,7 +66,6 @@ class AuthStore {
 			}));
 			return result;
 		} catch (error) {
-			console.error('Login failed for:', email, error); // 실패 로깅
 			authState.update((state) => ({ ...state, isLoading: false }));
 			throw error;
 		}

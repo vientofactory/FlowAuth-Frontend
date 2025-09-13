@@ -22,7 +22,7 @@
 			if (timeoutId) {
 				clearTimeout(timeoutId);
 			}
-			
+
 			// duration 후에 토스트 숨기기
 			timeoutId = setTimeout(() => {
 				// 부모 컴포넌트에 토스트가 숨겨졌음을 알림 (필요시)

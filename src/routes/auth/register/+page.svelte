@@ -46,25 +46,21 @@
 				firstName,
 				lastName
 			};
-			
-			console.log('Attempting registration for:', email); // 디버깅용 로그
-			const result = await apiClient.register(userData);
-			console.log('Registration successful:', result); // 성공 로깅
-			
-			toast.success('회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.');
-			
-			// 성공 시 로그인 페이지로 리다이렉트
+
+			await apiClient.register(userData);
+
+			toast.success('회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.'); // 성공 시 로그인 페이지로 리다이렉트
 			setTimeout(() => {
 				window.location.href = '/auth/login';
 			}, 2000);
 		} catch (err) {
-			console.error('Registration error:', err); // 디버깅용 로그
 			const errorMessage = err instanceof Error ? err.message : '회원가입에 실패했습니다.';
 			toast.error(errorMessage);
 		} finally {
 			isLoading = false;
 		}
-	}	function handleKeyPress(event: KeyboardEvent) {
+	}
+	function handleKeyPress(event: KeyboardEvent) {
 		if (event.key === 'Enter') {
 			handleRegister();
 		}

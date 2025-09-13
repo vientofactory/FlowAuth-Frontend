@@ -83,8 +83,6 @@ class ApiClient {
 
 			return await response.json();
 		} catch (error) {
-			console.error(`Network Error for ${url}:`, error); // 네트워크 에러 로깅
-
 			if (this.shouldRetryNetworkError(error, retryCount)) {
 				await this.delay(this.retryDelay * Math.pow(2, retryCount));
 				return this.request<T>(endpoint, options, retryCount + 1, skipAuthRedirect);
@@ -126,7 +124,6 @@ class ApiClient {
 
 	private createErrorFromResponse(errorData: ApiError, status: number): Error {
 		const message = errorData.message || `HTTP ${status}`;
-		console.error(`API Error [${status}]:`, message, errorData); // 상세한 에러 로깅
 
 		const error = new Error(message);
 		(error as Error & { status?: number; code?: string }).status = status;
@@ -197,10 +194,11 @@ class ApiClient {
 
 	logout(): void {
 		this.removeToken();
-	} // 디버깅용: 현재 토큰 상태 확인
+	}
+
+	// 디버깅용: 현재 토큰 상태 확인
 	debugToken(): void {
-		const token = this.getToken();
-		console.log('Current token:', token ? `${token.substring(0, 20)}...` : 'No token');
+		// Token debugging removed for production
 	}
 
 	// 클라이언트 관리 API

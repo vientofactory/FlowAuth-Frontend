@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { toastStore, toast } from '$lib/stores/toast';
 	import type { ToastMessage } from '$lib/stores/toast';
-	import { fade, fly } from 'svelte/transition';
+	import { fly } from 'svelte/transition';
 
 	let toasts: ToastMessage[] = [];
 
 	// 토스트 스토어 구독
-	toastStore.subscribe(value => {
+	toastStore.subscribe((value) => {
 		toasts = value;
 	});
 
@@ -67,7 +67,7 @@
 		{#each toasts as toastItem (toastItem.id)}
 			{@const colors = getColors(toastItem.type)}
 			{@const iconClass = getIcon(toastItem.type)}
-			
+
 			<div
 				class="toast-item animate-slide-in-right flex items-center rounded-lg border-l-4 px-4 py-3 shadow-lg backdrop-blur-sm {colors.border} {colors.background}"
 				transition:fly={{ x: 300, duration: 300 }}
@@ -106,7 +106,7 @@
 			top: 1rem;
 			max-width: none;
 		}
-		
+
 		.toast-item {
 			min-width: auto;
 			max-width: none;

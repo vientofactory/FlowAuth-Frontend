@@ -13,8 +13,6 @@
 	const toast = useToast();
 
 	onMount(async () => {
-		console.log('Dashboard: Initializing...');
-		
 		// 인증 상태 초기화
 		await authStore.initialize();
 
@@ -23,11 +21,6 @@
 			user = state.user;
 			isLoading = state.isLoading;
 			isAuthenticated = state.isAuthenticated;
-			console.log('Dashboard: Auth state changed:', {
-				user: !!user,
-				isLoading,
-				isAuthenticated
-			});
 		});
 	});
 
@@ -40,16 +33,14 @@
 	// 인증 상태에 따른 리다이렉트 처리
 	$effect(() => {
 		if (!isLoading && !isAuthenticated) {
-			console.log('Dashboard: User not authenticated, redirecting to login');
 			window.location.href = '/auth/login';
 		}
 	});
 
 	function handleLogout() {
-		console.log('Dashboard: Logging out...');
 		toast.info('로그아웃 중입니다...');
 		authStore.logout();
-		
+
 		setTimeout(() => {
 			window.location.href = '/auth/login';
 		}, 1000);
@@ -198,15 +189,27 @@
 						<i class="fas fa-check mr-2"></i>
 						성공
 					</Button>
-					<Button variant="secondary" onclick={showErrorToast} class="w-full bg-red-600 hover:bg-red-700">
+					<Button
+						variant="secondary"
+						onclick={showErrorToast}
+						class="w-full bg-red-600 hover:bg-red-700"
+					>
 						<i class="fas fa-times mr-2"></i>
 						에러
 					</Button>
-					<Button variant="outline" onclick={showWarningToast} class="w-full border-yellow-500 text-yellow-600 hover:bg-yellow-50">
+					<Button
+						variant="outline"
+						onclick={showWarningToast}
+						class="w-full border-yellow-500 text-yellow-600 hover:bg-yellow-50"
+					>
 						<i class="fas fa-exclamation-triangle mr-2"></i>
 						경고
 					</Button>
-					<Button variant="outline" onclick={showInfoToast} class="w-full border-blue-500 text-blue-600 hover:bg-blue-50">
+					<Button
+						variant="outline"
+						onclick={showInfoToast}
+						class="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
+					>
 						<i class="fas fa-info-circle mr-2"></i>
 						정보
 					</Button>

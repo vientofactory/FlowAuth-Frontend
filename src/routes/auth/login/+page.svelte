@@ -12,7 +12,7 @@
 
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault(); // 폼 기본 동작 방지
-		
+
 		if (!email || !password) {
 			toast.warning(MESSAGES.VALIDATION.EMAIL_PASSWORD_REQUIRED);
 			return;
@@ -31,7 +31,6 @@
 				window.location.href = ROUTES.DASHBOARD;
 			}, APP_CONSTANTS.REDIRECT_DELAY);
 		} catch (err) {
-			console.error('Login error:', err); // 디버깅용 로그 추가
 			const errorMessage = err instanceof Error ? err.message : MESSAGES.VALIDATION.LOGIN_FAILED;
 			toast.error(errorMessage);
 		} finally {
