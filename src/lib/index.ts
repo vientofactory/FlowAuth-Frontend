@@ -12,6 +12,7 @@ export { default as Tabs } from './components/Tabs.svelte';
 export { default as Badge } from './components/Badge.svelte';
 export { default as Dropdown } from './components/Dropdown.svelte';
 export { default as Loading } from './components/Loading.svelte';
+export { default as DashboardLayout } from './components/DashboardLayout.svelte';
 
 // Composables
 export { useToast } from './composables/useToast';

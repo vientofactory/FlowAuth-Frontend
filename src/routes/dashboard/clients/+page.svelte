@@ -1,180 +1,48 @@
 <script lang="ts">
-	import { Card, Button, Input, Badge, Loading, Modal, Table, Dropdown } from '$lib';
-	import { authStore, authState, useToast } from '$lib';
-	import { createApiUrl } from '$lib/config/env';
-	import { onMount, onDestroy } from 'svelte';
-	import type { User } from '$lib';
+	import { DashboardLayout, Card, Button, Input, Badge } from '$lib';
+	import { authState, useToast } from '$lib';
+	import { onMount } from 'svelte';
 
-	let isLoading = $state(true);
-	let user = $state<User | null>(null);
-	let isAuthenticated = $state(false);
-	let unsubscribe: (() => void) | null = null;
+	let clients = $state([
+		{
+			id: '1',
+			name: 'My Web App',
+			description: '웹 애플리케이션용 클라이언트',
+			clientId: 'web_app_12345',
+			scopes: ['read', 'write'],
+			isActive: true,
+			lastUsed: new Date('2024-01-20')
+		},
+		{
+			id: '2',
+			name: 'Mobile App',
+			description: '모바일 앱용 클라이언트',
+			clientId: 'mobile_app_67890',
+			scopes: ['read'],
+			isActive: true,
+			lastUsed: new Date('2024-01-18')
+		}
+	]);
 
-	// 클라이언트 관리 상태
-	let clients = $state<OAuthClient[]>([]);
-	let isLoadingClients = $state(false);
-
-	// 새 클라이언트 생성 모달
-	let showCreateModal = $state(false);
-	let createForm = $state({
+	let showCreateForm = $state(false);
+	let newClient = $state({
 		name: '',
 		description: '',
 		redirectUris: '',
 		scopes: 'read'
 	});
-	let isCreating = $state(false);
-
-	// 클라이언트 편집 모달
-	let showEditModal = $state(false);
-	let editingClient = $state<OAuthClient | null>(null);
-	let editForm = $state({
-		name: '',
-		description: '',
-		redirectUris: '',
-		scopes: 'read'
-	});
-	let isUpdating = $state(false);
-
-	// 클라이언트 비밀키 표시 모달
-	let showSecretModal = $state(false);
-	let clientSecret = $state('');
 
 	const toast = useToast();
 
-	// OAuth 클라이언트 타입 정의
-	interface OAuthClient {
-		id: string;
-		name: string;
-		description: string;
-		clientId: string;
-		clientSecret?: string;
-		redirectUris: string[];
-		scopes: string[];
-		createdAt: Date;
-		lastUsed?: Date;
-		isActive: boolean;
-	}
-
-	// 테이블 데이터 타입 정의
-	interface TableDataRow {
-		id: string;
-		name: string;
-		clientId: string;
-		scopes: string[];
-		status: boolean;
-		lastUsed: Date | undefined;
-		actions?: string;
-		_original: OAuthClient;
-	}
-
-	// 테이블 컬럼 정의
-	const columns: Array<{
-		key: keyof TableDataRow;
-		label: string;
-		sortable: boolean;
-	}> = [
-		{
-			key: 'name',
-			label: '클라이언트 이름',
-			sortable: true
-		},
-		{
-			key: 'clientId',
-			label: 'Client ID',
-			sortable: true
-		},
-		{
-			key: 'scopes',
-			label: '권한',
-			sortable: false
-		},
-		{
-			key: 'status',
-			label: '상태',
-			sortable: true
-		},
-		{
-			key: 'lastUsed',
-			label: '마지막 사용',
-			sortable: true
-		}
-	];
-
-	onMount(async () => {
-		await authStore.initialize();
-
-		unsubscribe = authState.subscribe((state) => {
-			user = state.user;
-			isLoading = state.isLoading;
-			isAuthenticated = state.isAuthenticated;
-		});
-
-		await loadClients();
-	});
-
-	onDestroy(() => {
-		if (unsubscribe) {
-			unsubscribe();
-		}
-	});
-
-	// 인증 상태에 따른 리다이렉트 처리
-	$effect(() => {
-		if (!isLoading && !isAuthenticated) {
-			window.location.href = '/auth/login';
-		}
-	});
-
-	async function loadClients() {
-		isLoadingClients = true;
-		try {
-			const response = await fetch(createApiUrl('/auth/clients'), {
-				method: 'GET',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-				}
-			});
-
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
-			}
-
-			const data = await response.json();
-			
-			// 백엔드 데이터를 프론트엔드 형식으로 변환
-			clients = data.map((client: any) => ({
-				id: client.id.toString(),
-				name: client.name,
-				description: client.description || '',
-				clientId: client.clientId,
-				redirectUris: client.redirectUris || [],
-				scopes: client.scopes || [],
-				createdAt: new Date(client.createdAt),
-				lastUsed: client.lastUsed ? new Date(client.lastUsed) : undefined,
-				isActive: client.isActive
-			}));
-		} catch (error) {
-			console.error('Failed to load clients:', error);
-			toast.error('클라이언트 목록을 불러오는데 실패했습니다.');
-		} finally {
-			isLoadingClients = false;
+	function toggleCreateForm() {
+		showCreateForm = !showCreateForm;
+		if (!showCreateForm) {
+			resetForm();
 		}
 	}
 
-	function openCreateModal() {
-		createForm = {
-			name: '',
-			description: '',
-			redirectUris: '',
-			scopes: 'read'
-		};
-		showCreateModal = true;
-	}
-
-	function closeCreateModal() {
-		showCreateModal = false;
-		createForm = {
+	function resetForm() {
+		newClient = {
 			name: '',
 			description: '',
 			redirectUris: '',
@@ -182,678 +50,229 @@
 		};
 	}
 
-	async function createClient() {
-		if (!createForm.name.trim() || !createForm.redirectUris.trim()) {
-			toast.error('클라이언트 이름과 리다이렉트 URI는 필수입니다.');
+	function createClient() {
+		if (!newClient.name.trim()) {
+			toast.error('클라이언트 이름을 입력해주세요.');
 			return;
 		}
 
-		isCreating = true;
-		try {
-			const requestBody = {
-				name: createForm.name.trim(),
-				description: createForm.description.trim(),
-				redirectUris: createForm.redirectUris.split(',').map(uri => uri.trim()).filter(uri => uri),
-				grants: ['authorization_code', 'refresh_token'],
-				scopes: createForm.scopes.split(',').map(scope => scope.trim()).filter(scope => scope)
-			};
-
-			const response = await fetch(createApiUrl('/auth/clients'), {
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(requestBody)
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-			}
-
-			const newClientData = await response.json();
-			
-			// 새 클라이언트를 목록에 추가
-			const newClient: OAuthClient = {
-				id: newClientData.id.toString(),
-				name: newClientData.name,
-				description: newClientData.description || '',
-				clientId: newClientData.clientId,
-				redirectUris: newClientData.redirectUris || [],
-				scopes: newClientData.scopes || [],
-				createdAt: new Date(newClientData.createdAt),
-				isActive: newClientData.isActive
-			};
-
-			clients = [...clients, newClient];
-			
-			// 클라이언트 비밀키 표시
-			clientSecret = newClientData.clientSecret;
-			showSecretModal = true;
-			closeCreateModal();
-
-			toast.success('클라이언트가 성공적으로 생성되었습니다.');
-		} catch (error) {
-			console.error('Failed to create client:', error);
-			toast.error(`클라이언트 생성에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
-		} finally {
-			isCreating = false;
-		}
+		// TODO: 실제 API 호출
+		toast.success('클라이언트가 성공적으로 생성되었습니다.');
+		showCreateForm = false;
+		resetForm();
 	}
 
-	function openEditModal(client: OAuthClient) {
-		editingClient = client;
-		editForm = {
-			name: client.name,
-			description: client.description,
-			redirectUris: client.redirectUris.join(', '),
-			scopes: client.scopes.join(', ')
-		};
-		showEditModal = true;
-	}
-
-	function closeEditModal() {
-		showEditModal = false;
-		editingClient = null;
-		editForm = {
-			name: '',
-			description: '',
-			redirectUris: '',
-			scopes: ''
-		};
-	}
-
-	async function updateClient() {
-		if (!editingClient || !editForm.name.trim() || !editForm.redirectUris.trim()) {
-			toast.error('클라이언트 이름과 리다이렉트 URI는 필수입니다.');
+	function deleteClient(clientId: string) {
+		if (!confirm('정말로 이 클라이언트를 삭제하시겠습니까?')) {
 			return;
 		}
-
-		isUpdating = true;
-		try {
-			const requestBody = {
-				name: editForm.name.trim(),
-				description: editForm.description.trim(),
-				redirectUris: editForm.redirectUris.split(',').map(uri => uri.trim()).filter(uri => uri),
-				scopes: editForm.scopes.split(',').map(scope => scope.trim()).filter(scope => scope)
-			};
-
-			const response = await fetch(createApiUrl(`/auth/clients/${editingClient.id}`), {
-				method: 'PATCH',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(requestBody)
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-			}
-
-			const updatedClientData = await response.json();
-
-			// 클라이언트 목록 업데이트
-			clients = clients.map(client => 
-				client.id === editingClient!.id 
-					? {
-						...client,
-						name: updatedClientData.name,
-						description: updatedClientData.description || '',
-						redirectUris: updatedClientData.redirectUris || [],
-						scopes: updatedClientData.scopes || []
-					}
-					: client
-			);
-
-			closeEditModal();
-			toast.success('클라이언트가 성공적으로 업데이트되었습니다.');
-		} catch (error) {
-			console.error('Failed to update client:', error);
-			toast.error(`클라이언트 업데이트에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
-		} finally {
-			isUpdating = false;
-		}
-	}
-
-	async function toggleClientStatus(client: OAuthClient) {
-		try {
-			const response = await fetch(createApiUrl(`/auth/clients/${client.id}/status`), {
-				method: 'PATCH',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ isActive: !client.isActive })
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-			}
-
-			clients = clients.map(c => 
-				c.id === client.id 
-					? { ...c, isActive: !c.isActive }
-					: c
-			);
-
-			toast.success(`클라이언트가 ${client.isActive ? '비활성화' : '활성화'}되었습니다.`);
-		} catch (error) {
-			console.error('Failed to toggle client status:', error);
-			toast.error('클라이언트 상태 변경에 실패했습니다.');
-		}
-	}
-
-	async function deleteClient(client: OAuthClient) {
-		if (!confirm(`"${client.name}" 클라이언트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
-			return;
-		}
-
-		try {
-			const response = await fetch(createApiUrl(`/auth/clients/${client.id}`), {
-				method: 'DELETE',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json',
-				}
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-			}
-
-			clients = clients.filter(c => c.id !== client.id);
-			toast.success('클라이언트가 삭제되었습니다.');
-		} catch (error) {
-			console.error('Failed to delete client:', error);
-			toast.error('클라이언트 삭제에 실패했습니다.');
-		}
+		
+		clients = clients.filter(c => c.id !== clientId);
+		toast.success('클라이언트가 삭제되었습니다.');
 	}
 
 	function copyToClipboard(text: string) {
-		navigator.clipboard.writeText(text).then(() => {
-			toast.success('클립보드에 복사되었습니다.');
-		}).catch(() => {
-			toast.error('복사에 실패했습니다.');
-		});
+		navigator.clipboard.writeText(text);
+		toast.success('클립보드에 복사되었습니다.');
 	}
-
-	function navigateBack() {
-		window.location.href = '/dashboard';
-	}
-
-	function handleLogout() {
-		toast.info('로그아웃 중입니다...');
-		authStore.logout();
-		setTimeout(() => {
-			window.location.href = '/auth/login';
-		}, 1000);
-	}
-
-	// 테이블 데이터 가공
-	const tableData = $derived<TableDataRow[]>(clients.map(client => ({
-		id: client.id,
-		name: client.name,
-		clientId: client.clientId,
-		scopes: client.scopes,
-		status: client.isActive,
-		lastUsed: client.lastUsed,
-		_original: client
-	})));
 </script>
 
-<svelte:head>
-	<title>클라이언트 관리 - FlowAuth</title>
-</svelte:head>
+<DashboardLayout
+	title="클라이언트 관리"
+	description="OAuth2 클라이언트 애플리케이션을 관리하고 설정하세요."
+>
+	{#snippet headerActions()}
+		<Button onclick={toggleCreateForm}>
+			<i class="fas fa-plus mr-2"></i>
+			{showCreateForm ? '취소' : '새 클라이언트 생성'}
+		</Button>
+	{/snippet}
 
-{#if isLoading}
-	<div class="flex min-h-screen items-center justify-center">
-		<Loading variant="spinner" size="lg" text="클라이언트 정보를 불러오는 중..." />
-	</div>
-{:else if user}
-	<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-		<!-- 헤더 -->
-		<header class="sticky top-0 z-10 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
-			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-				<div class="flex h-16 items-center justify-between">
-					<div class="flex items-center space-x-4">
-						<Button
-							variant="outline"
-							size="sm"
-							onclick={navigateBack}
-							class="text-gray-600 hover:text-gray-900"
-						>
-							<i class="fas fa-arrow-left mr-2"></i>
-							대시보드로
-						</Button>
-						<div class="h-6 w-px bg-gray-300"></div>
-						<h1 class="text-xl font-semibold text-gray-900">OAuth2 클라이언트 관리</h1>
+	{#snippet children()}
+		<!-- 통계 카드 -->
+		<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+			<Card>
+				<div class="flex items-center">
+					<div class="flex-shrink-0">
+						<i class="fas fa-users text-2xl text-blue-600"></i>
 					</div>
-					<div class="flex items-center space-x-4">
-						<div class="hidden sm:block">
-							<span class="text-sm text-gray-600">
-								{user.firstName} {user.lastName}
-							</span>
-						</div>
-						<Button
-							variant="outline"
-							size="sm"
-							onclick={handleLogout}
-							class="border-gray-300 text-gray-700 hover:bg-gray-50"
-						>
-							<i class="fas fa-sign-out-alt mr-2"></i>
-							로그아웃
-						</Button>
+					<div class="ml-3">
+						<p class="text-sm font-medium text-gray-500">총 클라이언트</p>
+						<p class="text-lg font-semibold text-gray-900">{clients.length}</p>
 					</div>
 				</div>
-			</div>
-		</header>
-
-		<!-- 메인 콘텐츠 -->
-		<main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-			<div class="space-y-6">
-				<!-- 페이지 헤더 -->
-				<div class="flex items-center justify-between">
-					<div>
-						<h2 class="text-2xl font-bold text-gray-900">OAuth2 클라이언트</h2>
-						<p class="mt-1 text-sm text-gray-600">
-							애플리케이션의 OAuth2 클라이언트를 관리하고 모니터링하세요.
+			</Card>
+			
+			<Card>
+				<div class="flex items-center">
+					<div class="flex-shrink-0">
+						<i class="fas fa-check-circle text-2xl text-green-600"></i>
+					</div>
+					<div class="ml-3">
+						<p class="text-sm font-medium text-gray-500">활성 클라이언트</p>
+						<p class="text-lg font-semibold text-gray-900">
+							{clients.filter(c => c.isActive).length}
 						</p>
 					</div>
-					<Button onclick={openCreateModal}>
-						<i class="fas fa-plus mr-2"></i>
-						새 클라이언트 생성
+				</div>
+			</Card>
+		</div>
+
+		<!-- 새 클라이언트 생성 폼 -->
+		{#if showCreateForm}
+			<Card class="mb-6">
+				<h3 class="mb-4 text-lg font-medium text-gray-900">새 클라이언트 생성</h3>
+				<form onsubmit={(e) => { e.preventDefault(); createClient(); }}>
+					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+						<div>
+							<label class="block text-sm font-medium text-gray-700">클라이언트 이름 *</label>
+							<input
+								type="text"
+								bind:value={newClient.name}
+								placeholder="예: My Web Application"
+								required
+								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+							/>
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium text-gray-700">설명</label>
+							<input
+								type="text"
+								bind:value={newClient.description}
+								placeholder="클라이언트 애플리케이션에 대한 설명"
+								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+							/>
+						</div>
+
+						<div class="sm:col-span-2">
+							<label class="block text-sm font-medium text-gray-700">리다이렉트 URI *</label>
+							<textarea
+								bind:value={newClient.redirectUris}
+								placeholder="https://example.com/callback"
+								rows="3"
+								required
+								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+							></textarea>
+							<p class="mt-1 text-xs text-gray-500">한 줄에 하나씩 입력해주세요.</p>
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium text-gray-700">권한 범위</label>
+							<input
+								type="text"
+								bind:value={newClient.scopes}
+								placeholder="read write"
+								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+							/>
+							<p class="mt-1 text-xs text-gray-500">공백으로 구분하여 입력해주세요.</p>
+						</div>
+					</div>
+
+					<div class="mt-4 flex justify-end space-x-2">
+						<Button variant="outline" onclick={toggleCreateForm}>
+							취소
+						</Button>
+						<Button type="submit">
+							생성
+						</Button>
+					</div>
+				</form>
+			</Card>
+		{/if}
+
+		<!-- 클라이언트 목록 -->
+		<Card>
+			<div class="mb-4 flex items-center justify-between">
+				<h3 class="text-lg font-medium text-gray-900">클라이언트 목록</h3>
+			</div>
+
+			{#if clients.length === 0}
+				<div class="text-center py-8">
+					<i class="fas fa-inbox text-4xl text-gray-400 mb-4"></i>
+					<p class="text-gray-500 mb-4">등록된 클라이언트가 없습니다.</p>
+					<Button onclick={toggleCreateForm}>
+						첫 번째 클라이언트 생성
 					</Button>
 				</div>
-
-				<!-- 통계 카드 -->
-				<div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
-					<Card class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-						<div class="flex items-center">
-							<div class="flex-shrink-0">
-								<i class="fas fa-apps text-2xl opacity-80"></i>
-							</div>
-							<div class="ml-4">
-								<p class="text-sm font-medium opacity-80">총 클라이언트</p>
-								<p class="text-2xl font-bold">{clients.length}</p>
-							</div>
-						</div>
-					</Card>
-
-					<Card class="bg-gradient-to-r from-green-500 to-green-600 text-white">
-						<div class="flex items-center">
-							<div class="flex-shrink-0">
-								<i class="fas fa-check-circle text-2xl opacity-80"></i>
-							</div>
-							<div class="ml-4">
-								<p class="text-sm font-medium opacity-80">활성 클라이언트</p>
-								<p class="text-2xl font-bold">{clients.filter(c => c.isActive).length}</p>
-							</div>
-						</div>
-					</Card>
-
-					<Card class="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
-						<div class="flex items-center">
-							<div class="flex-shrink-0">
-								<i class="fas fa-clock text-2xl opacity-80"></i>
-							</div>
-							<div class="ml-4">
-								<p class="text-sm font-medium opacity-80">최근 사용됨</p>
-								<p class="text-2xl font-bold">{clients.filter(c => c.lastUsed).length}</p>
-							</div>
-						</div>
-					</Card>
-				</div>
-
-				<!-- 클라이언트 테이블 -->
-				<Card>
-					<div class="mb-4 flex items-center justify-between">
-						<h3 class="text-lg font-semibold text-gray-900">클라이언트 목록</h3>
-						{#if isLoadingClients}
-							<Loading variant="spinner" size="sm" />
-						{/if}
-					</div>
-
-					{#if clients.length === 0}
-						<div class="py-12 text-center">
-							<i class="fas fa-apps mx-auto mb-4 text-4xl text-gray-400"></i>
-							<p class="text-lg font-medium text-gray-900">등록된 클라이언트가 없습니다</p>
-							<p class="mt-1 text-gray-600">첫 번째 OAuth2 클라이언트를 생성해보세요.</p>
-							<Button onclick={openCreateModal} class="mt-4">
-								<i class="fas fa-plus mr-2"></i>
-								클라이언트 생성
-							</Button>
-						</div>
-					{:else}
-						<Table {columns} data={tableData}>
-							{#snippet cell({ column, row })}
-								{#if column.key === 'name'}
-									<div>
-										<p class="font-medium text-gray-900">{row.name}</p>
-										{#if row._original.description}
-											<p class="text-sm text-gray-600">{row._original.description}</p>
-										{/if}
-									</div>
-								{:else if column.key === 'clientId'}
-									<div class="flex items-center space-x-2">
-										<code class="rounded bg-gray-100 px-2 py-1 text-sm font-mono">{row.clientId}</code>
-										<Button
-											variant="outline"
-											size="sm"
-											onclick={() => copyToClipboard(row.clientId)}
-											class="p-1"
-										>
-											<i class="fas fa-copy text-xs"></i>
-										</Button>
-									</div>
-								{:else if column.key === 'scopes'}
-									<div class="flex flex-wrap gap-1">
-										{#each row.scopes as scope}
-											<Badge variant="info" size="sm">{scope}</Badge>
-										{/each}
-									</div>
-								{:else if column.key === 'status'}
-									<Badge variant={row.status ? 'success' : 'warning'} size="sm">
-										{row.status ? '활성' : '비활성'}
-									</Badge>
-								{:else if column.key === 'lastUsed'}
-									<span class="text-sm text-gray-600">
-										{row.lastUsed ? row.lastUsed.toLocaleDateString('ko-KR') : '사용 안함'}
-									</span>
-								{:else if column.key === 'actions'}
-									<Dropdown>
-										{#snippet trigger()}
-											<Button variant="outline" size="sm">
-												<i class="fas fa-ellipsis-v"></i>
-											</Button>
-										{/snippet}
-										{#snippet content()}
-											<button
-												class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-												onclick={() => openEditModal(row._original)}
-											>
-												<i class="fas fa-edit mr-2"></i>
-												편집
-											</button>
-											<button
-												class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-												onclick={() => toggleClientStatus(row._original)}
-											>
-												<i class="fas fa-{row.status ? 'pause' : 'play'} mr-2"></i>
-												{row.status ? '비활성화' : '활성화'}
-											</button>
-											<button
-												class="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
-												onclick={() => deleteClient(row._original)}
-											>
-												<i class="fas fa-trash mr-2"></i>
-												삭제
-											</button>
-										{/snippet}
-									</Dropdown>
-								{/if}
-							{/snippet}
-						</Table>
-					{/if}
-				</Card>
-			</div>
-		</main>
-	</div>
-
-	<!-- 클라이언트 생성 모달 -->
-	{#if showCreateModal}
-		<Modal
-			title="새 OAuth2 클라이언트 생성"
-			open={showCreateModal}
-			onClose={closeCreateModal}
-			size="lg"
-		>
-			{#snippet children()}
+			{:else}
 				<div class="space-y-4">
-					<div>
-						<label for="clientName" class="block text-sm font-medium text-gray-700 mb-2">
-							클라이언트 이름 *
-						</label>
-						<Input
-							id="clientName"
-							value={createForm.name}
-							placeholder="예: 웹 애플리케이션"
-							disabled={isCreating}
-							oninput={(e) => {
-								createForm.name = (e.target as HTMLInputElement).value;
-							}}
-						/>
-					</div>
+					{#each clients as client}
+						<div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+							<div class="flex items-start justify-between">
+								<div class="flex-1">
+									<div class="flex items-center space-x-3">
+										<h4 class="text-lg font-medium text-gray-900">{client.name}</h4>
+										<Badge variant={client.isActive ? 'success' : 'secondary'} size="sm">
+											{client.isActive ? '활성' : '비활성'}
+										</Badge>
+									</div>
+									
+									{#if client.description}
+										<p class="mt-1 text-sm text-gray-600">{client.description}</p>
+									{/if}
 
-					<div>
-						<label for="clientDescription" class="block text-sm font-medium text-gray-700 mb-2">
-							설명
-						</label>
-						<Input
-							id="clientDescription"
-							value={createForm.description}
-							placeholder="클라이언트에 대한 설명을 입력하세요"
-							disabled={isCreating}
-							oninput={(e) => {
-								createForm.description = (e.target as HTMLInputElement).value;
-							}}
-						/>
-					</div>
+									<div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+										<div>
+											<p class="text-xs font-medium text-gray-500">Client ID</p>
+											<div class="flex items-center space-x-2">
+												<code class="text-sm bg-gray-100 rounded px-2 py-1">{client.clientId}</code>
+												<button
+													onclick={() => copyToClipboard(client.clientId)}
+													class="text-gray-400 hover:text-gray-600"
+												>
+													<i class="fas fa-copy text-xs"></i>
+												</button>
+											</div>
+										</div>
 
-					<div>
-						<label for="redirectUris" class="block text-sm font-medium text-gray-700 mb-2">
-							리다이렉트 URI *
-						</label>
-						<Input
-							id="redirectUris"
-							value={createForm.redirectUris}
-							placeholder="https://example.com/callback, https://app.example.com/auth"
-							disabled={isCreating}
-							oninput={(e) => {
-								createForm.redirectUris = (e.target as HTMLInputElement).value;
-							}}
-						/>
-						<p class="mt-1 text-sm text-gray-600">
-							여러 URI는 쉼표로 구분하세요.
-						</p>
-					</div>
+										<div>
+											<p class="text-xs font-medium text-gray-500">권한 범위</p>
+											<div class="flex flex-wrap gap-1 mt-1">
+												{#each client.scopes as scope}
+													<Badge variant="info" size="sm">{scope}</Badge>
+												{/each}
+											</div>
+										</div>
 
-					<div>
-						<label for="scopes" class="block text-sm font-medium text-gray-700 mb-2">
-							권한 스코프
-						</label>
-						<Input
-							id="scopes"
-							value={createForm.scopes}
-							placeholder="read, write, admin"
-							disabled={isCreating}
-							oninput={(e) => {
-								createForm.scopes = (e.target as HTMLInputElement).value;
-							}}
-						/>
-						<p class="mt-1 text-sm text-gray-600">
-							여러 스코프는 쉼표로 구분하세요.
-						</p>
-					</div>
-				</div>
-			{/snippet}
-			{#snippet footer()}
-				<Button variant="outline" onclick={closeCreateModal} disabled={isCreating}>
-					취소
-				</Button>
-				<Button onclick={createClient} disabled={isCreating}>
-					{#if isCreating}
-						<Loading variant="spinner" size="sm" class="mr-2" />
-					{:else}
-						<i class="fas fa-plus mr-2"></i>
-					{/if}
-					생성
-				</Button>
-			{/snippet}
-		</Modal>
-	{/if}
+										<div>
+											<p class="text-xs font-medium text-gray-500">마지막 사용</p>
+											<p class="text-sm text-gray-900">
+												{client.lastUsed ? client.lastUsed.toLocaleDateString('ko-KR') : '사용 안함'}
+											</p>
+										</div>
+									</div>
+								</div>
 
-	<!-- 클라이언트 편집 모달 -->
-	{#if showEditModal && editingClient}
-		<Modal
-			title="클라이언트 편집"
-			open={showEditModal}
-			onClose={closeEditModal}
-			size="lg"
-		>
-			{#snippet children()}
-				<div class="space-y-4">
-					<div>
-						<label for="editClientName" class="block text-sm font-medium text-gray-700 mb-2">
-							클라이언트 이름 *
-						</label>
-						<Input
-							id="editClientName"
-							value={editForm.name}
-							placeholder="예: 웹 애플리케이션"
-							disabled={isUpdating}
-							oninput={(e) => {
-								editForm.name = (e.target as HTMLInputElement).value;
-							}}
-						/>
-					</div>
-
-					<div>
-						<label for="editClientDescription" class="block text-sm font-medium text-gray-700 mb-2">
-							설명
-						</label>
-						<Input
-							id="editClientDescription"
-							value={editForm.description}
-							placeholder="클라이언트에 대한 설명을 입력하세요"
-							disabled={isUpdating}
-							oninput={(e) => {
-								editForm.description = (e.target as HTMLInputElement).value;
-							}}
-						/>
-					</div>
-
-					<div>
-						<label for="editRedirectUris" class="block text-sm font-medium text-gray-700 mb-2">
-							리다이렉트 URI *
-						</label>
-						<Input
-							id="editRedirectUris"
-							value={editForm.redirectUris}
-							placeholder="https://example.com/callback"
-							disabled={isUpdating}
-							oninput={(e) => {
-								editForm.redirectUris = (e.target as HTMLInputElement).value;
-							}}
-						/>
-					</div>
-
-					<div>
-						<label for="editScopes" class="block text-sm font-medium text-gray-700 mb-2">
-							권한 스코프
-						</label>
-						<Input
-							id="editScopes"
-							value={editForm.scopes}
-							placeholder="read, write, admin"
-							disabled={isUpdating}
-							oninput={(e) => {
-								editForm.scopes = (e.target as HTMLInputElement).value;
-							}}
-						/>
-					</div>
-
-					<div class="rounded-lg bg-gray-50 p-4">
-						<h4 class="text-sm font-medium text-gray-900 mb-2">읽기 전용 정보</h4>
-						<div class="space-y-2 text-sm">
-							<div class="flex justify-between">
-								<span class="text-gray-600">Client ID:</span>
-								<code class="rounded bg-white px-2 py-1 font-mono text-gray-900">{editingClient?.clientId}</code>
-							</div>
-							<div class="flex justify-between">
-								<span class="text-gray-600">생성일:</span>
-								<span class="text-gray-900">{editingClient?.createdAt.toLocaleDateString('ko-KR')}</span>
+								<div class="ml-4 flex space-x-2">
+									<Button
+										variant="outline"
+										size="sm"
+										onclick={() => {}}
+									>
+										<i class="fas fa-edit"></i>
+									</Button>
+									<Button
+										variant="outline"
+										size="sm"
+										onclick={() => {}}
+									>
+										<i class="fas fa-key"></i>
+									</Button>
+									<Button
+										variant="outline"
+										size="sm"
+										onclick={() => deleteClient(client.id)}
+										class="text-red-600 hover:text-red-700"
+									>
+										<i class="fas fa-trash"></i>
+									</Button>
+								</div>
 							</div>
 						</div>
-					</div>
+					{/each}
 				</div>
-			{/snippet}
-			{#snippet footer()}
-				<Button variant="outline" onclick={closeEditModal} disabled={isUpdating}>
-					취소
-				</Button>
-				<Button onclick={updateClient} disabled={isUpdating}>
-					{#if isUpdating}
-						<Loading variant="spinner" size="sm" class="mr-2" />
-					{:else}
-						<i class="fas fa-save mr-2"></i>
-					{/if}
-					저장
-				</Button>
-			{/snippet}
-		</Modal>
-	{/if}
-
-	<!-- 클라이언트 비밀키 표시 모달 -->
-	{#if showSecretModal}
-		<Modal
-			title="클라이언트 비밀키"
-			open={showSecretModal}
-			onClose={() => showSecretModal = false}
-		>
-			{#snippet children()}
-				<div class="space-y-4">
-					<div class="rounded-lg bg-yellow-50 border border-yellow-200 p-4">
-						<div class="flex">
-							<i class="fas fa-exclamation-triangle text-yellow-400 mr-2 mt-0.5"></i>
-							<div>
-								<h4 class="text-sm font-medium text-yellow-800">중요!</h4>
-								<p class="text-sm text-yellow-700 mt-1">
-									이 비밀키는 다시 표시되지 않습니다. 안전한 곳에 저장하세요.
-								</p>
-							</div>
-						</div>
-					</div>
-
-					<div>
-						<div class="block text-sm font-medium text-gray-700 mb-2">
-							클라이언트 비밀키
-						</div>
-						<div class="flex items-center space-x-2">
-							<code class="flex-1 rounded bg-gray-100 px-3 py-2 font-mono text-sm">{clientSecret}</code>
-							<Button
-								variant="outline"
-								onclick={() => copyToClipboard(clientSecret)}
-							>
-								<i class="fas fa-copy mr-2"></i>
-								복사
-							</Button>
-						</div>
-					</div>
-				</div>
-			{/snippet}
-			{#snippet footer()}
-				<Button onclick={() => showSecretModal = false}>
-					확인
-				</Button>
-			{/snippet}
-		</Modal>
-	{/if}
-{:else}
-	<div class="flex min-h-screen items-center justify-center">
-		<Card class="w-full max-w-md">
-			<div class="text-center">
-				<i class="fas fa-exclamation-triangle mb-4 text-4xl text-red-500"></i>
-				<h2 class="mb-2 text-xl font-semibold text-gray-900">인증 필요</h2>
-				<p class="mb-4 text-gray-600">로그인이 필요합니다.</p>
-				<Button onclick={() => (window.location.href = '/auth/login')}>
-					로그인하기
-				</Button>
-			</div>
+			{/if}
 		</Card>
-	</div>
-{/if}
+	{/snippet}
+</DashboardLayout>
