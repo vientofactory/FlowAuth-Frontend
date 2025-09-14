@@ -1,38 +1,39 @@
 <script lang="ts">
-	import { DashboardLayout, Card, Button, Input, Badge } from '$lib';
+	import { DashboardLayout, Card, Button, Input, Badge, apiClient } from '$lib';
 	import { authState, useToast } from '$lib';
 	import { onMount } from 'svelte';
+	import type { Client } from '$lib/types/oauth.types';
 
-	let clients = $state([
-		{
-			id: '1',
-			name: 'My Web App',
-			description: '웹 애플리케이션용 클라이언트',
-			clientId: 'web_app_12345',
-			scopes: ['read', 'write'],
-			isActive: true,
-			lastUsed: new Date('2024-01-20')
-		},
-		{
-			id: '2',
-			name: 'Mobile App',
-			description: '모바일 앱용 클라이언트',
-			clientId: 'mobile_app_67890',
-			scopes: ['read'],
-			isActive: true,
-			lastUsed: new Date('2024-01-18')
-		}
-	]);
+	let clients = $state<Client[]>([]);
+	let isLoading = $state(true);
 
 	let showCreateForm = $state(false);
 	let newClient = $state({
 		name: '',
 		description: '',
 		redirectUris: '',
-		scopes: 'read'
+		grants: ['authorization_code'],
+		scopes: 'read write'
 	});
 
 	const toast = useToast();
+
+	onMount(async () => {
+		await loadClients();
+	});
+
+	async function loadClients() {
+		try {
+			isLoading = true;
+			const response = await apiClient.getClients();
+			clients = Array.isArray(response) ? response : [];
+		} catch (error) {
+			console.error('Failed to load clients:', error);
+			toast.error('클라이언트 목록을 불러오는데 실패했습니다.');
+		} finally {
+			isLoading = false;
+		}
+	}
 
 	function toggleCreateForm() {
 		showCreateForm = !showCreateForm;
@@ -46,34 +47,105 @@
 			name: '',
 			description: '',
 			redirectUris: '',
-			scopes: 'read'
+			grants: ['authorization_code'],
+			scopes: 'read write'
 		};
 	}
 
-	function createClient() {
+	async function createClient() {
 		if (!newClient.name.trim()) {
 			toast.error('클라이언트 이름을 입력해주세요.');
 			return;
 		}
 
-		// TODO: 실제 API 호출
-		toast.success('클라이언트가 성공적으로 생성되었습니다.');
-		showCreateForm = false;
-		resetForm();
+		if (!newClient.redirectUris.trim()) {
+			toast.error('리다이렉트 URI를 입력해주세요.');
+			return;
+		}
+
+		if (!newClient.scopes.trim()) {
+			toast.error('권한 범위를 입력해주세요.');
+			return;
+		}
+
+		try {
+			const redirectUris = newClient.redirectUris
+				.split('\n')
+				.map((uri) => uri.trim())
+				.filter((uri) => uri.length > 0);
+
+			const scopes = newClient.scopes
+				.split(' ')
+				.map((scope) => scope.trim())
+				.filter((scope) => scope.length > 0);
+
+			await apiClient.createClient({
+				name: newClient.name,
+				description: newClient.description || undefined,
+				redirectUris,
+				grants: newClient.grants,
+				scopes
+			});
+
+			toast.success('클라이언트가 성공적으로 생성되었습니다.');
+
+			showCreateForm = false;
+			resetForm();
+			await loadClients(); // 목록 새로고침
+		} catch (error) {
+			console.error('Failed to create client:', error);
+			toast.error('클라이언트 생성에 실패했습니다.');
+		}
 	}
 
-	function deleteClient(clientId: string) {
+	async function deleteClient(clientId: number) {
 		if (!confirm('정말로 이 클라이언트를 삭제하시겠습니까?')) {
 			return;
 		}
-		
-		clients = clients.filter(c => c.id !== clientId);
-		toast.success('클라이언트가 삭제되었습니다.');
+
+		try {
+			await apiClient.deleteClient(clientId);
+			toast.success('클라이언트가 삭제되었습니다.');
+			await loadClients(); // 목록 새로고침
+		} catch (error) {
+			console.error('Failed to delete client:', error);
+			toast.error('클라이언트 삭제에 실패했습니다.');
+		}
+	}
+
+	async function toggleClientStatus(client: Client) {
+		try {
+			await apiClient.updateClientStatus(client.id, !client.isActive);
+			toast.success(`클라이언트가 ${!client.isActive ? '활성화' : '비활성화'} 되었습니다.`);
+			await loadClients(); // 목록 새로고침
+		} catch (error) {
+			console.error('Failed to update client status:', error);
+			toast.error('클라이언트 상태 변경에 실패했습니다.');
+		}
 	}
 
 	function copyToClipboard(text: string) {
 		navigator.clipboard.writeText(text);
 		toast.success('클립보드에 복사되었습니다.');
+	}
+
+	// 임시 디버깅 함수들
+	function debugToken() {
+		apiClient.debugToken();
+	}
+
+	function clearTokens() {
+		apiClient.clearAllTokens();
+		toast.success('모든 토큰이 제거되었습니다. 다시 로그인해주세요.');
+	}
+
+	async function refreshToken() {
+		try {
+			await apiClient.refreshToken();
+			toast.success('토큰이 확인되었습니다.');
+		} catch (error) {
+			toast.error('토큰 새로고침에 실패했습니다. 다시 로그인해주세요.');
+		}
 	}
 </script>
 
@@ -82,10 +154,25 @@
 	description="OAuth2 클라이언트 애플리케이션을 관리하고 설정하세요."
 >
 	{#snippet headerActions()}
-		<Button onclick={toggleCreateForm}>
-			<i class="fas fa-plus mr-2"></i>
-			{showCreateForm ? '취소' : '새 클라이언트 생성'}
-		</Button>
+		<div class="flex gap-2">
+			<!-- 임시 디버깅 버튼들 -->
+			<Button variant="outline" onclick={debugToken}>
+				<i class="fas fa-bug mr-2"></i>
+				토큰 디버그
+			</Button>
+			<Button variant="outline" onclick={refreshToken}>
+				<i class="fas fa-sync mr-2"></i>
+				토큰 확인
+			</Button>
+			<Button variant="outline" onclick={clearTokens}>
+				<i class="fas fa-trash mr-2"></i>
+				토큰 초기화
+			</Button>
+			<Button onclick={toggleCreateForm}>
+				<i class="fas fa-plus mr-2"></i>
+				{showCreateForm ? '취소' : '새 클라이언트 생성'}
+			</Button>
+		</div>
 	{/snippet}
 
 	{#snippet children()}
@@ -102,7 +189,7 @@
 					</div>
 				</div>
 			</Card>
-			
+
 			<Card>
 				<div class="flex items-center">
 					<div class="flex-shrink-0">
@@ -111,7 +198,7 @@
 					<div class="ml-3">
 						<p class="text-sm font-medium text-gray-500">활성 클라이언트</p>
 						<p class="text-lg font-semibold text-gray-900">
-							{clients.filter(c => c.isActive).length}
+							{clients.filter((c) => c.isActive).length}
 						</p>
 					</div>
 				</div>
@@ -122,7 +209,12 @@
 		{#if showCreateForm}
 			<Card class="mb-6">
 				<h3 class="mb-4 text-lg font-medium text-gray-900">새 클라이언트 생성</h3>
-				<form onsubmit={(e) => { e.preventDefault(); createClient(); }}>
+				<form
+					onsubmit={(e) => {
+						e.preventDefault();
+						createClient();
+					}}
+				>
 					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 						<div>
 							<label class="block text-sm font-medium text-gray-700">클라이언트 이름 *</label>
@@ -170,12 +262,8 @@
 					</div>
 
 					<div class="mt-4 flex justify-end space-x-2">
-						<Button variant="outline" onclick={toggleCreateForm}>
-							취소
-						</Button>
-						<Button type="submit">
-							생성
-						</Button>
+						<Button variant="outline" onclick={toggleCreateForm}>취소</Button>
+						<Button type="submit">생성</Button>
 					</div>
 				</form>
 			</Card>
@@ -187,18 +275,21 @@
 				<h3 class="text-lg font-medium text-gray-900">클라이언트 목록</h3>
 			</div>
 
-			{#if clients.length === 0}
-				<div class="text-center py-8">
-					<i class="fas fa-inbox text-4xl text-gray-400 mb-4"></i>
-					<p class="text-gray-500 mb-4">등록된 클라이언트가 없습니다.</p>
-					<Button onclick={toggleCreateForm}>
-						첫 번째 클라이언트 생성
-					</Button>
+			{#if isLoading}
+				<div class="py-8 text-center">
+					<i class="fas fa-spinner fa-spin mb-4 text-2xl text-gray-400"></i>
+					<p class="text-gray-500">클라이언트 목록을 불러오는 중...</p>
+				</div>
+			{:else if clients.length === 0}
+				<div class="py-8 text-center">
+					<i class="fas fa-inbox mb-4 text-4xl text-gray-400"></i>
+					<p class="mb-4 text-gray-500">등록된 클라이언트가 없습니다.</p>
+					<Button onclick={toggleCreateForm}>첫 번째 클라이언트 생성</Button>
 				</div>
 			{:else}
 				<div class="space-y-4">
 					{#each clients as client}
-						<div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+						<div class="rounded-lg border border-gray-200 p-4 transition-shadow hover:shadow-md">
 							<div class="flex items-start justify-between">
 								<div class="flex-1">
 									<div class="flex items-center space-x-3">
@@ -207,7 +298,7 @@
 											{client.isActive ? '활성' : '비활성'}
 										</Badge>
 									</div>
-									
+
 									{#if client.description}
 										<p class="mt-1 text-sm text-gray-600">{client.description}</p>
 									{/if}
@@ -216,10 +307,11 @@
 										<div>
 											<p class="text-xs font-medium text-gray-500">Client ID</p>
 											<div class="flex items-center space-x-2">
-												<code class="text-sm bg-gray-100 rounded px-2 py-1">{client.clientId}</code>
+												<code class="rounded bg-gray-100 px-2 py-1 text-sm">{client.clientId}</code>
 												<button
 													onclick={() => copyToClipboard(client.clientId)}
 													class="text-gray-400 hover:text-gray-600"
+													aria-label="Copy Client ID"
 												>
 													<i class="fas fa-copy text-xs"></i>
 												</button>
@@ -227,18 +319,18 @@
 										</div>
 
 										<div>
-											<p class="text-xs font-medium text-gray-500">권한 범위</p>
-											<div class="flex flex-wrap gap-1 mt-1">
-												{#each client.scopes as scope}
-													<Badge variant="info" size="sm">{scope}</Badge>
+											<p class="text-xs font-medium text-gray-500">리다이렉트 URI</p>
+											<div class="mt-1">
+												{#each client.redirectUris as uri}
+													<p class="truncate text-sm text-gray-900">{uri}</p>
 												{/each}
 											</div>
 										</div>
 
 										<div>
-											<p class="text-xs font-medium text-gray-500">마지막 사용</p>
+											<p class="text-xs font-medium text-gray-500">생성일</p>
 											<p class="text-sm text-gray-900">
-												{client.lastUsed ? client.lastUsed.toLocaleDateString('ko-KR') : '사용 안함'}
+												{new Date(client.createdAt).toLocaleDateString('ko-KR')}
 											</p>
 										</div>
 									</div>
@@ -248,22 +340,17 @@
 									<Button
 										variant="outline"
 										size="sm"
-										onclick={() => {}}
+										onclick={() => toggleClientStatus(client)}
+										title={client.isActive ? '비활성화' : '활성화'}
 									>
-										<i class="fas fa-edit"></i>
-									</Button>
-									<Button
-										variant="outline"
-										size="sm"
-										onclick={() => {}}
-									>
-										<i class="fas fa-key"></i>
+										<i class="fas {client.isActive ? 'fa-pause' : 'fa-play'}"></i>
 									</Button>
 									<Button
 										variant="outline"
 										size="sm"
 										onclick={() => deleteClient(client.id)}
 										class="text-red-600 hover:text-red-700"
+										title="삭제"
 									>
 										<i class="fas fa-trash"></i>
 									</Button>

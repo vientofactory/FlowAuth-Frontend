@@ -25,7 +25,7 @@
 <button
 	{type}
 	{disabled}
-	onclick={onclick}
+	{onclick}
 	class="inline-flex cursor-pointer items-center justify-center rounded-md border-none font-medium transition-all duration-200
          {variant === 'primary' ? 'bg-blue-600 px-4 py-2 text-white hover:bg-blue-700' : ''}
          {variant === 'secondary' ? 'bg-gray-600 px-4 py-2 text-white hover:bg-gray-700' : ''}

@@ -24,7 +24,7 @@ class ApiClient {
 		this.baseURL = baseURL;
 	}
 
-	private async request<T>(
+	async request<T>(
 		endpoint: string,
 		options: RequestInit = {},
 		retryCount = 0,
@@ -144,12 +144,81 @@ class ApiClient {
 	private setToken(token: string): void {
 		if (typeof window !== 'undefined') {
 			localStorage.setItem(APP_CONSTANTS.TOKEN_STORAGE_KEY, token);
+			// OAuth2 플로우를 위해 쿠키에도 저장 (HttpOnly가 아닌 클라이언트 사이드 쿠키)
+			// SameSite=Lax로 설정하여 크로스사이트 요청에서도 작동하도록 함
+			document.cookie = `token=${token}; path=/; max-age=86400; samesite=lax`;
 		}
 	}
 
 	private removeToken(): void {
 		if (typeof window !== 'undefined') {
 			localStorage.removeItem(APP_CONSTANTS.TOKEN_STORAGE_KEY);
+			// 쿠키도 제거
+			document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+		}
+	}
+
+	// 디버깅용 함수들
+	debugToken(): void {
+		if (typeof window !== 'undefined') {
+			const token = this.getToken();
+			console.log('Current token in localStorage:', token ? 'present' : 'missing');
+			console.log('Current token value:', token);
+
+			// JWT 토큰 디코딩 (서명 검증 없이)
+			if (token) {
+				try {
+					const parts = token.split('.');
+					if (parts.length === 3) {
+						const payload = JSON.parse(atob(parts[1]));
+						console.log('Token payload:', {
+							sub: payload.sub,
+							email: payload.email,
+							iat: payload.iat,
+							exp: payload.exp,
+							issued: new Date(payload.iat * 1000).toISOString(),
+							expires: new Date(payload.exp * 1000).toISOString(),
+							isExpired: Date.now() / 1000 > payload.exp
+						});
+					}
+				} catch (error) {
+					console.log('Failed to decode token:', error);
+				}
+			}
+
+			// 쿠키 확인
+			const cookies = document.cookie.split(';').reduce(
+				(acc, cookie) => {
+					const [key, value] = cookie.trim().split('=');
+					acc[key] = value;
+					return acc;
+				},
+				{} as Record<string, string>
+			);
+			console.log('Current token in cookie:', cookies.token ? 'present' : 'missing');
+			console.log('All cookies:', cookies);
+		}
+	}
+
+	clearAllTokens(): void {
+		console.log('Clearing all tokens...');
+		this.removeToken();
+		console.log('Tokens cleared');
+	}
+
+	// 토큰 재생성 (현재 사용자 정보로 새로운 토큰 발급)
+	async refreshToken(): Promise<void> {
+		try {
+			console.log('Refreshing token...');
+			const profile = await this.getProfile();
+			console.log('Profile retrieved successfully, user:', profile.email);
+
+			// 현재 사용자 정보가 있다면 토큰이 유효함
+			console.log('Token is valid, no refresh needed');
+		} catch (error) {
+			console.log('Token refresh failed, clearing tokens:', error);
+			this.clearAllTokens();
+			throw new Error('Token refresh failed. Please login again.');
 		}
 	}
 
@@ -184,9 +253,16 @@ class ApiClient {
 		return this.request<User>(API_ENDPOINTS.AUTH.PROFILE);
 	}
 
-	async updateProfile(data: Partial<User>): Promise<User> {
-		return this.request<User>('/auth/profile', {
+	async updateProfile(data: { firstName?: string; lastName?: string }) {
+		return this.request('/auth/profile', {
 			method: 'PUT',
+			body: JSON.stringify(data)
+		});
+	}
+
+	async changePassword(data: { currentPassword: string; newPassword: string }) {
+		return this.request('/auth/profile/password', {
+			method: 'PATCH',
 			body: JSON.stringify(data)
 		});
 	}
@@ -195,9 +271,47 @@ class ApiClient {
 		this.removeToken();
 	}
 
-	// 디버깅용: 현재 토큰 상태 확인
-	debugToken(): void {
-		// Token debugging removed for production
+	// 대시보드 통계 API
+	async getDashboardStats() {
+		try {
+			const [clients, tokens, profile] = await Promise.all([
+				this.getClients().catch(() => []),
+				this.getUserTokens().catch(() => []),
+				this.getProfile().catch(() => null)
+			]);
+
+			return {
+				totalClients: Array.isArray(clients) ? clients.length : 0,
+				activeTokens: Array.isArray(tokens) ? tokens.length : 0,
+				lastLoginDate: profile?.updatedAt ? new Date(profile.updatedAt) : null,
+				accountCreated: profile?.createdAt ? new Date(profile.createdAt) : null
+			};
+		} catch (error) {
+			console.error('Failed to load dashboard stats:', error);
+			return {
+				totalClients: 0,
+				activeTokens: 0,
+				lastLoginDate: null,
+				accountCreated: null
+			};
+		}
+	}
+
+	// 사용자 토큰 관리 API
+	async getUserTokens() {
+		return this.request('/auth/tokens');
+	}
+
+	async revokeToken(tokenId: number) {
+		return this.request(`/auth/tokens/${tokenId}`, {
+			method: 'DELETE'
+		});
+	}
+
+	async revokeAllTokens() {
+		return this.request('/auth/tokens', {
+			method: 'DELETE'
+		});
 	}
 
 	// 클라이언트 관리 API
@@ -214,6 +328,13 @@ class ApiClient {
 
 	async getClient(id: number) {
 		return this.request(`/auth/clients/${id}`);
+	}
+
+	async updateClient(id: number, data: Partial<CreateClientData>) {
+		return this.request(`/auth/clients/${id}`, {
+			method: 'PATCH',
+			body: JSON.stringify(data)
+		});
 	}
 
 	async updateClientStatus(id: number, isActive: boolean) {

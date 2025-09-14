@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { DashboardLayout, Card, Button, Badge, Tabs } from '$lib';
+	import { DashboardLayout, Card, Button, Badge, Tabs, apiClient } from '$lib';
 	import { authState, useToast } from '$lib';
 	import { onMount } from 'svelte';
 	import type { User } from '$lib';
@@ -25,7 +25,7 @@
 
 		// 대시보드 데이터 로드
 		await loadDashboardData();
-		
+
 		// cleanup function
 		return () => {
 			unsubscribe();
@@ -34,15 +34,12 @@
 
 	async function loadDashboardData() {
 		try {
-			// TODO: API 호출로 실제 데이터 가져오기
-			dashboardStats = {
-				totalClients: 3,
-				activeTokens: 7,
-				lastLoginDate: new Date(),
-				accountCreated: new Date('2024-01-15')
-			};
+			// 실제 API 호출로 대시보드 통계 가져오기
+			const stats = await apiClient.getDashboardStats();
+			dashboardStats = stats;
 		} catch (error) {
 			console.error('Failed to load dashboard data:', error);
+			toast.error('대시보드 데이터를 불러오는데 실패했습니다.');
 		}
 	}
 
@@ -77,10 +74,7 @@
 	let activeTab = $state('overview');
 </script>
 
-<DashboardLayout
-	title="대시보드"
-	description="OAuth2 인증 시스템을 관리하고 모니터링하세요."
->
+<DashboardLayout title="대시보드" description="OAuth2 인증 시스템을 관리하고 모니터링하세요.">
 	{#snippet children()}
 		<!-- 통계 카드들 -->
 		<div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -157,12 +151,14 @@
 											<div class="mt-2 space-y-1 text-sm text-gray-600">
 												<p><span class="font-medium">사용자명:</span> {user.username}</p>
 												<p><span class="font-medium">이메일:</span> {user.email}</p>
-												<p><span class="font-medium">이름:</span> {user.firstName} {user.lastName}</p>
+												<p>
+													<span class="font-medium">이름:</span>
+													{user.firstName}
+													{user.lastName}
+												</p>
 												<p>
 													<span class="font-medium">역할:</span>
-													<Badge variant="info" size="sm" class="ml-1">
-														관리자
-													</Badge>
+													<Badge variant="info" size="sm" class="ml-1">관리자</Badge>
 												</p>
 											</div>
 										</div>
@@ -246,7 +242,7 @@
 									<i class="fas fa-plus-circle text-2xl text-blue-600"></i>
 									<span class="text-sm font-medium">새 클라이언트 생성</span>
 								</Button>
-								
+
 								<Button
 									variant="outline"
 									class="flex h-24 flex-col items-center justify-center space-y-2 border-dashed border-gray-300 hover:border-green-500 hover:bg-green-50"
@@ -255,7 +251,7 @@
 									<i class="fas fa-key text-2xl text-green-600"></i>
 									<span class="text-sm font-medium">토큰 관리</span>
 								</Button>
-								
+
 								<Button
 									variant="outline"
 									class="flex h-24 flex-col items-center justify-center space-y-2 border-dashed border-gray-300 hover:border-purple-500 hover:bg-purple-50"
@@ -264,7 +260,7 @@
 									<i class="fas fa-cog text-2xl text-purple-600"></i>
 									<span class="text-sm font-medium">설정</span>
 								</Button>
-								
+
 								<Button
 									variant="outline"
 									class="flex h-24 flex-col items-center justify-center space-y-2 border-dashed border-gray-300 hover:border-orange-500 hover:bg-orange-50"

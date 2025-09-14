@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { DashboardLayout, Card, Button, Badge } from '$lib';
+	import { DashboardLayout, Card, Button, Badge, apiClient } from '$lib';
 	import { authState, useToast } from '$lib';
 	import { onMount } from 'svelte';
 	import type { User } from '$lib';
@@ -11,9 +11,7 @@
 	let isEditing = $state(false);
 	let editForm = $state({
 		firstName: '',
-		lastName: '',
-		email: '',
-		username: ''
+		lastName: ''
 	});
 
 	// 비밀번호 변경
@@ -50,9 +48,7 @@
 		if (user) {
 			editForm = {
 				firstName: user.firstName,
-				lastName: user.lastName,
-				email: user.email,
-				username: user.username
+				lastName: user.lastName
 			};
 		}
 	}
@@ -83,9 +79,15 @@
 
 		isUpdating = true;
 		try {
-			// TODO: 실제 API 호출
-			await new Promise(resolve => setTimeout(resolve, 1000)); // 임시 딜레이
-			
+			await apiClient.updateProfile({
+				firstName: editForm.firstName,
+				lastName: editForm.lastName
+			});
+
+			// 업데이트된 사용자 정보를 다시 가져오기
+			const updatedUser = await apiClient.getProfile();
+			authState.update((state) => ({ ...state, user: updatedUser }));
+
 			toast.success('프로필이 성공적으로 업데이트되었습니다.');
 			isEditing = false;
 		} catch (error) {
@@ -97,7 +99,11 @@
 	}
 
 	async function changePassword() {
-		if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+		if (
+			!passwordForm.currentPassword ||
+			!passwordForm.newPassword ||
+			!passwordForm.confirmPassword
+		) {
 			toast.error('모든 필드를 입력해주세요.');
 			return;
 		}
@@ -114,16 +120,13 @@
 
 		isChangingPassword = true;
 		try {
-			// TODO: 실제 API 호출
-			await new Promise(resolve => setTimeout(resolve, 1000)); // 임시 딜레이
-			
+			await apiClient.changePassword({
+				currentPassword: passwordForm.currentPassword,
+				newPassword: passwordForm.newPassword
+			});
+
 			toast.success('비밀번호가 성공적으로 변경되었습니다.');
-			showPasswordForm = false;
-			passwordForm = {
-				currentPassword: '',
-				newPassword: '',
-				confirmPassword: ''
-			};
+			togglePasswordForm();
 		} catch (error) {
 			console.error('Failed to change password:', error);
 			toast.error('비밀번호 변경에 실패했습니다.');
@@ -144,7 +147,7 @@
 				<!-- 프로필 정보 -->
 				<div class="lg:col-span-2">
 					<Card>
-						<div class="flex items-center justify-between mb-6">
+						<div class="mb-6 flex items-center justify-between">
 							<h3 class="text-lg font-medium text-gray-900">기본 정보</h3>
 							<Button variant="outline" onclick={toggleEdit}>
 								{#if isEditing}
@@ -159,7 +162,12 @@
 
 						{#if isEditing}
 							<!-- 편집 폼 -->
-							<form onsubmit={(e) => { e.preventDefault(); updateProfile(); }}>
+							<form
+								onsubmit={(e) => {
+									e.preventDefault();
+									updateProfile();
+								}}
+							>
 								<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 									<div>
 										<label class="block text-sm font-medium text-gray-700">이름 *</label>
@@ -202,9 +210,7 @@
 								</div>
 
 								<div class="mt-6 flex justify-end space-x-2">
-									<Button variant="outline" onclick={toggleEdit}>
-										취소
-									</Button>
+									<Button variant="outline" onclick={toggleEdit}>취소</Button>
 									<Button type="submit" disabled={isUpdating}>
 										{#if isUpdating}
 											<i class="fas fa-spinner fa-spin mr-2"></i>
@@ -243,7 +249,7 @@
 
 					<!-- 비밀번호 변경 -->
 					<Card class="mt-6">
-						<div class="flex items-center justify-between mb-6">
+						<div class="mb-6 flex items-center justify-between">
 							<h3 class="text-lg font-medium text-gray-900">비밀번호 변경</h3>
 							<Button variant="outline" onclick={togglePasswordForm}>
 								{#if showPasswordForm}
@@ -257,7 +263,12 @@
 						</div>
 
 						{#if showPasswordForm}
-							<form onsubmit={(e) => { e.preventDefault(); changePassword(); }}>
+							<form
+								onsubmit={(e) => {
+									e.preventDefault();
+									changePassword();
+								}}
+							>
 								<div class="space-y-4">
 									<div>
 										<label class="block text-sm font-medium text-gray-700">현재 비밀번호 *</label>
@@ -282,7 +293,8 @@
 									</div>
 
 									<div>
-										<label class="block text-sm font-medium text-gray-700">새 비밀번호 확인 *</label>
+										<label class="block text-sm font-medium text-gray-700">새 비밀번호 확인 *</label
+										>
 										<input
 											type="password"
 											bind:value={passwordForm.confirmPassword}
@@ -294,9 +306,7 @@
 								</div>
 
 								<div class="mt-6 flex justify-end space-x-2">
-									<Button variant="outline" onclick={togglePasswordForm}>
-										취소
-									</Button>
+									<Button variant="outline" onclick={togglePasswordForm}>취소</Button>
 									<Button type="submit" disabled={isChangingPassword}>
 										{#if isChangingPassword}
 											<i class="fas fa-spinner fa-spin mr-2"></i>
@@ -308,12 +318,10 @@
 								</div>
 							</form>
 						{:else}
-							<div class="text-center py-8">
-								<i class="fas fa-shield-alt text-4xl text-gray-400 mb-4"></i>
-								<p class="text-gray-500 mb-4">보안을 위해 주기적으로 비밀번호를 변경하세요.</p>
-								<Button onclick={togglePasswordForm}>
-									비밀번호 변경하기
-								</Button>
+							<div class="py-8 text-center">
+								<i class="fas fa-shield-alt mb-4 text-4xl text-gray-400"></i>
+								<p class="mb-4 text-gray-500">보안을 위해 주기적으로 비밀번호를 변경하세요.</p>
+								<Button onclick={togglePasswordForm}>비밀번호 변경하기</Button>
 							</div>
 						{/if}
 					</Card>
@@ -323,7 +331,7 @@
 				<div class="space-y-6">
 					<!-- 계정 상태 -->
 					<Card>
-						<h3 class="text-lg font-medium text-gray-900 mb-4">계정 상태</h3>
+						<h3 class="mb-4 text-lg font-medium text-gray-900">계정 상태</h3>
 						<div class="space-y-3">
 							<div class="flex items-center justify-between">
 								<span class="text-sm text-gray-600">상태</span>
@@ -342,7 +350,7 @@
 
 					<!-- 계정 정보 -->
 					<Card>
-						<h3 class="text-lg font-medium text-gray-900 mb-4">계정 정보</h3>
+						<h3 class="mb-4 text-lg font-medium text-gray-900">계정 정보</h3>
 						<div class="space-y-3">
 							<div>
 								<span class="text-sm text-gray-600">사용자 ID</span>
@@ -361,7 +369,7 @@
 
 					<!-- 보안 설정 -->
 					<Card>
-						<h3 class="text-lg font-medium text-gray-900 mb-4">보안 설정</h3>
+						<h3 class="mb-4 text-lg font-medium text-gray-900">보안 설정</h3>
 						<div class="space-y-3">
 							<Button variant="outline" class="w-full justify-start">
 								<i class="fas fa-mobile-alt mr-2"></i>
@@ -380,13 +388,19 @@
 
 					<!-- 위험 구역 -->
 					<Card class="border-red-200">
-						<h3 class="text-lg font-medium text-red-900 mb-4">위험 구역</h3>
+						<h3 class="mb-4 text-lg font-medium text-red-900">위험 구역</h3>
 						<div class="space-y-3">
-							<Button variant="outline" class="w-full justify-start text-red-600 border-red-300 hover:bg-red-50">
+							<Button
+								variant="outline"
+								class="w-full justify-start border-red-300 text-red-600 hover:bg-red-50"
+							>
 								<i class="fas fa-sign-out-alt mr-2"></i>
 								모든 기기에서 로그아웃
 							</Button>
-							<Button variant="outline" class="w-full justify-start text-red-600 border-red-300 hover:bg-red-50">
+							<Button
+								variant="outline"
+								class="w-full justify-start border-red-300 text-red-600 hover:bg-red-50"
+							>
 								<i class="fas fa-trash mr-2"></i>
 								계정 삭제
 							</Button>

@@ -81,7 +81,7 @@
 				<tr>
 					{#each columns as column}
 						<th
-							class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
 							class:cursor-pointer={column.sortable}
 							class:hover:bg-gray-100={column.sortable}
 							onclick={() => handleSort(column)}
@@ -96,7 +96,7 @@
 											class:text-gray-400={sortColumn !== column.key || sortDirection !== 'asc'}
 										></i>
 										<i
-											class="fas fa-caret-down text-xs -mt-1"
+											class="fas fa-caret-down -mt-1 text-xs"
 											class:text-blue-600={sortColumn === column.key && sortDirection === 'desc'}
 											class:text-gray-400={sortColumn !== column.key || sortDirection !== 'desc'}
 										></i>
@@ -113,17 +113,14 @@
 						<tr>
 							{#each columns as _}
 								<td class="px-6 py-4 whitespace-nowrap">
-									<div class="h-4 bg-gray-200 rounded animate-pulse"></div>
+									<div class="h-4 animate-pulse rounded bg-gray-200"></div>
 								</td>
 							{/each}
 						</tr>
 					{/each}
 				{:else if sortedData.length === 0}
 					<tr>
-						<td
-							colspan={columns.length}
-							class="px-6 py-12 text-center text-sm text-gray-500"
-						>
+						<td colspan={columns.length} class="px-6 py-12 text-center text-sm text-gray-500">
 							<div class="flex flex-col items-center space-y-3">
 								<i class="fas fa-inbox text-3xl text-gray-300"></i>
 								<p>{emptyMessage}</p>
@@ -134,7 +131,7 @@
 					{#each sortedData as row}
 						<tr class="hover:bg-gray-50">
 							{#each columns as column}
-								<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+								<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-900">
 									{#if cell}
 										{@render cell({ column, row })}
 									{:else}

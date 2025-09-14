@@ -72,13 +72,9 @@
 				class={`
 					${sizeClasses[size]}
 					${variantClasses[variant].tab}
-					${
-						activeTab === tab.id
-							? variantClasses[variant].activeTab
-							: variantClasses[variant].inactiveTab
-					}
-					${tab.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-					font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+					${activeTab === tab.id ? variantClasses[variant].activeTab : variantClasses[variant].inactiveTab}
+					${tab.disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
+					font-medium transition-colors duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none
 				`}
 				onclick={() => handleTabClick(tab)}
 				disabled={tab.disabled}
@@ -87,7 +83,7 @@
 			>
 				<div class="flex items-center space-x-2">
 					{#if tab.icon}
-						<i class="{tab.icon}"></i>
+						<i class={tab.icon}></i>
 					{/if}
 					<span>{tab.label}</span>
 					{#if tab.badge}

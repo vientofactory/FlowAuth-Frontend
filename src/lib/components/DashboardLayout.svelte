@@ -13,11 +13,11 @@
 		headerActions?: import('svelte').Snippet;
 	}
 
-	let { 
-		children, 
-		title = '대시보드', 
-		description = '', 
-		showBackButton = false, 
+	let {
+		children,
+		title = '대시보드',
+		description = '',
+		showBackButton = false,
 		backUrl = '/dashboard',
 		headerActions
 	}: Props = $props();
@@ -112,7 +112,7 @@
 
 	// 현재 경로에 따른 활성 메뉴 아이템 결정
 	let currentPath = $state('');
-	
+
 	onMount(() => {
 		currentPath = window.location.pathname;
 	});
@@ -125,7 +125,9 @@
 {#if isLoading}
 	<div class="flex min-h-screen items-center justify-center bg-gray-50">
 		<div class="text-center">
-			<div class="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+			<div
+				class="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"
+			></div>
 			<p class="text-lg font-medium text-gray-700">로딩 중...</p>
 		</div>
 	</div>
@@ -136,9 +138,7 @@
 				<i class="fas fa-exclamation-triangle mb-4 text-4xl text-red-500"></i>
 				<h2 class="mb-2 text-xl font-semibold text-gray-900">인증 필요</h2>
 				<p class="mb-4 text-gray-600">로그인이 필요합니다.</p>
-				<Button onclick={() => (window.location.href = '/auth/login')}>
-					로그인하기
-				</Button>
+				<Button onclick={() => (window.location.href = '/auth/login')}>로그인하기</Button>
 			</div>
 		</div>
 	</div>
@@ -167,18 +167,20 @@
 							</Button>
 						{/if}
 					</div>
-					
+
 					<div class="flex items-center space-x-4">
 						{#if headerActions}
 							{@render headerActions()}
 						{/if}
-						
+
 						<div class="hidden sm:block">
 							<span class="text-sm text-gray-600">
-								안녕하세요, <span class="font-semibold text-gray-900">{user.firstName} {user.lastName}</span>님
+								안녕하세요, <span class="font-semibold text-gray-900"
+									>{user.firstName} {user.lastName}</span
+								>님
 							</span>
 						</div>
-						
+
 						<Button
 							variant="outline"
 							size="sm"
@@ -202,10 +204,9 @@
 							<a
 								href={item.href}
 								class="group flex items-center rounded-md px-2 py-2 text-sm font-medium transition-colors duration-150 ease-in-out
-									{currentPath.startsWith(item.href) 
-										? 'bg-blue-100 text-blue-900 border-r-2 border-blue-500' 
-										: 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-									}"
+									{currentPath.startsWith(item.href)
+									? 'border-r-2 border-blue-500 bg-blue-100 text-blue-900'
+									: 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}"
 							>
 								<i class="{item.icon} mr-3 h-5 w-5 flex-shrink-0"></i>
 								<div class="flex-1">
@@ -242,16 +243,15 @@
 		</div>
 
 		<!-- 모바일 네비게이션 (하단 고정) -->
-		<nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white lg:hidden">
+		<nav class="fixed right-0 bottom-0 left-0 z-50 border-t border-gray-200 bg-white lg:hidden">
 			<div class="grid grid-cols-3 gap-1 px-2 py-2">
 				{#each menuItems.slice(0, 6) as item}
 					<a
 						href={item.href}
 						class="flex flex-col items-center justify-center rounded-md px-1 py-2 text-xs transition-colors duration-150 ease-in-out
-							{currentPath.startsWith(item.href) 
-								? 'bg-blue-100 text-blue-900' 
-								: 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-							}"
+							{currentPath.startsWith(item.href)
+							? 'bg-blue-100 text-blue-900'
+							: 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}"
 					>
 						<i class="{item.icon} mb-1 text-lg"></i>
 						<span class="truncate font-medium">{item.label}</span>

@@ -82,7 +82,7 @@
 	<!-- Trigger -->
 	<div
 		onclick={toggleDropdown}
-		onkeydown={(e) => e.key === 'Enter' || e.key === ' ' ? toggleDropdown() : null}
+		onkeydown={(e) => (e.key === 'Enter' || e.key === ' ' ? toggleDropdown() : null)}
 		role="button"
 		tabindex="0"
 	>
@@ -91,7 +91,7 @@
 		{:else}
 			<button
 				type="button"
-				class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+				class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
 			>
 				Options
 				<i class="fas fa-chevron-down -mr-1 h-5 w-5 text-gray-400"></i>
@@ -102,7 +102,7 @@
 	<!-- Dropdown Menu -->
 	{#if isOpen}
 		<div
-			class="absolute z-10 mt-2 w-56 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none {positionClasses[
+			class="ring-opacity-5 absolute z-10 mt-2 w-56 rounded-md bg-white shadow-lg ring-1 ring-black focus:outline-none {positionClasses[
 				position
 			]}"
 			role="menu"
@@ -114,7 +114,7 @@
 				{:else}
 					{#each items as item}
 						{#if item.separator}
-							<div class="border-t border-gray-100 my-1" role="separator"></div>
+							<div class="my-1 border-t border-gray-100" role="separator"></div>
 						{:else}
 							<button
 								type="button"
@@ -122,7 +122,7 @@
 									group flex w-full items-center px-4 py-2 text-sm transition-colors
 									${
 										item.disabled
-											? 'text-gray-400 cursor-not-allowed'
+											? 'cursor-not-allowed text-gray-400'
 											: item.danger
 												? 'text-red-700 hover:bg-red-50 hover:text-red-900'
 												: 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'

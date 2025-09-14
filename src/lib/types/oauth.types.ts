@@ -10,6 +10,24 @@ export interface Client {
 	updatedAt: string;
 }
 
+export interface Token {
+	id: number;
+	accessToken: string;
+	refreshToken?: string;
+	tokenType: string;
+	expiresAt: string;
+	refreshExpiresAt?: string;
+	scopes?: string;
+	userId: number;
+	clientId: number;
+	client?: {
+		name: string;
+		clientId: string;
+	};
+	createdAt: string;
+	updatedAt: string;
+}
+
 export interface AuthorizeRequest {
 	client_id: string;
 	redirect_uri: string;

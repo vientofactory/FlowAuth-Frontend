@@ -1,6 +1,4 @@
 import type { Client } from '$lib/types/oauth.types';
-import { createApiUrl } from '$lib/config/env';
-import type { PageLoad } from './$types';
 
 export interface ConsentPageData {
 	client: Client;
@@ -16,7 +14,8 @@ export interface ConsentPageData {
 	};
 }
 
-export const load: PageLoad = async ({ url, fetch }) => {
+// 서버사이드에서는 URL 파라미터만 전달하고, 실제 API 호출은 클라이언트사이드에서 수행
+export const load = async ({ url }) => {
 	const client_id = url.searchParams.get('client_id');
 	const redirect_uri = url.searchParams.get('redirect_uri');
 	const response_type = url.searchParams.get('response_type');
@@ -29,34 +28,15 @@ export const load: PageLoad = async ({ url, fetch }) => {
 		throw new Error('Missing required OAuth2 parameters');
 	}
 
-	try {
-		// Call backend authorize endpoint to validate request and get client info
-		const response = await fetch(createApiUrl(`/oauth/authorize?${url.searchParams.toString()}`), {
-			method: 'GET',
-			credentials: 'include'
-		});
-
-		if (!response.ok) {
-			throw new Error('Authorization request validation failed');
+	return {
+		authorizeParams: {
+			client_id,
+			redirect_uri,
+			response_type,
+			scope,
+			state,
+			code_challenge,
+			code_challenge_method
 		}
-
-		const data = await response.json();
-
-		return {
-			client: data.client,
-			scopes: data.scopes,
-			authorizeParams: {
-				client_id,
-				redirect_uri,
-				response_type,
-				scope,
-				state,
-				code_challenge,
-				code_challenge_method
-			}
-		} as ConsentPageData;
-	} catch (error) {
-		console.error('Failed to load consent page data:', error);
-		throw error;
-	}
+	};
 };

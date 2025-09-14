@@ -58,7 +58,7 @@
 		<div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
 			<!-- Modal panel -->
 			<div
-				class="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:p-6 {sizeClasses[
+				class="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:p-6 {sizeClasses[
 					size
 				]} {className}"
 			>
@@ -72,11 +72,11 @@
 								{title}
 							</h3>
 						{/if}
-						
+
 						{#if onClose}
 							<button
 								type="button"
-								class="rounded-md bg-white text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+								class="rounded-md bg-white text-gray-400 hover:text-gray-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
 								onclick={onClose}
 							>
 								<span class="sr-only">Close</span>
@@ -104,5 +104,5 @@
 	</div>
 
 	<!-- Backdrop overlay -->
-	<div class="fixed inset-0 z-40 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+	<div class="bg-opacity-75 fixed inset-0 z-40 bg-gray-500 transition-opacity"></div>
 {/if}
