@@ -1,5 +1,6 @@
 import type { User, LoginData, CreateUserDto } from '$lib';
 import { APP_CONSTANTS, API_ENDPOINTS, ROUTES, MESSAGES } from '$lib/constants/app.constants';
+import { env } from '$lib/config/env';
 
 export interface ApiError {
 	message: string;
@@ -14,14 +15,12 @@ export interface CreateClientData {
 	grants: string[];
 }
 
-const API_BASE_URL = APP_CONSTANTS.API_BASE_URL;
-
 class ApiClient {
 	private baseURL: string;
 	private maxRetries = APP_CONSTANTS.DEFAULT_RETRY_COUNT;
 	private retryDelay = APP_CONSTANTS.DEFAULT_RETRY_DELAY;
 
-	constructor(baseURL: string = API_BASE_URL) {
+	constructor(baseURL: string = env.API_BASE_URL) {
 		this.baseURL = baseURL;
 	}
 

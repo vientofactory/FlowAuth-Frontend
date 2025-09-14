@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Card, Button, Input, Badge, Loading, Modal, Table, Dropdown } from '$lib';
 	import { authStore, authState, useToast } from '$lib';
+	import { createApiUrl } from '$lib/config/env';
 	import { onMount, onDestroy } from 'svelte';
 	import type { User } from '$lib';
 
@@ -62,6 +63,7 @@
 		scopes: string[];
 		status: boolean;
 		lastUsed: Date | undefined;
+		actions?: string;
 		_original: OAuthClient;
 	}
 
@@ -126,45 +128,32 @@
 	async function loadClients() {
 		isLoadingClients = true;
 		try {
-			// TODO: API 호출로 실제 클라이언트 목록 가져오기
-			await new Promise(resolve => setTimeout(resolve, 1000)); // 임시 딜레이
-
-			// 임시 더미 데이터
-			clients = [
-				{
-					id: '1',
-					name: '웹 애플리케이션',
-					description: '메인 웹 서비스용 OAuth2 클라이언트',
-					clientId: 'web-app-client-id',
-					redirectUris: ['https://example.com/callback'],
-					scopes: ['read', 'write'],
-					createdAt: new Date('2024-01-15'),
-					lastUsed: new Date('2024-01-20'),
-					isActive: true
-				},
-				{
-					id: '2',
-					name: '모바일 앱',
-					description: 'iOS/Android 앱용 OAuth2 클라이언트',
-					clientId: 'mobile-app-client-id',
-					redirectUris: ['com.example.app://callback'],
-					scopes: ['read'],
-					createdAt: new Date('2024-01-10'),
-					lastUsed: new Date('2024-01-18'),
-					isActive: true
-				},
-				{
-					id: '3',
-					name: '개발용 클라이언트',
-					description: '개발 및 테스트용 클라이언트',
-					clientId: 'dev-client-id',
-					redirectUris: ['http://localhost:3000/callback'],
-					scopes: ['read', 'write', 'admin'],
-					createdAt: new Date('2024-01-12'),
-					lastUsed: undefined,
-					isActive: false
+			const response = await fetch(createApiUrl('/auth/clients'), {
+				method: 'GET',
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
 				}
-			];
+			});
+
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+
+			const data = await response.json();
+			
+			// 백엔드 데이터를 프론트엔드 형식으로 변환
+			clients = data.map((client: any) => ({
+				id: client.id.toString(),
+				name: client.name,
+				description: client.description || '',
+				clientId: client.clientId,
+				redirectUris: client.redirectUris || [],
+				scopes: client.scopes || [],
+				createdAt: new Date(client.createdAt),
+				lastUsed: client.lastUsed ? new Date(client.lastUsed) : undefined,
+				isActive: client.isActive
+			}));
 		} catch (error) {
 			console.error('Failed to load clients:', error);
 			toast.error('클라이언트 목록을 불러오는데 실패했습니다.');
@@ -201,32 +190,53 @@
 
 		isCreating = true;
 		try {
-			// TODO: API 호출로 클라이언트 생성
-			await new Promise(resolve => setTimeout(resolve, 1000)); // 임시 딜레이
+			const requestBody = {
+				name: createForm.name.trim(),
+				description: createForm.description.trim(),
+				redirectUris: createForm.redirectUris.split(',').map(uri => uri.trim()).filter(uri => uri),
+				grants: ['authorization_code', 'refresh_token'],
+				scopes: createForm.scopes.split(',').map(scope => scope.trim()).filter(scope => scope)
+			};
 
-			// 새 클라이언트 생성
+			const response = await fetch(createApiUrl('/auth/clients'), {
+				method: 'POST',
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(requestBody)
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+			}
+
+			const newClientData = await response.json();
+			
+			// 새 클라이언트를 목록에 추가
 			const newClient: OAuthClient = {
-				id: Date.now().toString(),
-				name: createForm.name,
-				description: createForm.description,
-				clientId: `client-${Date.now()}`,
-				redirectUris: createForm.redirectUris.split(',').map(uri => uri.trim()),
-				scopes: createForm.scopes.split(',').map(scope => scope.trim()),
-				createdAt: new Date(),
-				isActive: true
+				id: newClientData.id.toString(),
+				name: newClientData.name,
+				description: newClientData.description || '',
+				clientId: newClientData.clientId,
+				redirectUris: newClientData.redirectUris || [],
+				scopes: newClientData.scopes || [],
+				createdAt: new Date(newClientData.createdAt),
+				isActive: newClientData.isActive
 			};
 
 			clients = [...clients, newClient];
 			
 			// 클라이언트 비밀키 표시
-			clientSecret = `secret-${Date.now()}`;
+			clientSecret = newClientData.clientSecret;
 			showSecretModal = true;
 			closeCreateModal();
 
 			toast.success('클라이언트가 성공적으로 생성되었습니다.');
 		} catch (error) {
 			console.error('Failed to create client:', error);
-			toast.error('클라이언트 생성에 실패했습니다.');
+			toast.error(`클라이언트 생성에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
 		} finally {
 			isCreating = false;
 		}
@@ -262,18 +272,38 @@
 
 		isUpdating = true;
 		try {
-			// TODO: API 호출로 클라이언트 업데이트
-			await new Promise(resolve => setTimeout(resolve, 1000)); // 임시 딜레이
+			const requestBody = {
+				name: editForm.name.trim(),
+				description: editForm.description.trim(),
+				redirectUris: editForm.redirectUris.split(',').map(uri => uri.trim()).filter(uri => uri),
+				scopes: editForm.scopes.split(',').map(scope => scope.trim()).filter(scope => scope)
+			};
 
-			// 클라이언트 업데이트
+			const response = await fetch(createApiUrl(`/auth/clients/${editingClient.id}`), {
+				method: 'PATCH',
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(requestBody)
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+			}
+
+			const updatedClientData = await response.json();
+
+			// 클라이언트 목록 업데이트
 			clients = clients.map(client => 
 				client.id === editingClient!.id 
 					? {
 						...client,
-						name: editForm.name,
-						description: editForm.description,
-						redirectUris: editForm.redirectUris.split(',').map(uri => uri.trim()),
-						scopes: editForm.scopes.split(',').map(scope => scope.trim())
+						name: updatedClientData.name,
+						description: updatedClientData.description || '',
+						redirectUris: updatedClientData.redirectUris || [],
+						scopes: updatedClientData.scopes || []
 					}
 					: client
 			);
@@ -282,7 +312,7 @@
 			toast.success('클라이언트가 성공적으로 업데이트되었습니다.');
 		} catch (error) {
 			console.error('Failed to update client:', error);
-			toast.error('클라이언트 업데이트에 실패했습니다.');
+			toast.error(`클라이언트 업데이트에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
 		} finally {
 			isUpdating = false;
 		}
@@ -290,8 +320,19 @@
 
 	async function toggleClientStatus(client: OAuthClient) {
 		try {
-			// TODO: API 호출로 클라이언트 상태 변경
-			await new Promise(resolve => setTimeout(resolve, 500)); // 임시 딜레이
+			const response = await fetch(createApiUrl(`/auth/clients/${client.id}/status`), {
+				method: 'PATCH',
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ isActive: !client.isActive })
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+			}
 
 			clients = clients.map(c => 
 				c.id === client.id 
@@ -312,8 +353,18 @@
 		}
 
 		try {
-			// TODO: API 호출로 클라이언트 삭제
-			await new Promise(resolve => setTimeout(resolve, 500)); // 임시 딜레이
+			const response = await fetch(createApiUrl(`/auth/clients/${client.id}`), {
+				method: 'DELETE',
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+				}
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+			}
 
 			clients = clients.filter(c => c.id !== client.id);
 			toast.success('클라이언트가 삭제되었습니다.');
@@ -721,11 +772,11 @@
 						<div class="space-y-2 text-sm">
 							<div class="flex justify-between">
 								<span class="text-gray-600">Client ID:</span>
-								<code class="rounded bg-white px-2 py-1 font-mono text-gray-900">{editingClient.clientId}</code>
+								<code class="rounded bg-white px-2 py-1 font-mono text-gray-900">{editingClient?.clientId}</code>
 							</div>
 							<div class="flex justify-between">
 								<span class="text-gray-600">생성일:</span>
-								<span class="text-gray-900">{editingClient.createdAt.toLocaleDateString('ko-KR')}</span>
+								<span class="text-gray-900">{editingClient?.createdAt.toLocaleDateString('ko-KR')}</span>
 							</div>
 						</div>
 					</div>
@@ -769,9 +820,9 @@
 					</div>
 
 					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-2">
+						<div class="block text-sm font-medium text-gray-700 mb-2">
 							클라이언트 비밀키
-						</label>
+						</div>
 						<div class="flex items-center space-x-2">
 							<code class="flex-1 rounded bg-gray-100 px-3 py-2 font-mono text-sm">{clientSecret}</code>
 							<Button

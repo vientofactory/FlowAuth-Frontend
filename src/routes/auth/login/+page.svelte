@@ -2,13 +2,21 @@
 	import { Card, Button, Input } from '$lib';
 	import { authStore, useToast } from '$lib';
 	import { MESSAGES, APP_CONSTANTS, ROUTES } from '$lib/constants/app.constants';
+	import { onMount } from 'svelte';
 
 	let email = $state('');
 	let password = $state('');
 	let isLoading = $state(false);
+	let returnUrl = $state('');
 
 	// 중앙화된 토스트 훅 사용
 	const toast = useToast();
+
+	// URL 파라미터에서 returnUrl 확인
+	onMount(() => {
+		const urlParams = new URLSearchParams(window.location.search);
+		returnUrl = urlParams.get('returnUrl') || '';
+	});
 
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault(); // 폼 기본 동작 방지
@@ -26,9 +34,15 @@
 			await authStore.login(email, password);
 			toast.success(MESSAGES.VALIDATION.LOGIN_SUCCESS);
 
-			// 리다이렉트
+			// 리다이렉트 처리 - returnUrl이 있으면 해당 URL로, 없으면 대시보드로
 			setTimeout(() => {
-				window.location.href = ROUTES.DASHBOARD;
+				if (returnUrl) {
+					// OAuth2 플로우나 다른 특정 URL로 복귀
+					window.location.href = returnUrl;
+				} else {
+					// 일반 로그인의 경우 대시보드로
+					window.location.href = ROUTES.DASHBOARD;
+				}
 			}, APP_CONSTANTS.REDIRECT_DELAY);
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : MESSAGES.VALIDATION.LOGIN_FAILED;

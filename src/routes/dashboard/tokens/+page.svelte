@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Card, Button, Badge, Loading, Modal, Table, Dropdown, Tabs } from '$lib';
 	import { authStore, authState, useToast } from '$lib';
+	import { createApiUrl } from '$lib/config/env';
 	import { onMount, onDestroy } from 'svelte';
 	import type { User } from '$lib';
 
@@ -66,7 +67,11 @@
 	}
 
 	// 테이블 컬럼 정의
-	const accessTokenColumns = [
+	const accessTokenColumns: Array<{
+		key: keyof AccessTokenTableData;
+		label: string;
+		sortable: boolean;
+	}> = [
 		{
 			key: 'client',
 			label: '클라이언트',
@@ -99,7 +104,11 @@
 		}
 	];
 
-	const refreshTokenColumns = [
+	const refreshTokenColumns: Array<{
+		key: keyof RefreshTokenTableData;
+		label: string;
+		sortable: boolean;
+	}> = [
 		{
 			key: 'client',
 			label: '클라이언트',
@@ -127,7 +136,11 @@
 		}
 	];
 
-	const authCodeColumns = [
+	const authCodeColumns: Array<{
+		key: keyof AuthCodeTableData;
+		label: string;
+		sortable: boolean;
+	}> = [
 		{
 			key: 'client',
 			label: '클라이언트',
@@ -152,6 +165,11 @@
 			key: 'createdAt',
 			label: '생성일',
 			sortable: true
+		},
+		{
+			key: 'actions',
+			label: '작업',
+			sortable: false
 		}
 	];
 
@@ -192,101 +210,60 @@
 	async function loadTokens() {
 		isLoadingTokens = true;
 		try {
-			// TODO: API 호출로 실제 토큰 목록 가져오기
-			await new Promise(resolve => setTimeout(resolve, 1000)); // 임시 딜레이
-
-			// 임시 더미 데이터
-			accessTokens = [
-				{
-					id: '1',
-					token: 'at_1234567890abcdef',
-					clientId: 'web-app-client-id',
-					clientName: '웹 애플리케이션',
-					scopes: ['read', 'write'],
-					expiresAt: new Date(Date.now() + 3600000), // 1시간 후
-					createdAt: new Date(Date.now() - 1800000), // 30분 전
-					lastUsed: new Date(Date.now() - 300000), // 5분 전
-					isActive: true,
-					ipAddress: '192.168.1.100',
-					userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'
-				},
-				{
-					id: '2',
-					token: 'at_abcdef1234567890',
-					clientId: 'mobile-app-client-id',
-					clientName: '모바일 앱',
-					scopes: ['read'],
-					expiresAt: new Date(Date.now() + 7200000), // 2시간 후
-					createdAt: new Date(Date.now() - 3600000), // 1시간 전
-					lastUsed: new Date(Date.now() - 600000), // 10분 전
-					isActive: true,
-					ipAddress: '10.0.0.50',
-					userAgent: 'FlowAuth-Mobile/1.0'
-				},
-				{
-					id: '3',
-					token: 'at_expired123456',
-					clientId: 'dev-client-id',
-					clientName: '개발용 클라이언트',
-					scopes: ['read', 'write', 'admin'],
-					expiresAt: new Date(Date.now() - 3600000), // 1시간 전 만료
-					createdAt: new Date(Date.now() - 7200000), // 2시간 전
-					lastUsed: new Date(Date.now() - 3700000), // 1시간 10분 전
-					isActive: false,
-					ipAddress: '127.0.0.1',
-					userAgent: 'curl/7.68.0'
+			const response = await fetch(createApiUrl('/auth/tokens'), {
+				method: 'GET',
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${localStorage.getItem('token')}`
 				}
-			];
+			});
 
-			refreshTokens = [
-				{
-					id: '1',
-					token: 'rt_1234567890abcdef',
-					clientId: 'web-app-client-id',
-					clientName: '웹 애플리케이션',
-					expiresAt: new Date(Date.now() + 86400000 * 30), // 30일 후
-					createdAt: new Date(Date.now() - 1800000), // 30분 전
-					lastUsed: new Date(Date.now() - 300000), // 5분 전
-					isActive: true,
-					accessTokenId: '1'
-				},
-				{
-					id: '2',
-					token: 'rt_abcdef1234567890',
-					clientId: 'mobile-app-client-id',
-					clientName: '모바일 앱',
-					expiresAt: new Date(Date.now() + 86400000 * 30), // 30일 후
-					createdAt: new Date(Date.now() - 3600000), // 1시간 전
-					lastUsed: new Date(Date.now() - 600000), // 10분 전
-					isActive: true,
-					accessTokenId: '2'
-				}
-			];
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
 
-			authorizationCodes = [
-				{
-					id: '1',
-					code: 'ac_1234567890',
-					clientId: 'web-app-client-id',
-					clientName: '웹 애플리케이션',
-					redirectUri: 'https://example.com/callback',
-					scopes: ['read', 'write'],
-					expiresAt: new Date(Date.now() + 600000), // 10분 후
-					createdAt: new Date(Date.now() - 60000), // 1분 전
-					isUsed: false
-				},
-				{
-					id: '2',
-					code: 'ac_abcdef1234',
-					clientId: 'mobile-app-client-id',
-					clientName: '모바일 앱',
-					redirectUri: 'com.example.app://callback',
-					scopes: ['read'],
-					expiresAt: new Date(Date.now() - 300000), // 5분 전 만료
-					createdAt: new Date(Date.now() - 900000), // 15분 전
-					isUsed: true
+			const tokens = await response.json();
+			
+			// 백엔드 토큰 데이터를 프론트엔드 형식으로 분류
+			accessTokens = [];
+			refreshTokens = [];
+			authorizationCodes = [];
+
+			tokens.forEach((token: any) => {
+				if (token.refreshToken && !token.accessToken) {
+					// 리프레시 토큰
+					refreshTokens.push({
+						id: token.id.toString(),
+						token: token.refreshToken,
+						clientId: token.client.clientId,
+						clientName: token.client.name,
+						expiresAt: new Date(token.refreshExpiresAt),
+						createdAt: new Date(token.createdAt),
+						lastUsed: token.lastUsed ? new Date(token.lastUsed) : undefined,
+						isActive: !token.isRevoked && new Date(token.refreshExpiresAt) > new Date(),
+						accessTokenId: token.accessToken || undefined
+					});
+				} else {
+					// 액세스 토큰
+					accessTokens.push({
+						id: token.id.toString(),
+						token: token.accessToken,
+						clientId: token.client.clientId,
+						clientName: token.client.name,
+						scopes: token.scopes || [],
+						expiresAt: new Date(token.expiresAt),
+						createdAt: new Date(token.createdAt),
+						lastUsed: token.lastUsed ? new Date(token.lastUsed) : undefined,
+						isActive: !token.isRevoked && new Date(token.expiresAt) > new Date(),
+						ipAddress: token.ipAddress || undefined,
+						userAgent: token.userAgent || undefined
+					});
 				}
-			];
+			});
+
+			// TODO: 인가 코드는 별도 API가 필요할 수 있음
+			authorizationCodes = [];
 		} catch (error) {
 			console.error('Failed to load tokens:', error);
 			toast.error('토큰 목록을 불러오는데 실패했습니다.');
@@ -310,26 +287,21 @@
 
 		isRevoking = true;
 		try {
-			// TODO: API 호출로 토큰 취소
-			await new Promise(resolve => setTimeout(resolve, 1000)); // 임시 딜레이
+			const response = await fetch(createApiUrl(`/auth/tokens/${tokenToRevoke.id}`), {
+				method: 'DELETE',
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${localStorage.getItem('token')}`
+				}
+			});
 
-			// 토큰 상태 업데이트
-			if ('scopes' in tokenToRevoke) {
-				// Access Token
-				accessTokens = accessTokens.map(token => 
-					token.id === tokenToRevoke!.id 
-						? { ...token, isActive: false }
-						: token
-				);
-			} else {
-				// Refresh Token
-				refreshTokens = refreshTokens.map(token => 
-					token.id === tokenToRevoke!.id 
-						? { ...token, isActive: false }
-						: token
-				);
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
 			}
 
+			// 토큰 목록 새로고침
+			await loadTokens();
 			closeRevokeModal();
 			toast.success('토큰이 성공적으로 취소되었습니다.');
 		} catch (error) {
@@ -383,6 +355,7 @@
 		status: boolean;
 		expiresAt: Date;
 		lastUsed: Date | undefined;
+		actions?: string;
 		_original: AccessToken;
 	}
 
@@ -392,6 +365,7 @@
 		status: boolean;
 		expiresAt: Date;
 		lastUsed: Date | undefined;
+		actions?: string;
 		_original: RefreshToken;
 	}
 
@@ -402,6 +376,7 @@
 		status: boolean;
 		expiresAt: Date;
 		createdAt: Date;
+		actions?: string;
 		_original: AuthorizationCode;
 	}
 
@@ -791,15 +766,15 @@
 							<div class="space-y-2 text-sm">
 								<div class="flex justify-between">
 									<span class="text-gray-600">클라이언트:</span>
-									<span class="text-gray-900">{'clientName' in tokenToRevoke ? tokenToRevoke.clientName : 'Unknown'}</span>
+									<span class="text-gray-900">{'clientName' in tokenToRevoke! ? tokenToRevoke!.clientName : 'Unknown'}</span>
 								</div>
 								<div class="flex justify-between">
 									<span class="text-gray-600">토큰 ID:</span>
-									<code class="text-gray-900">{tokenToRevoke.id}</code>
+									<code class="text-gray-900">{tokenToRevoke?.id}</code>
 								</div>
 								<div class="flex justify-between">
 									<span class="text-gray-600">생성일:</span>
-									<span class="text-gray-900">{tokenToRevoke.createdAt.toLocaleDateString('ko-KR')}</span>
+									<span class="text-gray-900">{tokenToRevoke?.createdAt.toLocaleDateString('ko-KR')}</span>
 								</div>
 							</div>
 						</div>
@@ -834,9 +809,9 @@
 				<div class="space-y-4">
 					<div class="grid grid-cols-2 gap-4">
 						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">토큰 ID</label>
+							<div class="block text-sm font-medium text-gray-700 mb-1">토큰 ID</div>
 							<div class="flex items-center space-x-2">
-								<code class="flex-1 rounded bg-gray-100 px-2 py-1 text-sm">{selectedToken.id}</code>
+								<code class="flex-1 rounded bg-gray-100 px-2 py-1 text-sm">{selectedToken?.id}</code>
 								<Button
 									variant="outline"
 									size="sm"
@@ -849,32 +824,32 @@
 						</div>
 
 						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">클라이언트</label>
-							<p class="text-sm text-gray-900">{'clientName' in selectedToken ? selectedToken.clientName : 'Unknown'}</p>
+							<div class="block text-sm font-medium text-gray-700 mb-1">클라이언트</div>
+							<p class="text-sm text-gray-900">{'clientName' in selectedToken! ? selectedToken!.clientName : 'Unknown'}</p>
 						</div>
 
 						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">생성일</label>
-							<p class="text-sm text-gray-900">{selectedToken.createdAt.toLocaleString('ko-KR')}</p>
+							<div class="block text-sm font-medium text-gray-700 mb-1">생성일</div>
+							<p class="text-sm text-gray-900">{selectedToken?.createdAt.toLocaleString('ko-KR')}</p>
 						</div>
 
 						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">만료일</label>
-							<p class="text-sm text-gray-900">{selectedToken.expiresAt.toLocaleString('ko-KR')}</p>
+							<div class="block text-sm font-medium text-gray-700 mb-1">만료일</div>
+							<p class="text-sm text-gray-900">{selectedToken?.expiresAt.toLocaleString('ko-KR')}</p>
 						</div>
 
-						{#if selectedToken.lastUsed}
+						{#if selectedToken?.lastUsed}
 							<div>
-								<label class="block text-sm font-medium text-gray-700 mb-1">마지막 사용</label>
+								<div class="block text-sm font-medium text-gray-700 mb-1">마지막 사용</div>
 								<p class="text-sm text-gray-900">{selectedToken.lastUsed.toLocaleString('ko-KR')}</p>
 							</div>
 						{/if}
 
 						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">상태</label>
-							{#if isExpired(selectedToken.expiresAt)}
+							<div class="block text-sm font-medium text-gray-700 mb-1">상태</div>
+							{#if selectedToken && isExpired(selectedToken.expiresAt)}
 								<Badge variant="warning" size="sm">만료됨</Badge>
-							{:else if selectedToken.isActive}
+							{:else if selectedToken?.isActive}
 								<Badge variant="success" size="sm">활성</Badge>
 							{:else}
 								<Badge variant="warning" size="sm">비활성</Badge>
@@ -882,9 +857,9 @@
 						</div>
 					</div>
 
-					{#if 'scopes' in selectedToken}
+					{#if selectedToken && 'scopes' in selectedToken}
 						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-2">권한 스코프</label>
+							<div class="block text-sm font-medium text-gray-700 mb-2">권한 스코프</div>
 							<div class="flex flex-wrap gap-1">
 								{#each selectedToken.scopes as scope}
 									<Badge variant="info" size="sm">{scope}</Badge>
@@ -893,14 +868,14 @@
 						</div>
 					{/if}
 
-					{#if 'ipAddress' in selectedToken}
+					{#if selectedToken && 'ipAddress' in selectedToken}
 						<div class="grid grid-cols-2 gap-4">
 							<div>
-								<label class="block text-sm font-medium text-gray-700 mb-1">IP 주소</label>
+								<div class="block text-sm font-medium text-gray-700 mb-1">IP 주소</div>
 								<p class="text-sm text-gray-900">{selectedToken.ipAddress || 'N/A'}</p>
 							</div>
 							<div>
-								<label class="block text-sm font-medium text-gray-700 mb-1">User Agent</label>
+								<div class="block text-sm font-medium text-gray-700 mb-1">User Agent</div>
 								<p class="text-sm text-gray-900 truncate" title={selectedToken.userAgent}>
 									{selectedToken.userAgent || 'N/A'}
 								</p>
