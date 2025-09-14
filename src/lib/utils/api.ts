@@ -37,6 +37,7 @@ class ApiClient {
 				'Content-Type': 'application/json',
 				...options.headers
 			},
+			credentials: 'include', // 쿠키 포함
 			...options
 		};
 
@@ -162,32 +163,22 @@ class ApiClient {
 	debugToken(): void {
 		if (typeof window !== 'undefined') {
 			const token = this.getToken();
-			console.log('Current token in localStorage:', token ? 'present' : 'missing');
-			console.log('Current token value:', token);
 
 			// JWT 토큰 디코딩 (서명 검증 없이)
 			if (token) {
 				try {
 					const parts = token.split('.');
 					if (parts.length === 3) {
-						const payload = JSON.parse(atob(parts[1]));
-						console.log('Token payload:', {
-							sub: payload.sub,
-							email: payload.email,
-							iat: payload.iat,
-							exp: payload.exp,
-							issued: new Date(payload.iat * 1000).toISOString(),
-							expires: new Date(payload.exp * 1000).toISOString(),
-							isExpired: Date.now() / 1000 > payload.exp
-						});
+						// Token information available for debugging if needed
+						JSON.parse(atob(parts[1]));
 					}
-				} catch (error) {
-					console.log('Failed to decode token:', error);
+				} catch {
+					// Failed to decode token
 				}
 			}
 
 			// 쿠키 확인
-			const cookies = document.cookie.split(';').reduce(
+			document.cookie.split(';').reduce(
 				(acc, cookie) => {
 					const [key, value] = cookie.trim().split('=');
 					acc[key] = value;
@@ -195,28 +186,19 @@ class ApiClient {
 				},
 				{} as Record<string, string>
 			);
-			console.log('Current token in cookie:', cookies.token ? 'present' : 'missing');
-			console.log('All cookies:', cookies);
 		}
 	}
 
 	clearAllTokens(): void {
-		console.log('Clearing all tokens...');
 		this.removeToken();
-		console.log('Tokens cleared');
 	}
 
 	// 토큰 재생성 (현재 사용자 정보로 새로운 토큰 발급)
 	async refreshToken(): Promise<void> {
 		try {
-			console.log('Refreshing token...');
-			const profile = await this.getProfile();
-			console.log('Profile retrieved successfully, user:', profile.email);
-
-			// 현재 사용자 정보가 있다면 토큰이 유효함
-			console.log('Token is valid, no refresh needed');
-		} catch (error) {
-			console.log('Token refresh failed, clearing tokens:', error);
+			await this.getProfile();
+			// Token is valid, no refresh needed
+		} catch {
 			this.clearAllTokens();
 			throw new Error('Token refresh failed. Please login again.');
 		}
@@ -273,31 +255,8 @@ class ApiClient {
 
 	// 대시보드 통계 API
 	async getDashboardStats() {
-		try {
-			const [clients, tokens, profile] = await Promise.all([
-				this.getClients().catch(() => []),
-				this.getUserTokens().catch(() => []),
-				this.getProfile().catch(() => null)
-			]);
-
-			return {
-				totalClients: Array.isArray(clients) ? clients.length : 0,
-				activeTokens: Array.isArray(tokens) ? tokens.length : 0,
-				lastLoginDate: profile?.updatedAt ? new Date(profile.updatedAt) : null,
-				accountCreated: profile?.createdAt ? new Date(profile.createdAt) : null
-			};
-		} catch (error) {
-			console.error('Failed to load dashboard stats:', error);
-			return {
-				totalClients: 0,
-				activeTokens: 0,
-				lastLoginDate: null,
-				accountCreated: null
-			};
-		}
-	}
-
-	// 사용자 토큰 관리 API
+		return this.request('/oauth2/dashboard/stats');
+	} // 사용자 토큰 관리 API
 	async getUserTokens() {
 		return this.request('/auth/tokens');
 	}

@@ -25,6 +25,12 @@
 	let isExchanging = $state(false);
 	let showTokenModal = $state(false);
 
+	// 토큰 테스트 관련
+	let isTestingToken = $state(false);
+	let userProfile: any = $state(null);
+	let tokenInfo: any = $state(null);
+	let activeTab = $state('token'); // 'token', 'profile', 'test'
+
 	const toast = useToast();
 
 	onMount(() => {
@@ -86,7 +92,7 @@
 				requestBody.code_verifier = tokenForm.codeVerifier.trim();
 			}
 
-			const response = await fetch(createApiUrl('/oauth/token'), {
+			const response = await fetch(createApiUrl('/oauth2/token'), {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -102,24 +108,26 @@
 
 			tokenResponse = data;
 			showTokenModal = true;
+			activeTab = 'token'; // 기본 탭 설정
 			toast.success('토큰 교환이 성공했습니다!');
 
 			// code_verifier 정리
 			localStorage.removeItem('code_verifier');
 		} catch (err: any) {
-			console.error('Token exchange failed:', err);
 			toast.error(err.message || '토큰 교환에 실패했습니다.');
 		} finally {
 			isExchanging = false;
 		}
 	}
 
-	function copyToClipboard(text: string) {
-		navigator.clipboard.writeText(text).then(() => {
-			toast.success('클립보드에 복사되었습니다.');
-		}).catch(() => {
-			toast.error('복사에 실패했습니다.');
-		});
+	// 클립보드에 복사
+	async function copyToClipboard(text: string) {
+		try {
+			await navigator.clipboard.writeText(text);
+			toast.success('클립보드에 복사되었습니다!');
+		} catch (err) {
+			toast.error('클립보드 복사에 실패했습니다.');
+		}
 	}
 
 	function navigateBack() {
@@ -128,6 +136,80 @@
 
 	function goToDashboard() {
 		window.location.href = '/dashboard';
+	}
+
+	// 토큰 정보 디코딩
+	function decodeJWT(token: string) {
+		try {
+			const parts = token.split('.');
+			if (parts.length !== 3) {
+				throw new Error('Invalid JWT format');
+			}
+
+			const payload = JSON.parse(atob(parts[1]));
+			const header = JSON.parse(atob(parts[0]));
+
+			return {
+				header,
+				payload,
+				signature: parts[2],
+				issuedAt: payload.iat ? new Date(payload.iat * 1000) : null,
+				expiresAt: payload.exp ? new Date(payload.exp * 1000) : null,
+				isExpired: payload.exp ? Date.now() > payload.exp * 1000 : false
+			};
+		} catch (error) {
+			return null;
+		}
+	}
+
+	// 사용자 프로필 정보 가져오기
+	async function fetchUserProfile() {
+		if (!tokenResponse?.access_token) {
+			toast.error('유효한 액세스 토큰이 없습니다.');
+			return;
+		}
+
+		isTestingToken = true;
+		try {
+			const response = await fetch(createApiUrl('/oauth2/userinfo'), {
+				method: 'GET',
+				headers: {
+					'Authorization': `Bearer ${tokenResponse.access_token}`,
+					'Content-Type': 'application/json'
+				}
+			});
+
+			const data = await response.json();
+
+			if (!response.ok) {
+				throw new Error(data.message || `HTTP error! status: ${response.status}`);
+			}
+
+			userProfile = data;
+			activeTab = 'profile';
+			toast.success('사용자 프로필을 성공적으로 가져왔습니다!');
+		} catch (err: any) {
+			toast.error(err.message || '프로필 정보를 가져오는데 실패했습니다.');
+		} finally {
+			isTestingToken = false;
+		}
+	}
+
+	// 토큰 정보 분석
+	function analyzeToken() {
+		if (!tokenResponse?.access_token) {
+			toast.error('유효한 액세스 토큰이 없습니다.');
+			return;
+		}
+
+		tokenInfo = decodeJWT(tokenResponse.access_token);
+		activeTab = 'test';
+		
+		if (tokenInfo) {
+			toast.success('토큰 정보를 분석했습니다.');
+		} else {
+			toast.error('토큰을 분석할 수 없습니다.');
+		}
 	}
 </script>
 
@@ -249,7 +331,7 @@
 								<Input
 									id="clientId"
 									value={tokenForm.clientId}
-									oninput={(e) => tokenForm.clientId = e.target.value}
+									oninput={(e) => tokenForm.clientId = (e.target as HTMLInputElement)?.value || ''}
 									placeholder="클라이언트 ID를 입력하세요"
 									class="w-full"
 									required
@@ -265,7 +347,7 @@
 									id="clientSecret"
 									type="password"
 									value={tokenForm.clientSecret}
-									oninput={(e) => tokenForm.clientSecret = e.target.value}
+									oninput={(e) => tokenForm.clientSecret = (e.target as HTMLInputElement)?.value || ''}
 									placeholder="클라이언트 시크릿을 입력하세요"
 									class="w-full"
 									required
@@ -280,7 +362,7 @@
 								<Input
 									id="code"
 									value={tokenForm.code}
-									oninput={(e) => tokenForm.code = e.target.value}
+									oninput={(e) => tokenForm.code = (e.target as HTMLInputElement)?.value || ''}
 									placeholder="인증 코드"
 									class="w-full"
 									disabled
@@ -295,7 +377,7 @@
 								<Input
 									id="redirectUri"
 									value={tokenForm.redirectUri}
-									oninput={(e) => tokenForm.redirectUri = e.target.value}
+									oninput={(e) => tokenForm.redirectUri = (e.target as HTMLInputElement)?.value || ''}
 									placeholder="리다이렉트 URI"
 									class="w-full"
 									required
@@ -324,7 +406,7 @@
 								<Input
 									id="codeVerifier"
 									value={tokenForm.codeVerifier}
-									oninput={(e) => tokenForm.codeVerifier = e.target.value}
+									oninput={(e) => tokenForm.codeVerifier = (e.target as HTMLInputElement)?.value || ''}
 									placeholder="PKCE Code Verifier"
 									class="w-full"
 									disabled
@@ -384,87 +466,267 @@
 	</div>
 
 	<!-- 토큰 응답 모달 -->
-	{#if showTokenModal && tokenResponse}
-		<Modal
-			title="토큰 교환 결과"
-			onClose={() => showTokenModal = false}
-		>
-			<div class="space-y-4">
-				<div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+	<Modal 
+		open={showTokenModal && !!tokenResponse} 
+		title="OAuth2 토큰 테스트" 
+		onClose={() => (showTokenModal = false)}
+		size="xl"
+	>
+		{#snippet children()}
+			{#if tokenResponse}
+				<div class="space-y-6">
+				<!-- 성공 메시지 -->
+				<div class="rounded-lg border border-green-200 bg-green-50 p-4">
 					<div class="flex items-center">
-						<i class="fas fa-check-circle text-green-600 mr-2"></i>
-						<span class="text-green-800 font-medium">토큰 교환 성공</span>
+						<i class="fas fa-check-circle mr-2 text-green-600"></i>
+						<span class="font-medium text-green-800">토큰 교환 성공</span>
 					</div>
 				</div>
 
-				{#if tokenResponse.access_token}
-					<div>
-						<div class="text-sm font-medium text-gray-700 mb-2">
-							Access Token
-							<Button
-								variant="outline"
-								size="sm"
-								onclick={() => copyToClipboard(tokenResponse.access_token)}
-								class="ml-2 text-xs"
-							>
-								<i class="fas fa-copy mr-1"></i>
-								복사
-							</Button>
-						</div>
-						<div class="p-3 bg-gray-50 border border-gray-200 rounded-md">
-							<code class="text-xs text-gray-800 break-all">{tokenResponse.access_token}</code>
-						</div>
-					</div>
-				{/if}
-
-				{#if tokenResponse.refresh_token}
-					<div>
-						<div class="text-sm font-medium text-gray-700 mb-2">
-							Refresh Token
-							<Button
-								variant="outline"
-								size="sm"
-								onclick={() => copyToClipboard(tokenResponse.refresh_token)}
-								class="ml-2 text-xs"
-							>
-								<i class="fas fa-copy mr-1"></i>
-								복사
-							</Button>
-						</div>
-						<div class="p-3 bg-gray-50 border border-gray-200 rounded-md">
-							<code class="text-xs text-gray-800 break-all">{tokenResponse.refresh_token}</code>
-						</div>
-					</div>
-				{/if}
-
-				<div class="grid grid-cols-2 gap-4">
-					{#if tokenResponse.token_type}
-						<div>
-							<div class="text-sm font-medium text-gray-700 mb-1">Token Type</div>
-							<div class="text-sm text-gray-900">{tokenResponse.token_type}</div>
-						</div>
-					{/if}
-
-					{#if tokenResponse.expires_in}
-						<div>
-							<div class="text-sm font-medium text-gray-700 mb-1">Expires In</div>
-							<div class="text-sm text-gray-900">{tokenResponse.expires_in}초</div>
-						</div>
-					{/if}
-
-					{#if tokenResponse.scope}
-						<div class="col-span-2">
-							<div class="text-sm font-medium text-gray-700 mb-1">Scope</div>
-							<div class="text-sm text-gray-900">{tokenResponse.scope}</div>
-						</div>
-					{/if}
+				<!-- 탭 메뉴 -->
+				<div class="border-b border-gray-200">
+					<nav class="-mb-px flex space-x-8">
+						<button
+							onclick={() => (activeTab = 'token')}
+							class="py-2 px-1 border-b-2 font-medium text-sm transition-colors
+								{activeTab === 'token' 
+									? 'border-blue-500 text-blue-600' 
+									: 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}"
+						>
+							토큰 정보
+						</button>
+						<button
+							onclick={() => (activeTab = 'profile')}
+							class="py-2 px-1 border-b-2 font-medium text-sm transition-colors
+								{activeTab === 'profile' 
+									? 'border-blue-500 text-blue-600' 
+									: 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}"
+						>
+							프로필 정보
+						</button>
+						<button
+							onclick={() => (activeTab = 'test')}
+							class="py-2 px-1 border-b-2 font-medium text-sm transition-colors
+								{activeTab === 'test' 
+									? 'border-blue-500 text-blue-600' 
+									: 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}"
+						>
+							토큰 분석
+						</button>
+					</nav>
 				</div>
 
-				<div class="text-xs text-gray-500">
+				<!-- 탭 콘텐츠 -->
+				{#if activeTab === 'token'}
+					<div class="space-y-4">
+						{#if tokenResponse.access_token}
+							<div>
+								<div class="mb-2 flex items-center justify-between">
+									<span class="text-sm font-medium text-gray-700">Access Token</span>
+									<Button
+										variant="outline"
+										size="sm"
+										onclick={() => copyToClipboard(tokenResponse.access_token)}
+										class="text-xs"
+									>
+										<i class="fas fa-copy mr-1"></i>
+										복사
+									</Button>
+								</div>
+								<div class="rounded-md border border-gray-200 bg-gray-50 p-3">
+									<code class="text-xs break-all text-gray-800">{tokenResponse.access_token}</code>
+								</div>
+							</div>
+						{/if}
+
+						{#if tokenResponse.refresh_token}
+							<div>
+								<div class="mb-2 flex items-center justify-between">
+									<span class="text-sm font-medium text-gray-700">Refresh Token</span>
+									<Button
+										variant="outline"
+										size="sm"
+										onclick={() => copyToClipboard(tokenResponse.refresh_token)}
+										class="text-xs"
+									>
+										<i class="fas fa-copy mr-1"></i>
+										복사
+									</Button>
+								</div>
+								<div class="rounded-md border border-gray-200 bg-gray-50 p-3">
+									<code class="text-xs break-all text-gray-800">{tokenResponse.refresh_token}</code>
+								</div>
+							</div>
+						{/if}
+
+						<div class="grid grid-cols-2 gap-4">
+							{#if tokenResponse.token_type}
+								<div>
+									<div class="mb-1 text-sm font-medium text-gray-700">Token Type</div>
+									<div class="text-sm text-gray-900">{tokenResponse.token_type}</div>
+								</div>
+							{/if}
+
+							{#if tokenResponse.expires_in}
+								<div>
+									<div class="mb-1 text-sm font-medium text-gray-700">Expires In</div>
+									<div class="text-sm text-gray-900">{tokenResponse.expires_in}초</div>
+								</div>
+							{/if}
+
+							{#if tokenResponse.scope}
+								<div class="col-span-2">
+									<div class="mb-1 text-sm font-medium text-gray-700">Scope</div>
+									<div class="text-sm text-gray-900">{tokenResponse.scope}</div>
+								</div>
+							{/if}
+						</div>
+
+						<!-- 액션 버튼들 -->
+						<div class="flex space-x-2 pt-4 border-t border-gray-200">
+							<Button onclick={fetchUserProfile} disabled={isTestingToken} size="sm">
+								{#if isTestingToken}
+									<Loading variant="spinner" size="sm" class="mr-2" />
+									프로필 가져오는 중...
+								{:else}
+									<i class="fas fa-user mr-2"></i>
+									프로필 가져오기
+								{/if}
+							</Button>
+							<Button variant="outline" onclick={analyzeToken} size="sm">
+								<i class="fas fa-search mr-2"></i>
+								토큰 분석
+							</Button>
+						</div>
+					</div>
+				{:else if activeTab === 'profile'}
+					<div class="space-y-4">
+						{#if userProfile}
+							<div class="space-y-3">
+								<div class="grid grid-cols-2 gap-4">
+									{#if userProfile.sub}
+										<div>
+											<div class="mb-1 text-sm font-medium text-gray-700">User ID</div>
+											<div class="text-sm text-gray-900">{userProfile.sub}</div>
+										</div>
+									{/if}
+									{#if userProfile.email}
+										<div>
+											<div class="mb-1 text-sm font-medium text-gray-700">Email</div>
+											<div class="text-sm text-gray-900">{userProfile.email}</div>
+										</div>
+									{/if}
+									{#if userProfile.username}
+										<div>
+											<div class="mb-1 text-sm font-medium text-gray-700">Username</div>
+											<div class="text-sm text-gray-900">{userProfile.username}</div>
+										</div>
+									{/if}
+									{#if userProfile.roles && userProfile.roles.length > 0}
+										<div>
+											<div class="mb-1 text-sm font-medium text-gray-700">Roles</div>
+											<div class="text-sm text-gray-900">{userProfile.roles.join(', ')}</div>
+										</div>
+									{/if}
+								</div>
+
+								<div class="rounded-md border border-gray-200 bg-gray-50 p-3">
+									<div class="mb-1 text-sm font-medium text-gray-700">전체 응답</div>
+									<pre class="text-xs text-gray-800">{JSON.stringify(userProfile, null, 2)}</pre>
+								</div>
+							</div>
+						{:else}
+							<div class="text-center py-8">
+								<i class="fas fa-user-circle text-4xl text-gray-400 mb-4"></i>
+								<p class="text-gray-500 mb-4">프로필 정보를 가져오려면 "프로필 가져오기" 버튼을 클릭하세요.</p>
+								<Button onclick={fetchUserProfile} disabled={isTestingToken}>
+									{#if isTestingToken}
+										<Loading variant="spinner" size="sm" class="mr-2" />
+										프로필 가져오는 중...
+									{:else}
+										<i class="fas fa-user mr-2"></i>
+										프로필 가져오기
+									{/if}
+								</Button>
+							</div>
+						{/if}
+					</div>
+				{:else if activeTab === 'test'}
+					<div class="space-y-4">
+						{#if tokenInfo}
+							<div class="space-y-4">
+								<!-- 토큰 상태 -->
+								<div class="grid grid-cols-2 gap-4">
+									<div>
+										<div class="mb-1 text-sm font-medium text-gray-700">상태</div>
+										<div class="text-sm">
+											{#if tokenInfo.isExpired}
+												<Badge variant="error">만료됨</Badge>
+											{:else}
+												<Badge variant="success">유효함</Badge>
+											{/if}
+										</div>
+									</div>
+									<div>
+										<div class="mb-1 text-sm font-medium text-gray-700">알고리즘</div>
+										<div class="text-sm text-gray-900">{tokenInfo.header.alg}</div>
+									</div>
+								</div>
+
+								<!-- 시간 정보 -->
+								{#if tokenInfo.issuedAt || tokenInfo.expiresAt}
+									<div class="grid grid-cols-1 gap-4">
+										{#if tokenInfo.issuedAt}
+											<div>
+												<div class="mb-1 text-sm font-medium text-gray-700">발급 시간</div>
+												<div class="text-sm text-gray-900">{tokenInfo.issuedAt.toLocaleString()}</div>
+											</div>
+										{/if}
+										{#if tokenInfo.expiresAt}
+											<div>
+												<div class="mb-1 text-sm font-medium text-gray-700">만료 시간</div>
+												<div class="text-sm text-gray-900">{tokenInfo.expiresAt.toLocaleString()}</div>
+											</div>
+										{/if}
+									</div>
+								{/if}
+
+								<!-- 페이로드 정보 -->
+								<div>
+									<div class="mb-2 text-sm font-medium text-gray-700">페이로드</div>
+									<div class="rounded-md border border-gray-200 bg-gray-50 p-3">
+										<pre class="text-xs text-gray-800">{JSON.stringify(tokenInfo.payload, null, 2)}</pre>
+									</div>
+								</div>
+
+								<!-- 헤더 정보 -->
+								<div>
+									<div class="mb-2 text-sm font-medium text-gray-700">헤더</div>
+									<div class="rounded-md border border-gray-200 bg-gray-50 p-3">
+										<pre class="text-xs text-gray-800">{JSON.stringify(tokenInfo.header, null, 2)}</pre>
+									</div>
+								</div>
+							</div>
+						{:else}
+							<div class="text-center py-8">
+								<i class="fas fa-search text-4xl text-gray-400 mb-4"></i>
+								<p class="text-gray-500 mb-4">토큰을 분석하려면 "토큰 분석" 버튼을 클릭하세요.</p>
+								<Button onclick={analyzeToken}>
+									<i class="fas fa-search mr-2"></i>
+									토큰 분석
+								</Button>
+							</div>
+						{/if}
+					</div>
+				{/if}
+
+				<!-- 하단 안내 -->
+				<div class="text-xs text-gray-500 border-t border-gray-200 pt-4">
 					<p><strong>참고:</strong> 이 토큰들은 API 요청에 사용할 수 있습니다.</p>
 					<p>액세스 토큰은 Authorization 헤더에 "Bearer &lt;token&gt;" 형식으로 포함시키세요.</p>
 				</div>
-			</div>
-		</Modal>
-	{/if}
+				</div>
+			{/if}
+		{/snippet}
+	</Modal>
 {/if}

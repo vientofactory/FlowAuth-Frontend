@@ -16,6 +16,7 @@
 	async function loadTokens() {
 		try {
 			isLoading = true;
+			
 			const response = await apiClient.getUserTokens();
 			tokens = Array.isArray(response) ? response : [];
 		} catch (error) {
@@ -76,7 +77,18 @@
 
 	function getTokenScopes(token: Token): string[] {
 		if (!token.scopes) return [];
-		return token.scopes.split(' ').filter((scope) => scope.length > 0);
+		
+		// scopes가 이미 배열인 경우
+		if (Array.isArray(token.scopes)) {
+			return token.scopes.filter((scope) => scope && scope.length > 0);
+		}
+		
+		// scopes가 문자열인 경우 (쉼표 또는 공백으로 구분)
+		if (typeof token.scopes === 'string') {
+			return token.scopes.split(/[,\s]+/).filter((scope) => scope.length > 0);
+		}
+		
+		return [];
 	}
 </script>
 

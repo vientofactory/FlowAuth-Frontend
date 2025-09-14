@@ -33,6 +33,38 @@ class AuthStore {
 					isLoading: false
 				}));
 			} else {
+				// JWT 토큰이 없어도 쿠키 기반으로 사용자 정보 시도
+				try {
+					const user = await apiClient.getProfile();
+					authState.update((state) => ({
+						...state,
+						user,
+						isAuthenticated: true,
+						isLoading: false
+					}));
+				} catch {
+					// 쿠키 기반 인증도 실패하면 로그아웃 처리
+					authState.update((state) => ({
+						...state,
+						user: null,
+						isAuthenticated: false,
+						isLoading: false
+					}));
+				}
+			}
+		} catch {
+			// JWT 토큰 기반 인증 실패 시, 쿠키 기반 시도
+			try {
+				const user = await apiClient.getProfile();
+				authState.update((state) => ({
+					...state,
+					user,
+					isAuthenticated: true,
+					isLoading: false
+				}));
+			} catch {
+				// 모든 인증 방법 실패
+				this.logout();
 				authState.update((state) => ({
 					...state,
 					user: null,
@@ -40,15 +72,6 @@ class AuthStore {
 					isLoading: false
 				}));
 			}
-		} catch {
-			// 토큰이 유효하지 않으면 제거하고 로그아웃 처리
-			this.logout();
-			authState.update((state) => ({
-				...state,
-				user: null,
-				isAuthenticated: false,
-				isLoading: false
-			}));
 		}
 	}
 
@@ -92,7 +115,7 @@ class AuthStore {
 			const updatedUser = await apiClient.updateProfile(updates);
 			authState.update((state) => ({
 				...state,
-				user: updatedUser,
+				user: updatedUser as User,
 				isLoading: false
 			}));
 			return updatedUser;

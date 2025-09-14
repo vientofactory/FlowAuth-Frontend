@@ -17,7 +17,7 @@ export interface Token {
 	tokenType: string;
 	expiresAt: string;
 	refreshExpiresAt?: string;
-	scopes?: string;
+	scopes?: string | string[];
 	userId: number;
 	clientId: number;
 	client?: {
