@@ -20,7 +20,7 @@
 				</p>
 				<div class="flex space-x-4">
 					<a
-						href="https://github.com/vientofactory"
+						href="https://github.com/vientofactory/FlowAuth"
 						class="text-gray-400 transition-colors duration-200 hover:text-white"
 						aria-label="GitHub"
 					>
@@ -98,8 +98,8 @@
 
 		<div class="mt-8 border-t border-gray-700 pt-8 text-center">
 			<p class="text-gray-400">
-				&copy; 2025 FlowAuth. 오픈소스 프로젝트입니다.<br />
-				MIT 라이선스 · 자유롭게 사용/기여 환영합니다.
+				&copy; 2025 FlowAuth<br />
+				MIT 라이선스 · 자유롭게 사용/기여할 수 있습니다.
 			</p>
 		</div>
 	</div>
