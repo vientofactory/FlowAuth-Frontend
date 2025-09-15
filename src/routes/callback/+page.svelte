@@ -75,10 +75,16 @@
 			tokenForm.code = authCode;
 		}
 
-		// 로컬 스토리지에서 code_verifier 가져오기
-		const storedCodeVerifier = localStorage.getItem('code_verifier');
+		// 세션 스토리지에서 code_verifier 가져오기
+		const storedCodeVerifier = sessionStorage.getItem('code_verifier');
+
 		if (storedCodeVerifier) {
 			tokenForm.codeVerifier = storedCodeVerifier;
+		} else {
+			// PKCE가 사용되었지만 code_verifier가 없는 경우 사용자에게 알림
+			if (authCode && !error) {
+				toast.warning('PKCE가 사용되었지만 code verifier를 찾을 수 없습니다. 수동으로 입력해주세요.');
+			}
 		}
 
 		isLoading = false;
@@ -146,7 +152,8 @@
 			toast.success('토큰 교환이 성공했습니다!');
 
 			// code_verifier 정리
-			localStorage.removeItem('code_verifier');
+			sessionStorage.removeItem('code_verifier');
+			sessionStorage.removeItem('state');
 		} catch (err: unknown) {
 			const errorMessage = err instanceof Error ? err.message : '토큰 교환에 실패했습니다.';
 			toast.error(errorMessage);
@@ -454,15 +461,18 @@
 										(tokenForm.codeVerifier = (e.target as HTMLInputElement)?.value || '')}
 									placeholder="PKCE Code Verifier"
 									class="w-full"
-									disabled
+									disabled={!!tokenForm.codeVerifier}
 								/>
 								{#if tokenForm.codeVerifier}
 									<p class="mt-1 text-xs text-green-600">
 										<i class="fas fa-check mr-1"></i>
-										로컬 스토리지에서 자동으로 불러왔습니다.
+										세션 스토리지에서 자동으로 불러왔습니다.
 									</p>
 								{:else}
-									<p class="mt-1 text-xs text-gray-500">PKCE를 사용한 경우에만 필요합니다.</p>
+									<p class="mt-1 text-xs text-amber-600">
+										<i class="fas fa-exclamation-triangle mr-1"></i>
+										PKCE를 사용한 경우 세션 스토리지에서 불러오지 못했습니다. 수동으로 입력해주세요.
+									</p>
 								{/if}
 							</div>
 						</div>

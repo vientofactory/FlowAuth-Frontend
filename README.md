@@ -8,6 +8,8 @@ FlowAuth의 프론트엔드 애플리케이션입니다. SvelteKit을 기반으�
 - **Language**: TypeScript
 - **Styling**: [TailwindCSS](https://tailwindcss.com/)
 - **Build Tool**: Vite
+- **State Management**: Svelte Stores
+- **Icons**: Font Awesome
 - **Linting**: ESLint
 - **Code Formatting**: Prettier
 
@@ -15,6 +17,7 @@ FlowAuth의 프론트엔드 애플리케이션입니다. SvelteKit을 기반으�
 
 - Node.js (v18 이상)
 - npm 또는 yarn
+- 백엔드 서버 실행 중 (http://localhost:3000)
 
 ## 🛠 설치 및 실행
 
@@ -24,7 +27,16 @@ FlowAuth의 프론트엔드 애플리케이션입니다. SvelteKit을 기반으�
 npm install
 ```
 
-### 2. 개발 서버 실행
+### 2. 환경 변수 설정 (선택사항)
+
+`.env` 파일을 생성하여 백엔드 API URL을 설정할 수 있습니다:
+
+```env
+# Backend API URL (기본값: http://localhost:3000)
+VITE_API_URL=http://localhost:3000
+```
+
+### 3. 개발 서버 실행
 
 ```bash
 # 개발 모드 (핫 리로드)
@@ -36,7 +48,7 @@ npm run dev -- --open
 
 애플리케이션이 `http://localhost:5173`에서 실행됩니다.
 
-### 3. 프로덕션 빌드
+### 4. 프로덕션 빌드
 
 ```bash
 # 프로덕션용 빌드
@@ -46,7 +58,203 @@ npm run build
 npm run preview
 ```
 
-## 🧪 테스트 및 품질
+## 📁 프로젝트 구조
+
+```
+frontend/
+├── src/
+│   ├── app.css                 # 글로벌 스타일
+│   ├── app.d.ts               # 타입 정의
+│   ├── app.html               # HTML 템플릿
+│   ├── lib/
+│   │   ├── components/        # 재사용 가능한 컴포넌트
+│   │   │   ├── AuthLayout.svelte
+│   │   │   ├── Button.svelte
+│   │   │   ├── Card.svelte
+│   │   │   ├── Input.svelte
+│   │   │   ├── Modal.svelte
+│   │   │   ├── Table.svelte
+│   │   │   └── ...
+│   │   ├── composables/       # 커스텀 훅
+│   │   │   └── useToast.ts
+│   │   ├── config/            # 설정 파일
+│   │   │   └── env.ts
+│   │   ├── constants/         # 상수 정의
+│   │   │   └── app.constants.ts
+│   │   ├── stores/            # 상태 관리
+│   │   │   ├── auth.ts        # 인증 상태
+│   │   │   └── toast.ts       # 토스트 알림 상태
+│   │   ├── types/             # TypeScript 타입
+│   │   │   └── oauth.types.ts
+│   │   └── utils/             # 유틸리티 함수
+│   │       ├── api.ts         # API 클라이언트
+│   │       └── crypto.util.ts # 암호화 유틸리티
+│   └── routes/                # 페이지 라우트
+│       ├── +layout.svelte     # 레이아웃
+│       ├── +page.svelte       # 메인 페이지
+│       ├── auth/              # 인증 관련 페이지
+│       │   ├── login/         # 로그인
+│       │   └── register/      # 회원가입
+│       ├── dashboard/         # 대시보드
+│       │   ├── +page.svelte   # 대시보드 메인
+│       │   ├── clients/       # 클라이언트 관리
+│       │   ├── oauth-tester/  # OAuth2 테스터
+│       │   ├── profile/       # 프로필 관리
+│       │   ├── settings/      # 설정
+│       │   └── tokens/        # 토큰 관리
+│       ├── oauth2/            # OAuth2 플로우
+│       │   └── authorize/     # 인가 페이지
+│       └── callback/          # OAuth2 콜백
+├── static/                    # 정적 파일
+│   └── robots.txt
+├── tests/                     # 테스트 파일
+└── package.json
+```
+
+## 🎨 주요 기능
+
+### 🔐 인증 시스템
+
+- **회원가입/로그인**: JWT 기반 사용자 인증
+- **프로필 관리**: 사용자 정보 조회 및 수정
+- **세션 관리**: 자동 로그인 및 로그아웃
+
+### 🏠 대시보드
+
+- **메인 대시보드**: 통계 및 빠른 액션
+- **클라이언트 관리**: OAuth2 애플리케이션 등록/관리
+- **토큰 관리**: 발급된 토큰 조회/취소
+- **OAuth2 테스터**: 개발자용 테스트 도구
+
+### 🔄 OAuth2 플로우
+
+- **인가 요청**: 사용자 권한 승인 인터페이스
+- **콜백 처리**: 토큰 교환 및 결과 표시
+- **PKCE 지원**: 보안 강화된 인증 플로우
+
+### � 컴포넌트 라이브러리
+
+- **Button**: 다양한 스타일의 버튼 컴포넌트
+- **Input**: 폼 입력 필드
+- **Card**: 콘텐츠 컨테이너
+- **Modal**: 팝업 다이얼로그
+- **Table**: 데이터 테이블
+- **Toast**: 알림 메시지 시스템
+
+## �🧪 테스트 및 품질
+
+### 코드 품질 검사
+
+```bash
+# 타입 체크
+npm run check
+
+# 린팅 및 포맷팅
+npm run lint
+
+# 타입 체크 (워치 모드)
+npm run check:watch
+```
+
+### 개발 도구
+
+```bash
+# 코드 포맷팅
+npm run format
+
+# SvelteKit 동기화
+npm run prepare
+```
+
+## 🎯 환경별 설정
+
+### 개발 환경
+
+```bash
+npm run dev
+# HMR 활성화, 소스맵 포함
+```
+
+### 프로덕션 환경
+
+```bash
+npm run build
+npm run preview
+# 최적화된 빌드, 정적 파일 제공
+```
+
+## 🔧 주요 설정 파일
+
+### `vite.config.ts`
+
+```typescript
+import { sveltekit } from '@sveltejs/kit/vite';
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+	plugins: [sveltekit()],
+	server: {
+		port: 5173,
+		proxy: {
+			'/api': 'http://localhost:3000'
+		}
+	}
+});
+```
+
+### `tailwind.config.js`
+
+```javascript
+/** @type {import('tailwindcss').Config} */
+export default {
+	content: ['./src/**/*.{html,js,svelte,ts}'],
+	theme: {
+		extend: {
+			colors: {
+				primary: '#3b82f6',
+				secondary: '#64748b'
+			}
+		}
+	},
+	plugins: []
+};
+```
+
+## 🌐 API 통신
+
+타입 안전한 API 클라이언트를 통해 백엔드와 통신합니다:
+
+```typescript
+// lib/utils/api.ts
+export class ApiClient {
+	async getClients() {
+		return this.request('/clients');
+	}
+
+	async createClient(data: CreateClientDto) {
+		return this.request('/clients', {
+			method: 'POST',
+			body: JSON.stringify(data)
+		});
+	}
+}
+```
+
+## 📱 반응형 디자인
+
+모바일 우선 접근 방식을 채택하여 모든 디바이스에서 최적의 경험을 제공합니다.
+
+## 🤝 기여하기
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 라이선스
+
+This project is licensed under the MIT License.
 
 ```bash
 # 코드 포맷팅 확인

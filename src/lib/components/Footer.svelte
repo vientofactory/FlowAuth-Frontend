@@ -11,7 +11,7 @@
 					<div
 						class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600"
 					>
-						<span class="text-sm font-bold text-white">FA</span>
+						<i class="fas fa-shield-alt text-white text-lg"></i>
 					</div>
 					<span class="text-xl font-bold">FlowAuth</span>
 				</div>
