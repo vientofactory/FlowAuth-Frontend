@@ -16,6 +16,8 @@
 	let usePKCE = $state(true);
 	let generatedUrl = $state('');
 	let showResult = $state(false);
+	let isCopying = $state(false);
+	let copySuccess = $state(false);
 
 	const toast = useToast();
 
@@ -62,14 +64,22 @@
 			});
 
 			if (usePKCE && responseType === 'code') {
-				const codeVerifier = CryptoUtils.generateCodeVerifier();
-				const codeChallenge = await CryptoUtils.generateCodeChallenge(codeVerifier);
-				params.append('code_challenge', codeChallenge);
-				params.append('code_challenge_method', 'S256');
+				try {
+					const codeVerifier = CryptoUtils.generateCodeVerifier();
+					const codeChallenge = await CryptoUtils.generateCodeChallenge(codeVerifier);
+					params.append('code_challenge', codeChallenge);
+					params.append('code_challenge_method', 'S256');
 
-				// 코드 베리파이어를 세션 스토리지에 저장
-				sessionStorage.setItem('code_verifier', codeVerifier);
-				sessionStorage.setItem('state', state);
+					// 코드 베리파이어를 세션 스토리지에 저장
+					sessionStorage.setItem('code_verifier', codeVerifier);
+					sessionStorage.setItem('state', state);
+				} catch (error) {
+					console.error('Failed to generate PKCE parameters:', error);
+					toast.error('PKCE 파라미터 생성에 실패했습니다. 페이지를 새로고침 후 다시 시도해주세요.');
+					return;
+				}
+			} else if (responseType === 'code' && !usePKCE) {
+				toast.warning('PKCE를 사용하지 않으면 보안이 취약해질 수 있습니다. 프로덕션 환경에서는 PKCE 사용을 권장합니다.');
 			}
 
 			generatedUrl = `${baseUrl}?${params.toString()}`;
@@ -82,9 +92,29 @@
 		}
 	}
 
-	function copyUrl() {
-		navigator.clipboard.writeText(generatedUrl);
-		toast.success('URL이 클립보드에 복사되었습니다.');
+	async function copyUrl() {
+		if (!generatedUrl || isCopying) return;
+
+		try {
+			isCopying = true;
+			copySuccess = false;
+
+			await navigator.clipboard.writeText(generatedUrl);
+
+			copySuccess = true;
+			toast.success('URL이 클립보드에 복사되었습니다!');
+
+			// 2초 후 성공 상태 초기화
+			setTimeout(() => {
+				copySuccess = false;
+			}, 2000);
+
+		} catch (error) {
+			console.error('Failed to copy URL:', error);
+			toast.error('URL 복사에 실패했습니다. 수동으로 복사해주세요.');
+		} finally {
+			isCopying = false;
+		}
 	}
 
 	function openUrl() {
@@ -249,16 +279,42 @@
 				<div class="space-y-4">
 					<!-- 생성된 URL -->
 					<div>
-						<h4 class="mb-2 block text-sm font-medium text-gray-700">생성된 인증 URL</h4>
-						<div class="rounded-md border border-gray-200 bg-gray-50 p-3">
+						<div class="flex items-center justify-between mb-2">
+							<h4 class="block text-sm font-medium text-gray-700">생성된 인증 URL</h4>
+							{#if copySuccess}
+								<span class="text-xs text-green-600 font-medium animate-pulse">
+									<i class="fas fa-check-circle mr-1"></i>
+									복사 완료
+								</span>
+							{/if}
+						</div>
+						<div class="rounded-md border p-3 transition-all duration-300
+							{copySuccess
+								? 'border-green-300 bg-green-50 shadow-md transform scale-[1.02]'
+								: 'border-gray-200 bg-gray-50'}">
 							<code class="text-xs break-all text-gray-800">
 								{generatedUrl}
 							</code>
 						</div>
 						<div class="mt-2 flex space-x-2">
-							<Button size="sm" onclick={copyUrl}>
-								<i class="fas fa-copy mr-2"></i>
-								복사
+							<Button
+								size="sm"
+								onclick={copyUrl}
+								disabled={isCopying}
+								class="transition-all duration-200 {copySuccess
+									? 'bg-green-600 hover:bg-green-700 text-white shadow-lg transform scale-105'
+									: 'bg-blue-600 hover:bg-blue-700'}"
+							>
+								{#if isCopying}
+									<i class="fas fa-spinner fa-spin mr-2"></i>
+									복사 중...
+								{:else if copySuccess}
+									<i class="fas fa-check mr-2"></i>
+									복사됨!
+								{:else}
+									<i class="fas fa-copy mr-2"></i>
+									복사
+								{/if}
 							</Button>
 							<Button size="sm" variant="outline" onclick={openUrl}>
 								<i class="fas fa-external-link-alt mr-2"></i>

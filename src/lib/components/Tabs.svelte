@@ -30,9 +30,9 @@
 	}: TabsProps = $props();
 
 	const sizeClasses = {
-		sm: 'text-sm px-3 py-2',
-		md: 'text-sm px-4 py-2',
-		lg: 'text-base px-6 py-3'
+		sm: 'text-sm px-2 py-1.5 sm:px-3 sm:py-2',
+		md: 'text-sm px-3 py-2 sm:px-4',
+		lg: 'text-base px-4 py-2 sm:px-6 sm:py-3'
 	};
 
 	const variantClasses = {
@@ -65,37 +65,40 @@
 
 <div class={className}>
 	<!-- Tab Navigation -->
-	<nav class={`flex space-x-1 ${variantClasses[variant].container}`} aria-label="Tabs">
-		{#each tabs as tab (tab.id)}
-			<button
-				type="button"
-				class={`
-					${sizeClasses[size]}
-					${variantClasses[variant].tab}
-					${activeTab === tab.id ? variantClasses[variant].activeTab : variantClasses[variant].inactiveTab}
-					${tab.disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
-					font-medium transition-colors duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none
-				`}
-				onclick={() => handleTabClick(tab)}
-				disabled={tab.disabled}
-				aria-selected={activeTab === tab.id}
-				role="tab"
-			>
-				<div class="flex items-center space-x-2">
-					{#if tab.icon}
-						<i class={tab.icon}></i>
-					{/if}
-					<span>{tab.label}</span>
-					{#if tab.badge}
-						<span
-							class="ml-2 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600"
-						>
-							{tab.badge}
-						</span>
-					{/if}
-				</div>
-			</button>
-		{/each}
+	<nav class={`flex overflow-x-auto ${variantClasses[variant].container}`} aria-label="Tabs">
+		<div class="flex min-w-full space-x-1">
+			{#each tabs as tab (tab.id)}
+				<button
+					type="button"
+					class={`
+						${sizeClasses[size]}
+						${variantClasses[variant].tab}
+						${activeTab === tab.id ? variantClasses[variant].activeTab : variantClasses[variant].inactiveTab}
+						${tab.disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
+						font-medium transition-colors duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none
+						whitespace-nowrap flex-shrink-0
+					`}
+					onclick={() => handleTabClick(tab)}
+					disabled={tab.disabled}
+					aria-selected={activeTab === tab.id}
+					role="tab"
+				>
+					<div class="flex items-center space-x-1 sm:space-x-2">
+						{#if tab.icon}
+							<i class={tab.icon}></i>
+						{/if}
+						<span>{tab.label}</span>
+						{#if tab.badge}
+							<span
+								class="ml-1 sm:ml-2 inline-flex h-4 w-4 sm:h-5 sm:w-auto sm:min-w-[1.25rem] items-center justify-center rounded-full bg-gray-100 px-1 sm:px-2 py-0.5 text-xs font-medium text-gray-600"
+							>
+								{tab.badge}
+							</span>
+						{/if}
+					</div>
+				</button>
+			{/each}
+		</div>
 	</nav>
 
 	<!-- Tab Content -->

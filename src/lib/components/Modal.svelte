@@ -4,7 +4,7 @@
 	interface ModalProps {
 		open?: boolean;
 		title?: string;
-		size?: 'sm' | 'md' | 'lg' | 'xl';
+		size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
 		header?: Snippet;
 		children?: Snippet;
 		footer?: Snippet;
@@ -27,7 +27,8 @@
 		sm: 'max-w-md',
 		md: 'max-w-lg',
 		lg: 'max-w-2xl',
-		xl: 'max-w-4xl'
+		xl: 'max-w-4xl',
+		full: 'max-w-full mx-4'
 	};
 
 	function handleBackdropClick(event: MouseEvent) {
@@ -57,36 +58,40 @@
 		<div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
 			<!-- Modal panel -->
 			<div
-				class="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:p-6 {sizeClasses[
-					size
-				]} {className}"
+				class="relative w-full transform overflow-hidden rounded-t-lg bg-white text-left shadow-xl transition-all sm:rounded-lg
+				{sizeClasses[size]} {className}
+				sm:my-8 sm:max-h-[90vh] max-h-[85vh] overflow-y-auto"
 			>
+				<!-- Mobile drag handle -->
+				<div class="block sm:hidden mx-auto mt-3 h-1 w-12 rounded-full bg-gray-300"></div>
+
 				<!-- Header -->
 				{#if title || header}
-					<div class="mb-4 flex items-center justify-between">
+					<div class="px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200">
 						{#if header}
 							{@render header()}
 						{:else if title}
-							<h3 id="modal-title" class="text-lg font-semibold text-gray-900">
-								{title}
-							</h3>
-						{/if}
-
-						{#if onClose}
-							<button
-								type="button"
-								class="rounded-md bg-white text-gray-400 hover:text-gray-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-								onclick={onClose}
-							>
-								<span class="sr-only">Close</span>
-								<i class="fas fa-times h-5 w-5"></i>
-							</button>
+							<div class="flex items-center justify-between">
+								<h3 id="modal-title" class="text-base sm:text-lg font-semibold text-gray-900 pr-4">
+									{title}
+								</h3>
+								{#if onClose}
+									<button
+										type="button"
+										class="flex-shrink-0 rounded-md bg-white p-2 text-gray-400 hover:text-gray-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+										onclick={onClose}
+									>
+										<span class="sr-only">Close</span>
+										<i class="fas fa-times h-4 w-4 sm:h-5 sm:w-5"></i>
+									</button>
+								{/if}
+							</div>
 						{/if}
 					</div>
 				{/if}
 
 				<!-- Body -->
-				<div class="mb-4">
+				<div class="px-4 py-4 sm:px-6 sm:py-6">
 					{#if children}
 						{@render children()}
 					{/if}
@@ -94,7 +99,7 @@
 
 				<!-- Footer -->
 				{#if footer}
-					<div class="flex justify-end space-x-3 border-t border-gray-200 pt-4">
+					<div class="flex flex-col gap-3 border-t border-gray-200 px-4 py-4 sm:flex-row sm:justify-end sm:space-x-3 sm:px-6 sm:py-4">
 						{@render footer()}
 					</div>
 				{/if}

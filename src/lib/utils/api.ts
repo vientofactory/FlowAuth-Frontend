@@ -13,6 +13,7 @@ export interface CreateClientData {
 	description?: string;
 	redirectUris: string[];
 	grants: string[];
+	scopes?: string;
 }
 
 class ApiClient {
@@ -261,7 +262,12 @@ class ApiClient {
 	}
 
 	// 대시보드 통계 API
-	async getDashboardStats() {
+	async getDashboardStats(): Promise<{
+		totalClients: number;
+		activeTokens: number;
+		lastLoginDate: Date | null;
+		accountCreated: Date | null;
+	}> {
 		return this.request('/oauth2/dashboard/stats');
 	} // 사용자 토큰 관리 API
 	async getUserTokens() {

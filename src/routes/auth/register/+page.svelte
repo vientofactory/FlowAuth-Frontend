@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Card, Button, Input } from '$lib';
-	import Footer from '$lib/components/Footer.svelte';
 	import { apiClient, useToast } from '$lib';
 	import type { CreateUserDto } from '$lib';
 	import { goto } from '$app/navigation';
@@ -297,9 +296,6 @@
 			</div>
 		</Card>
 	</div>
-
-	<!-- 푸터 -->
-	<Footer />
 </div>
 
 <style>

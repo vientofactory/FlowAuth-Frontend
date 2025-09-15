@@ -60,17 +60,32 @@ export class CryptoUtils {
 	 * PKCE code_challenge 생성
 	 * @param codeVerifier code_verifier 값
 	 * @returns SHA256 해시된 code_challenge
+	 * @throws Error 암호화 작업 실패 시
 	 */
 	static async generateCodeChallenge(codeVerifier: string): Promise<string> {
-		const encoder = new TextEncoder();
-		const data = encoder.encode(codeVerifier);
-		const digest = await crypto.subtle.digest('SHA-256', data);
+		if (!codeVerifier || typeof codeVerifier !== 'string') {
+			throw new Error('Code verifier must be a non-empty string');
+		}
 
-		// base64url 인코딩 (패딩 제거)
-		return btoa(String.fromCharCode(...new Uint8Array(digest)))
-			.replace(/\+/g, '-')
-			.replace(/\//g, '_')
-			.replace(/=/g, '');
+		if (codeVerifier.length < 43 || codeVerifier.length > 128) {
+			throw new Error('Code verifier must be between 43 and 128 characters long');
+		}
+
+		try {
+			const encoder = new TextEncoder();
+			const data = encoder.encode(codeVerifier);
+			const digest = await crypto.subtle.digest('SHA-256', data);
+
+			// base64url 인코딩 (패딩 제거)
+			return btoa(String.fromCharCode(...new Uint8Array(digest)))
+				.replace(/\+/g, '-')
+				.replace(/\//g, '_')
+				.replace(/=/g, '');
+		} catch (error) {
+			throw new Error(
+				`Failed to generate code challenge: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
+		}
 	}
 
 	/**

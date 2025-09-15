@@ -98,52 +98,60 @@
 	showBackButton={true}
 >
 	{#snippet headerActions()}
-		<Button
-			onclick={revokeAllTokens}
-			variant="outline"
-			class="border-red-300 text-red-600 hover:bg-red-50"
-		>
-			<i class="fas fa-ban mr-2"></i>
-			모든 토큰 취소
-		</Button>
+		<div class="flex flex-col gap-2 sm:flex-row">
+			<Button
+				onclick={revokeAllTokens}
+				variant="outline"
+				class="w-full sm:w-auto h-10 sm:h-11 border-red-300 text-red-600 hover:bg-red-50"
+			>
+				<i class="fas fa-ban mr-2"></i>
+				모든 토큰 취소
+			</Button>
+		</div>
 	{/snippet}
 
 	<!-- 통계 카드 -->
-	<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-		<Card>
+	<div class="mb-4 sm:mb-6 grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+		<Card class="p-3 sm:p-4">
 			<div class="flex items-center">
 				<div class="flex-shrink-0">
-					<i class="fas fa-key text-2xl text-blue-600"></i>
+					<div class="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-blue-100">
+						<i class="fas fa-key text-lg sm:text-xl text-blue-600"></i>
+					</div>
 				</div>
-				<div class="ml-3">
-					<p class="text-sm font-medium text-gray-500">총 토큰</p>
-					<p class="text-lg font-semibold text-gray-900">{tokens.length}</p>
+				<div class="ml-2 sm:ml-3 flex-1">
+					<p class="text-xs sm:text-sm font-medium text-gray-500">총 토큰</p>
+					<p class="text-lg sm:text-xl font-bold text-gray-900">{tokens.length}</p>
 				</div>
 			</div>
 		</Card>
 
-		<Card>
+		<Card class="p-3 sm:p-4">
 			<div class="flex items-center">
 				<div class="flex-shrink-0">
-					<i class="fas fa-check-circle text-2xl text-green-600"></i>
+					<div class="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-green-100">
+						<i class="fas fa-check-circle text-lg sm:text-xl text-green-600"></i>
+					</div>
 				</div>
-				<div class="ml-3">
-					<p class="text-sm font-medium text-gray-500">활성 토큰</p>
-					<p class="text-lg font-semibold text-gray-900">
+				<div class="ml-2 sm:ml-3 flex-1">
+					<p class="text-xs sm:text-sm font-medium text-gray-500">활성 토큰</p>
+					<p class="text-lg sm:text-xl font-bold text-gray-900">
 						{tokens.filter((t) => !isExpired(t)).length}
 					</p>
 				</div>
 			</div>
 		</Card>
 
-		<Card>
+		<Card class="p-3 sm:p-4">
 			<div class="flex items-center">
 				<div class="flex-shrink-0">
-					<i class="fas fa-clock text-2xl text-yellow-600"></i>
+					<div class="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-yellow-100">
+						<i class="fas fa-clock text-lg sm:text-xl text-yellow-600"></i>
+					</div>
 				</div>
-				<div class="ml-3">
-					<p class="text-sm font-medium text-gray-500">만료된 토큰</p>
-					<p class="text-lg font-semibold text-gray-900">
+				<div class="ml-2 sm:ml-3 flex-1">
+					<p class="text-xs sm:text-sm font-medium text-gray-500">만료된 토큰</p>
+					<p class="text-lg sm:text-xl font-bold text-gray-900">
 						{tokens.filter((t) => isExpired(t)).length}
 					</p>
 				</div>
@@ -154,7 +162,7 @@
 	<!-- 토큰 목록 -->
 	<Card>
 		<div class="mb-4 flex items-center justify-between">
-			<h3 class="text-lg font-medium text-gray-900">토큰 목록</h3>
+			<h3 class="text-base sm:text-lg font-medium text-gray-900">토큰 목록</h3>
 		</div>
 
 		{#if isLoading}
@@ -168,27 +176,29 @@
 				<p class="mb-4 text-gray-500">발급된 토큰이 없습니다.</p>
 			</div>
 		{:else}
-			<div class="space-y-4">
+			<div class="space-y-3 sm:space-y-4">
 				{#each tokens as token (token.id)}
-					<div class="rounded-lg border border-gray-200 p-4 transition-shadow hover:shadow-md">
-						<div class="flex items-start justify-between">
+					<div class="rounded-lg border border-gray-200 p-3 sm:p-4 transition-shadow hover:shadow-md">
+						<div class="flex flex-col space-y-3 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
 							<div class="flex-1">
-								<div class="flex items-center space-x-3">
-									<h4 class="text-lg font-medium text-gray-900">
+								<div class="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3">
+									<h4 class="text-base sm:text-lg font-medium text-gray-900">
 										{token.client?.name || `Client ${token.clientId}`}
 									</h4>
-									<Badge variant="info" size="sm">
-										{token.tokenType}
-									</Badge>
-									<Badge {...getTokenStatus(token)} size="sm">
-										{getTokenStatus(token).label}
-									</Badge>
+									<div class="flex flex-wrap gap-2">
+										<Badge variant="info" size="sm">
+											{token.tokenType}
+										</Badge>
+										<Badge {...getTokenStatus(token)} size="sm">
+											{getTokenStatus(token).label}
+										</Badge>
+									</div>
 								</div>
 
 								<div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
 									<div>
 										<p class="text-xs font-medium text-gray-500">토큰 ID</p>
-										<p class="font-mono text-sm text-gray-900">#{token.id}</p>
+										<p class="font-mono text-xs sm:text-sm text-gray-900 mt-1">#{token.id}</p>
 									</div>
 
 									<div>
@@ -197,45 +207,51 @@
 											{#each getTokenScopes(token) as scope (scope)}
 												<Badge variant="secondary" size="sm">{scope}</Badge>
 											{:else}
-												<span class="text-sm text-gray-500">없음</span>
+												<span class="text-xs sm:text-sm text-gray-500">없음</span>
 											{/each}
 										</div>
 									</div>
 
 									<div>
 										<p class="text-xs font-medium text-gray-500">생성일</p>
-										<p class="text-sm text-gray-900">{formatDate(token.createdAt)}</p>
+										<p class="text-xs sm:text-sm text-gray-900 mt-1">{formatDate(token.createdAt)}</p>
 									</div>
 
 									<div>
 										<p class="text-xs font-medium text-gray-500">만료일</p>
-										<p class="text-sm text-gray-900">{formatDate(token.expiresAt)}</p>
+										<p class="text-xs sm:text-sm text-gray-900 mt-1">{formatDate(token.expiresAt)}</p>
 									</div>
 
 									{#if token.refreshToken && token.refreshExpiresAt}
-										<div>
+										<div class="sm:col-span-2 lg:col-span-4">
 											<p class="text-xs font-medium text-gray-500">리프레시 토큰 만료일</p>
-											<p class="text-sm text-gray-900">{formatDate(token.refreshExpiresAt)}</p>
+											<p class="text-xs sm:text-sm text-gray-900 mt-1">{formatDate(token.refreshExpiresAt)}</p>
 										</div>
 									{/if}
 								</div>
 							</div>
 
-							<div class="ml-4">
+							<!-- 액션 버튼 -->
+							<div class="flex sm:flex-col gap-2 sm:ml-4">
 								{#if !isExpired(token)}
 									<Button
 										variant="outline"
 										size="sm"
 										onclick={() => revokeToken(token.id)}
-										class="border-red-300 text-red-600 hover:bg-red-50"
+										class="flex-1 sm:flex-none h-9 sm:h-8 px-3 text-sm border-red-300 text-red-600 hover:bg-red-50"
 									>
-										<i class="fas fa-ban mr-2"></i>
-										취소
+										<i class="fas fa-ban mr-1 sm:mr-0"></i>
+										<span class="sm:hidden">취소</span>
 									</Button>
 								{:else}
-									<Button variant="outline" size="sm" disabled class="text-gray-400">
-										<i class="fas fa-clock mr-2"></i>
-										만료됨
+									<Button
+										variant="outline"
+										size="sm"
+										disabled
+										class="flex-1 sm:flex-none h-9 sm:h-8 px-3 text-sm text-gray-400"
+									>
+										<i class="fas fa-clock mr-1 sm:mr-0"></i>
+										<span class="sm:hidden">만료됨</span>
 									</Button>
 								{/if}
 							</div>
@@ -246,36 +262,36 @@
 		{/if}
 	</Card>
 	<!-- 토큰 관리 안내 -->
-	<Card class="mt-6">
-		<h3 class="mb-4 text-lg font-medium text-gray-900">토큰 관리 안내</h3>
-		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-			<div class="rounded-lg border border-blue-200 bg-blue-50 p-4">
+	<Card class="mt-4 sm:mt-6">
+		<h3 class="mb-4 text-base sm:text-lg font-medium text-gray-900">토큰 관리 안내</h3>
+		<div class="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
+			<div class="rounded-lg border border-blue-200 bg-blue-50 p-3 sm:p-4">
 				<div class="mb-2 flex items-center">
 					<i class="fas fa-key mr-2 text-blue-600"></i>
-					<h4 class="font-medium text-blue-900">액세스 토큰</h4>
+					<h4 class="font-medium text-blue-900 text-sm sm:text-base">액세스 토큰</h4>
 				</div>
-				<p class="text-sm text-blue-800">
+				<p class="text-xs sm:text-sm text-blue-800">
 					API 리소스에 접근하기 위한 토큰입니다. 일반적으로 짧은 수명을 가집니다.
 				</p>
 			</div>
 
-			<div class="rounded-lg border border-green-200 bg-green-50 p-4">
+			<div class="rounded-lg border border-green-200 bg-green-50 p-3 sm:p-4">
 				<div class="mb-2 flex items-center">
 					<i class="fas fa-redo mr-2 text-green-600"></i>
-					<h4 class="font-medium text-green-900">리프레시 토큰</h4>
+					<h4 class="font-medium text-green-900 text-sm sm:text-base">리프레시 토큰</h4>
 				</div>
-				<p class="text-sm text-green-800">
+				<p class="text-xs sm:text-sm text-green-800">
 					새로운 액세스 토큰을 얻기 위한 토큰입니다. 더 긴 수명을 가집니다.
 				</p>
 			</div>
 		</div>
 
-		<div class="mt-4 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+		<div class="mt-3 sm:mt-4 rounded-lg border border-yellow-200 bg-yellow-50 p-3 sm:p-4">
 			<div class="mb-2 flex items-center">
 				<i class="fas fa-exclamation-triangle mr-2 text-yellow-600"></i>
-				<h4 class="font-medium text-yellow-900">보안 주의사항</h4>
+				<h4 class="font-medium text-yellow-900 text-sm sm:text-base">보안 주의사항</h4>
 			</div>
-			<ul class="space-y-1 text-sm text-yellow-800">
+			<ul class="space-y-1 text-xs sm:text-sm text-yellow-800">
 				<li>• 의심스러운 활동이 발견되면 즉시 토큰을 취소하세요.</li>
 				<li>• 정기적으로 사용하지 않는 토큰을 정리하세요.</li>
 				<li>• 토큰이 유출되었다고 의심되면 모든 토큰을 취소하세요.</li>

@@ -5,12 +5,15 @@
 	import type { User } from '$lib';
 
 	let user = $state<User | null>(null);
+	let isLoading = $state(true);
 
 	// 프로필 편집 상태
 	let isEditing = $state(false);
 	let editForm = $state({
 		firstName: '',
-		lastName: ''
+		lastName: '',
+		username: '',
+		email: ''
 	});
 
 	// 비밀번호 변경
@@ -47,7 +50,9 @@
 		if (user) {
 			editForm = {
 				firstName: user.firstName,
-				lastName: user.lastName
+				lastName: user.lastName,
+				username: user.username,
+				email: user.email
 			};
 		}
 	}
@@ -141,20 +146,15 @@
 	showBackButton={true}
 >
 	{#if user}
-		<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+		<div class="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
 			<!-- 프로필 정보 -->
 			<div class="lg:col-span-2">
 				<Card>
-					<div class="mb-6 flex items-center justify-between">
-						<h3 class="text-lg font-medium text-gray-900">기본 정보</h3>
-						<Button variant="outline" onclick={toggleEdit}>
-							{#if isEditing}
-								<i class="fas fa-times mr-2"></i>
-								취소
-							{:else}
-								<i class="fas fa-edit mr-2"></i>
-								편집
-							{/if}
+					<div class="mb-4 sm:mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+						<h3 class="text-base sm:text-lg font-medium text-gray-900">기본 정보</h3>
+						<Button variant="outline" onclick={toggleEdit} class="w-full sm:w-auto h-10 sm:h-11">
+							<i class="fas fa-edit mr-2"></i>
+							{isEditing ? '취소' : '편집'}
 						</Button>
 					</div>
 

@@ -33,8 +33,8 @@
 	let currentPath = $state('');
 	let mobileMenuOpen = $state(false);
 
-	onMount(async () => {
-		await authStore.initialize();
+	onMount(() => {
+		authStore.initialize().catch(console.error);
 
 		unsubscribe = authState.subscribe((state) => {
 			user = state.user;
@@ -162,35 +162,59 @@
 		<!-- 공통 네비게이션 -->
 		<Navigation showDashboardButton={false} />
 
-		<!-- 모바일 메뉴 버튼 -->
-		<div class="lg:hidden">
-			<div class="flex items-center justify-between bg-white px-4 py-3 shadow-sm">
-				<h1 class="text-xl font-bold text-gray-900">{title}</h1>
-				<button
-					onclick={toggleMobileMenu}
-					class="flex h-8 w-8 items-center justify-center rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-					aria-label="메뉴 열기"
-				>
-					<i class="fas fa-bars text-lg"></i>
-				</button>
+		<!-- 모바일 헤더 -->
+		<div class="sticky top-0 z-40 bg-white shadow-sm lg:hidden">
+			<div class="flex items-center justify-between px-4 py-3">
+				<div class="flex items-center space-x-3">
+					{#if showBackButton}
+						<button
+							onclick={goBack}
+							class="flex h-8 w-8 items-center justify-center rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+							aria-label="뒤로 가기"
+						>
+							<i class="fas fa-arrow-left text-sm"></i>
+						</button>
+					{/if}
+					<div>
+						<h1 class="text-lg font-bold text-gray-900">{title}</h1>
+						{#if description}
+							<p class="text-xs text-gray-600">{description}</p>
+						{/if}
+					</div>
+				</div>
+				<div class="flex items-center space-x-2">
+					{#if headerActions}
+						{@render headerActions()}
+					{/if}
+					<button
+						onclick={toggleMobileMenu}
+						class="flex h-8 w-8 items-center justify-center rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+						aria-label="메뉴 열기"
+					>
+						<i class="fas fa-bars text-sm"></i>
+					</button>
+				</div>
 			</div>
 
 			<!-- 모바일 메뉴 드롭다운 -->
 			{#if mobileMenuOpen}
-				<div class="bg-white shadow-lg">
-					<nav class="px-2 py-3">
+				<div class="absolute left-0 right-0 top-full z-50 bg-white shadow-lg border-t border-gray-200">
+					<nav class="max-h-96 overflow-y-auto px-2 py-3">
 						<div class="space-y-1">
 							{#each dashboardMenuItems as item (item.href)}
 								<a
 									href={item.href}
-									class="block rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150 ease-in-out
+									class="flex items-center rounded-md px-3 py-3 text-sm font-medium transition-colors duration-150 ease-in-out
 										{isMenuActive(item.href)
 										? 'bg-blue-100 text-blue-900'
 										: 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}"
 									onclick={() => (mobileMenuOpen = false)}
 								>
-									<i class="{item.icon} mr-3 h-5 w-5"></i>
-									{item.label}
+									<i class="{item.icon} mr-3 h-5 w-5 flex-shrink-0"></i>
+									<div>
+										<div class="font-medium">{item.label}</div>
+										<div class="text-xs text-gray-500">{item.description}</div>
+									</div>
 								</a>
 							{/each}
 						</div>
@@ -200,23 +224,30 @@
 		</div>
 
 		<div class="flex">
-			<!-- 대시보드 사이드바 -->
-			<aside class="hidden w-64 bg-white shadow-sm lg:block">
-				<nav class="mt-5 px-2">
+			<!-- 데스크톱 사이드바 -->
+			<aside class="hidden w-64 bg-white shadow-sm lg:block lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
+				<div class="p-6">
+					<h2 class="text-lg font-semibold text-gray-900">대시보드</h2>
+					<p class="text-sm text-gray-600">메뉴를 선택하세요</p>
+				</div>
+				<nav class="px-3">
 					<div class="space-y-1">
 						{#each dashboardMenuItems as item (item.href)}
 							<a
 								href={item.href}
-								class="group flex items-center rounded-md px-2 py-2 text-sm font-medium transition-colors duration-150 ease-in-out
+								class="group flex items-center rounded-lg px-3 py-3 text-sm font-medium transition-all duration-200 ease-in-out
 									{isMenuActive(item.href)
-									? 'border-r-2 border-blue-500 bg-blue-100 text-blue-900'
+									? 'bg-blue-100 text-blue-900 shadow-sm'
 									: 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}"
 							>
 								<i class="{item.icon} mr-3 h-5 w-5 flex-shrink-0"></i>
 								<div class="flex-1">
-									<div class="text-sm font-medium">{item.label}</div>
+									<div class="font-medium">{item.label}</div>
 									<div class="text-xs text-gray-500">{item.description}</div>
 								</div>
+								{#if isMenuActive(item.href)}
+									<div class="h-2 w-2 rounded-full bg-blue-600"></div>
+								{/if}
 							</a>
 						{/each}
 					</div>
@@ -224,18 +255,23 @@
 			</aside>
 
 			<!-- 메인 콘텐츠 -->
-			<main class="flex-1">
-				<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-					<!-- 페이지 헤더 -->
+			<main class="flex-1 min-h-screen">
+				<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+					<!-- 데스크톱 페이지 헤더 -->
 					{#if showPageHeader && (title || description)}
-						<div class="mb-8">
+						<div class="mb-6 hidden lg:block">
 							<div class="flex items-center justify-between">
 								<div>
-									<h1 class="text-3xl font-bold text-gray-900">{title}</h1>
+									<h1 class="text-2xl font-bold text-gray-900 lg:text-3xl">{title}</h1>
 									{#if description}
-										<p class="mt-2 text-lg text-gray-600">{description}</p>
+										<p class="mt-1 text-sm text-gray-600 lg:text-lg lg:mt-2">{description}</p>
 									{/if}
 								</div>
+								{#if headerActions}
+									<div class="flex items-center space-x-3">
+										{@render headerActions()}
+									</div>
+								{/if}
 							</div>
 						</div>
 					{/if}
@@ -245,6 +281,27 @@
 				</div>
 			</main>
 		</div>
+
+		<!-- 모바일 하단 네비게이션 -->
+		<div class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 lg:hidden">
+			<nav class="flex items-center justify-around px-2 py-2">
+				{#each dashboardMenuItems.slice(0, 5) as item (item.href)}
+					<a
+						href={item.href}
+						class="flex flex-col items-center justify-center rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200
+							{isMenuActive(item.href)
+							? 'bg-blue-100 text-blue-900'
+							: 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}"
+					>
+						<i class="{item.icon} mb-1 h-5 w-5"></i>
+						<span class="text-center leading-tight">{item.label}</span>
+					</a>
+				{/each}
+			</nav>
+		</div>
+
+		<!-- 모바일 하단 네비게이션용 여백 -->
+		<div class="h-16 lg:hidden"></div>
 
 		<!-- 푸터 -->
 		<Footer />

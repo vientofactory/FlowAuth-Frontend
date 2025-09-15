@@ -193,8 +193,10 @@
 				{:else if isAuthenticated}
 					<!-- 로그인 상태: 프로필 버튼 -->
 					<button
-						class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-800"
+						class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-800 profile-dropdown transition-colors duration-200 {profileDropdownOpen ? 'ring-2 ring-blue-300' : ''}"
 						onclick={() => (profileDropdownOpen = !profileDropdownOpen)}
+						aria-expanded={profileDropdownOpen}
+						aria-label="프로필 메뉴"
 					>
 						<span class="text-sm font-medium">
 							{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}

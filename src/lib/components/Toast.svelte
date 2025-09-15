@@ -5,12 +5,14 @@
 		message = '',
 		type = 'info',
 		duration = 3000,
-		show = $bindable(false)
+		show = $bindable(false),
+		position = 'top-right'
 	}: {
 		message?: string;
 		type?: 'success' | 'error' | 'info' | 'warning';
 		duration?: number;
 		show?: boolean;
+		position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center';
 	} = $props();
 
 	let timeoutId: number | undefined;
@@ -25,9 +27,8 @@
 
 			// duration 후에 토스트 숨기기
 			timeoutId = setTimeout(() => {
-				// 부모 컴포넌트에 토스트가 숨겨졌음을 알림 (필요시)
 				show = false;
-			}, duration);
+			}, duration) as unknown as number;
 		} else {
 			// show가 false가 되면 타이머 정리
 			if (timeoutId) {
@@ -83,17 +84,39 @@
 		}
 	}
 
+	function getPositionClasses() {
+		const baseClasses = 'fixed z-50 animate-slide-in-right';
+		
+		switch (position) {
+			case 'top-left':
+				return `${baseClasses} top-4 left-4`;
+			case 'bottom-right':
+				return `${baseClasses} bottom-4 right-4`;
+			case 'bottom-left':
+				return `${baseClasses} bottom-4 left-4`;
+			case 'top-center':
+				return `${baseClasses} top-4 left-1/2 transform -translate-x-1/2`;
+			case 'bottom-center':
+				return `${baseClasses} bottom-4 left-1/2 transform -translate-x-1/2`;
+			default: // top-right
+				return `${baseClasses} top-4 right-4`;
+		}
+	}
+
 	let colors = $derived(getColors());
 	let iconClass = $derived(getIcon());
+	let positionClasses = $derived(getPositionClasses());
 </script>
 
 {#if show}
-	<div class="animate-slide-in-right fixed top-4 right-4 z-50" transition:fade={{ duration: 200 }}>
+	<div class={positionClasses} transition:fade={{ duration: 200 }}>
 		<div
-			class="flex items-center rounded-lg border-l-4 px-4 py-3 shadow-lg backdrop-blur-sm {colors.border} {colors.background}"
+			class="flex items-center rounded-lg border-l-4 px-3 py-3 shadow-lg backdrop-blur-sm sm:px-4
+			{colors.border} {colors.background}
+			max-w-sm sm:max-w-md w-full mx-4 sm:mx-0"
 		>
-			<i class="mr-3 {iconClass} {colors.icon}"></i>
-			<p class="font-medium {colors.text}">{message}</p>
+			<i class="mr-2 sm:mr-3 flex-shrink-0 {iconClass} {colors.icon} text-lg sm:text-xl"></i>
+			<p class="font-medium {colors.text} text-sm sm:text-base flex-1 pr-2">{message}</p>
 			<button
 				onclick={() => {
 					if (timeoutId) {
@@ -102,10 +125,10 @@
 					}
 					show = false;
 				}}
-				class="ml-4 text-gray-400 transition-colors duration-200 hover:text-gray-600"
+				class="flex-shrink-0 ml-2 text-gray-400 transition-colors duration-200 hover:text-gray-600 p-1"
 				aria-label="알림 닫기"
 			>
-				<i class="fas fa-times"></i>
+				<i class="fas fa-times text-sm sm:text-base"></i>
 			</button>
 		</div>
 	</div>
@@ -123,7 +146,52 @@
 		}
 	}
 
+	@keyframes slide-in-left {
+		from {
+			transform: translateX(-100%);
+			opacity: 0;
+		}
+		to {
+			transform: translateX(0);
+			opacity: 1;
+		}
+	}
+
+	@keyframes slide-in-down {
+		from {
+			transform: translateY(-100%);
+			opacity: 0;
+		}
+		to {
+			transform: translateY(0);
+			opacity: 1;
+		}
+	}
+
+	@keyframes slide-in-up {
+		from {
+			transform: translateY(100%);
+			opacity: 0;
+		}
+		to {
+			transform: translateY(0);
+			opacity: 1;
+		}
+	}
+
 	.animate-slide-in-right {
 		animation: slide-in-right 0.3s ease-out;
+	}
+
+	.animate-slide-in-left {
+		animation: slide-in-left 0.3s ease-out;
+	}
+
+	.animate-slide-in-down {
+		animation: slide-in-down 0.3s ease-out;
+	}
+
+	.animate-slide-in-up {
+		animation: slide-in-up 0.3s ease-out;
 	}
 </style>

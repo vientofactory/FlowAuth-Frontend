@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Card, Button, Input } from '$lib';
-	import Footer from '$lib/components/Footer.svelte';
 	import { authStore, useToast } from '$lib';
 	import { MESSAGES, APP_CONSTANTS, ROUTES } from '$lib/constants/app.constants';
 	import { onMount } from 'svelte';
@@ -222,9 +221,6 @@
 			</div>
 		</Card>
 	</div>
-
-	<!-- 푸터 -->
-	<Footer />
 </div>
 
 <style>

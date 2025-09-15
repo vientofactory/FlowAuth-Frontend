@@ -15,7 +15,7 @@
 				const timerId = setTimeout(() => {
 					toast.remove(toastItem.id);
 					timers.delete(toastItem.id);
-				}, toastItem.duration);
+				}, toastItem.duration) as unknown as number;
 				timers.set(toastItem.id, timerId);
 			}
 		});

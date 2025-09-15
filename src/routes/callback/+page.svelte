@@ -38,7 +38,11 @@
 	}
 
 	interface TokenInfo {
-		header: string;
+		header: {
+			alg: string;
+			typ: string;
+			[key: string]: unknown;
+		};
 		payload: Record<string, unknown>;
 		signature: string;
 		issuedAt: Date | null;
@@ -129,6 +133,10 @@
 			const data = await response.json();
 
 			if (!response.ok) {
+				// PKCE 관련 에러를 구분하여 처리
+				if (data.message && data.message.includes('PKCE')) {
+					throw new Error(`PKCE 검증 실패: ${data.message}`);
+				}
 				throw new Error(data.message || `HTTP error! status: ${response.status}`);
 			}
 
@@ -166,7 +174,7 @@
 	}
 
 	// 토큰 정보 디코딩
-	function decodeJWT(token: string) {
+	function decodeJWT(token: string): TokenInfo | null {
 		try {
 			const parts = token.split('.');
 			if (parts.length !== 3) {
@@ -560,7 +568,7 @@
 									<Button
 										variant="outline"
 										size="sm"
-										onclick={() => copyToClipboard(tokenResponse.access_token)}
+										onclick={() => tokenResponse && copyToClipboard(tokenResponse.access_token)}
 										class="text-xs"
 									>
 										<i class="fas fa-copy mr-1"></i>
@@ -580,7 +588,7 @@
 									<Button
 										variant="outline"
 										size="sm"
-										onclick={() => copyToClipboard(tokenResponse.refresh_token)}
+										onclick={() => tokenResponse?.refresh_token && copyToClipboard(tokenResponse.refresh_token)}
 										class="text-xs"
 									>
 										<i class="fas fa-copy mr-1"></i>
@@ -705,7 +713,7 @@
 									</div>
 									<div>
 										<div class="mb-1 text-sm font-medium text-gray-700">알고리즘</div>
-										<div class="text-sm text-gray-900">{tokenInfo.header.alg}</div>
+										<div class="text-sm text-gray-900">{tokenInfo?.header?.alg || 'N/A'}</div>
 									</div>
 								</div>
 
