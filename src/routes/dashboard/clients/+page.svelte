@@ -17,6 +17,45 @@
 		scopes: 'read write'
 	});
 
+	// 디버깅을 위한 reactive 값들
+	let clientNameValue = $state('');
+	let clientDescriptionValue = $state('');
+	let redirectUrisValue = $state('');
+	let scopesValue = $state('read write');
+
+	// 값 동기화 및 초기화
+	$effect(() => {
+		if (newClient.name !== undefined) {
+			clientNameValue = newClient.name || '';
+		}
+	});
+
+	$effect(() => {
+		if (newClient.description !== undefined) {
+			clientDescriptionValue = newClient.description || '';
+		}
+	});
+
+	$effect(() => {
+		if (newClient.redirectUris !== undefined) {
+			redirectUrisValue = newClient.redirectUris || '';
+		}
+	});
+
+	$effect(() => {
+		if (newClient.scopes !== undefined) {
+			scopesValue = newClient.scopes || 'read write';
+		}
+	});
+
+	// 초기화 보장
+	onMount(() => {
+		clientNameValue = '';
+		clientDescriptionValue = '';
+		redirectUrisValue = '';
+		scopesValue = 'read write';
+	});
+
 	const toast = useToast();
 
 	onMount(async () => {
@@ -44,6 +83,10 @@
 	}
 
 	function resetForm() {
+		clientNameValue = '';
+		clientDescriptionValue = '';
+		redirectUrisValue = '';
+		scopesValue = 'read write';
 		newClient = {
 			name: '',
 			description: '',
@@ -54,36 +97,35 @@
 	}
 
 	async function createClient() {
-		if (!newClient.name.trim()) {
+		if (!clientNameValue || clientNameValue.trim().length === 0) {
 			toast.error('클라이언트 이름을 입력해주세요.');
 			return;
 		}
 
-		if (!newClient.redirectUris.trim()) {
+		if (!redirectUrisValue || !redirectUrisValue.trim()) {
 			toast.error('리다이렉트 URI를 입력해주세요.');
 			return;
 		}
 
-		if (!newClient.scopes.trim()) {
+		if (!scopesValue || scopesValue.trim().length === 0) {
 			toast.error('권한 범위를 입력해주세요.');
 			return;
 		}
 
 		try {
-			const redirectUris = newClient.redirectUris
+			const redirectUris = redirectUrisValue
 				.split('\n')
 				.map((uri) => uri.trim())
 				.filter((uri) => uri.length > 0);
 
-			const scopes = newClient.scopes
+			const scopes = scopesValue
 				.split(' ')
 				.map((scope) => scope.trim())
-				.filter((scope) => scope.length > 0)
-				.join(' ');
+				.filter((scope) => scope.length > 0);
 
 			await apiClient.createClient({
-				name: newClient.name,
-				description: newClient.description || undefined,
+				name: clientNameValue,
+				description: clientDescriptionValue || undefined,
 				redirectUris,
 				grants: newClient.grants,
 				scopes
@@ -232,12 +274,12 @@
 							<label for="clientName" class="block text-sm font-medium text-gray-700 mb-1">
 								클라이언트 이름 *
 							</label>
-							<Input
+							<input
 								id="clientName"
-								bind:value={newClient.name}
+								bind:value={clientNameValue}
 								placeholder="클라이언트 애플리케이션 이름"
 								required
-								class="w-full h-10 sm:h-11 text-base"
+								class="w-full h-10 sm:h-11 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-3"
 							/>
 						</div>
 
@@ -245,11 +287,11 @@
 							<label for="clientDescription" class="block text-sm font-medium text-gray-700 mb-1">
 								설명
 							</label>
-							<Input
+							<input
 								id="clientDescription"
-								bind:value={newClient.description}
+								bind:value={clientDescriptionValue}
 								placeholder="클라이언트 애플리케이션 설명"
-								class="w-full h-10 sm:h-11 text-base"
+								class="w-full h-10 sm:h-11 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-3"
 							/>
 						</div>
 
@@ -259,7 +301,7 @@
 							</label>
 							<textarea
 								id="redirectUris"
-								bind:value={newClient.redirectUris}
+								bind:value={redirectUrisValue}
 								placeholder="https://example.com/callback"
 								rows="3"
 								required
@@ -272,11 +314,11 @@
 							<label for="scopes" class="block text-sm font-medium text-gray-700 mb-1">
 								권한 범위
 							</label>
-							<Input
+							<input
 								id="scopes"
-								bind:value={newClient.scopes}
+								bind:value={scopesValue}
 								placeholder="read write"
-								class="w-full h-10 sm:h-11 text-base"
+								class="w-full h-10 sm:h-11 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-3"
 							/>
 							<p class="mt-1 text-xs text-gray-500">공백으로 구분하여 입력해주세요.</p>
 						</div>

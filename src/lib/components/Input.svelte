@@ -34,7 +34,7 @@
 	let {
 		type = 'text',
 		placeholder = '',
-		value = $bindable(''),
+		value = $bindable(),
 		disabled = false,
 		required = false,
 		error = '',

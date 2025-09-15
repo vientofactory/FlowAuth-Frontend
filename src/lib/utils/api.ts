@@ -13,7 +13,7 @@ export interface CreateClientData {
 	description?: string;
 	redirectUris: string[];
 	grants: string[];
-	scopes?: string;
+	scopes?: string[];
 }
 
 class ApiClient {

@@ -11,7 +11,6 @@
 	let clients = $state<Client[]>([]);
 	let isLoading = $state(true);
 	let selectedClient = $state<Client | null>(null);
-	let scopes = $state('openid profile email');
 	let responseType = $state('code');
 	let usePKCE = $state(true);
 	let generatedUrl = $state('');
@@ -19,10 +18,55 @@
 	let isCopying = $state(false);
 	let copySuccess = $state(false);
 
+	// 스코프 관련 상태
+	let selectedScopes = $state<Set<string>>(new Set(['openid', 'profile', 'email']));
+	let showScopeSelector = $state(false);
+
+	// 사용 가능한 스코프 정의
+	const availableScopes = [
+		{ id: 'openid', name: 'OpenID', description: 'OpenID Connect 인증' },
+		{ id: 'profile', name: 'Profile', description: '사용자 프로필 정보' },
+		{ id: 'email', name: 'Email', description: '이메일 주소' },
+		{ id: 'address', name: 'Address', description: '주소 정보' },
+		{ id: 'phone', name: 'Phone', description: '전화번호' },
+		{ id: 'offline_access', name: 'Offline Access', description: '리프레시 토큰 발급' },
+		{ id: 'read', name: 'Read', description: '읽기 권한' },
+		{ id: 'write', name: 'Write', description: '쓰기 권한' },
+		{ id: 'admin', name: 'Admin', description: '관리자 권한' }
+	];
+
 	const toast = useToast();
+
+	// 스코프 관련 함수들
+	function getScopesString() {
+		return Array.from(selectedScopes).join(' ');
+	}
+
+	function toggleScope(scopeId: string) {
+		if (selectedScopes.has(scopeId)) {
+			selectedScopes.delete(scopeId);
+		} else {
+			selectedScopes.add(scopeId);
+		}
+		selectedScopes = new Set(selectedScopes); // reactivity trigger
+	}
+
+	function selectAllScopes() {
+		selectedScopes = new Set(availableScopes.map(s => s.id));
+	}
+
+	function clearAllScopes() {
+		selectedScopes.clear();
+		selectedScopes = new Set(selectedScopes);
+	}
+
+	function toggleScopeSelector() {
+		showScopeSelector = !showScopeSelector;
+	}
 
 	onMount(async () => {
 		await loadClients();
+		// 초기 스코프 문자열 설정은 getScopesString()으로 계산됨
 	});
 
 	async function loadClients() {
@@ -55,11 +99,14 @@
 			const redirectUri = selectedClient.redirectUris[0];
 			const state = CryptoUtils.generateRandomString(32);
 
+			// 선택된 스코프들을 문자열로 변환
+			const scopeString = getScopesString();
+
 			const params = new URLSearchParams({
 				response_type: responseType,
 				client_id: selectedClient.clientId,
 				redirect_uri: redirectUri,
-				scope: scopes,
+				scope: scopeString,
 				state
 			});
 
@@ -123,11 +170,12 @@
 
 	function resetTest() {
 		selectedClient = null;
-		scopes = 'openid profile email';
+		selectedScopes = new Set(['openid', 'profile', 'email']);
 		responseType = 'code';
 		usePKCE = true;
 		generatedUrl = '';
 		showResult = false;
+		showScopeSelector = false;
 	}
 </script>
 
@@ -223,14 +271,99 @@
 					<label for="scopes" class="mb-2 block text-sm font-medium text-gray-700"
 						>권한 범위 (Scopes)</label
 					>
-					<input
-						id="scopes"
-						type="text"
-						bind:value={scopes}
-						placeholder="openid profile email"
-						class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-					/>
-					<p class="mt-1 text-xs text-gray-500">공백으로 구분하여 입력해주세요.</p>
+
+					<!-- 현재 선택된 스코프 표시 -->
+					<div class="mb-2 flex flex-wrap gap-1">
+						{#each Array.from(selectedScopes) as scopeId}
+							{@const scope = availableScopes.find(s => s.id === scopeId)}
+							{#if scope}
+								<span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+									{scope.name}
+									<button
+										onclick={() => toggleScope(scopeId)}
+										class="ml-1 inline-flex items-center justify-center w-3 h-3 rounded-full text-blue-400 hover:bg-blue-200 hover:text-blue-500"
+										title="제거"
+										aria-label="스코프 제거"
+									>
+										<i class="fas fa-times text-xs"></i>
+									</button>
+								</span>
+							{/if}
+						{/each}
+						{#if selectedScopes.size === 0}
+							<span class="text-sm text-gray-500">선택된 스코프가 없습니다.</span>
+						{/if}
+					</div>
+
+					<!-- 스코프 선택 토글 버튼 -->
+					<Button
+						variant="outline"
+						size="sm"
+						onclick={toggleScopeSelector}
+						class="mb-2"
+					>
+						<i class="fas {showScopeSelector ? 'fa-chevron-up' : 'fa-chevron-down'} mr-2"></i>
+						{showScopeSelector ? '스코프 선택기 숨기기' : '스코프 선택하기'}
+					</Button>
+
+					<!-- 스코프 선택기 -->
+					{#if showScopeSelector}
+						<div class="rounded-md border border-gray-200 bg-white p-4">
+							<div class="mb-3 flex items-center justify-between">
+								<h4 class="text-sm font-medium text-gray-900">사용 가능한 스코프</h4>
+								<div class="flex space-x-2">
+									<Button
+										variant="ghost"
+										size="sm"
+										onclick={selectAllScopes}
+										class="text-xs"
+									>
+										전체 선택
+									</Button>
+									<Button
+										variant="ghost"
+										size="sm"
+										onclick={clearAllScopes}
+										class="text-xs text-red-600 hover:text-red-700"
+									>
+										전체 해제
+									</Button>
+								</div>
+							</div>
+
+							<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+								{#each availableScopes as scope (scope.id)}
+									<label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded">
+										<input
+											type="checkbox"
+											checked={selectedScopes.has(scope.id)}
+											onchange={() => toggleScope(scope.id)}
+											class="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+										/>
+										<div class="flex-1">
+											<div class="flex items-center">
+												<span class="text-sm font-medium text-gray-900">{scope.name}</span>
+												<code class="ml-2 text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+													{scope.id}
+												</code>
+											</div>
+											<p class="text-xs text-gray-600 mt-1">{scope.description}</p>
+										</div>
+									</label>
+								{/each}
+							</div>
+
+							<!-- 선택된 스코프 미리보기 -->
+							{#if selectedScopes.size > 0}
+								<div class="mt-4 pt-3 border-t border-gray-200">
+									<p class="text-xs text-gray-600 mb-1">선택된 스코프:</p>
+									<code class="text-xs bg-gray-100 px-2 py-1 rounded block break-all">
+										{getScopesString()}
+									</code>
+								</div>
+							{/if}
+						</div>
+					{/if}
 				</div>
 
 				<!-- PKCE 설정 -->

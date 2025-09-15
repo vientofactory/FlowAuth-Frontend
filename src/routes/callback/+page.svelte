@@ -16,7 +16,7 @@
 		clientId: '',
 		clientSecret: '',
 		code: '',
-		redirectUri: 'http://localhost:5173/callback',
+		redirectUri: '',
 		codeVerifier: '',
 		grantType: 'authorization_code'
 	});
@@ -70,21 +70,25 @@
 		oauthState = urlParams.get('state') || '';
 		error = urlParams.get('error') || '';
 
+		// 현재 URL에서 redirect_uri 추출 (콜백 URL)
+		tokenForm.redirectUri = window.location.origin + window.location.pathname;
+
 		// 폼에 코드 설정
 		if (authCode) {
 			tokenForm.code = authCode;
 		}
 
-		// 세션 스토리지에서 code_verifier 가져오기
+		// 세션 스토리지에서 code_verifier와 state 가져오기
 		const storedCodeVerifier = sessionStorage.getItem('code_verifier');
+		const storedState = sessionStorage.getItem('state');
 
 		if (storedCodeVerifier) {
 			tokenForm.codeVerifier = storedCodeVerifier;
-		} else {
-			// PKCE가 사용되었지만 code_verifier가 없는 경우 사용자에게 알림
-			if (authCode && !error) {
-				toast.warning('PKCE가 사용되었지만 code verifier를 찾을 수 없습니다. 수동으로 입력해주세요.');
-			}
+		}
+
+		// state 검증
+		if (storedState && oauthState && storedState !== oauthState) {
+			toast.warning('State 파라미터가 일치하지 않습니다. 보안 문제가 있을 수 있습니다.');
 		}
 
 		isLoading = false;
