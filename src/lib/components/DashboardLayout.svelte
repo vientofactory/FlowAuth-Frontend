@@ -61,7 +61,7 @@
 	// 현재 경로에 따른 자동 제목 설정
 	$effect(() => {
 		if (!title || title === '대시보드') {
-			const activeItem = dashboardMenuItems.find(item => isMenuActive(item.href));
+			const activeItem = dashboardMenuItems.find((item) => isMenuActive(item.href));
 			if (activeItem) {
 				title = activeItem.label;
 				description = activeItem.description;
@@ -130,7 +130,6 @@
 			description: '시스템 설정'
 		}
 	];
-
 </script>
 
 <svelte:head>
@@ -198,7 +197,9 @@
 
 			<!-- 모바일 메뉴 드롭다운 -->
 			{#if mobileMenuOpen}
-				<div class="absolute left-0 right-0 top-full z-50 bg-white shadow-lg border-t border-gray-200">
+				<div
+					class="absolute top-full right-0 left-0 z-50 border-t border-gray-200 bg-white shadow-lg"
+				>
 					<nav class="max-h-96 overflow-y-auto px-2 py-3">
 						<div class="space-y-1">
 							{#each dashboardMenuItems as item (item.href)}
@@ -225,7 +226,9 @@
 
 		<div class="flex">
 			<!-- 데스크톱 사이드바 -->
-			<aside class="hidden w-64 bg-white shadow-sm lg:block lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
+			<aside
+				class="hidden w-64 bg-white shadow-sm lg:sticky lg:top-0 lg:block lg:h-screen lg:overflow-y-auto"
+			>
 				<div class="p-6">
 					<h2 class="text-lg font-semibold text-gray-900">대시보드</h2>
 					<p class="text-sm text-gray-600">메뉴를 선택하세요</p>
@@ -255,7 +258,7 @@
 			</aside>
 
 			<!-- 메인 콘텐츠 -->
-			<main class="flex-1 min-h-screen">
+			<main class="min-h-screen flex-1">
 				<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
 					<!-- 데스크톱 페이지 헤더 -->
 					{#if showPageHeader && (title || description)}
@@ -264,7 +267,7 @@
 								<div>
 									<h1 class="text-2xl font-bold text-gray-900 lg:text-3xl">{title}</h1>
 									{#if description}
-										<p class="mt-1 text-sm text-gray-600 lg:text-lg lg:mt-2">{description}</p>
+										<p class="mt-1 text-sm text-gray-600 lg:mt-2 lg:text-lg">{description}</p>
 									{/if}
 								</div>
 								{#if headerActions}
@@ -283,7 +286,7 @@
 		</div>
 
 		<!-- 모바일 하단 네비게이션 -->
-		<div class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 lg:hidden">
+		<div class="fixed right-0 bottom-0 left-0 z-50 border-t border-gray-200 bg-white lg:hidden">
 			<nav class="flex items-center justify-around px-2 py-2">
 				{#each dashboardMenuItems.slice(0, 5) as item (item.href)}
 					<a

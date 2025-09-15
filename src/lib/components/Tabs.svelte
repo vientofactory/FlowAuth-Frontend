@@ -75,8 +75,8 @@
 						${variantClasses[variant].tab}
 						${activeTab === tab.id ? variantClasses[variant].activeTab : variantClasses[variant].inactiveTab}
 						${tab.disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
-						font-medium transition-colors duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none
-						whitespace-nowrap flex-shrink-0
+						flex-shrink-0 font-medium whitespace-nowrap transition-colors duration-200 focus:ring-2 focus:ring-blue-500
+						focus:ring-offset-2 focus:outline-none
 					`}
 					onclick={() => handleTabClick(tab)}
 					disabled={tab.disabled}
@@ -90,7 +90,7 @@
 						<span>{tab.label}</span>
 						{#if tab.badge}
 							<span
-								class="ml-1 sm:ml-2 inline-flex h-4 w-4 sm:h-5 sm:w-auto sm:min-w-[1.25rem] items-center justify-center rounded-full bg-gray-100 px-1 sm:px-2 py-0.5 text-xs font-medium text-gray-600"
+								class="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-gray-100 px-1 py-0.5 text-xs font-medium text-gray-600 sm:ml-2 sm:h-5 sm:w-auto sm:min-w-[1.25rem] sm:px-2"
 							>
 								{tab.badge}
 							</span>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { DashboardLayout, Card, Button, Badge, Input, Loading, apiClient } from '$lib';
+	import { DashboardLayout, Card, Button, Badge, Loading, apiClient } from '$lib';
 	import { useToast } from '$lib';
 	import { onMount } from 'svelte';
 	import type { Client } from '$lib/types/oauth.types';
@@ -207,7 +207,7 @@
 				</Button>
 			</div>
 			<!-- 데스크톱에서는 모든 액션 표시 -->
-			<div class="hidden lg:flex gap-2">
+			<div class="hidden gap-2 lg:flex">
 				<Button variant="outline" onclick={debugToken}>
 					<i class="fas fa-bug mr-2"></i>
 					토큰 디버그
@@ -229,17 +229,19 @@
 	{/snippet}
 
 	<!-- 통계 카드 -->
-	<div class="mb-4 sm:mb-6 grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+	<div class="mb-4 grid grid-cols-2 gap-3 sm:mb-6 sm:grid-cols-2 lg:grid-cols-4">
 		<Card class="p-3 sm:p-4">
 			<div class="flex items-center">
 				<div class="flex-shrink-0">
-					<div class="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-blue-100">
-						<i class="fas fa-users text-lg sm:text-xl text-blue-600"></i>
+					<div
+						class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 sm:h-10 sm:w-10"
+					>
+						<i class="fas fa-users text-lg text-blue-600 sm:text-xl"></i>
 					</div>
 				</div>
-				<div class="ml-2 sm:ml-3 flex-1">
-					<p class="text-xs sm:text-sm font-medium text-gray-500">총 클라이언트</p>
-					<p class="text-lg sm:text-xl font-bold text-gray-900">{clients.length}</p>
+				<div class="ml-2 flex-1 sm:ml-3">
+					<p class="text-xs font-medium text-gray-500 sm:text-sm">총 클라이언트</p>
+					<p class="text-lg font-bold text-gray-900 sm:text-xl">{clients.length}</p>
 				</div>
 			</div>
 		</Card>
@@ -247,13 +249,15 @@
 		<Card class="p-3 sm:p-4">
 			<div class="flex items-center">
 				<div class="flex-shrink-0">
-					<div class="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-green-100">
-						<i class="fas fa-check-circle text-lg sm:text-xl text-green-600"></i>
+					<div
+						class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 sm:h-10 sm:w-10"
+					>
+						<i class="fas fa-check-circle text-lg text-green-600 sm:text-xl"></i>
 					</div>
 				</div>
-				<div class="ml-2 sm:ml-3 flex-1">
-					<p class="text-xs sm:text-sm font-medium text-gray-500">활성 클라이언트</p>
-					<p class="text-lg sm:text-xl font-bold text-gray-900">
+				<div class="ml-2 flex-1 sm:ml-3">
+					<p class="text-xs font-medium text-gray-500 sm:text-sm">활성 클라이언트</p>
+					<p class="text-lg font-bold text-gray-900 sm:text-xl">
 						{clients.filter((c) => c.isActive).length}
 					</p>
 				</div>
@@ -261,17 +265,21 @@
 		</Card>
 	</div>
 
-		<!-- 새 클라이언트 생성 폼 -->
+	<!-- 새 클라이언트 생성 폼 -->
 	{#if showCreateForm}
 		<Card class="mb-4 sm:mb-6">
 			<div class="p-4 sm:p-6">
-				<h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">
-					새 클라이언트 생성
-				</h3>
-				<form onsubmit={(e) => { e.preventDefault(); createClient(); }} class="space-y-4">
+				<h3 class="mb-4 text-base font-semibold text-gray-900 sm:text-lg">새 클라이언트 생성</h3>
+				<form
+					onsubmit={(e) => {
+						e.preventDefault();
+						createClient();
+					}}
+					class="space-y-4"
+				>
 					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 						<div class="sm:col-span-2">
-							<label for="clientName" class="block text-sm font-medium text-gray-700 mb-1">
+							<label for="clientName" class="mb-1 block text-sm font-medium text-gray-700">
 								클라이언트 이름 *
 							</label>
 							<input
@@ -279,24 +287,24 @@
 								bind:value={clientNameValue}
 								placeholder="클라이언트 애플리케이션 이름"
 								required
-								class="w-full h-10 sm:h-11 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-3"
+								class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-11"
 							/>
 						</div>
 
 						<div class="sm:col-span-2">
-							<label for="clientDescription" class="block text-sm font-medium text-gray-700 mb-1">
+							<label for="clientDescription" class="mb-1 block text-sm font-medium text-gray-700">
 								설명
 							</label>
 							<input
 								id="clientDescription"
 								bind:value={clientDescriptionValue}
 								placeholder="클라이언트 애플리케이션 설명"
-								class="w-full h-10 sm:h-11 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-3"
+								class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-11"
 							/>
 						</div>
 
 						<div class="sm:col-span-2">
-							<label for="redirectUris" class="block text-sm font-medium text-gray-700 mb-1">
+							<label for="redirectUris" class="mb-1 block text-sm font-medium text-gray-700">
 								리다이렉트 URI *
 							</label>
 							<textarea
@@ -305,20 +313,20 @@
 								placeholder="https://example.com/callback"
 								rows="3"
 								required
-								class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 h-20 sm:h-24 text-base px-3 py-2"
+								class="h-20 w-full rounded-md border-gray-300 px-3 py-2 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-24"
 							></textarea>
 							<p class="mt-1 text-xs text-gray-500">한 줄에 하나씩 입력해주세요.</p>
 						</div>
 
 						<div>
-							<label for="scopes" class="block text-sm font-medium text-gray-700 mb-1">
+							<label for="scopes" class="mb-1 block text-sm font-medium text-gray-700">
 								권한 범위
 							</label>
 							<input
 								id="scopes"
 								bind:value={scopesValue}
 								placeholder="read write"
-								class="w-full h-10 sm:h-11 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-3"
+								class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-11"
 							/>
 							<p class="mt-1 text-xs text-gray-500">공백으로 구분하여 입력해주세요.</p>
 						</div>
@@ -329,15 +337,11 @@
 							type="button"
 							variant="outline"
 							onclick={toggleCreateForm}
-							class="w-full sm:w-auto h-10 sm:h-11"
+							class="h-10 w-full sm:h-11 sm:w-auto"
 						>
 							취소
 						</Button>
-						<Button
-							type="submit"
-							disabled={isCreating}
-							class="w-full sm:w-auto h-10 sm:h-11"
-						>
+						<Button type="submit" disabled={isCreating} class="h-10 w-full sm:h-11 sm:w-auto">
 							{#if isCreating}
 								<Loading class="mr-2" />
 								생성 중...
@@ -355,7 +359,7 @@
 	<!-- 클라이언트 목록 -->
 	<Card>
 		<div class="mb-4 flex items-center justify-between">
-			<h3 class="text-base sm:text-lg font-medium text-gray-900">클라이언트 목록</h3>
+			<h3 class="text-base font-medium text-gray-900 sm:text-lg">클라이언트 목록</h3>
 		</div>
 
 		{#if isLoading}
@@ -375,12 +379,22 @@
 		{:else}
 			<div class="space-y-3 sm:space-y-4">
 				{#each clients as client (client.id)}
-					<div class="rounded-lg border border-gray-200 p-3 sm:p-4 transition-shadow hover:shadow-md">
-						<div class="flex flex-col space-y-3 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
+					<div
+						class="rounded-lg border border-gray-200 p-3 transition-shadow hover:shadow-md sm:p-4"
+					>
+						<div
+							class="flex flex-col space-y-3 sm:flex-row sm:items-start sm:justify-between sm:space-y-0"
+						>
 							<div class="flex-1">
-								<div class="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3">
-									<h4 class="text-base sm:text-lg font-medium text-gray-900">{client.name}</h4>
-									<Badge variant={client.isActive ? 'success' : 'secondary'} size="sm" class="self-start">
+								<div
+									class="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3"
+								>
+									<h4 class="text-base font-medium text-gray-900 sm:text-lg">{client.name}</h4>
+									<Badge
+										variant={client.isActive ? 'success' : 'secondary'}
+										size="sm"
+										class="self-start"
+									>
 										{client.isActive ? '활성' : '비활성'}
 									</Badge>
 								</div>
@@ -392,8 +406,10 @@
 								<div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 									<div>
 										<p class="text-xs font-medium text-gray-500">Client ID</p>
-										<div class="flex items-center space-x-2 mt-1">
-											<code class="rounded bg-gray-100 px-2 py-1 text-xs sm:text-sm flex-1 truncate">
+										<div class="mt-1 flex items-center space-x-2">
+											<code
+												class="flex-1 truncate rounded bg-gray-100 px-2 py-1 text-xs sm:text-sm"
+											>
 												{client.clientId}
 											</code>
 											<Button
@@ -412,14 +428,14 @@
 										<p class="text-xs font-medium text-gray-500">리다이렉트 URI</p>
 										<div class="mt-1">
 											{#each client.redirectUris as uri (uri)}
-												<p class="truncate text-xs sm:text-sm text-gray-900">{uri}</p>
+												<p class="truncate text-xs text-gray-900 sm:text-sm">{uri}</p>
 											{/each}
 										</div>
 									</div>
 
 									<div>
 										<p class="text-xs font-medium text-gray-500">생성일</p>
-										<p class="text-xs sm:text-sm text-gray-900 mt-1">
+										<p class="mt-1 text-xs text-gray-900 sm:text-sm">
 											{new Date(client.createdAt).toLocaleDateString('ko-KR')}
 										</p>
 									</div>
@@ -427,12 +443,12 @@
 							</div>
 
 							<!-- 모바일 액션 버튼들 -->
-							<div class="flex space-x-2 sm:ml-4 sm:flex-col sm:space-x-0 sm:space-y-2">
+							<div class="flex space-x-2 sm:ml-4 sm:flex-col sm:space-y-2 sm:space-x-0">
 								<Button
 									variant="outline"
 									size="sm"
 									onclick={() => toggleClientStatus(client)}
-									class="flex-1 sm:flex-none h-9 sm:h-8 px-3 text-sm"
+									class="h-9 flex-1 px-3 text-sm sm:h-8 sm:flex-none"
 									title={client.isActive ? '비활성화' : '활성화'}
 								>
 									<i class="fas {client.isActive ? 'fa-pause' : 'fa-play'} mr-1 sm:mr-0"></i>
@@ -442,7 +458,7 @@
 									variant="outline"
 									size="sm"
 									onclick={() => deleteClient(client.id)}
-									class="flex-1 sm:flex-none h-9 sm:h-8 px-3 text-sm text-red-600 hover:text-red-700"
+									class="h-9 flex-1 px-3 text-sm text-red-600 hover:text-red-700 sm:h-8 sm:flex-none"
 									title="삭제"
 								>
 									<i class="fas fa-trash mr-1 sm:mr-0"></i>

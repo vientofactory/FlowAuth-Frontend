@@ -12,7 +12,13 @@
 		type?: 'success' | 'error' | 'info' | 'warning';
 		duration?: number;
 		show?: boolean;
-		position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center';
+		position?:
+			| 'top-right'
+			| 'top-left'
+			| 'bottom-right'
+			| 'bottom-left'
+			| 'top-center'
+			| 'bottom-center';
 	} = $props();
 
 	let timeoutId: number | undefined;
@@ -86,7 +92,7 @@
 
 	function getPositionClasses() {
 		const baseClasses = 'fixed z-50 animate-slide-in-right';
-		
+
 		switch (position) {
 			case 'top-left':
 				return `${baseClasses} top-4 left-4`;
@@ -113,10 +119,10 @@
 		<div
 			class="flex items-center rounded-lg border-l-4 px-3 py-3 shadow-lg backdrop-blur-sm sm:px-4
 			{colors.border} {colors.background}
-			max-w-sm sm:max-w-md w-full mx-4 sm:mx-0"
+			mx-4 w-full max-w-sm sm:mx-0 sm:max-w-md"
 		>
-			<i class="mr-2 sm:mr-3 flex-shrink-0 {iconClass} {colors.icon} text-lg sm:text-xl"></i>
-			<p class="font-medium {colors.text} text-sm sm:text-base flex-1 pr-2">{message}</p>
+			<i class="mr-2 flex-shrink-0 sm:mr-3 {iconClass} {colors.icon} text-lg sm:text-xl"></i>
+			<p class="font-medium {colors.text} flex-1 pr-2 text-sm sm:text-base">{message}</p>
 			<button
 				onclick={() => {
 					if (timeoutId) {
@@ -125,7 +131,7 @@
 					}
 					show = false;
 				}}
-				class="flex-shrink-0 ml-2 text-gray-400 transition-colors duration-200 hover:text-gray-600 p-1"
+				class="ml-2 flex-shrink-0 p-1 text-gray-400 transition-colors duration-200 hover:text-gray-600"
 				aria-label="알림 닫기"
 			>
 				<i class="fas fa-times text-sm sm:text-base"></i>

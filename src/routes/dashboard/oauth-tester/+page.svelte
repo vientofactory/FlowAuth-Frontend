@@ -52,7 +52,7 @@
 	}
 
 	function selectAllScopes() {
-		selectedScopes = new Set(availableScopes.map(s => s.id));
+		selectedScopes = new Set(availableScopes.map((s) => s.id));
 	}
 
 	function clearAllScopes() {
@@ -126,7 +126,9 @@
 					return;
 				}
 			} else if (responseType === 'code' && !usePKCE) {
-				toast.warning('PKCE를 사용하지 않으면 보안이 취약해질 수 있습니다. 프로덕션 환경에서는 PKCE 사용을 권장합니다.');
+				toast.warning(
+					'PKCE를 사용하지 않으면 보안이 취약해질 수 있습니다. 프로덕션 환경에서는 PKCE 사용을 권장합니다.'
+				);
 			}
 
 			generatedUrl = `${baseUrl}?${params.toString()}`;
@@ -155,7 +157,6 @@
 			setTimeout(() => {
 				copySuccess = false;
 			}, 2000);
-
 		} catch (error) {
 			console.error('Failed to copy URL:', error);
 			toast.error('URL 복사에 실패했습니다. 수동으로 복사해주세요.');
@@ -274,14 +275,16 @@
 
 					<!-- 현재 선택된 스코프 표시 -->
 					<div class="mb-2 flex flex-wrap gap-1">
-						{#each Array.from(selectedScopes) as scopeId}
-							{@const scope = availableScopes.find(s => s.id === scopeId)}
+						{#each Array.from(selectedScopes) as scopeId (scopeId)}
+							{@const scope = availableScopes.find((s) => s.id === scopeId)}
 							{#if scope}
-								<span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+								<span
+									class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800"
+								>
 									{scope.name}
 									<button
 										onclick={() => toggleScope(scopeId)}
-										class="ml-1 inline-flex items-center justify-center w-3 h-3 rounded-full text-blue-400 hover:bg-blue-200 hover:text-blue-500"
+										class="ml-1 inline-flex h-3 w-3 items-center justify-center rounded-full text-blue-400 hover:bg-blue-200 hover:text-blue-500"
 										title="제거"
 										aria-label="스코프 제거"
 									>
@@ -296,12 +299,7 @@
 					</div>
 
 					<!-- 스코프 선택 토글 버튼 -->
-					<Button
-						variant="outline"
-						size="sm"
-						onclick={toggleScopeSelector}
-						class="mb-2"
-					>
+					<Button variant="outline" size="sm" onclick={toggleScopeSelector} class="mb-2">
 						<i class="fas {showScopeSelector ? 'fa-chevron-up' : 'fa-chevron-down'} mr-2"></i>
 						{showScopeSelector ? '스코프 선택기 숨기기' : '스코프 선택하기'}
 					</Button>
@@ -312,12 +310,7 @@
 							<div class="mb-3 flex items-center justify-between">
 								<h4 class="text-sm font-medium text-gray-900">사용 가능한 스코프</h4>
 								<div class="flex space-x-2">
-									<Button
-										variant="ghost"
-										size="sm"
-										onclick={selectAllScopes}
-										class="text-xs"
-									>
+									<Button variant="ghost" size="sm" onclick={selectAllScopes} class="text-xs">
 										전체 선택
 									</Button>
 									<Button
@@ -333,7 +326,9 @@
 
 							<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
 								{#each availableScopes as scope (scope.id)}
-									<label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded">
+									<label
+										class="flex cursor-pointer items-start space-x-3 rounded p-2 hover:bg-gray-50"
+									>
 										<input
 											type="checkbox"
 											checked={selectedScopes.has(scope.id)}
@@ -343,11 +338,11 @@
 										<div class="flex-1">
 											<div class="flex items-center">
 												<span class="text-sm font-medium text-gray-900">{scope.name}</span>
-												<code class="ml-2 text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+												<code class="ml-2 rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">
 													{scope.id}
 												</code>
 											</div>
-											<p class="text-xs text-gray-600 mt-1">{scope.description}</p>
+											<p class="mt-1 text-xs text-gray-600">{scope.description}</p>
 										</div>
 									</label>
 								{/each}
@@ -355,9 +350,9 @@
 
 							<!-- 선택된 스코프 미리보기 -->
 							{#if selectedScopes.size > 0}
-								<div class="mt-4 pt-3 border-t border-gray-200">
-									<p class="text-xs text-gray-600 mb-1">선택된 스코프:</p>
-									<code class="text-xs bg-gray-100 px-2 py-1 rounded block break-all">
+								<div class="mt-4 border-t border-gray-200 pt-3">
+									<p class="mb-1 text-xs text-gray-600">선택된 스코프:</p>
+									<code class="block rounded bg-gray-100 px-2 py-1 text-xs break-all">
 										{getScopesString()}
 									</code>
 								</div>
@@ -412,19 +407,21 @@
 				<div class="space-y-4">
 					<!-- 생성된 URL -->
 					<div>
-						<div class="flex items-center justify-between mb-2">
+						<div class="mb-2 flex items-center justify-between">
 							<h4 class="block text-sm font-medium text-gray-700">생성된 인증 URL</h4>
 							{#if copySuccess}
-								<span class="text-xs text-green-600 font-medium animate-pulse">
+								<span class="animate-pulse text-xs font-medium text-green-600">
 									<i class="fas fa-check-circle mr-1"></i>
 									복사 완료
 								</span>
 							{/if}
 						</div>
-						<div class="rounded-md border p-3 transition-all duration-300
+						<div
+							class="rounded-md border p-3 transition-all duration-300
 							{copySuccess
-								? 'border-green-300 bg-green-50 shadow-md transform scale-[1.02]'
-								: 'border-gray-200 bg-gray-50'}">
+								? 'scale-[1.02] transform border-green-300 bg-green-50 shadow-md'
+								: 'border-gray-200 bg-gray-50'}"
+						>
 							<code class="text-xs break-all text-gray-800">
 								{generatedUrl}
 							</code>
@@ -435,7 +432,7 @@
 								onclick={copyUrl}
 								disabled={isCopying}
 								class="transition-all duration-200 {copySuccess
-									? 'bg-green-600 hover:bg-green-700 text-white shadow-lg transform scale-105'
+									? 'scale-105 transform bg-green-600 text-white shadow-lg hover:bg-green-700'
 									: 'bg-blue-600 hover:bg-blue-700'}"
 							>
 								{#if isCopying}

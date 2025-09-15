@@ -177,13 +177,15 @@
 			</div>
 		{:else}
 			{#each sortedData as row, rowIndex (rowIndex)}
-				<div class="rounded-lg border border-gray-200 bg-white p-4 shadow transition-shadow hover:shadow-md">
+				<div
+					class="rounded-lg border border-gray-200 bg-white p-4 shadow transition-shadow hover:shadow-md"
+				>
 					{#if mobileCard}
 						{@render mobileCard({ row, columns })}
 					{:else}
 						<div class="space-y-3">
 							{#each columns as column, colIndex (colIndex)}
-								<div class="flex justify-between items-center">
+								<div class="flex items-center justify-between">
 									<span class="text-sm font-medium text-gray-500">{column.label}:</span>
 									<span class="text-sm text-gray-900">
 										{#if cell}

@@ -5,7 +5,7 @@
 	import type { User } from '$lib';
 
 	let user = $state<User | null>(null);
-	let isLoading = $state(true);
+	let _isLoading = $state(true);
 
 	// 프로필 편집 상태
 	let isEditing = $state(false);
@@ -33,7 +33,7 @@
 	onMount(() => {
 		const unsubscribe = authState.subscribe((state) => {
 			user = state.user;
-			isLoading = state.isLoading;
+			_isLoading = state.isLoading;
 
 			// 사용자 정보가 로드되면 편집 폼 초기화
 			if (user) {
@@ -150,9 +150,11 @@
 			<!-- 프로필 정보 -->
 			<div class="lg:col-span-2">
 				<Card>
-					<div class="mb-4 sm:mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-						<h3 class="text-base sm:text-lg font-medium text-gray-900">기본 정보</h3>
-						<Button variant="outline" onclick={toggleEdit} class="w-full sm:w-auto h-10 sm:h-11">
+					<div
+						class="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between"
+					>
+						<h3 class="text-base font-medium text-gray-900 sm:text-lg">기본 정보</h3>
+						<Button variant="outline" onclick={toggleEdit} class="h-10 w-full sm:h-11 sm:w-auto">
 							<i class="fas fa-edit mr-2"></i>
 							{isEditing ? '취소' : '편집'}
 						</Button>

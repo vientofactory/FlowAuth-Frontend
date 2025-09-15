@@ -60,19 +60,19 @@
 			<div
 				class="relative w-full transform overflow-hidden rounded-t-lg bg-white text-left shadow-xl transition-all sm:rounded-lg
 				{sizeClasses[size]} {className}
-				sm:my-8 sm:max-h-[90vh] max-h-[85vh] overflow-y-auto"
+				max-h-[85vh] overflow-y-auto sm:my-8 sm:max-h-[90vh]"
 			>
 				<!-- Mobile drag handle -->
-				<div class="block sm:hidden mx-auto mt-3 h-1 w-12 rounded-full bg-gray-300"></div>
+				<div class="mx-auto mt-3 block h-1 w-12 rounded-full bg-gray-300 sm:hidden"></div>
 
 				<!-- Header -->
 				{#if title || header}
-					<div class="px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200">
+					<div class="border-b border-gray-200 px-4 py-3 sm:px-6 sm:py-4">
 						{#if header}
 							{@render header()}
 						{:else if title}
 							<div class="flex items-center justify-between">
-								<h3 id="modal-title" class="text-base sm:text-lg font-semibold text-gray-900 pr-4">
+								<h3 id="modal-title" class="pr-4 text-base font-semibold text-gray-900 sm:text-lg">
 									{title}
 								</h3>
 								{#if onClose}
@@ -99,7 +99,9 @@
 
 				<!-- Footer -->
 				{#if footer}
-					<div class="flex flex-col gap-3 border-t border-gray-200 px-4 py-4 sm:flex-row sm:justify-end sm:space-x-3 sm:px-6 sm:py-4">
+					<div
+						class="flex flex-col gap-3 border-t border-gray-200 px-4 py-4 sm:flex-row sm:justify-end sm:space-x-3 sm:px-6 sm:py-4"
+					>
 						{@render footer()}
 					</div>
 				{/if}

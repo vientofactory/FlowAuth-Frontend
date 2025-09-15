@@ -602,7 +602,8 @@
 									<Button
 										variant="outline"
 										size="sm"
-										onclick={() => tokenResponse?.refresh_token && copyToClipboard(tokenResponse.refresh_token)}
+										onclick={() =>
+											tokenResponse?.refresh_token && copyToClipboard(tokenResponse.refresh_token)}
 										class="text-xs"
 									>
 										<i class="fas fa-copy mr-1"></i>

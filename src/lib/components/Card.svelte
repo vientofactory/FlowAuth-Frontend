@@ -8,12 +8,7 @@
 		padding?: 'none' | 'sm' | 'md' | 'lg';
 	}
 
-	let { 
-		title, 
-		children, 
-		class: className = '',
-		padding = 'md'
-	}: Props = $props();
+	let { title, children, class: className = '', padding = 'md' }: Props = $props();
 
 	const paddingClasses = {
 		none: '',
@@ -25,8 +20,8 @@
 
 <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md {className}">
 	{#if title}
-		<div class="px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200">
-			<h3 class="m-0 text-lg sm:text-xl font-semibold text-gray-900">{title}</h3>
+		<div class="border-b border-gray-200 px-4 py-3 sm:px-6 sm:py-4">
+			<h3 class="m-0 text-lg font-semibold text-gray-900 sm:text-xl">{title}</h3>
 		</div>
 	{/if}
 

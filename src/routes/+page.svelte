@@ -26,7 +26,9 @@
 					OAuth2 인증 시스템의 새로운 표준
 				</div>
 
-				<h2 class="mb-4 text-3xl leading-tight font-bold text-gray-900 sm:text-4xl sm:mb-6 md:text-5xl lg:text-6xl">
+				<h2
+					class="mb-4 text-3xl leading-tight font-bold text-gray-900 sm:mb-6 sm:text-4xl md:text-5xl lg:text-6xl"
+				>
 					강력하고 <span
 						class="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
 						>혁신적인</span
@@ -34,12 +36,16 @@
 					<span class="sm:hidden"> </span>인증 플랫폼
 				</h2>
 
-				<p class="mx-auto mb-8 max-w-2xl text-base leading-relaxed text-gray-600 sm:mb-10 sm:text-lg lg:text-xl">
+				<p
+					class="mx-auto mb-8 max-w-2xl text-base leading-relaxed text-gray-600 sm:mb-10 sm:text-lg lg:text-xl"
+				>
 					신뢰할 수 있는 오픈소스 개방형 인증 시스템으로<br class="hidden sm:block" />
 					애플리케이션의 인증을 쉽고 안전하게 관리하세요
 				</p>
 
-				<div class="mb-8 flex flex-col items-center justify-center gap-3 sm:mb-12 sm:flex-row sm:gap-4">
+				<div
+					class="mb-8 flex flex-col items-center justify-center gap-3 sm:mb-12 sm:flex-row sm:gap-4"
+				>
 					<Button
 						variant="primary"
 						onclick={() => goto('/auth/register')}
@@ -62,19 +68,21 @@
 			<!-- 특징 섹션 -->
 			<div class="mb-12 sm:mb-16 lg:mb-20">
 				<div class="mb-8 text-center sm:mb-12 lg:mb-16">
-					<h3 class="mb-3 text-2xl font-bold text-gray-900 sm:text-3xl lg:text-4xl">왜 FlowAuth를 선택해야 할까요?</h3>
+					<h3 class="mb-3 text-2xl font-bold text-gray-900 sm:text-3xl lg:text-4xl">
+						왜 FlowAuth를 선택해야 할까요?
+					</h3>
 					<p class="mx-auto max-w-xl text-sm text-gray-600 sm:max-w-2xl sm:text-base lg:text-lg">
 						개발자 친화적인 OAuth2 솔루션으로 더 빠르고 안전한 인증을 구현하세요
 					</p>
 				</div>
 
-				<div class="grid gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+				<div class="grid gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 xl:grid-cols-4">
 					<Card
 						class="group transform border-0 bg-white/80 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
 					>
 						<div class="text-center">
 							<div
-								class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 transition-transform duration-300 group-hover:scale-110 sm:h-14 sm:w-14 sm:mb-6 lg:h-16 lg:w-16"
+								class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 transition-transform duration-300 group-hover:scale-110 sm:mb-6 sm:h-14 sm:w-14 lg:h-16 lg:w-16"
 							>
 								<i class="fas fa-shield-alt text-lg text-white sm:text-xl lg:text-2xl"></i>
 							</div>
@@ -94,7 +102,7 @@
 					>
 						<div class="text-center">
 							<div
-								class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-green-500 to-green-600 transition-transform duration-300 group-hover:scale-110 sm:h-14 sm:w-14 sm:mb-6 lg:h-16 lg:w-16"
+								class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-green-500 to-green-600 transition-transform duration-300 group-hover:scale-110 sm:mb-6 sm:h-14 sm:w-14 lg:h-16 lg:w-16"
 							>
 								<i class="fas fa-bolt text-lg text-white sm:text-xl lg:text-2xl"></i>
 							</div>
@@ -114,7 +122,7 @@
 					>
 						<div class="text-center">
 							<div
-								class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 transition-transform duration-300 group-hover:scale-110 sm:h-14 sm:w-14 sm:mb-6 lg:h-16 lg:w-16"
+								class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 transition-transform duration-300 group-hover:scale-110 sm:mb-6 sm:h-14 sm:w-14 lg:h-16 lg:w-16"
 							>
 								<i class="fas fa-chart-line text-lg text-white sm:text-xl lg:text-2xl"></i>
 							</div>
@@ -134,7 +142,7 @@
 					>
 						<div class="text-center">
 							<div
-								class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 transition-transform duration-300 group-hover:scale-110 sm:h-14 sm:w-14 sm:mb-6 lg:h-16 lg:w-16"
+								class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 transition-transform duration-300 group-hover:scale-110 sm:mb-6 sm:h-14 sm:w-14 lg:h-16 lg:w-16"
 							>
 								<i class="fas fa-code-branch text-lg text-white sm:text-xl lg:text-2xl"></i>
 							</div>

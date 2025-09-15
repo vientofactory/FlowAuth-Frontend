@@ -17,7 +17,7 @@
 
 	let user = $state<User | null>(null);
 	let isAuthenticated = $state(false);
-	let isLoading = $state(true); // 초기 상태를 로딩 중으로 설정
+	let _isLoading = $state(true); // 초기 상태를 로딩 중으로 설정
 	let profileDropdownOpen = $state(false);
 	let unsubscribe: (() => void) | null = null;
 	let initialAuthCheckDone = $state(false); // 초기 인증 확인 완료 여부
@@ -32,7 +32,7 @@
 		unsubscribe = authState.subscribe((state) => {
 			user = state.user;
 			isAuthenticated = state.isAuthenticated;
-			isLoading = state.isLoading;
+			_isLoading = state.isLoading;
 		});
 
 		// 드롭다운 외부 클릭 시 닫기
@@ -68,38 +68,46 @@
 <!-- 네비게이션 바 -->
 <header
 	class="sticky top-0 z-50 border-b {transparent
-		? 'bg-white/80 backdrop-blur-md border-gray-200/50'
-		: 'bg-white border-gray-200 shadow-sm'}"
+		? 'border-gray-200/50 bg-white/80 backdrop-blur-md'
+		: 'border-gray-200 bg-white shadow-sm'}"
 >
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<div class="flex h-16 items-center justify-between">
 			<!-- 로고 -->
-      <a href="/" class="flex items-center space-x-2 cursor-pointer">
-        <div
-          class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600"
-        >
-          <i class="fas fa-shield-alt text-white text-lg"></i>
-        </div>
-        <h1
-          class="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-xl font-bold text-transparent"
-        >
-          FlowAuth
-        </h1>
-      </a>
+			<a href="/" class="flex cursor-pointer items-center space-x-2">
+				<div
+					class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600"
+				>
+					<i class="fas fa-shield-alt text-lg text-white"></i>
+				</div>
+				<h1
+					class="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-xl font-bold text-transparent"
+				>
+					FlowAuth
+				</h1>
+			</a>
 
 			<!-- 데스크톱 네비게이션 -->
 			<div class="hidden items-center space-x-4 md:flex">
 				{#if !initialAuthCheckDone}
 					<!-- 초기 인증 확인 중: 프로필 배지 스켈레톤 -->
-					<div class="flex items-center space-x-2 rounded-full border border-gray-200 bg-white px-3 py-2 shadow-sm">
+					<div
+						class="flex items-center space-x-2 rounded-full border border-gray-200 bg-white px-3 py-2 shadow-sm"
+					>
 						<!-- 아바타 스켈레톤 -->
-						<div class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse">
+						<div
+							class="flex h-8 w-8 animate-pulse items-center justify-center rounded-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
+						>
 							<div class="h-4 w-4 rounded-full bg-gray-300 opacity-60"></div>
 						</div>
 						<!-- 이름 텍스트 스켈레톤 -->
-						<div class="hidden h-4 w-20 rounded bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse lg:block"></div>
+						<div
+							class="hidden h-4 w-20 animate-pulse rounded bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 lg:block"
+						></div>
 						<!-- 화살표 아이콘 스켈레톤 -->
-						<div class="h-3 w-3 rounded bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse"></div>
+						<div
+							class="h-3 w-3 animate-pulse rounded bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
+						></div>
 					</div>
 				{:else if isAuthenticated}
 					<!-- 로그인 상태: 대시보드 버튼 -->
@@ -117,9 +125,9 @@
 
 					<!-- 프로필 배지 -->
 					{#if showProfileBadge}
-						<div class="relative profile-dropdown">
+						<div class="profile-dropdown relative">
 							<button
-								class="flex items-center space-x-2 rounded-full border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+								class="flex items-center space-x-2 rounded-full border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
 								onclick={() => (profileDropdownOpen = !profileDropdownOpen)}
 							>
 								<div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
@@ -133,9 +141,14 @@
 
 							<!-- 프로필 드롭다운 메뉴 -->
 							{#if profileDropdownOpen}
-								<div class="absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+								<div
+									class="ring-opacity-5 absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black focus:outline-none"
+								>
 									<div class="border-b border-gray-200 px-4 py-2">
-										<p class="text-sm font-medium text-gray-900">{user?.firstName} {user?.lastName}</p>
+										<p class="text-sm font-medium text-gray-900">
+											{user?.firstName}
+											{user?.lastName}
+										</p>
 										<p class="text-xs text-gray-500">{user?.email}</p>
 									</div>
 									<a
@@ -187,13 +200,17 @@
 			<div class="md:hidden">
 				{#if !initialAuthCheckDone}
 					<!-- 초기 인증 확인 중: 프로필 버튼 모양 스켈레톤 -->
-					<div class="flex h-8 w-8 items-center justify-center rounded-full skeleton-shimmer shadow-sm">
+					<div
+						class="skeleton-shimmer flex h-8 w-8 items-center justify-center rounded-full shadow-sm"
+					>
 						<div class="h-4 w-4 rounded-full bg-gray-300 opacity-60"></div>
 					</div>
 				{:else if isAuthenticated}
 					<!-- 로그인 상태: 프로필 버튼 -->
 					<button
-						class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-800 profile-dropdown transition-colors duration-200 {profileDropdownOpen ? 'ring-2 ring-blue-300' : ''}"
+						class="profile-dropdown flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-800 transition-colors duration-200 {profileDropdownOpen
+							? 'ring-2 ring-blue-300'
+							: ''}"
 						onclick={() => (profileDropdownOpen = !profileDropdownOpen)}
 						aria-expanded={profileDropdownOpen}
 						aria-label="프로필 메뉴"

@@ -6,7 +6,7 @@
 	import type { User } from '$lib';
 
 	let user = $state<User | null>(null);
-	let isLoading = $state(true);
+	let _isLoading = $state(true);
 
 	let dashboardStats = $state({
 		totalClients: 0,
@@ -21,14 +21,15 @@
 		// store 구독
 		const unsubscribe = authState.subscribe((state) => {
 			user = state.user;
-			isLoading = state.isLoading;
+			_isLoading = state.isLoading;
 		});
 
 		// 대시보드 통계 로드
 		loadDashboardData().catch(console.error);
 
 		return unsubscribe;
-	});	async function loadDashboardData() {
+	});
+	async function loadDashboardData() {
 		try {
 			// 실제 API 호출로 대시보드 통계 가져오기
 			const stats = await apiClient.getDashboardStats();
@@ -74,16 +75,18 @@
 	<!-- 통계 카드들 -->
 	<div class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 		<!-- 총 클라이언트 수 -->
-		<Card class="group relative overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105">
+		<Card
+			class="group relative overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
+		>
 			<div class="relative p-4 sm:p-6">
 				<div class="flex items-center justify-between">
 					<div class="flex-1">
-						<div class="flex items-center justify-between mb-2">
-							<i class="fas fa-users text-2xl sm:text-3xl opacity-80"></i>
+						<div class="mb-2 flex items-center justify-between">
+							<i class="fas fa-users text-2xl opacity-80 sm:text-3xl"></i>
 							<span class="text-xs opacity-70">총계</span>
 						</div>
-						<p class="text-sm font-medium opacity-80 mb-1">클라이언트</p>
-						<p class="text-xl sm:text-2xl font-bold">{dashboardStats.totalClients}</p>
+						<p class="mb-1 text-sm font-medium opacity-80">클라이언트</p>
+						<p class="text-xl font-bold sm:text-2xl">{dashboardStats.totalClients}</p>
 					</div>
 				</div>
 				<div class="absolute -right-4 -bottom-4 opacity-10">
@@ -93,16 +96,18 @@
 		</Card>
 
 		<!-- 활성 토큰 수 -->
-		<Card class="group relative overflow-hidden bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105">
+		<Card
+			class="group relative overflow-hidden bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
+		>
 			<div class="relative p-4 sm:p-6">
 				<div class="flex items-center justify-between">
 					<div class="flex-1">
-						<div class="flex items-center justify-between mb-2">
-							<i class="fas fa-key text-2xl sm:text-3xl opacity-80"></i>
+						<div class="mb-2 flex items-center justify-between">
+							<i class="fas fa-key text-2xl opacity-80 sm:text-3xl"></i>
 							<span class="text-xs opacity-70">활성</span>
 						</div>
-						<p class="text-sm font-medium opacity-80 mb-1">토큰</p>
-						<p class="text-xl sm:text-2xl font-bold">{dashboardStats.activeTokens}</p>
+						<p class="mb-1 text-sm font-medium opacity-80">토큰</p>
+						<p class="text-xl font-bold sm:text-2xl">{dashboardStats.activeTokens}</p>
 					</div>
 				</div>
 				<div class="absolute -right-4 -bottom-4 opacity-10">
@@ -112,16 +117,18 @@
 		</Card>
 
 		<!-- 마지막 로그인 -->
-		<Card class="group relative overflow-hidden bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105">
+		<Card
+			class="group relative overflow-hidden bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
+		>
 			<div class="relative p-4 sm:p-6">
 				<div class="flex items-center justify-between">
 					<div class="flex-1">
-						<div class="flex items-center justify-between mb-2">
-							<i class="fas fa-clock text-2xl sm:text-3xl opacity-80"></i>
+						<div class="mb-2 flex items-center justify-between">
+							<i class="fas fa-clock text-2xl opacity-80 sm:text-3xl"></i>
 							<span class="text-xs opacity-70">최근</span>
 						</div>
-						<p class="text-sm font-medium opacity-80 mb-1">로그인</p>
-						<p class="text-xs sm:text-sm font-bold leading-tight">
+						<p class="mb-1 text-sm font-medium opacity-80">로그인</p>
+						<p class="text-xs leading-tight font-bold sm:text-sm">
 							{dashboardStats.lastLoginDate?.toLocaleDateString('ko-KR', {
 								month: 'short',
 								day: 'numeric'
@@ -136,16 +143,18 @@
 		</Card>
 
 		<!-- 계정 생성일 -->
-		<Card class="group relative overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105">
+		<Card
+			class="group relative overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
+		>
 			<div class="relative p-4 sm:p-6">
 				<div class="flex items-center justify-between">
 					<div class="flex-1">
-						<div class="flex items-center justify-between mb-2">
-							<i class="fas fa-calendar text-2xl sm:text-3xl opacity-80"></i>
+						<div class="mb-2 flex items-center justify-between">
+							<i class="fas fa-calendar text-2xl opacity-80 sm:text-3xl"></i>
 							<span class="text-xs opacity-70">생성</span>
 						</div>
-						<p class="text-sm font-medium opacity-80 mb-1">계정</p>
-						<p class="text-xs sm:text-sm font-bold leading-tight">
+						<p class="mb-1 text-sm font-medium opacity-80">계정</p>
+						<p class="text-xs leading-tight font-bold sm:text-sm">
 							{dashboardStats.accountCreated?.toLocaleDateString('ko-KR', {
 								year: '2-digit',
 								month: 'short'
@@ -170,27 +179,34 @@
 						<!-- 사용자 정보 카드 -->
 						{#if user}
 							<Card class="border-l-4 border-l-blue-500">
-								<div class="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+								<div
+									class="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0"
+								>
 									<div class="flex-1">
-										<h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-0">계정 정보</h3>
-										<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm text-gray-600">
+										<h3 class="mb-3 text-base font-semibold text-gray-900 sm:mb-0 sm:text-lg">
+											계정 정보
+										</h3>
+										<div
+											class="grid grid-cols-1 gap-2 text-sm text-gray-600 sm:grid-cols-2 sm:gap-4"
+										>
 											<div class="flex items-center space-x-2">
-												<i class="fas fa-user text-gray-400 w-4"></i>
+												<i class="fas fa-user w-4 text-gray-400"></i>
 												<span><span class="font-medium">사용자명:</span> {user.username}</span>
 											</div>
 											<div class="flex items-center space-x-2">
-												<i class="fas fa-envelope text-gray-400 w-4"></i>
+												<i class="fas fa-envelope w-4 text-gray-400"></i>
 												<span><span class="font-medium">이메일:</span> {user.email}</span>
 											</div>
 											<div class="flex items-center space-x-2 sm:col-span-2">
-												<i class="fas fa-id-card text-gray-400 w-4"></i>
+												<i class="fas fa-id-card w-4 text-gray-400"></i>
 												<span>
 													<span class="font-medium">이름:</span>
-													{user.firstName} {user.lastName}
+													{user.firstName}
+													{user.lastName}
 												</span>
 											</div>
 											<div class="flex items-center space-x-2">
-												<i class="fas fa-shield-alt text-gray-400 w-4"></i>
+												<i class="fas fa-shield-alt w-4 text-gray-400"></i>
 												<span>
 													<span class="font-medium">역할:</span>
 													<Badge variant="info" size="sm" class="ml-1">관리자</Badge>
@@ -271,52 +287,68 @@
 					<!-- 빠른 작업 탭 -->
 					<div class="space-y-4 sm:space-y-6">
 						<div class="text-center sm:text-left">
-							<h3 class="text-lg font-semibold text-gray-900 mb-2">빠른 작업</h3>
+							<h3 class="mb-2 text-lg font-semibold text-gray-900">빠른 작업</h3>
 							<p class="text-sm text-gray-600">자주 사용하는 기능을 빠르게 실행하세요</p>
 						</div>
 						<div class="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
 							<Button
 								variant="outline"
-								class="group flex h-20 sm:h-24 flex-col items-center justify-center space-y-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 hover:scale-105"
+								class="group flex h-20 flex-col items-center justify-center space-y-2 border-dashed border-gray-300 transition-all duration-200 hover:scale-105 hover:border-blue-500 hover:bg-blue-50 sm:h-24"
 								onclick={navigateToClients}
 							>
-								<div class="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-blue-100 group-hover:bg-blue-200 transition-colors duration-200">
-									<i class="fas fa-plus-circle text-lg sm:text-xl text-blue-600"></i>
+								<div
+									class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 transition-colors duration-200 group-hover:bg-blue-200 sm:h-10 sm:w-10"
+								>
+									<i class="fas fa-plus-circle text-lg text-blue-600 sm:text-xl"></i>
 								</div>
-								<span class="text-xs sm:text-sm font-medium text-center leading-tight">새 클라이언트<br/>생성</span>
+								<span class="text-center text-xs leading-tight font-medium sm:text-sm"
+									>새 클라이언트<br />생성</span
+								>
 							</Button>
 
 							<Button
 								variant="outline"
-								class="group flex h-20 sm:h-24 flex-col items-center justify-center space-y-2 border-dashed border-gray-300 hover:border-green-500 hover:bg-green-50 transition-all duration-200 hover:scale-105"
+								class="group flex h-20 flex-col items-center justify-center space-y-2 border-dashed border-gray-300 transition-all duration-200 hover:scale-105 hover:border-green-500 hover:bg-green-50 sm:h-24"
 								onclick={navigateToTokens}
 							>
-								<div class="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-green-100 group-hover:bg-green-200 transition-colors duration-200">
-									<i class="fas fa-key text-lg sm:text-xl text-green-600"></i>
+								<div
+									class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 transition-colors duration-200 group-hover:bg-green-200 sm:h-10 sm:w-10"
+								>
+									<i class="fas fa-key text-lg text-green-600 sm:text-xl"></i>
 								</div>
-								<span class="text-xs sm:text-sm font-medium text-center leading-tight">토큰<br/>관리</span>
+								<span class="text-center text-xs leading-tight font-medium sm:text-sm"
+									>토큰<br />관리</span
+								>
 							</Button>
 
 							<Button
 								variant="outline"
-								class="group flex h-20 sm:h-24 flex-col items-center justify-center space-y-2 border-dashed border-gray-300 hover:border-purple-500 hover:bg-purple-50 transition-all duration-200 hover:scale-105"
+								class="group flex h-20 flex-col items-center justify-center space-y-2 border-dashed border-gray-300 transition-all duration-200 hover:scale-105 hover:border-purple-500 hover:bg-purple-50 sm:h-24"
 								onclick={navigateToSettings}
 							>
-								<div class="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-purple-100 group-hover:bg-purple-200 transition-colors duration-200">
-									<i class="fas fa-cog text-lg sm:text-xl text-purple-600"></i>
+								<div
+									class="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 transition-colors duration-200 group-hover:bg-purple-200 sm:h-10 sm:w-10"
+								>
+									<i class="fas fa-cog text-lg text-purple-600 sm:text-xl"></i>
 								</div>
-								<span class="text-xs sm:text-sm font-medium text-center leading-tight">시스템<br/>설정</span>
+								<span class="text-center text-xs leading-tight font-medium sm:text-sm"
+									>시스템<br />설정</span
+								>
 							</Button>
 
 							<Button
 								variant="outline"
-								class="group flex h-20 sm:h-24 flex-col items-center justify-center space-y-2 border-dashed border-gray-300 hover:border-orange-500 hover:bg-orange-50 transition-all duration-200 hover:scale-105"
+								class="group flex h-20 flex-col items-center justify-center space-y-2 border-dashed border-gray-300 transition-all duration-200 hover:scale-105 hover:border-orange-500 hover:bg-orange-50 sm:h-24"
 								onclick={navigateToOAuthTester}
 							>
-								<div class="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-orange-100 group-hover:bg-orange-200 transition-colors duration-200">
-									<i class="fas fa-link text-lg sm:text-xl text-orange-600"></i>
+								<div
+									class="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 transition-colors duration-200 group-hover:bg-orange-200 sm:h-10 sm:w-10"
+								>
+									<i class="fas fa-link text-lg text-orange-600 sm:text-xl"></i>
 								</div>
-								<span class="text-xs sm:text-sm font-medium text-center leading-tight">OAuth2<br/>테스터</span>
+								<span class="text-center text-xs leading-tight font-medium sm:text-sm"
+									>OAuth2<br />테스터</span
+								>
 							</Button>
 						</div>
 					</div>

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Card, Button, Input } from '$lib';
 	import { authStore, useToast } from '$lib';
-	import { MESSAGES, APP_CONSTANTS, ROUTES } from '$lib/constants/app.constants';
+	import { MESSAGES, ROUTES } from '$lib/constants/app.constants';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
