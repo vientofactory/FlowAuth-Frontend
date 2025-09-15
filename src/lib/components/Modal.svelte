@@ -45,10 +45,17 @@
 </script>
 
 {#if open}
-	<!-- Backdrop -->
+	<!-- Backdrop overlay -->
+	<div
+		class="fixed inset-0 z-40 transition-opacity"
+		style="background-color: rgba(0, 0, 0, 0.5);"
+		onclick={handleBackdropClick}
+		role="presentation"
+	></div>
+
+	<!-- Modal container -->
 	<div
 		class="fixed inset-0 z-50 overflow-y-auto"
-		onclick={handleBackdropClick}
 		onkeydown={handleKeydown}
 		role="dialog"
 		aria-modal="true"
@@ -108,7 +115,4 @@
 			</div>
 		</div>
 	</div>
-
-	<!-- Backdrop overlay -->
-	<div class="bg-opacity-75 fixed inset-0 z-40 bg-gray-500 transition-opacity"></div>
 {/if}

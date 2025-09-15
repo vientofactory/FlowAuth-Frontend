@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { DashboardLayout, Card, Button, Badge, Loading, apiClient } from '$lib';
+	import { DashboardLayout, Card, Button, Badge, Loading, Modal, apiClient } from '$lib';
 	import { useToast } from '$lib';
 	import { onMount } from 'svelte';
 	import type { Client } from '$lib/types/oauth.types';
@@ -16,6 +16,12 @@
 		grants: ['authorization_code'],
 		scopes: 'read write'
 	});
+
+	let showSecretModal = $state(false);
+	let createdClientSecret = $state('');
+
+	let showDeleteModal = $state(false);
+	let clientToDelete = $state<Client | null>(null);
 
 	// 디버깅을 위한 reactive 값들
 	let clientNameValue = $state('');
@@ -123,13 +129,16 @@
 				.map((scope) => scope.trim())
 				.filter((scope) => scope.length > 0);
 
-			await apiClient.createClient({
+			const response = await apiClient.createClient({
 				name: clientNameValue,
 				description: clientDescriptionValue || undefined,
 				redirectUris,
 				grants: newClient.grants,
 				scopes
-			});
+			}) as { clientSecret: string };
+
+			createdClientSecret = response.clientSecret;
+			showSecretModal = true;
 
 			toast.success('클라이언트가 성공적으로 생성되었습니다.');
 
@@ -143,17 +152,26 @@
 	}
 
 	async function deleteClient(clientId: number) {
-		if (!confirm('정말로 이 클라이언트를 삭제하시겠습니까?')) {
-			return;
-		}
+		const client = clients.find(c => c.id === clientId);
+		if (!client) return;
+
+		clientToDelete = client;
+		showDeleteModal = true;
+	}
+
+	async function confirmDeleteClient() {
+		if (!clientToDelete) return;
 
 		try {
-			await apiClient.deleteClient(clientId);
+			await apiClient.deleteClient(clientToDelete.id);
 			toast.success('클라이언트가 삭제되었습니다.');
 			await loadClients(); // 목록 새로고침
 		} catch (error) {
 			console.error('Failed to delete client:', error);
 			toast.error('클라이언트 삭제에 실패했습니다.');
+		} finally {
+			showDeleteModal = false;
+			clientToDelete = null;
 		}
 	}
 
@@ -472,3 +490,82 @@
 		{/if}
 	</Card>
 </DashboardLayout>
+
+{#if showSecretModal}
+	<Modal open={showSecretModal} title="클라이언트 생성 완료" onClose={() => showSecretModal = false}>
+		{#snippet children()}
+			<div class="space-y-4">
+				<p class="text-sm text-gray-600">
+					클라이언트가 성공적으로 생성되었습니다. 아래의 클라이언트 시크릿을 안전하게 저장하세요 - 클라이언트 애플리케이션의 신원을 인증하고 토큰 요청 시 클라이언트의 신뢰성을 검증하는 비밀 키입니다. <strong>이 시크릿은 다시 확인할 수 없습니다.</strong>
+				</p>
+				<div>
+					<label for="clientSecret" class="block text-sm font-medium text-gray-700 mb-2">Client Secret</label>
+					<div class="flex space-x-2">
+						<input
+							id="clientSecret"
+							type="text"
+							value={createdClientSecret}
+							readonly
+							class="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm font-mono"
+						/>
+						<Button onclick={() => copyToClipboard(createdClientSecret)} variant="outline" size="sm">
+							<i class="fas fa-copy mr-1"></i>
+							복사
+						</Button>
+					</div>
+				</div>
+				<div class="flex justify-end">
+					<Button onclick={() => showSecretModal = false}>확인</Button>
+				</div>
+			</div>
+		{/snippet}
+	</Modal>
+{/if}
+
+{#if showDeleteModal && clientToDelete}
+	<Modal open={showDeleteModal} title="클라이언트 삭제 확인" onClose={() => { showDeleteModal = false; clientToDelete = null; }}>
+		{#snippet children()}
+			<div class="space-y-4">
+				<div class="flex items-start space-x-3">
+					<div class="flex-shrink-0">
+						<i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+					</div>
+					<div class="flex-1">
+						<h3 class="text-lg font-medium text-gray-900 mb-2">
+							정말로 이 클라이언트를 삭제하시겠습니까?
+						</h3>
+						<p class="text-sm text-gray-600 mb-4">
+							이 작업은 되돌릴 수 없습니다. 클라이언트와 관련된 모든 데이터가 영구적으로 삭제됩니다.
+						</p>
+						<div class="bg-gray-50 rounded-lg p-3">
+							<div class="text-sm">
+								{#if clientToDelete}
+									<p class="font-medium text-gray-900">{clientToDelete.name}</p>
+									<p class="text-gray-600 mt-1">Client ID: {clientToDelete.clientId}</p>
+								{:else}
+									<p class="text-gray-600">클라이언트 정보가 없습니다.</p>
+								{/if}
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
+					<Button
+						variant="outline"
+						onclick={() => { showDeleteModal = false; clientToDelete = null; }}
+						class="h-10 w-full sm:h-11 sm:w-auto"
+					>
+						취소
+					</Button>
+					<Button
+						onclick={confirmDeleteClient}
+						class="h-10 w-full sm:h-11 sm:w-auto bg-red-600 hover:bg-red-700 text-white"
+					>
+						<i class="fas fa-trash mr-2"></i>
+						삭제
+					</Button>
+				</div>
+			</div>
+		{/snippet}
+	</Modal>
+{/if}

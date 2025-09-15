@@ -137,14 +137,40 @@
 </svelte:head>
 
 {#if isLoading}
-	<div class="flex min-h-screen items-center justify-center bg-gray-50">
+	<div class="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
 		<div class="text-center">
-			<div
-				class="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"
-			></div>
-			<p class="text-lg font-medium text-gray-700">로딩 중...</p>
+			<!-- 로딩 애니메이션 컨테이너 -->
+			<div class="relative mb-8">
+				<!-- 외부 링 -->
+				<div class="h-16 w-16 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600 mx-auto"></div>
+				<!-- 내부 링 -->
+				<div class="absolute inset-0 h-16 w-16 animate-spin rounded-full border-4 border-transparent border-t-indigo-500 mx-auto" style="animation-duration: 0.8s; animation-direction: reverse;"></div>
+				<!-- 중앙 아이콘 -->
+				<div class="absolute inset-0 flex items-center justify-center">
+					<i class="fas fa-shield-alt text-blue-600 text-xl animate-pulse"></i>
+				</div>
+			</div>
+
+			<!-- 로딩 텍스트 -->
+			<div class="space-y-2">
+				<h2 class="text-2xl font-bold text-gray-900">FlowAuth</h2>
+				<p class="text-lg font-medium text-gray-600 animate-pulse">대시보드를 준비하는 중...</p>
+				<div class="flex justify-center space-x-1 mt-4">
+					<div class="h-2 w-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0ms;"></div>
+					<div class="h-2 w-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 150ms;"></div>
+					<div class="h-2 w-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 300ms;"></div>
+				</div>
+			</div>
 		</div>
 	</div>
+
+	<style>
+		@keyframes loading-bar {
+			0% { width: 0%; }
+			50% { width: 80%; }
+			100% { width: 60%; }
+		}
+	</style>
 {:else if !isAuthenticated}
 	<div class="flex min-h-screen items-center justify-center bg-gray-50">
 		<div class="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
