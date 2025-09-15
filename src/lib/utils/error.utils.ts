@@ -7,6 +7,16 @@ import type { AuthorizationError } from '../types/authorization.types';
  */
 export function parseError(error: unknown): AuthorizationError {
 	if (error instanceof Error) {
+		// 타임아웃 에러
+		if (error.message.includes('오래 걸립니다') || error.message.includes('timeout')) {
+			return {
+				type: ErrorType.TIMEOUT_ERROR,
+				message: '보안 검증이 너무 오래 걸립니다. 잠시 후 다시 시도해주세요.',
+				retryable: true,
+				details: error.message
+			};
+		}
+
 		// 네트워크 에러
 		if (error.message.includes('fetch') || error.message.includes('network')) {
 			return {

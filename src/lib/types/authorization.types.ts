@@ -25,6 +25,7 @@ export interface AuthorizationError {
 
 export enum ErrorType {
 	NETWORK_ERROR = 'network',
+	TIMEOUT_ERROR = 'timeout',
 	INVALID_PARAMS = 'params',
 	CLIENT_NOT_FOUND = 'client',
 	SCOPE_INVALID = 'scope',
