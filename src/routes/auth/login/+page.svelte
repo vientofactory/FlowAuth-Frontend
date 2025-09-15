@@ -1,8 +1,11 @@
 <script lang="ts">
 	import { Card, Button, Input } from '$lib';
+	import Footer from '$lib/components/Footer.svelte';
 	import { authStore, useToast } from '$lib';
 	import { MESSAGES, APP_CONSTANTS, ROUTES } from '$lib/constants/app.constants';
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 
 	let email = $state('');
 	let password = $state('');
@@ -14,8 +17,11 @@
 
 	// URL 파라미터에서 returnUrl 확인
 	onMount(() => {
-		const urlParams = new URLSearchParams(window.location.search);
-		returnUrl = urlParams.get('returnUrl') || '';
+		const unsubscribe = page.subscribe(($page) => {
+			returnUrl = $page.url.searchParams.get('returnUrl') || '';
+		});
+
+		return unsubscribe;
 	});
 
 	async function handleSubmit(event: SubmitEvent) {
@@ -32,18 +38,15 @@
 
 		try {
 			await authStore.login(email, password);
-			toast.success(MESSAGES.VALIDATION.LOGIN_SUCCESS);
 
 			// 리다이렉트 처리 - returnUrl이 있으면 해당 URL로, 없으면 대시보드로
-			setTimeout(() => {
-				if (returnUrl) {
-					// OAuth2 플로우나 다른 특정 URL로 복귀
-					window.location.href = returnUrl;
-				} else {
-					// 일반 로그인의 경우 대시보드로
-					window.location.href = ROUTES.DASHBOARD;
-				}
-			}, APP_CONSTANTS.REDIRECT_DELAY);
+			if (returnUrl) {
+				// OAuth2 플로우나 다른 특정 URL로 복귀
+				window.location.href = returnUrl;
+			} else {
+				// 일반 로그인의 경우 대시보드로
+				goto(ROUTES.DASHBOARD);
+			}
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : MESSAGES.VALIDATION.LOGIN_FAILED;
 			toast.error(errorMessage);
@@ -219,6 +222,9 @@
 			</div>
 		</Card>
 	</div>
+
+	<!-- 푸터 -->
+	<Footer />
 </div>
 
 <style>

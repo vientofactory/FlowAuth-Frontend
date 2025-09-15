@@ -1,9 +1,7 @@
 <script lang="ts">
-	import { DashboardLayout, Card, Button, Badge } from '$lib';
-	import { authState, useToast } from '$lib';
-	import { onMount } from 'svelte';
+	import { DashboardLayout, Card, Button } from '$lib';
+	import { useToast } from '$lib';
 
-	// 설정 상태
 	let generalSettings = $state({
 		siteName: 'FlowAuth',
 		siteDescription: 'OAuth2 인증 시스템',
@@ -58,238 +56,253 @@
 </script>
 
 <DashboardLayout title="설정" description="시스템 설정과 환경을 관리하세요." showBackButton={true}>
-	{#snippet children()}
-		<div class="space-y-6">
-			<!-- 일반 설정 -->
-			<Card>
-				<div class="mb-6 flex items-center justify-between">
-					<h3 class="text-lg font-medium text-gray-900">일반 설정</h3>
-					<Button onclick={saveGeneralSettings}>
-						<i class="fas fa-save mr-2"></i>
-						저장
-					</Button>
+	<div class="space-y-6">
+		<!-- 일반 설정 -->
+		<Card>
+			<div class="mb-6 flex items-center justify-between">
+				<h3 class="text-lg font-medium text-gray-900">일반 설정</h3>
+				<Button onclick={saveGeneralSettings}>
+					<i class="fas fa-save mr-2"></i>
+					저장
+				</Button>
+			</div>
+
+			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+				<div>
+					<label for="site-name" class="block text-sm font-medium text-gray-700">사이트 이름</label>
+					<input
+						id="site-name"
+						type="text"
+						bind:value={generalSettings.siteName}
+						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+					/>
+				</div>
+
+				<div>
+					<label for="admin-email" class="block text-sm font-medium text-gray-700"
+						>관리자 이메일</label
+					>
+					<input
+						id="admin-email"
+						type="email"
+						bind:value={generalSettings.adminEmail}
+						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+					/>
+				</div>
+
+				<div class="sm:col-span-2">
+					<label for="site-description" class="block text-sm font-medium text-gray-700"
+						>사이트 설명</label
+					>
+					<textarea
+						id="site-description"
+						bind:value={generalSettings.siteDescription}
+						rows="3"
+						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+					></textarea>
+				</div>
+
+				<div>
+					<label for="default-token-expiry" class="block text-sm font-medium text-gray-700"
+						>기본 토큰 만료 시간 (초)</label
+					>
+					<input
+						id="default-token-expiry"
+						type="number"
+						bind:value={generalSettings.defaultTokenExpiry}
+						min="60"
+						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+					/>
+				</div>
+
+				<div>
+					<label for="default-refresh-token-expiry" class="block text-sm font-medium text-gray-700"
+						>리프레시 토큰 만료 시간 (초)</label
+					>
+					<input
+						id="default-refresh-token-expiry"
+						type="number"
+						bind:value={generalSettings.defaultRefreshTokenExpiry}
+						min="3600"
+						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+					/>
+				</div>
+			</div>
+		</Card>
+
+		<!-- 보안 설정 -->
+		<Card>
+			<div class="mb-6 flex items-center justify-between">
+				<h3 class="text-lg font-medium text-gray-900">보안 설정</h3>
+				<Button onclick={saveSecuritySettings}>
+					<i class="fas fa-save mr-2"></i>
+					저장
+				</Button>
+			</div>
+
+			<div class="space-y-4">
+				<div class="flex items-center justify-between">
+					<div>
+						<h4 class="text-sm font-medium text-gray-900">2단계 인증</h4>
+						<p class="text-sm text-gray-500">추가 보안을 위해 2FA를 활성화합니다.</p>
+					</div>
+					<label class="relative inline-flex cursor-pointer items-center">
+						<input
+							type="checkbox"
+							bind:checked={securitySettings.enableTwoFactor}
+							class="peer sr-only"
+						/>
+						<div
+							class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
+						></div>
+					</label>
+				</div>
+
+				<div class="flex items-center justify-between">
+					<div>
+						<h4 class="text-sm font-medium text-gray-900">강력한 비밀번호 요구</h4>
+						<p class="text-sm text-gray-500">사용자에게 강력한 비밀번호를 요구합니다.</p>
+					</div>
+					<label class="relative inline-flex cursor-pointer items-center">
+						<input
+							type="checkbox"
+							bind:checked={securitySettings.requireStrongPasswords}
+							class="peer sr-only"
+						/>
+						<div
+							class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
+						></div>
+					</label>
+				</div>
+
+				<div class="flex items-center justify-between">
+					<div>
+						<h4 class="text-sm font-medium text-gray-900">로그인 알림</h4>
+						<p class="text-sm text-gray-500">새로운 로그인 시 이메일 알림을 보냅니다.</p>
+					</div>
+					<label class="relative inline-flex cursor-pointer items-center">
+						<input
+							type="checkbox"
+							bind:checked={securitySettings.enableLoginNotifications}
+							class="peer sr-only"
+						/>
+						<div
+							class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
+						></div>
+					</label>
 				</div>
 
 				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 					<div>
-						<label class="block text-sm font-medium text-gray-700">사이트 이름</label>
-						<input
-							type="text"
-							bind:value={generalSettings.siteName}
-							class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-						/>
-					</div>
-
-					<div>
-						<label class="block text-sm font-medium text-gray-700">관리자 이메일</label>
-						<input
-							type="email"
-							bind:value={generalSettings.adminEmail}
-							class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-						/>
-					</div>
-
-					<div class="sm:col-span-2">
-						<label class="block text-sm font-medium text-gray-700">사이트 설명</label>
-						<textarea
-							bind:value={generalSettings.siteDescription}
-							rows="3"
-							class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-						></textarea>
-					</div>
-
-					<div>
-						<label class="block text-sm font-medium text-gray-700">기본 토큰 만료 시간 (초)</label>
-						<input
-							type="number"
-							bind:value={generalSettings.defaultTokenExpiry}
-							min="60"
-							class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-						/>
-					</div>
-
-					<div>
-						<label class="block text-sm font-medium text-gray-700"
-							>리프레시 토큰 만료 시간 (초)</label
+						<label for="session-timeout" class="block text-sm font-medium text-gray-700"
+							>세션 타임아웃 (초)</label
 						>
 						<input
+							id="session-timeout"
 							type="number"
-							bind:value={generalSettings.defaultRefreshTokenExpiry}
-							min="3600"
+							bind:value={securitySettings.sessionTimeout}
+							min="300"
+							class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+						/>
+					</div>
+
+					<div>
+						<label for="max-login-attempts" class="block text-sm font-medium text-gray-700"
+							>최대 로그인 시도 횟수</label
+						>
+						<input
+							id="max-login-attempts"
+							type="number"
+							bind:value={securitySettings.maxLoginAttempts}
+							min="1"
+							max="10"
 							class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
 						/>
 					</div>
 				</div>
-			</Card>
+			</div>
+		</Card>
 
-			<!-- 보안 설정 -->
-			<Card>
-				<div class="mb-6 flex items-center justify-between">
-					<h3 class="text-lg font-medium text-gray-900">보안 설정</h3>
-					<Button onclick={saveSecuritySettings}>
-						<i class="fas fa-save mr-2"></i>
-						저장
-					</Button>
+		<!-- 알림 설정 -->
+		<Card>
+			<div class="mb-6 flex items-center justify-between">
+				<h3 class="text-lg font-medium text-gray-900">알림 설정</h3>
+				<Button onclick={saveNotificationSettings}>
+					<i class="fas fa-save mr-2"></i>
+					저장
+				</Button>
+			</div>
+
+			<div class="space-y-4">
+				<div class="flex items-center justify-between">
+					<div>
+						<h4 class="text-sm font-medium text-gray-900">이메일 알림</h4>
+						<p class="text-sm text-gray-500">이메일로 알림을 받습니다.</p>
+					</div>
+					<label class="relative inline-flex cursor-pointer items-center">
+						<input
+							type="checkbox"
+							bind:checked={notificationSettings.emailNotifications}
+							class="peer sr-only"
+						/>
+						<div
+							class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
+						></div>
+					</label>
 				</div>
 
-				<div class="space-y-4">
-					<div class="flex items-center justify-between">
-						<div>
-							<h4 class="text-sm font-medium text-gray-900">2단계 인증</h4>
-							<p class="text-sm text-gray-500">추가 보안을 위해 2FA를 활성화합니다.</p>
-						</div>
-						<label class="relative inline-flex cursor-pointer items-center">
-							<input
-								type="checkbox"
-								bind:checked={securitySettings.enableTwoFactor}
-								class="peer sr-only"
-							/>
-							<div
-								class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
-							></div>
-						</label>
+				<div class="flex items-center justify-between">
+					<div>
+						<h4 class="text-sm font-medium text-gray-900">새 클라이언트 알림</h4>
+						<p class="text-sm text-gray-500">새 클라이언트 등록 시 알림을 받습니다.</p>
 					</div>
-
-					<div class="flex items-center justify-between">
-						<div>
-							<h4 class="text-sm font-medium text-gray-900">강력한 비밀번호 요구</h4>
-							<p class="text-sm text-gray-500">사용자에게 강력한 비밀번호를 요구합니다.</p>
-						</div>
-						<label class="relative inline-flex cursor-pointer items-center">
-							<input
-								type="checkbox"
-								bind:checked={securitySettings.requireStrongPasswords}
-								class="peer sr-only"
-							/>
-							<div
-								class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
-							></div>
-						</label>
-					</div>
-
-					<div class="flex items-center justify-between">
-						<div>
-							<h4 class="text-sm font-medium text-gray-900">로그인 알림</h4>
-							<p class="text-sm text-gray-500">새로운 로그인 시 이메일 알림을 보냅니다.</p>
-						</div>
-						<label class="relative inline-flex cursor-pointer items-center">
-							<input
-								type="checkbox"
-								bind:checked={securitySettings.enableLoginNotifications}
-								class="peer sr-only"
-							/>
-							<div
-								class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
-							></div>
-						</label>
-					</div>
-
-					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-						<div>
-							<label class="block text-sm font-medium text-gray-700">세션 타임아웃 (초)</label>
-							<input
-								type="number"
-								bind:value={securitySettings.sessionTimeout}
-								min="300"
-								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-							/>
-						</div>
-
-						<div>
-							<label class="block text-sm font-medium text-gray-700">최대 로그인 시도 횟수</label>
-							<input
-								type="number"
-								bind:value={securitySettings.maxLoginAttempts}
-								min="1"
-								max="10"
-								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-							/>
-						</div>
-					</div>
-				</div>
-			</Card>
-
-			<!-- 알림 설정 -->
-			<Card>
-				<div class="mb-6 flex items-center justify-between">
-					<h3 class="text-lg font-medium text-gray-900">알림 설정</h3>
-					<Button onclick={saveNotificationSettings}>
-						<i class="fas fa-save mr-2"></i>
-						저장
-					</Button>
+					<label class="relative inline-flex cursor-pointer items-center">
+						<input
+							type="checkbox"
+							bind:checked={notificationSettings.newClientNotifications}
+							class="peer sr-only"
+						/>
+						<div
+							class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
+						></div>
+					</label>
 				</div>
 
-				<div class="space-y-4">
-					<div class="flex items-center justify-between">
-						<div>
-							<h4 class="text-sm font-medium text-gray-900">이메일 알림</h4>
-							<p class="text-sm text-gray-500">이메일로 알림을 받습니다.</p>
-						</div>
-						<label class="relative inline-flex cursor-pointer items-center">
-							<input
-								type="checkbox"
-								bind:checked={notificationSettings.emailNotifications}
-								class="peer sr-only"
-							/>
-							<div
-								class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
-							></div>
-						</label>
+				<div class="flex items-center justify-between">
+					<div>
+						<h4 class="text-sm font-medium text-gray-900">보안 경고</h4>
+						<p class="text-sm text-gray-500">보안 관련 경고를 받습니다.</p>
 					</div>
-
-					<div class="flex items-center justify-between">
-						<div>
-							<h4 class="text-sm font-medium text-gray-900">새 클라이언트 알림</h4>
-							<p class="text-sm text-gray-500">새 클라이언트 등록 시 알림을 받습니다.</p>
-						</div>
-						<label class="relative inline-flex cursor-pointer items-center">
-							<input
-								type="checkbox"
-								bind:checked={notificationSettings.newClientNotifications}
-								class="peer sr-only"
-							/>
-							<div
-								class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
-							></div>
-						</label>
-					</div>
-
-					<div class="flex items-center justify-between">
-						<div>
-							<h4 class="text-sm font-medium text-gray-900">보안 경고</h4>
-							<p class="text-sm text-gray-500">보안 관련 경고를 받습니다.</p>
-						</div>
-						<label class="relative inline-flex cursor-pointer items-center">
-							<input
-								type="checkbox"
-								bind:checked={notificationSettings.securityAlerts}
-								class="peer sr-only"
-							/>
-							<div
-								class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
-							></div>
-						</label>
-					</div>
+					<label class="relative inline-flex cursor-pointer items-center">
+						<input
+							type="checkbox"
+							bind:checked={notificationSettings.securityAlerts}
+							class="peer sr-only"
+						/>
+						<div
+							class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
+						></div>
+					</label>
 				</div>
-			</Card>
+			</div>
+		</Card>
 
-			<!-- 데이터 관리 -->
-			<Card>
-				<h3 class="mb-6 text-lg font-medium text-gray-900">데이터 관리</h3>
-				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-					<Button variant="outline" onclick={exportData}>
-						<i class="fas fa-download mr-2"></i>
-						데이터 내보내기
-					</Button>
-					<Button variant="outline" onclick={importData}>
-						<i class="fas fa-upload mr-2"></i>
-						데이터 가져오기
-					</Button>
-				</div>
-				<p class="mt-4 text-sm text-gray-500">
-					시스템 데이터를 백업하거나 복원할 수 있습니다. 중요한 작업이므로 신중하게 진행하세요.
-				</p>
-			</Card>
-		</div>
-	{/snippet}
+		<!-- 데이터 관리 -->
+		<Card>
+			<h3 class="mb-6 text-lg font-medium text-gray-900">데이터 관리</h3>
+			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+				<Button variant="outline" onclick={exportData}>
+					<i class="fas fa-download mr-2"></i>
+					데이터 내보내기
+				</Button>
+				<Button variant="outline" onclick={importData}>
+					<i class="fas fa-upload mr-2"></i>
+					데이터 가져오기
+				</Button>
+			</div>
+			<p class="mt-4 text-sm text-gray-500">
+				시스템 데이터를 백업하거나 복원할 수 있습니다. 중요한 작업이므로 신중하게 진행하세요.
+			</p>
+		</Card>
+	</div>
 </DashboardLayout>

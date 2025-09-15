@@ -1,14 +1,22 @@
 <script lang="ts">
 	import '../app.css';
 	import favicon from '$lib/assets/favicon.svg';
-	import { authStore, ToastContainer } from '$lib';
-	import { onMount } from 'svelte';
+	import { authStore, ToastContainer, apiClient } from '$lib';
+	import { onMount, onDestroy } from 'svelte';
 
 	let { children } = $props();
 
 	onMount(async () => {
 		// 앱 시작 시 인증 상태 초기화
 		await authStore.initialize();
+
+		// 네트워크 모니터링 시작
+		apiClient.startNetworkMonitoring();
+	});
+
+	onDestroy(() => {
+		// 앱 종료 시 네트워크 모니터링 중지
+		apiClient.stopNetworkMonitoring();
 	});
 </script>
 

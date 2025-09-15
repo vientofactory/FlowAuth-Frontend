@@ -137,25 +137,32 @@ class ApiClient {
 
 	private getToken(): string | null {
 		if (typeof window !== 'undefined') {
-			return localStorage.getItem(APP_CONSTANTS.TOKEN_STORAGE_KEY);
+			const token = localStorage.getItem(APP_CONSTANTS.TOKEN_STORAGE_KEY);
+			console.log('ApiClient: Getting token from localStorage:', !!token);
+			return token;
 		}
+		console.log('ApiClient: Window not available, returning null');
 		return null;
 	}
 
 	private setToken(token: string): void {
 		if (typeof window !== 'undefined') {
+			console.log('ApiClient: Setting token to localStorage');
 			localStorage.setItem(APP_CONSTANTS.TOKEN_STORAGE_KEY, token);
 			// OAuth2 플로우를 위해 쿠키에도 저장 (HttpOnly가 아닌 클라이언트 사이드 쿠키)
 			// SameSite=Lax로 설정하여 크로스사이트 요청에서도 작동하도록 함
 			document.cookie = `token=${token}; path=/; max-age=86400; samesite=lax`;
+			console.log('ApiClient: Token set successfully');
 		}
 	}
 
 	private removeToken(): void {
 		if (typeof window !== 'undefined') {
+			console.log('ApiClient: Removing token from localStorage');
 			localStorage.removeItem(APP_CONSTANTS.TOKEN_STORAGE_KEY);
 			// 쿠키도 제거
 			document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+			console.log('ApiClient: Token removed successfully');
 		}
 	}
 
@@ -307,6 +314,89 @@ class ApiClient {
 		return this.request(`/auth/clients/${id}`, {
 			method: 'DELETE'
 		});
+	}
+
+	// 온라인 상태 감지 및 자동 세션 복원
+	private isOnline = true;
+	private reconnectTimer: number | null = null;
+	private readonly RECONNECT_INTERVAL = 30000; // 30초마다 재연결 시도
+
+	// 온라인 상태 모니터링 시작
+	startNetworkMonitoring() {
+		if (typeof window === 'undefined') return;
+
+		// 온라인/오프라인 이벤트 리스너 등록
+		window.addEventListener('online', this.handleOnline.bind(this));
+		window.addEventListener('offline', this.handleOffline.bind(this));
+
+		// 주기적 연결 상태 확인
+		this.scheduleReconnect();
+	}
+
+	// 온라인 상태 모니터링 중지
+	stopNetworkMonitoring() {
+		if (typeof window === 'undefined') return;
+
+		window.removeEventListener('online', this.handleOnline.bind(this));
+		window.removeEventListener('offline', this.handleOffline.bind(this));
+
+		if (this.reconnectTimer) {
+			clearInterval(this.reconnectTimer);
+			this.reconnectTimer = null;
+		}
+	}
+
+	private handleOnline() {
+		console.log('[API] Network connection restored');
+		this.isOnline = true;
+
+		// 네트워크 복구 시 세션 검증 및 복원 시도
+		this.attemptSessionRecovery();
+	}
+
+	private handleOffline() {
+		console.log('[API] Network connection lost');
+		this.isOnline = false;
+	}
+
+	private scheduleReconnect() {
+		if (this.reconnectTimer) return;
+
+		this.reconnectTimer = window.setInterval(() => {
+			if (!this.isOnline && navigator.onLine) {
+				console.log('[API] Attempting to reconnect...');
+				this.attemptSessionRecovery();
+			}
+		}, this.RECONNECT_INTERVAL);
+	}
+
+	// 세션 복원 시도
+	private async attemptSessionRecovery() {
+		try {
+			const token = this.getToken();
+			if (!token) {
+				console.log('[API] No token found, skipping session recovery');
+				return;
+			}
+
+			// 간단한 API 호출로 세션 검증
+			await this.request('/auth/me', {}, 0, true);
+			console.log('[API] Session recovered successfully');
+
+			// 세션 복원 성공 시 사용자에게 알림 (옵션)
+			if (typeof window !== 'undefined' && 'dispatchEvent' in window) {
+				window.dispatchEvent(new CustomEvent('session-recovered'));
+			}
+		} catch (error) {
+			console.log('[API] Session recovery failed:', error);
+			// 세션 복원 실패 시 토큰 제거
+			this.removeToken();
+		}
+	}
+
+	// 현재 온라인 상태 확인
+	isNetworkOnline(): boolean {
+		return this.isOnline && (typeof navigator === 'undefined' || navigator.onLine);
 	}
 }
 

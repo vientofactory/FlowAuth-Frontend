@@ -1,10 +1,12 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
 	interface BadgeProps {
 		variant?: 'default' | 'success' | 'warning' | 'error' | 'info' | 'secondary';
 		size?: 'sm' | 'md' | 'lg';
 		rounded?: boolean;
 		class?: string;
-		children?: any;
+		children?: Snippet;
 	}
 
 	let {

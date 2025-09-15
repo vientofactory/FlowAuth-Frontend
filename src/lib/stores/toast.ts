@@ -25,23 +25,20 @@ class ToastManager {
 		duration: number = 4000
 	): string {
 		const id = `toast-${++toastIdCounter}`;
+		const finalDuration = duration || 4000; // duration이 0이나 falsy한 값일 때 기본값 사용
 		const toast: ToastMessage = {
 			id,
 			message,
 			type,
-			duration,
+			duration: finalDuration,
 			timestamp: Date.now()
 		};
 
 		// 스토어에 토스트 추가
-		toastStore.update((toasts) => [...toasts, toast]);
-
-		// 지정된 시간 후 자동 제거
-		if (duration > 0) {
-			setTimeout(() => {
-				this.remove(id);
-			}, duration);
-		}
+		toastStore.update((toasts) => {
+			const newToasts = [...toasts, toast];
+			return newToasts;
+		});
 
 		return id;
 	}
@@ -78,7 +75,10 @@ class ToastManager {
 	 * 특정 토스트를 제거합니다
 	 */
 	remove(id: string): void {
-		toastStore.update((toasts) => toasts.filter((toast) => toast.id !== id));
+		toastStore.update((toasts) => {
+			const filteredToasts = toasts.filter((toast) => toast.id !== id);
+			return filteredToasts;
+		});
 	}
 
 	/**

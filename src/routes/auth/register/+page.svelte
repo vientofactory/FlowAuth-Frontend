@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { Card, Button, Input } from '$lib';
+	import Footer from '$lib/components/Footer.svelte';
 	import { apiClient, useToast } from '$lib';
 	import type { CreateUserDto } from '$lib';
+	import { goto } from '$app/navigation';
 
 	let email = $state('');
 	let password = $state('');
@@ -51,7 +53,7 @@
 
 			toast.success('회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.'); // 성공 시 로그인 페이지로 리다이렉트
 			setTimeout(() => {
-				window.location.href = '/auth/login';
+				goto('/auth/login');
 			}, 2000);
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : '회원가입에 실패했습니다.';
@@ -295,6 +297,9 @@
 			</div>
 		</Card>
 	</div>
+
+	<!-- 푸터 -->
+	<Footer />
 </div>
 
 <style>

@@ -1,56 +1,19 @@
 <script lang="ts">
-	import { Card, Button } from '$lib';
+	import { Card, Button, Navigation } from '$lib';
+	import Footer from '$lib/components/Footer.svelte';
+	import { STYLE_CONSTANTS } from '$lib/constants/app.constants';
+	import { goto } from '$app/navigation';
 </script>
 
 <svelte:head>
 	<title>FlowAuth - OAuth2 인증 시스템</title>
-	<meta name="description" content="현대적인 OAuth2 인증 시스템" />
+	<meta name="description" content="OAuth 2.0 표준을 준수하는 개방형 인증 시스템" />
 </svelte:head>
 
-<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-	<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-		<!-- 헤더 -->
-		<header
-			class="sticky top-0 z-50 border-b border-white/20 bg-white/80 shadow-lg backdrop-blur-md"
-		>
-			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-				<div class="flex h-16 items-center justify-between">
-					<div class="flex items-center space-x-2">
-						<div
-							class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600"
-						>
-							<span class="text-sm font-bold text-white">FA</span>
-						</div>
-						<h1
-							class="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-xl font-bold text-transparent"
-						>
-							FlowAuth
-						</h1>
-					</div>
-					<nav class="hidden items-center space-x-8 md:flex">
-						<a
-							href="/auth/login"
-							data-sveltekit-preload-data
-							class="font-medium text-gray-600 transition-colors duration-200 hover:text-blue-600"
-							>로그인</a
-						>
-						<Button
-							variant="primary"
-							onclick={() => (window.location.href = '/auth/register')}
-							class="shadow-md transition-shadow duration-200 hover:shadow-lg"
-						>
-							회원가입
-						</Button>
-					</nav>
-					<!-- 모바일 메뉴 버튼 -->
-					<div class="md:hidden">
-						<button class="text-gray-600 hover:text-blue-600" aria-label="메뉴 열기">
-							<i class="fas fa-bars text-xl"></i>
-						</button>
-					</div>
-				</div>
-			</div>
-		</header>
+<div class={STYLE_CONSTANTS.BACKGROUND.PAGE}>
+	<div class={STYLE_CONSTANTS.BACKGROUND.PAGE}>
+		<!-- 공통 네비게이션 -->
+		<Navigation transparent={true} />
 
 		<!-- 메인 콘텐츠 -->
 		<main class="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
@@ -79,7 +42,7 @@
 				<div class="mb-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
 					<Button
 						variant="primary"
-						onclick={() => (window.location.href = '/auth/register')}
+						onclick={() => goto('/auth/register')}
 						class="transform px-8 py-4 text-lg shadow-xl transition-all duration-200 hover:-translate-y-1 hover:shadow-2xl"
 					>
 						<i class="fas fa-rocket mr-2"></i>
@@ -190,107 +153,7 @@
 		</main>
 
 		<!-- 푸터 -->
-		<footer class="bg-gradient-to-r from-gray-900 to-gray-800 text-white">
-			<div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-				<div class="grid grid-cols-1 gap-8 md:grid-cols-4">
-					<div class="col-span-1 md:col-span-2">
-						<div class="mb-4 flex items-center space-x-2">
-							<div
-								class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600"
-							>
-								<span class="text-sm font-bold text-white">FA</span>
-							</div>
-							<span class="text-xl font-bold">FlowAuth</span>
-						</div>
-						<p class="mb-4 max-w-md text-gray-300">
-							오픈소스 OAuth2 인증 시스템으로 애플리케이션의 보안을 강화하세요.
-						</p>
-						<div class="flex space-x-4">
-							<a
-								href="https://github.com/vientofactory"
-								class="text-gray-400 transition-colors duration-200 hover:text-white"
-								aria-label="GitHub"
-							>
-								<i class="fab fa-github text-xl"></i>
-							</a>
-						</div>
-					</div>
-
-					<div>
-						<h4 class="mb-4 text-lg font-semibold">제품</h4>
-						<ul class="space-y-2">
-							<li>
-								<a
-									href="/features"
-									data-sveltekit-preload-data
-									class="text-gray-400 transition-colors duration-200 hover:text-white"
-								>
-									기능
-								</a>
-							</li>
-							<li>
-								<a
-									href="/security"
-									data-sveltekit-preload-data
-									class="text-gray-400 transition-colors duration-200 hover:text-white"
-								>
-									보안
-								</a>
-							</li>
-							<li>
-								<a
-									href="/integrations"
-									data-sveltekit-preload-data
-									class="text-gray-400 transition-colors duration-200 hover:text-white"
-								>
-									통합
-								</a>
-							</li>
-						</ul>
-					</div>
-
-					<div>
-						<h4 class="mb-4 text-lg font-semibold">지원</h4>
-						<ul class="space-y-2">
-							<li>
-								<a
-									href="/docs"
-									data-sveltekit-preload-data
-									class="text-gray-400 transition-colors duration-200 hover:text-white"
-								>
-									문서
-								</a>
-							</li>
-							<li>
-								<a
-									href="/api"
-									data-sveltekit-preload-data
-									class="text-gray-400 transition-colors duration-200 hover:text-white"
-								>
-									API 레퍼런스
-								</a>
-							</li>
-							<li>
-								<a
-									href="/community"
-									data-sveltekit-preload-data
-									class="text-gray-400 transition-colors duration-200 hover:text-white"
-								>
-									커뮤니티
-								</a>
-							</li>
-						</ul>
-					</div>
-				</div>
-
-				<div class="mt-8 border-t border-gray-700 pt-8 text-center">
-					<p class="text-gray-400">
-						&copy; 2025 FlowAuth. 오픈소스 프로젝트입니다.<br />
-						MIT 라이선스 · 자유롭게 사용/기여 환영합니다.
-					</p>
-				</div>
-			</div>
-		</footer>
+		<Footer />
 	</div>
 
 	<style>

@@ -35,6 +35,21 @@ export const UI_CONSTANTS = {
 	INPUT_DEBOUNCE_DELAY: 300
 } as const;
 
+// 스타일 상수들
+export const STYLE_CONSTANTS = {
+	GRADIENTS: {
+		PRIMARY: 'bg-gradient-to-r from-blue-600 to-indigo-600',
+		SECONDARY: 'bg-gradient-to-r from-slate-50 via-blue-50 to-indigo-100',
+		TEXT_PRIMARY: 'bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'
+	},
+	BACKGROUND: {
+		PAGE: 'min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100',
+		CARD: 'bg-white/80 shadow-2xl backdrop-blur-sm'
+	},
+	BORDER: 'border-white/20',
+	SHADOW: 'shadow-lg'
+} as const;
+
 // 메시지 상수들
 export const MESSAGES = {
 	VALIDATION: {

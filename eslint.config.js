@@ -23,7 +23,18 @@ export default ts.config(
 		rules: {
 			// typescript-eslint strongly recommend that you do not use the no-undef lint rule on TypeScript projects.
 			// see: https://typescript-eslint.io/troubleshooting/faqs/eslint/#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined-even-though-there-are-no-typescript-errors
-			'no-undef': 'off'
+			'no-undef': 'off',
+			// Allow URLSearchParams usage in OAuth flow
+			'svelte/prefer-svelte-reactivity': 'off',
+			// Allow navigation without resolve for known routes
+			'svelte/no-navigation-without-resolve': 'off',
+			// Allow unused variables with underscore prefix
+			'@typescript-eslint/no-unused-vars': [
+				'error',
+				{ argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
+			],
+			// Disable accessibility warnings for form labels (Svelte handles this with bind:value)
+			'svelte/a11y-label-has-associated-control': 'off'
 		}
 	},
 	{

@@ -66,7 +66,7 @@
 <div class={className}>
 	<!-- Tab Navigation -->
 	<nav class={`flex space-x-1 ${variantClasses[variant].container}`} aria-label="Tabs">
-		{#each tabs as tab}
+		{#each tabs as tab (tab.id)}
 			<button
 				type="button"
 				class={`

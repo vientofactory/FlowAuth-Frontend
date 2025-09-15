@@ -1,7 +1,9 @@
 <script lang="ts">
-	import { authStore, authState, useToast } from '$lib';
+	import { authStore, authState, Navigation } from '$lib';
 	import { onMount, onDestroy } from 'svelte';
-	import { Button } from '$lib';
+	import { page } from '$app/stores';
+	import Button from '$lib/components/Button.svelte';
+	import Footer from '$lib/components/Footer.svelte';
 	import type { User } from '$lib';
 
 	interface Props {
@@ -11,6 +13,7 @@
 		showBackButton?: boolean;
 		backUrl?: string;
 		headerActions?: import('svelte').Snippet;
+		showPageHeader?: boolean;
 	}
 
 	let {
@@ -19,15 +22,16 @@
 		description = '',
 		showBackButton = false,
 		backUrl = '/dashboard',
-		headerActions
+		headerActions,
+		showPageHeader = true
 	}: Props = $props();
 
 	let isLoading = $state(true);
 	let user = $state<User | null>(null);
 	let isAuthenticated = $state(false);
 	let unsubscribe: (() => void) | null = null;
-
-	const toast = useToast();
+	let currentPath = $state('');
+	let mobileMenuOpen = $state(false);
 
 	onMount(async () => {
 		await authStore.initialize();
@@ -37,6 +41,15 @@
 			isLoading = state.isLoading;
 			isAuthenticated = state.isAuthenticated;
 		});
+
+		// 현재 경로 구독
+		const pathUnsubscribe = page.subscribe(($page) => {
+			currentPath = $page.url.pathname;
+		});
+
+		return () => {
+			pathUnsubscribe();
+		};
 	});
 
 	onDestroy(() => {
@@ -45,27 +58,35 @@
 		}
 	});
 
-	// 인증 상태에 따른 리다이렉트 처리
+	// 현재 경로에 따른 자동 제목 설정
 	$effect(() => {
-		if (!isLoading && !isAuthenticated) {
-			window.location.href = '/auth/login';
+		if (!title || title === '대시보드') {
+			const activeItem = dashboardMenuItems.find(item => isMenuActive(item.href));
+			if (activeItem) {
+				title = activeItem.label;
+				description = activeItem.description;
+			}
 		}
 	});
-
-	function handleLogout() {
-		toast.info('로그아웃 중입니다...');
-		authStore.logout();
-		setTimeout(() => {
-			window.location.href = '/auth/login';
-		}, 1000);
-	}
 
 	function goBack() {
 		window.location.href = backUrl;
 	}
 
-	// 사이드바 메뉴 아이템들
-	const menuItems = [
+	function toggleMobileMenu() {
+		mobileMenuOpen = !mobileMenuOpen;
+	}
+
+	// 메뉴 활성화 상태 확인 함수
+	function isMenuActive(href: string): boolean {
+		if (href === '/dashboard') {
+			return currentPath === '/dashboard';
+		}
+		return currentPath.startsWith(href);
+	}
+
+	// 대시보드 메뉴 아이템들
+	const dashboardMenuItems = [
 		{
 			id: 'dashboard',
 			label: '개요',
@@ -110,12 +131,6 @@
 		}
 	];
 
-	// 현재 경로에 따른 활성 메뉴 아이템 결정
-	let currentPath = $state('');
-
-	onMount(() => {
-		currentPath = window.location.pathname;
-	});
 </script>
 
 <svelte:head>
@@ -144,67 +159,56 @@
 	</div>
 {:else if user}
 	<div class="min-h-screen bg-gray-50">
-		<!-- 헤더 -->
-		<header class="sticky top-0 z-40 border-b border-gray-200 bg-white shadow-sm">
-			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-				<div class="flex h-16 items-center justify-between">
-					<div class="flex items-center space-x-4">
-						<div class="flex-shrink-0">
-							<h1 class="text-xl font-bold text-gray-900">
-								<i class="fas fa-shield-alt mr-2 text-blue-600"></i>
-								FlowAuth
-							</h1>
-						</div>
-						{#if showBackButton}
-							<Button
-								variant="outline"
-								size="sm"
-								onclick={goBack}
-								class="text-gray-600 hover:text-gray-900"
-							>
-								<i class="fas fa-arrow-left mr-2"></i>
-								뒤로
-							</Button>
-						{/if}
-					</div>
+		<!-- 공통 네비게이션 -->
+		<Navigation showDashboardButton={false} />
 
-					<div class="flex items-center space-x-4">
-						{#if headerActions}
-							{@render headerActions()}
-						{/if}
-
-						<div class="hidden sm:block">
-							<span class="text-sm text-gray-600">
-								안녕하세요, <span class="font-semibold text-gray-900"
-									>{user.firstName} {user.lastName}</span
-								>님
-							</span>
-						</div>
-
-						<Button
-							variant="outline"
-							size="sm"
-							onclick={handleLogout}
-							class="border-gray-300 text-gray-700 hover:bg-gray-50"
-						>
-							<i class="fas fa-sign-out-alt mr-2"></i>
-							로그아웃
-						</Button>
-					</div>
-				</div>
+		<!-- 모바일 메뉴 버튼 -->
+		<div class="lg:hidden">
+			<div class="flex items-center justify-between bg-white px-4 py-3 shadow-sm">
+				<h1 class="text-xl font-bold text-gray-900">{title}</h1>
+				<button
+					onclick={toggleMobileMenu}
+					class="flex h-8 w-8 items-center justify-center rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+					aria-label="메뉴 열기"
+				>
+					<i class="fas fa-bars text-lg"></i>
+				</button>
 			</div>
-		</header>
+
+			<!-- 모바일 메뉴 드롭다운 -->
+			{#if mobileMenuOpen}
+				<div class="bg-white shadow-lg">
+					<nav class="px-2 py-3">
+						<div class="space-y-1">
+							{#each dashboardMenuItems as item (item.href)}
+								<a
+									href={item.href}
+									class="block rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150 ease-in-out
+										{isMenuActive(item.href)
+										? 'bg-blue-100 text-blue-900'
+										: 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}"
+									onclick={() => (mobileMenuOpen = false)}
+								>
+									<i class="{item.icon} mr-3 h-5 w-5"></i>
+									{item.label}
+								</a>
+							{/each}
+						</div>
+					</nav>
+				</div>
+			{/if}
+		</div>
 
 		<div class="flex">
-			<!-- 사이드바 -->
+			<!-- 대시보드 사이드바 -->
 			<aside class="hidden w-64 bg-white shadow-sm lg:block">
 				<nav class="mt-5 px-2">
 					<div class="space-y-1">
-						{#each menuItems as item}
+						{#each dashboardMenuItems as item (item.href)}
 							<a
 								href={item.href}
 								class="group flex items-center rounded-md px-2 py-2 text-sm font-medium transition-colors duration-150 ease-in-out
-									{currentPath.startsWith(item.href)
+									{isMenuActive(item.href)
 									? 'border-r-2 border-blue-500 bg-blue-100 text-blue-900'
 									: 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}"
 							>
@@ -223,7 +227,7 @@
 			<main class="flex-1">
 				<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 					<!-- 페이지 헤더 -->
-					{#if title || description}
+					{#if showPageHeader && (title || description)}
 						<div class="mb-8">
 							<div class="flex items-center justify-between">
 								<div>
@@ -242,25 +246,7 @@
 			</main>
 		</div>
 
-		<!-- 모바일 네비게이션 (하단 고정) -->
-		<nav class="fixed right-0 bottom-0 left-0 z-50 border-t border-gray-200 bg-white lg:hidden">
-			<div class="grid grid-cols-3 gap-1 px-2 py-2">
-				{#each menuItems.slice(0, 6) as item}
-					<a
-						href={item.href}
-						class="flex flex-col items-center justify-center rounded-md px-1 py-2 text-xs transition-colors duration-150 ease-in-out
-							{currentPath.startsWith(item.href)
-							? 'bg-blue-100 text-blue-900'
-							: 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}"
-					>
-						<i class="{item.icon} mb-1 text-lg"></i>
-						<span class="truncate font-medium">{item.label}</span>
-					</a>
-				{/each}
-			</div>
-		</nav>
-
-		<!-- 모바일에서 하단 네비게이션을 위한 여백 -->
-		<div class="h-16 lg:hidden"></div>
+		<!-- 푸터 -->
+		<Footer />
 	</div>
 {/if}

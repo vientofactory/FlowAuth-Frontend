@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Button } from '$lib';
 	import type { Snippet } from 'svelte';
 
 	interface ModalProps {

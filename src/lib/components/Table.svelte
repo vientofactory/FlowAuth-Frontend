@@ -5,7 +5,7 @@
 		key: keyof T;
 		label: string;
 		sortable?: boolean;
-		render?: (value: any, row: T) => string;
+		render?: (value: unknown, row: T) => string;
 	}
 
 	interface TableProps<T> {
@@ -66,7 +66,7 @@
 	}
 
 	function getCellValue(row: T, column: Column<T>): string {
-		const value = row[column.key] as any;
+		const value = row[column.key] as unknown;
 		if (column.render) {
 			return column.render(value, row);
 		}
@@ -79,7 +79,7 @@
 		<table class="min-w-full divide-y divide-gray-200">
 			<thead class="bg-gray-50">
 				<tr>
-					{#each columns as column}
+					{#each columns as column (column.key)}
 						<th
 							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
 							class:cursor-pointer={column.sortable}
@@ -109,9 +109,9 @@
 			</thead>
 			<tbody class="divide-y divide-gray-200 bg-white">
 				{#if loading}
-					{#each Array(5) as _}
+					{#each Array(5) as _, index (index)}
 						<tr>
-							{#each columns as _}
+							{#each columns as _, colIndex (colIndex)}
 								<td class="px-6 py-4 whitespace-nowrap">
 									<div class="h-4 animate-pulse rounded bg-gray-200"></div>
 								</td>
@@ -128,9 +128,9 @@
 						</td>
 					</tr>
 				{:else}
-					{#each sortedData as row}
+					{#each sortedData as row, rowIndex (rowIndex)}
 						<tr class="hover:bg-gray-50">
-							{#each columns as column}
+							{#each columns as column, colIndex (colIndex)}
 								<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-900">
 									{#if cell}
 										{@render cell({ column, row })}

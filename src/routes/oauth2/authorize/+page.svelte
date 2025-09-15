@@ -1,11 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
 	import { apiClient } from '$lib/utils/api';
 	import Card from '$lib/components/Card.svelte';
 	import Button from '$lib/components/Button.svelte';
-	import Badge from '$lib/components/Badge.svelte';
 	import Loading from '$lib/components/Loading.svelte';
 	import type { Client } from '$lib/types/oauth.types';
 	import type { PageData } from './$types';
@@ -33,7 +30,11 @@
 		// Parameters are already extracted from +page.ts
 		const { authorizeParams } = data;
 
-		if (!authorizeParams.client_id || !authorizeParams.redirect_uri || !authorizeParams.response_type) {
+		if (
+			!authorizeParams.client_id ||
+			!authorizeParams.redirect_uri ||
+			!authorizeParams.response_type
+		) {
 			error = '필수 OAuth2 파라미터가 누락되었습니다';
 			loading = false;
 			return;
@@ -42,7 +43,7 @@
 		try {
 			// 디버그 정보 출력
 			apiClient.debugToken();
-			
+
 			// Get consent information from backend using API client
 			const params = new URLSearchParams({
 				client_id: authorizeParams.client_id,
@@ -51,10 +52,12 @@
 				...(authorizeParams.scope && { scope: authorizeParams.scope }),
 				...(authorizeParams.state && { state: authorizeParams.state }),
 				...(authorizeParams.code_challenge && { code_challenge: authorizeParams.code_challenge }),
-				...(authorizeParams.code_challenge_method && { code_challenge_method: authorizeParams.code_challenge_method })
+				...(authorizeParams.code_challenge_method && {
+					code_challenge_method: authorizeParams.code_challenge_method
+				})
 			});
 
-			const result = await apiClient.request<{ client: any; scopes: string[] }>(
+			const result = await apiClient.request<{ client: Client; scopes: string[] }>(
 				`/oauth2/authorize/info?${params.toString()}`,
 				{ method: 'GET' }
 			);
@@ -161,7 +164,7 @@
 							요청된 권한
 						</h3>
 						<div class="space-y-2">
-							{#each requestedScopes as scopeName}
+							{#each requestedScopes as scopeName (scopeName)}
 								<div class="flex items-center space-x-3 rounded-lg bg-gray-50 p-3">
 									<i class="fas fa-check text-green-500"></i>
 									<div>

@@ -112,7 +112,7 @@
 				{#if content}
 					{@render content()}
 				{:else}
-					{#each items as item}
+					{#each items as item, index (index)}
 						{#if item.separator}
 							<div class="my-1 border-t border-gray-100" role="separator"></div>
 						{:else}

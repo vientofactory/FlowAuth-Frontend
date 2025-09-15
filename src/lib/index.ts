@@ -13,6 +13,9 @@ export { default as Badge } from './components/Badge.svelte';
 export { default as Dropdown } from './components/Dropdown.svelte';
 export { default as Loading } from './components/Loading.svelte';
 export { default as DashboardLayout } from './components/DashboardLayout.svelte';
+export { default as AuthLayout } from './components/AuthLayout.svelte';
+export { default as PageHeader } from './components/PageHeader.svelte';
+export { default as Navigation } from './components/Navigation.svelte';
 
 // Composables
 export { useToast } from './composables/useToast';
@@ -48,4 +51,14 @@ export interface CreateUserDto {
 // Stores
 export { authStore, authState } from './stores/auth';
 export { toast, toastStore } from './stores/toast';
+
+// Constants
+export {
+	APP_CONSTANTS,
+	ROUTES,
+	API_ENDPOINTS,
+	UI_CONSTANTS,
+	MESSAGES,
+	STYLE_CONSTANTS
+} from './constants/app.constants';
 export type { ToastMessage } from './stores/toast';
