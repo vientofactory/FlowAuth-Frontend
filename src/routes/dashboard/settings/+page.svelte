@@ -6,7 +6,7 @@
 		siteName: 'FlowAuth',
 		siteDescription: 'OAuth2 인증 시스템',
 		adminEmail: 'admin@flowauth.com',
-		defaultTokenExpiry: 3600,
+		defaultTokenExpiry: 86400,
 		defaultRefreshTokenExpiry: 86400 * 30
 	});
 
