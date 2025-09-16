@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { DashboardLayout, Card, Button, Badge, apiClient } from '$lib';
 	import { authState, useToast } from '$lib';
+	import { PermissionUtils } from '$lib';
 	import { onMount } from 'svelte';
 	import type { User } from '$lib';
 
@@ -358,7 +359,25 @@
 						</div>
 						<div class="flex items-center justify-between">
 							<span class="text-sm text-gray-600">역할</span>
-							<Badge variant="info" size="sm">관리자</Badge>
+							{#if user.permissions !== undefined}
+								<Badge variant="info" size="sm">
+									{PermissionUtils.getRoleName(user.permissions)}
+								</Badge>
+							{:else}
+								<Badge variant="secondary" size="sm">권한 없음</Badge>
+							{/if}
+						</div>
+						<div class="flex items-center justify-between">
+							<span class="text-sm text-gray-600">세부 권한</span>
+							{#if user.permissions !== undefined}
+								<div class="flex max-w-48 flex-wrap gap-1">
+									{#each PermissionUtils.getPermissionNames(user.permissions) as permission (permission)}
+										<Badge variant="outline" size="xs">{permission}</Badge>
+									{/each}
+								</div>
+							{:else}
+								<Badge variant="secondary" size="sm">권한 없음</Badge>
+							{/if}
 						</div>
 						<div class="flex items-center justify-between">
 							<span class="text-sm text-gray-600">2FA</span>
@@ -377,11 +396,25 @@
 						</div>
 						<div>
 							<span class="text-sm text-gray-600">가입일</span>
-							<p class="text-sm text-gray-900">2024년 1월 15일</p>
+							<p class="text-sm text-gray-900">
+								{user.createdAt
+									? new Date(user.createdAt).toLocaleDateString('ko-KR', {
+											year: 'numeric',
+											month: 'long',
+											day: 'numeric'
+										})
+									: '정보 없음'}
+							</p>
 						</div>
 						<div>
 							<span class="text-sm text-gray-600">마지막 로그인</span>
-							<p class="text-sm text-gray-900">방금 전</p>
+							<p class="text-sm text-gray-900">정보 없음</p>
+						</div>
+						<div>
+							<span class="text-sm text-gray-600">이메일 인증</span>
+							<p class="text-sm text-gray-900">
+								{user.isEmailVerified ? '인증됨' : '미인증'}
+							</p>
 						</div>
 					</div>
 				</Card>

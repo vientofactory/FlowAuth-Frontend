@@ -28,7 +28,9 @@
 
 <!-- 정책 링크들 -->
 {#if client.termsOfServiceUri || client.policyUri}
-	<div class="mb-4 rounded-lg border border-gray-100 bg-gray-50 p-3 shadow-sm sm:mb-6 sm:rounded-xl">
+	<div
+		class="mb-4 rounded-lg border border-gray-100 bg-gray-50 p-3 shadow-sm sm:mb-6 sm:rounded-xl"
+	>
 		<div class="flex items-start space-x-2 sm:space-x-3">
 			<div class="flex-shrink-0">
 				<div
@@ -38,9 +40,7 @@
 				</div>
 			</div>
 			<div class="flex-1">
-				<h3 class="mb-2 text-sm font-semibold text-gray-900 sm:text-base">
-					정책 및 약관
-				</h3>
+				<h3 class="mb-2 text-sm font-semibold text-gray-900 sm:text-base">정책 및 약관</h3>
 				<div class="flex flex-wrap gap-2 sm:gap-3">
 					{#if client.termsOfServiceUri}
 						<a

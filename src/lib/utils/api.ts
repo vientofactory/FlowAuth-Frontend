@@ -268,8 +268,8 @@ class ApiClient {
 	async getDashboardStats(): Promise<{
 		totalClients: number;
 		activeTokens: number;
-		lastLoginDate: Date | null;
-		accountCreated: Date | null;
+		lastLoginDate: string | null;
+		accountCreated: string | null;
 	}> {
 		return this.request('/oauth2/dashboard/stats');
 	} // 사용자 토큰 관리 API

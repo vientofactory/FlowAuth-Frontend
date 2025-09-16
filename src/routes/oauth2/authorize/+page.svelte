@@ -10,7 +10,12 @@
 	let { data }: { data: PageData } = $props();
 
 	// 권한 부여 훅 사용
-	const { state: authState, handleConsent, retryAuthorization, loadAuthorizationData } = useAuthorization(data);
+	const {
+		state: authState,
+		handleConsent,
+		retryAuthorization,
+		loadAuthorizationData
+	} = useAuthorization(data);
 
 	// 상태 구독
 	let currentState = $state<AuthorizationState | null>(null);
@@ -45,13 +50,13 @@
 	});
 
 	// 로고 로딩 상태 관리
-	let logoLoaded = $state(false);
+	let _logoLoaded = $state(false);
 	let logoError = $state(false);
 
 	// 로고 상태 초기화
 	$effect(() => {
 		if (currentState.client?.logoUri) {
-			logoLoaded = false;
+			_logoLoaded = false;
 			logoError = false;
 		}
 	});
@@ -85,30 +90,36 @@
 >
 	<div class="w-full max-w-md">
 		{#if currentState?.loading}
-			<Card class="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
+			<Card class="border-0 bg-white/95 shadow-xl backdrop-blur-sm">
 				<LoadingState
-					message={currentState.loadingProgress < 50 ? "보안 검증을 준비하고 있습니다..." : currentState.loadingProgress < 80 ? "클라이언트 정보를 확인하고 있습니다..." : "권한 정보를 불러오고 있습니다..."}
+					message={currentState.loadingProgress < 50
+						? '보안 검증을 준비하고 있습니다...'
+						: currentState.loadingProgress < 80
+							? '클라이언트 정보를 확인하고 있습니다...'
+							: '권한 정보를 불러오고 있습니다...'}
 					progress={currentState.loadingProgress}
 				/>
 			</Card>
 		{:else if currentState?.error}
-			<Card class="shadow-xl border-red-200 bg-white/95 backdrop-blur-sm">
+			<Card class="border-red-200 bg-white/95 shadow-xl backdrop-blur-sm">
 				<ErrorState error={currentState.error} onRetry={handleRetry} onGoBack={handleGoBack} />
 			</Card>
 		{:else if currentState?.client}
-			<Card class="shadow-xl border-0 bg-white/95 backdrop-blur-sm overflow-hidden max-w-lg">
+			<Card class="max-w-lg overflow-hidden border-0 bg-white/95 shadow-xl backdrop-blur-sm">
 				<!-- 앱 정보 헤더 -->
-				<div class="px-8 py-6 text-center border-b border-gray-100">
+				<div class="border-b border-gray-100 px-8 py-6 text-center">
 					<div class="flex flex-col items-center space-y-4">
 						<!-- 앱 로고 또는 기본 아이콘 -->
-						<div class="relative w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+						<div
+							class="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg"
+						>
 							{#if currentState.client?.logoUri && !logoError}
 								<img
 									src={currentState.client.logoUri}
 									alt="{currentState.client.name} 로고"
-									class="w-14 h-14 rounded-xl object-cover"
-									onload={() => logoLoaded = true}
-									onerror={() => logoError = true}
+									class="h-14 w-14 rounded-xl object-cover"
+									onload={() => (logoLoaded = true)}
+									onerror={() => (logoError = true)}
 								/>
 							{/if}
 							{#if !currentState.client?.logoUri || logoError}
@@ -118,27 +129,27 @@
 
 						<!-- 앱 이름과 설명 -->
 						<div>
-							<h1 class="text-xl font-bold text-gray-900 mb-1">
+							<h1 class="mb-1 text-xl font-bold text-gray-900">
 								{currentState.client?.name || '알 수 없는 앱'}
 							</h1>
-							<p class="text-sm text-gray-600">
-								귀하의 계정에 접근하려고 합니다
-							</p>
+							<p class="text-sm text-gray-600">귀하의 계정에 접근하려고 합니다</p>
 						</div>
 					</div>
 				</div>
 
 				<!-- 권한 목록 -->
 				<div class="px-8 py-6">
-					<h3 class="text-sm font-semibold text-gray-900 mb-4 text-center">
+					<h3 class="mb-4 text-center text-sm font-semibold text-gray-900">
 						이 앱이 요청하는 권한
 					</h3>
 
 					<div class="space-y-3">
 						{#each currentState.scopes || [] as scope (scope)}
-							<div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-								<div class="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-									<i class="fas fa-check text-green-600 text-sm"></i>
+							<div class="flex items-center space-x-3 rounded-lg bg-gray-50 p-3">
+								<div
+									class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-100"
+								>
+									<i class="fas fa-check text-sm text-green-600"></i>
 								</div>
 								<div class="flex-1">
 									<p class="text-sm font-medium text-gray-900 capitalize">
@@ -153,11 +164,11 @@
 					</div>
 
 					<!-- 보안 알림 -->
-					<div class="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+					<div class="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
 						<div class="flex items-start space-x-2">
-							<i class="fas fa-info-circle text-amber-600 mt-0.5 text-sm"></i>
+							<i class="fas fa-info-circle mt-0.5 text-sm text-amber-600"></i>
 							<div>
-								<p class="text-sm font-medium text-amber-800 mb-1">
+								<p class="mb-1 text-sm font-medium text-amber-800">
 									신뢰할 수 있는 앱인지 확인하세요
 								</p>
 								<p class="text-xs text-amber-700">
@@ -169,20 +180,20 @@
 				</div>
 
 				<!-- 액션 버튼 -->
-				<div class="px-8 py-6 border-t border-gray-100 bg-gray-50">
+				<div class="border-t border-gray-100 bg-gray-50 px-8 py-6">
 					<div class="space-y-4">
 						<div class="flex space-x-3">
 							<button
 								onclick={handleDeny}
 								disabled={currentState.submitting}
-								class="flex-1 px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 transition-colors cursor-pointer disabled:cursor-not-allowed"
+								class="flex-1 cursor-pointer rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 							>
 								취소
 							</button>
 							<button
 								onclick={handleApprove}
 								disabled={currentState.submitting}
-								class="flex-1 px-4 py-3 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 transition-colors cursor-pointer disabled:cursor-not-allowed"
+								class="flex-1 cursor-pointer rounded-lg border border-transparent bg-green-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 							>
 								{#if currentState.submitting}
 									<i class="fas fa-spinner fa-spin mr-2"></i>
@@ -197,7 +208,7 @@
 						<div class="text-center">
 							<p class="text-xs text-gray-500">
 								승인 시 다음 URL로 이동합니다:
-								<span class="text-gray-700 break-all">
+								<span class="break-all text-gray-700">
 									{data.authorizeParams?.redirect_uri || 'N/A'}
 								</span>
 							</p>

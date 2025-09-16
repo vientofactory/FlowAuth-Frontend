@@ -1,13 +1,11 @@
 <script lang="ts">
-	import { Card, Button, Input } from '$lib';
-	import { apiClient, useToast } from '$lib';
+	import { Card, Button, Input, useToast } from '$lib';
 	import type { CreateUserDto } from '$lib';
 	import {
 		validateEmail,
 		validatePassword,
 		validateUsername,
-		validateName,
-		validateRequired
+		validateName
 	} from '$lib/utils/validation.utils';
 	import { goto } from '$app/navigation';
 
@@ -27,7 +25,6 @@
 	let usernameError = $state('');
 	let firstNameError = $state('');
 	let lastNameError = $state('');
-	let termsError = $state('');
 
 	// 중앙화된 토스트 훅 사용
 	const toast = useToast();
@@ -71,14 +68,6 @@
 		lastNameError = result.isValid ? '' : result.message || '';
 	}
 
-	function validateTermsField() {
-		if (!agreeToTerms) {
-			termsError = '이용약관에 동의해주세요.';
-		} else {
-			termsError = '';
-		}
-	}
-
 	async function handleRegister() {
 		// 모든 필드 검증 수행
 		validateEmailField();
@@ -95,7 +84,14 @@
 		}
 
 		// 검증 실패 시 중단
-		if (emailError || passwordError || confirmPasswordError || usernameError || firstNameError || lastNameError) {
+		if (
+			emailError ||
+			passwordError ||
+			confirmPasswordError ||
+			usernameError ||
+			firstNameError ||
+			lastNameError
+		) {
 			toast.warning('입력 정보를 확인해주세요.');
 			return;
 		}

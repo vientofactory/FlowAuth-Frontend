@@ -136,7 +136,9 @@
 						}}
 						onkeydown={handleKeyPress}
 						disabled={isLoading}
-						class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {emailError ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}"
+						class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {emailError
+							? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+							: ''}"
 					/>
 					{#if emailError}
 						<p class="mt-1 text-sm text-red-600">
@@ -164,7 +166,9 @@
 						}}
 						onkeydown={handleKeyPress}
 						disabled={isLoading}
-						class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {passwordError ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}"
+						class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {passwordError
+							? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+							: ''}"
 					/>
 					{#if passwordError}
 						<p class="mt-1 text-sm text-red-600">

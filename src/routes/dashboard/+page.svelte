@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { DashboardLayout, Card, Button, Badge, Tabs, apiClient } from '$lib';
 	import { authState, useToast } from '$lib';
+	import { PermissionUtils } from '$lib';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import type { User } from '$lib';
@@ -11,8 +12,8 @@
 	let dashboardStats = $state({
 		totalClients: 0,
 		activeTokens: 0,
-		lastLoginDate: null as Date | null,
-		accountCreated: null as Date | null
+		lastLoginDate: null as string | null,
+		accountCreated: null as string | null
 	});
 
 	const toast = useToast();
@@ -129,10 +130,12 @@
 						</div>
 						<p class="mb-1 text-sm font-medium opacity-80">로그인</p>
 						<p class="text-xs leading-tight font-bold sm:text-sm">
-							{dashboardStats.lastLoginDate?.toLocaleDateString('ko-KR', {
-								month: 'short',
-								day: 'numeric'
-							}) || 'N/A'}
+							{dashboardStats.lastLoginDate
+								? new Date(dashboardStats.lastLoginDate).toLocaleDateString('ko-KR', {
+										month: 'short',
+										day: 'numeric'
+									})
+								: 'N/A'}
 						</p>
 					</div>
 				</div>
@@ -155,7 +158,7 @@
 						</div>
 						<p class="mb-1 text-sm font-medium opacity-80">계정</p>
 						<p class="text-xs leading-tight font-bold sm:text-sm">
-							{dashboardStats.accountCreated?.toLocaleDateString('ko-KR', {
+							{new Date(dashboardStats.accountCreated)?.toLocaleDateString('ko-KR', {
 								year: '2-digit',
 								month: 'short'
 							}) || 'N/A'}
@@ -209,7 +212,13 @@
 												<i class="fas fa-shield-alt w-4 text-gray-400"></i>
 												<span>
 													<span class="font-medium">역할:</span>
-													<Badge variant="info" size="sm" class="ml-1">관리자</Badge>
+													{#if user.permissions !== undefined}
+														<Badge variant="info" size="sm" class="ml-1">
+															{PermissionUtils.getRoleName(user.permissions)}
+														</Badge>
+													{:else}
+														<Badge variant="secondary" size="sm" class="ml-1">권한 없음</Badge>
+													{/if}
 												</span>
 											</div>
 										</div>

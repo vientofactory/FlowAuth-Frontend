@@ -24,6 +24,15 @@ export { useToast } from './composables/useToast';
 export { apiClient } from './utils/api';
 export type { CreateClientData } from './utils/api';
 
+// Permissions
+export {
+	PermissionUtils,
+	PERMISSIONS,
+	ROLES,
+	ROLE_NAMES,
+	PERMISSION_NAMES
+} from './utils/permissions';
+
 // Types
 export interface User {
 	id: number;
@@ -31,6 +40,8 @@ export interface User {
 	email: string;
 	firstName: string;
 	lastName: string;
+	isEmailVerified?: boolean;
+	permissions?: number;
 	createdAt?: string;
 	updatedAt?: string;
 }

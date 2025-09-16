@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { DashboardLayout, Button, Loading, apiClient } from '$lib';
+	import { DashboardLayout, Button, apiClient } from '$lib';
 	import { useToast } from '$lib';
 	import { onMount } from 'svelte';
 	import type { Client } from '$lib/types/oauth.types';
@@ -7,8 +7,7 @@
 		validateClientName,
 		validateRedirectUri,
 		validateUrl,
-		validateScopes,
-		validateRequired
+		validateScopes
 	} from '$lib/utils/validation.utils';
 	import ClientStats from '$lib/components/clients/ClientStats.svelte';
 	import ClientCreateForm from '$lib/components/clients/ClientCreateForm.svelte';
@@ -325,7 +324,14 @@
 		validatePolicyUriField();
 
 		// 검증 실패 시 중단
-		if (clientNameError || redirectUrisError || scopesError || logoUriError || termsOfServiceUriError || policyUriError) {
+		if (
+			clientNameError ||
+			redirectUrisError ||
+			scopesError ||
+			logoUriError ||
+			termsOfServiceUriError ||
+			policyUriError
+		) {
 			toast.warning('입력 정보를 확인해주세요.');
 			return;
 		}
@@ -343,7 +349,7 @@
 				.map((scope) => scope.trim())
 				.filter((scope) => scope.length > 0);
 
-			const response = await apiClient.createClient({
+			const response = (await apiClient.createClient({
 				name: clientNameValue,
 				description: clientDescriptionValue || undefined,
 				redirectUris,
@@ -352,7 +358,7 @@
 				logoUri: logoUriValue || undefined,
 				termsOfServiceUri: termsOfServiceUriValue || undefined,
 				policyUri: policyUriValue || undefined
-			}) as { clientSecret: string };
+			})) as { clientSecret: string };
 
 			createdClientSecret = response.clientSecret;
 			showSecretModal = true;
@@ -369,7 +375,7 @@
 	}
 
 	async function deleteClient(clientId: number) {
-		const client = clients.find(c => c.id === clientId);
+		const client = clients.find((c) => c.id === clientId);
 		if (!client) return;
 
 		clientToDelete = client;
@@ -400,7 +406,14 @@
 		validateEditPolicyUriField();
 
 		// 검증 실패 시 중단
-		if (editClientNameError || editRedirectUrisError || editScopesError || editLogoUriError || editTermsOfServiceUriError || editPolicyUriError) {
+		if (
+			editClientNameError ||
+			editRedirectUrisError ||
+			editScopesError ||
+			editLogoUriError ||
+			editTermsOfServiceUriError ||
+			editPolicyUriError
+		) {
 			toast.warning('입력 정보를 확인해주세요.');
 			return;
 		}
@@ -555,36 +568,42 @@
 	/>
 </DashboardLayout>
 
-	<ClientSecretModal
-		showSecretModal={showSecretModal}
-		{createdClientSecret}
-		onClose={() => showSecretModal = false}
-		onCopyToClipboard={copyToClipboard}
-	/>
+<ClientSecretModal
+	{showSecretModal}
+	{createdClientSecret}
+	onClose={() => (showSecretModal = false)}
+	onCopyToClipboard={copyToClipboard}
+/>
 
-	<ClientDeleteModal
-		showDeleteModal={showDeleteModal}
-		{clientToDelete}
-		onClose={() => { showDeleteModal = false; clientToDelete = null; }}
-		onConfirmDelete={confirmDeleteClient}
-	/>
+<ClientDeleteModal
+	{showDeleteModal}
+	{clientToDelete}
+	onClose={() => {
+		showDeleteModal = false;
+		clientToDelete = null;
+	}}
+	onConfirmDelete={confirmDeleteClient}
+/>
 
-	<ClientEditModal
-		{showEditModal}
-		{clientToEdit}
-		bind:editClientName
-		bind:editClientDescription
-		bind:editRedirectUris
-		bind:editScopes
-		bind:editLogoUri
-		bind:editTermsOfServiceUri
-		bind:editPolicyUri
-		{editClientNameError}
-		{editRedirectUrisError}
-		{editScopesError}
-		{editLogoUriError}
-		{editTermsOfServiceUriError}
-		{editPolicyUriError}
-		onClose={() => { showEditModal = false; clientToEdit = null; }}
-		onUpdateClient={updateClient}
-	/>
+<ClientEditModal
+	{showEditModal}
+	{clientToEdit}
+	bind:editClientName
+	bind:editClientDescription
+	bind:editRedirectUris
+	bind:editScopes
+	bind:editLogoUri
+	bind:editTermsOfServiceUri
+	bind:editPolicyUri
+	{editClientNameError}
+	{editRedirectUrisError}
+	{editScopesError}
+	{editLogoUriError}
+	{editTermsOfServiceUriError}
+	{editPolicyUriError}
+	onClose={() => {
+		showEditModal = false;
+		clientToEdit = null;
+	}}
+	onUpdateClient={updateClient}
+/>

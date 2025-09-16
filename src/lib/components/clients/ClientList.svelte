@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Card, Button, Badge, Loading } from '$lib';
+	import { Card, Button, Badge } from '$lib';
 	import type { Client } from '$lib/types/oauth.types';
 
 	interface Props {
@@ -12,7 +12,15 @@
 		onCopyToClipboard: (text: string) => void;
 	}
 
-	let { clients, isLoading, onToggleCreateForm, onEditClient, onToggleClientStatus, onDeleteClient, onCopyToClipboard }: Props = $props();
+	let {
+		clients,
+		isLoading,
+		onToggleCreateForm,
+		onEditClient,
+		onToggleClientStatus,
+		onDeleteClient,
+		onCopyToClipboard
+	}: Props = $props();
 </script>
 
 <!-- 클라이언트 목록 -->
@@ -38,9 +46,7 @@
 	{:else}
 		<div class="space-y-3 sm:space-y-4">
 			{#each clients as client (client.id)}
-				<div
-					class="rounded-lg border border-gray-200 p-3 transition-shadow hover:shadow-md sm:p-4"
-				>
+				<div class="rounded-lg border border-gray-200 p-3 transition-shadow hover:shadow-md sm:p-4">
 					<div
 						class="flex flex-col space-y-3 sm:flex-row sm:items-start sm:justify-between sm:space-y-0"
 					>
@@ -66,9 +72,7 @@
 								<div>
 									<p class="text-xs font-medium text-gray-500">Client ID</p>
 									<div class="mt-1 flex items-center space-x-2">
-										<code
-											class="flex-1 truncate rounded bg-gray-100 px-2 py-1 text-xs sm:text-sm"
-										>
+										<code class="flex-1 truncate rounded bg-gray-100 px-2 py-1 text-xs sm:text-sm">
 											{client.clientId}
 										</code>
 										<Button
