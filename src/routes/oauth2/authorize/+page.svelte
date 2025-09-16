@@ -4,17 +4,17 @@
 	import LoadingState from '$lib/components/oauth2/LoadingState.svelte';
 	import ErrorState from '$lib/components/oauth2/ErrorState.svelte';
 	import { useAuthorization } from '$lib/hooks/useAuthorization';
-	import type { AuthorizationState } from '$lib/types/authorization.types';
+	import type { AuthorizationState, ErrorType } from '$lib/types/authorization.types';
 	import type { PageData } from './$types';
 
-	export let data: PageData;
+	let { data }: { data: PageData } = $props();
 
 	// 권한 부여 훅 사용
-	const { state, handleConsent, retryAuthorization, loadAuthorizationData } = useAuthorization(data);
+	const { state: authState, handleConsent, retryAuthorization, loadAuthorizationData } = useAuthorization(data);
 
 	// 상태 구독
-	let currentState: AuthorizationState;
-	const unsubscribe = state.subscribe((value) => {
+	let currentState = $state<AuthorizationState | null>(null);
+	const unsubscribe = authState.subscribe((value) => {
 		currentState = value;
 	});
 
@@ -24,7 +24,7 @@
 
 		// 추가 안전장치: 45초 후에도 로딩 중이면 강제로 에러 상태로 전환
 		setTimeout(() => {
-			state.update((current) => {
+			authState.update((current) => {
 				if (current.loading) {
 					console.error('[Page] Force timeout: loading took too long');
 					return {
@@ -42,6 +42,18 @@
 		}, 45000);
 
 		return unsubscribe;
+	});
+
+	// 로고 로딩 상태 관리
+	let logoLoaded = $state(false);
+	let logoError = $state(false);
+
+	// 로고 상태 초기화
+	$effect(() => {
+		if (currentState.client?.logoUri) {
+			logoLoaded = false;
+			logoError = false;
+		}
 	});
 
 	// 이벤트 핸들러
@@ -88,9 +100,20 @@
 				<!-- 앱 정보 헤더 -->
 				<div class="px-8 py-6 text-center border-b border-gray-100">
 					<div class="flex flex-col items-center space-y-4">
-						<!-- 큰 앱 아이콘 -->
-						<div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-							<i class="fas fa-shield-alt text-2xl text-white"></i>
+						<!-- 앱 로고 또는 기본 아이콘 -->
+						<div class="relative w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+							{#if currentState.client?.logoUri && !logoError}
+								<img
+									src={currentState.client.logoUri}
+									alt="{currentState.client.name} 로고"
+									class="w-14 h-14 rounded-xl object-cover"
+									onload={() => logoLoaded = true}
+									onerror={() => logoError = true}
+								/>
+							{/if}
+							{#if !currentState.client?.logoUri || logoError}
+								<i class="fas fa-shield-alt text-2xl text-white"></i>
+							{/if}
 						</div>
 
 						<!-- 앱 이름과 설명 -->
@@ -177,6 +200,35 @@
 								<span class="text-gray-700 break-all">
 									{data.authorizeParams?.redirect_uri || 'N/A'}
 								</span>
+							</p>
+							<p class="text-xs text-gray-500">
+								애플리케이션의
+								{#if currentState.client?.termsOfServiceUri}
+									<a
+										href={currentState.client.termsOfServiceUri}
+										target="_blank"
+										rel="noopener noreferrer"
+										class="text-blue-700 hover:text-blue-900"
+									>
+										이용약관
+									</a>
+								{:else}
+									이용약관
+								{/if}
+								과
+								{#if currentState.client?.policyUri}
+									<a
+										href={currentState.client.policyUri}
+										target="_blank"
+										rel="noopener noreferrer"
+										class="text-blue-700 hover:text-blue-900"
+									>
+										개인정보처리방침
+									</a>
+								{:else}
+									개인정보처리방침
+								{/if}
+								이 적용됩니다.
 							</p>
 						</div>
 					</div>

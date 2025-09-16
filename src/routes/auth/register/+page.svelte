@@ -2,6 +2,13 @@
 	import { Card, Button, Input } from '$lib';
 	import { apiClient, useToast } from '$lib';
 	import type { CreateUserDto } from '$lib';
+	import {
+		validateEmail,
+		validatePassword,
+		validateUsername,
+		validateName,
+		validateRequired
+	} from '$lib/utils/validation.utils';
 	import { goto } from '$app/navigation';
 
 	let email = $state('');
@@ -13,27 +20,83 @@
 	let isLoading = $state(false);
 	let agreeToTerms = $state(false);
 
+	// 폼 검증 상태
+	let emailError = $state('');
+	let passwordError = $state('');
+	let confirmPasswordError = $state('');
+	let usernameError = $state('');
+	let firstNameError = $state('');
+	let lastNameError = $state('');
+	let termsError = $state('');
+
 	// 중앙화된 토스트 훅 사용
 	const toast = useToast();
 
-	async function handleRegister() {
-		if (!email || !password || !confirmPassword || !username || !firstName || !lastName) {
-			toast.warning('모든 필드를 입력해주세요.');
+	// 실시간 검증 함수들
+	function validateEmailField() {
+		const result = validateEmail(email);
+		emailError = result.isValid ? '' : result.message || '';
+	}
+
+	function validatePasswordField() {
+		const result = validatePassword(password);
+		passwordError = result.isValid ? '' : result.message || '';
+		validateConfirmPasswordField(); // 비밀번호 변경 시 확인 비밀번호도 재검증
+	}
+
+	function validateConfirmPasswordField() {
+		if (!confirmPassword) {
+			confirmPasswordError = '비밀번호 확인을 입력해주세요.';
 			return;
 		}
-
 		if (password !== confirmPassword) {
-			toast.warning('비밀번호가 일치하지 않습니다.');
-			return;
+			confirmPasswordError = '비밀번호가 일치하지 않습니다.';
+		} else {
+			confirmPasswordError = '';
 		}
+	}
 
-		if (password.length < 8) {
-			toast.warning('비밀번호는 최소 8자 이상이어야 합니다.');
-			return;
+	function validateUsernameField() {
+		const result = validateUsername(username);
+		usernameError = result.isValid ? '' : result.message || '';
+	}
+
+	function validateFirstNameField() {
+		const result = validateName(firstName, '이름');
+		firstNameError = result.isValid ? '' : result.message || '';
+	}
+
+	function validateLastNameField() {
+		const result = validateName(lastName, '성');
+		lastNameError = result.isValid ? '' : result.message || '';
+	}
+
+	function validateTermsField() {
+		if (!agreeToTerms) {
+			termsError = '이용약관에 동의해주세요.';
+		} else {
+			termsError = '';
 		}
+	}
 
+	async function handleRegister() {
+		// 모든 필드 검증 수행
+		validateEmailField();
+		validatePasswordField();
+		validateConfirmPasswordField();
+		validateUsernameField();
+		validateFirstNameField();
+		validateLastNameField();
+
+		// 이용약관 동의 확인
 		if (!agreeToTerms) {
 			toast.warning('이용약관에 동의해주세요.');
+			return;
+		}
+
+		// 검증 실패 시 중단
+		if (emailError || passwordError || confirmPasswordError || usernameError || firstNameError || lastNameError) {
+			toast.warning('입력 정보를 확인해주세요.');
 			return;
 		}
 
@@ -50,7 +113,7 @@
 
 			await apiClient.register(userData);
 
-			toast.success('회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.'); // 성공 시 로그인 페이지로 리다이렉트
+			toast.success('회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.');
 			setTimeout(() => {
 				goto('/auth/login');
 			}, 2000);
@@ -118,7 +181,11 @@
 							disabled={isLoading}
 							class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 						/>
-						<p class="mt-1 text-xs text-gray-500">고유한 사용자 이름 (영문, 숫자, 밑줄만 사용)</p>
+						{#if usernameError}
+							<p class="mt-1 text-sm text-red-600">{usernameError}</p>
+						{:else}
+							<p class="mt-1 text-xs text-gray-500">고유한 사용자 이름 (영문, 숫자, 밑줄만 사용)</p>
+						{/if}
 					</div>
 
 					<div class="grid grid-cols-2 gap-4">
@@ -136,6 +203,9 @@
 								disabled={isLoading}
 								class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 							/>
+							{#if firstNameError}
+								<p class="mt-1 text-sm text-red-600">{firstNameError}</p>
+							{/if}
 						</div>
 
 						<div class="relative">
@@ -152,6 +222,9 @@
 								disabled={isLoading}
 								class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 							/>
+							{#if lastNameError}
+								<p class="mt-1 text-sm text-red-600">{lastNameError}</p>
+							{/if}
 						</div>
 					</div>
 
@@ -169,7 +242,11 @@
 							disabled={isLoading}
 							class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 						/>
-						<p class="mt-1 text-xs text-gray-500">이메일 주소는 계정 복구에 사용됩니다</p>
+						{#if emailError}
+							<p class="mt-1 text-sm text-red-600">{emailError}</p>
+						{:else}
+							<p class="mt-1 text-xs text-gray-500">이메일 주소는 계정 복구에 사용됩니다</p>
+						{/if}
 					</div>
 
 					<div class="relative">
@@ -186,7 +263,11 @@
 							disabled={isLoading}
 							class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 						/>
-						<p class="mt-1 text-xs text-gray-500">최소 8자 이상, 대소문자 및 숫자 포함 권장</p>
+						{#if passwordError}
+							<p class="mt-1 text-sm text-red-600">{passwordError}</p>
+						{:else}
+							<p class="mt-1 text-xs text-gray-500">최소 8자 이상, 대소문자 및 숫자 포함 권장</p>
+						{/if}
 					</div>
 
 					<div class="relative">
@@ -204,6 +285,9 @@
 							disabled={isLoading}
 							class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
 						/>
+						{#if confirmPasswordError}
+							<p class="mt-1 text-sm text-red-600">{confirmPasswordError}</p>
+						{/if}
 					</div>
 				</div>
 

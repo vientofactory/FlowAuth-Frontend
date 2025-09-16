@@ -1,8 +1,21 @@
 <script lang="ts">
-	import { DashboardLayout, Card, Button, Badge, Loading, Modal, apiClient } from '$lib';
+	import { DashboardLayout, Button, Loading, apiClient } from '$lib';
 	import { useToast } from '$lib';
 	import { onMount } from 'svelte';
 	import type { Client } from '$lib/types/oauth.types';
+	import {
+		validateClientName,
+		validateRedirectUri,
+		validateUrl,
+		validateScopes,
+		validateRequired
+	} from '$lib/utils/validation.utils';
+	import ClientStats from '$lib/components/clients/ClientStats.svelte';
+	import ClientCreateForm from '$lib/components/clients/ClientCreateForm.svelte';
+	import ClientList from '$lib/components/clients/ClientList.svelte';
+	import ClientSecretModal from '$lib/components/clients/ClientSecretModal.svelte';
+	import ClientDeleteModal from '$lib/components/clients/ClientDeleteModal.svelte';
+	import ClientEditModal from '$lib/components/clients/ClientEditModal.svelte';
 
 	let clients = $state<Client[]>([]);
 	let isLoading = $state(true);
@@ -14,12 +27,28 @@
 		description: '',
 		redirectUris: '',
 		grants: ['authorization_code'],
-		scopes: 'read write'
+		scopes: 'read write',
+		logoUri: '',
+		termsOfServiceUri: '',
+		policyUri: ''
 	});
 
 	let showSecretModal = $state(false);
 	let createdClientSecret = $state('');
 
+	let showEditModal = $state(false);
+	let clientToEdit = $state<Client | null>(null);
+
+	// 수정 폼 값들
+	let editClientName = $state('');
+	let editClientDescription = $state('');
+	let editRedirectUris = $state('');
+	let editScopes = $state('');
+	let editLogoUri = $state('');
+	let editTermsOfServiceUri = $state('');
+	let editPolicyUri = $state('');
+
+	// 삭제 관련
 	let showDeleteModal = $state(false);
 	let clientToDelete = $state<Client | null>(null);
 
@@ -28,6 +57,25 @@
 	let clientDescriptionValue = $state('');
 	let redirectUrisValue = $state('');
 	let scopesValue = $state('read write');
+	let logoUriValue = $state('');
+	let termsOfServiceUriValue = $state('');
+	let policyUriValue = $state('');
+
+	// 폼 검증 상태 (등록 폼)
+	let clientNameError = $state('');
+	let redirectUrisError = $state('');
+	let scopesError = $state('');
+	let logoUriError = $state('');
+	let termsOfServiceUriError = $state('');
+	let policyUriError = $state('');
+
+	// 폼 검증 상태 (수정 폼)
+	let editClientNameError = $state('');
+	let editRedirectUrisError = $state('');
+	let editScopesError = $state('');
+	let editLogoUriError = $state('');
+	let editTermsOfServiceUriError = $state('');
+	let editPolicyUriError = $state('');
 
 	// 값 동기화 및 초기화
 	$effect(() => {
@@ -54,15 +102,174 @@
 		}
 	});
 
+	$effect(() => {
+		if (newClient.logoUri !== undefined) {
+			logoUriValue = newClient.logoUri || '';
+		}
+	});
+
+	$effect(() => {
+		if (newClient.termsOfServiceUri !== undefined) {
+			termsOfServiceUriValue = newClient.termsOfServiceUri || '';
+		}
+	});
+
+	$effect(() => {
+		if (newClient.policyUri !== undefined) {
+			policyUriValue = newClient.policyUri || '';
+		}
+	});
+
+	$effect(() => {
+		if (newClient.termsOfServiceUri !== undefined) {
+			termsOfServiceUriValue = newClient.termsOfServiceUri || '';
+		}
+	});
+
+	$effect(() => {
+		if (newClient.policyUri !== undefined) {
+			policyUriValue = newClient.policyUri || '';
+		}
+	});
+
 	// 초기화 보장
 	onMount(() => {
 		clientNameValue = '';
 		clientDescriptionValue = '';
 		redirectUrisValue = '';
 		scopesValue = 'read write';
+		logoUriValue = '';
+		termsOfServiceUriValue = '';
+		policyUriValue = '';
 	});
 
 	const toast = useToast();
+
+	// 검증 함수들 (등록 폼)
+	function validateClientNameField() {
+		const result = validateClientName(clientNameValue);
+		clientNameError = result.isValid ? '' : result.message || '';
+	}
+
+	function validateRedirectUrisField() {
+		if (!redirectUrisValue.trim()) {
+			redirectUrisError = '리다이렉트 URI를 입력해주세요.';
+			return;
+		}
+
+		const uris = redirectUrisValue
+			.split('\n')
+			.map((uri) => uri.trim())
+			.filter((uri) => uri.length > 0);
+
+		if (uris.length === 0) {
+			redirectUrisError = '최소 하나의 리다이렉트 URI를 입력해주세요.';
+			return;
+		}
+
+		for (const uri of uris) {
+			const result = validateRedirectUri(uri);
+			if (!result.isValid) {
+				redirectUrisError = result.message || '올바르지 않은 리다이렉트 URI가 있습니다.';
+				return;
+			}
+		}
+
+		redirectUrisError = '';
+	}
+
+	function validateScopesField() {
+		if (!scopesValue.trim()) {
+			scopesError = '권한 범위를 입력해주세요.';
+			return;
+		}
+
+		const scopes = scopesValue
+			.split(' ')
+			.map((scope) => scope.trim())
+			.filter((scope) => scope.length > 0);
+
+		const result = validateScopes(scopes);
+		scopesError = result.isValid ? '' : result.message || '';
+	}
+
+	function validateLogoUriField() {
+		const result = validateUrl(logoUriValue, '로고 URL');
+		logoUriError = result.isValid ? '' : result.message || '';
+	}
+
+	function validateTermsOfServiceUriField() {
+		const result = validateUrl(termsOfServiceUriValue, '서비스 약관 URL');
+		termsOfServiceUriError = result.isValid ? '' : result.message || '';
+	}
+
+	function validatePolicyUriField() {
+		const result = validateUrl(policyUriValue, '개인정보처리방침 URL');
+		policyUriError = result.isValid ? '' : result.message || '';
+	}
+
+	// 검증 함수들 (수정 폼)
+	function validateEditClientNameField() {
+		const result = validateClientName(editClientName);
+		editClientNameError = result.isValid ? '' : result.message || '';
+	}
+
+	function validateEditRedirectUrisField() {
+		if (!editRedirectUris.trim()) {
+			editRedirectUrisError = '리다이렉트 URI를 입력해주세요.';
+			return;
+		}
+
+		const uris = editRedirectUris
+			.split('\n')
+			.map((uri) => uri.trim())
+			.filter((uri) => uri.length > 0);
+
+		if (uris.length === 0) {
+			editRedirectUrisError = '최소 하나의 리다이렉트 URI를 입력해주세요.';
+			return;
+		}
+
+		for (const uri of uris) {
+			const result = validateRedirectUri(uri);
+			if (!result.isValid) {
+				editRedirectUrisError = result.message || '올바르지 않은 리다이렉트 URI가 있습니다.';
+				return;
+			}
+		}
+
+		editRedirectUrisError = '';
+	}
+
+	function validateEditScopesField() {
+		if (!editScopes.trim()) {
+			editScopesError = '권한 범위를 입력해주세요.';
+			return;
+		}
+
+		const scopes = editScopes
+			.split(' ')
+			.map((scope) => scope.trim())
+			.filter((scope) => scope.length > 0);
+
+		const result = validateScopes(scopes);
+		editScopesError = result.isValid ? '' : result.message || '';
+	}
+
+	function validateEditLogoUriField() {
+		const result = validateUrl(editLogoUri, '로고 URL');
+		editLogoUriError = result.isValid ? '' : result.message || '';
+	}
+
+	function validateEditTermsOfServiceUriField() {
+		const result = validateUrl(editTermsOfServiceUri, '서비스 약관 URL');
+		editTermsOfServiceUriError = result.isValid ? '' : result.message || '';
+	}
+
+	function validateEditPolicyUriField() {
+		const result = validateUrl(editPolicyUri, '개인정보처리방침 URL');
+		editPolicyUriError = result.isValid ? '' : result.message || '';
+	}
 
 	onMount(async () => {
 		await loadClients();
@@ -93,30 +300,37 @@
 		clientDescriptionValue = '';
 		redirectUrisValue = '';
 		scopesValue = 'read write';
+		logoUriValue = '';
+		termsOfServiceUriValue = '';
+		policyUriValue = '';
 		newClient = {
 			name: '',
 			description: '',
 			redirectUris: '',
 			grants: ['authorization_code'],
-			scopes: 'read write'
+			scopes: 'read write',
+			logoUri: '',
+			termsOfServiceUri: '',
+			policyUri: ''
 		};
 	}
 
 	async function createClient() {
-		if (!clientNameValue || clientNameValue.trim().length === 0) {
-			toast.error('클라이언트 이름을 입력해주세요.');
+		// 모든 필드 검증 수행
+		validateClientNameField();
+		validateRedirectUrisField();
+		validateScopesField();
+		validateLogoUriField();
+		validateTermsOfServiceUriField();
+		validatePolicyUriField();
+
+		// 검증 실패 시 중단
+		if (clientNameError || redirectUrisError || scopesError || logoUriError || termsOfServiceUriError || policyUriError) {
+			toast.warning('입력 정보를 확인해주세요.');
 			return;
 		}
 
-		if (!redirectUrisValue || !redirectUrisValue.trim()) {
-			toast.error('리다이렉트 URI를 입력해주세요.');
-			return;
-		}
-
-		if (!scopesValue || scopesValue.trim().length === 0) {
-			toast.error('권한 범위를 입력해주세요.');
-			return;
-		}
+		isCreating = true;
 
 		try {
 			const redirectUris = redirectUrisValue
@@ -134,7 +348,10 @@
 				description: clientDescriptionValue || undefined,
 				redirectUris,
 				grants: newClient.grants,
-				scopes
+				scopes,
+				logoUri: logoUriValue || undefined,
+				termsOfServiceUri: termsOfServiceUriValue || undefined,
+				policyUri: policyUriValue || undefined
 			}) as { clientSecret: string };
 
 			createdClientSecret = response.clientSecret;
@@ -159,19 +376,63 @@
 		showDeleteModal = true;
 	}
 
-	async function confirmDeleteClient() {
-		if (!clientToDelete) return;
+	async function editClient(client: Client) {
+		clientToEdit = client;
+		editClientName = client.name;
+		editClientDescription = client.description || '';
+		editRedirectUris = client.redirectUris.join('\n');
+		editScopes = client.scopes ? client.scopes.join(' ') : 'read write';
+		editLogoUri = client.logoUri || '';
+		editTermsOfServiceUri = client.termsOfServiceUri || '';
+		editPolicyUri = client.policyUri || '';
+		showEditModal = true;
+	}
+
+	async function updateClient() {
+		if (!clientToEdit) return;
+
+		// 모든 필드 검증 수행
+		validateEditClientNameField();
+		validateEditRedirectUrisField();
+		validateEditScopesField();
+		validateEditLogoUriField();
+		validateEditTermsOfServiceUriField();
+		validateEditPolicyUriField();
+
+		// 검증 실패 시 중단
+		if (editClientNameError || editRedirectUrisError || editScopesError || editLogoUriError || editTermsOfServiceUriError || editPolicyUriError) {
+			toast.warning('입력 정보를 확인해주세요.');
+			return;
+		}
 
 		try {
-			await apiClient.deleteClient(clientToDelete.id);
-			toast.success('클라이언트가 삭제되었습니다.');
+			const redirectUris = editRedirectUris
+				.split('\n')
+				.map((uri) => uri.trim())
+				.filter((uri) => uri.length > 0);
+
+			const scopes = editScopes
+				.split(' ')
+				.map((scope) => scope.trim())
+				.filter((scope) => scope.length > 0);
+
+			await apiClient.updateClient(clientToEdit.id, {
+				name: editClientName,
+				description: editClientDescription || undefined,
+				redirectUris,
+				scopes,
+				logoUri: editLogoUri || undefined,
+				termsOfServiceUri: editTermsOfServiceUri || undefined,
+				policyUri: editPolicyUri || undefined
+			});
+
+			toast.success('클라이언트가 성공적으로 수정되었습니다.');
+			showEditModal = false;
+			clientToEdit = null;
 			await loadClients(); // 목록 새로고침
 		} catch (error) {
-			console.error('Failed to delete client:', error);
-			toast.error('클라이언트 삭제에 실패했습니다.');
-		} finally {
-			showDeleteModal = false;
-			clientToDelete = null;
+			console.error('Failed to update client:', error);
+			toast.error('클라이언트 수정에 실패했습니다.');
 		}
 	}
 
@@ -183,6 +444,21 @@
 		} catch (error) {
 			console.error('Failed to update client status:', error);
 			toast.error('클라이언트 상태 변경에 실패했습니다.');
+		}
+	}
+
+	async function confirmDeleteClient() {
+		if (!clientToDelete) return;
+
+		try {
+			await apiClient.deleteClient(clientToDelete.id);
+			toast.success('클라이언트가 성공적으로 삭제되었습니다.');
+			showDeleteModal = false;
+			clientToDelete = null;
+			await loadClients(); // 목록 새로고침
+		} catch (error) {
+			console.error('Failed to delete client:', error);
+			toast.error('클라이언트 삭제에 실패했습니다.');
 		}
 	}
 
@@ -246,326 +522,69 @@
 		</div>
 	{/snippet}
 
-	<!-- 통계 카드 -->
-	<div class="mb-4 grid grid-cols-2 gap-3 sm:mb-6 sm:grid-cols-2 lg:grid-cols-4">
-		<Card class="p-3 sm:p-4">
-			<div class="flex items-center">
-				<div class="flex-shrink-0">
-					<div
-						class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 sm:h-10 sm:w-10"
-					>
-						<i class="fas fa-users text-lg text-blue-600 sm:text-xl"></i>
-					</div>
-				</div>
-				<div class="ml-2 flex-1 sm:ml-3">
-					<p class="text-xs font-medium text-gray-500 sm:text-sm">총 클라이언트</p>
-					<p class="text-lg font-bold text-gray-900 sm:text-xl">{clients.length}</p>
-				</div>
-			</div>
-		</Card>
+	<ClientStats {clients} />
 
-		<Card class="p-3 sm:p-4">
-			<div class="flex items-center">
-				<div class="flex-shrink-0">
-					<div
-						class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 sm:h-10 sm:w-10"
-					>
-						<i class="fas fa-check-circle text-lg text-green-600 sm:text-xl"></i>
-					</div>
-				</div>
-				<div class="ml-2 flex-1 sm:ml-3">
-					<p class="text-xs font-medium text-gray-500 sm:text-sm">활성 클라이언트</p>
-					<p class="text-lg font-bold text-gray-900 sm:text-xl">
-						{clients.filter((c) => c.isActive).length}
-					</p>
-				</div>
-			</div>
-		</Card>
-	</div>
+	<ClientCreateForm
+		{showCreateForm}
+		{isCreating}
+		bind:clientNameValue
+		bind:clientDescriptionValue
+		bind:redirectUrisValue
+		bind:scopesValue
+		bind:logoUriValue
+		bind:termsOfServiceUriValue
+		bind:policyUriValue
+		{clientNameError}
+		{redirectUrisError}
+		{scopesError}
+		{logoUriError}
+		{termsOfServiceUriError}
+		{policyUriError}
+		onToggleCreateForm={toggleCreateForm}
+		onCreateClient={createClient}
+	/>
 
-	<!-- 새 클라이언트 생성 폼 -->
-	{#if showCreateForm}
-		<Card class="mb-4 sm:mb-6">
-			<div class="p-4 sm:p-6">
-				<h3 class="mb-4 text-base font-semibold text-gray-900 sm:text-lg">새 클라이언트 생성</h3>
-				<form
-					onsubmit={(e) => {
-						e.preventDefault();
-						createClient();
-					}}
-					class="space-y-4"
-				>
-					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-						<div class="sm:col-span-2">
-							<label for="clientName" class="mb-1 block text-sm font-medium text-gray-700">
-								클라이언트 이름 *
-							</label>
-							<input
-								id="clientName"
-								bind:value={clientNameValue}
-								placeholder="클라이언트 애플리케이션 이름"
-								required
-								class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-11"
-							/>
-						</div>
-
-						<div class="sm:col-span-2">
-							<label for="clientDescription" class="mb-1 block text-sm font-medium text-gray-700">
-								설명
-							</label>
-							<input
-								id="clientDescription"
-								bind:value={clientDescriptionValue}
-								placeholder="클라이언트 애플리케이션 설명"
-								class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-11"
-							/>
-						</div>
-
-						<div class="sm:col-span-2">
-							<label for="redirectUris" class="mb-1 block text-sm font-medium text-gray-700">
-								리다이렉트 URI *
-							</label>
-							<textarea
-								id="redirectUris"
-								bind:value={redirectUrisValue}
-								placeholder="https://example.com/callback"
-								rows="3"
-								required
-								class="h-20 w-full rounded-md border-gray-300 px-3 py-2 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-24"
-							></textarea>
-							<p class="mt-1 text-xs text-gray-500">한 줄에 하나씩 입력해주세요.</p>
-						</div>
-
-						<div>
-							<label for="scopes" class="mb-1 block text-sm font-medium text-gray-700">
-								권한 범위
-							</label>
-							<input
-								id="scopes"
-								bind:value={scopesValue}
-								placeholder="read write"
-								class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-11"
-							/>
-							<p class="mt-1 text-xs text-gray-500">공백으로 구분하여 입력해주세요.</p>
-						</div>
-					</div>
-
-					<div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
-						<Button
-							type="button"
-							variant="outline"
-							onclick={toggleCreateForm}
-							class="h-10 w-full sm:h-11 sm:w-auto"
-						>
-							취소
-						</Button>
-						<Button type="submit" disabled={isCreating} class="h-10 w-full sm:h-11 sm:w-auto">
-							{#if isCreating}
-								<Loading class="mr-2" />
-								생성 중...
-							{:else}
-								<i class="fas fa-plus mr-2"></i>
-								생성
-							{/if}
-						</Button>
-					</div>
-				</form>
-			</div>
-		</Card>
-	{/if}
-
-	<!-- 클라이언트 목록 -->
-	<Card>
-		<div class="mb-4 flex items-center justify-between">
-			<h3 class="text-base font-medium text-gray-900 sm:text-lg">클라이언트 목록</h3>
-		</div>
-
-		{#if isLoading}
-			<div class="py-8 text-center">
-				<i class="fas fa-spinner fa-spin mb-4 text-2xl text-gray-400"></i>
-				<p class="text-gray-500">클라이언트 목록을 불러오는 중...</p>
-			</div>
-		{:else if clients.length === 0}
-			<div class="py-8 text-center">
-				<i class="fas fa-inbox mb-4 text-4xl text-gray-400"></i>
-				<p class="mb-4 text-gray-500">등록된 클라이언트가 없습니다.</p>
-				<Button onclick={toggleCreateForm} class="h-10 sm:h-11">
-					<i class="fas fa-plus mr-2"></i>
-					첫 번째 클라이언트 생성
-				</Button>
-			</div>
-		{:else}
-			<div class="space-y-3 sm:space-y-4">
-				{#each clients as client (client.id)}
-					<div
-						class="rounded-lg border border-gray-200 p-3 transition-shadow hover:shadow-md sm:p-4"
-					>
-						<div
-							class="flex flex-col space-y-3 sm:flex-row sm:items-start sm:justify-between sm:space-y-0"
-						>
-							<div class="flex-1">
-								<div
-									class="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3"
-								>
-									<h4 class="text-base font-medium text-gray-900 sm:text-lg">{client.name}</h4>
-									<Badge
-										variant={client.isActive ? 'success' : 'secondary'}
-										size="sm"
-										class="self-start"
-									>
-										{client.isActive ? '활성' : '비활성'}
-									</Badge>
-								</div>
-
-								{#if client.description}
-									<p class="mt-1 text-sm text-gray-600">{client.description}</p>
-								{/if}
-
-								<div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-									<div>
-										<p class="text-xs font-medium text-gray-500">Client ID</p>
-										<div class="mt-1 flex items-center space-x-2">
-											<code
-												class="flex-1 truncate rounded bg-gray-100 px-2 py-1 text-xs sm:text-sm"
-											>
-												{client.clientId}
-											</code>
-											<Button
-												variant="ghost"
-												size="sm"
-												onclick={() => copyToClipboard(client.clientId)}
-												class="h-8 w-8 p-0 text-gray-400 hover:text-gray-600"
-												aria-label="Copy Client ID"
-											>
-												<i class="fas fa-copy text-xs"></i>
-											</Button>
-										</div>
-									</div>
-
-									<div>
-										<p class="text-xs font-medium text-gray-500">리다이렉트 URI</p>
-										<div class="mt-1">
-											{#each client.redirectUris as uri (uri)}
-												<p class="truncate text-xs text-gray-900 sm:text-sm">{uri}</p>
-											{/each}
-										</div>
-									</div>
-
-									<div>
-										<p class="text-xs font-medium text-gray-500">생성일</p>
-										<p class="mt-1 text-xs text-gray-900 sm:text-sm">
-											{new Date(client.createdAt).toLocaleDateString('ko-KR')}
-										</p>
-									</div>
-								</div>
-							</div>
-
-							<!-- 모바일 액션 버튼들 -->
-							<div class="flex space-x-2 sm:ml-4 sm:flex-col sm:space-y-2 sm:space-x-0">
-								<Button
-									variant="outline"
-									size="sm"
-									onclick={() => toggleClientStatus(client)}
-									class="h-9 flex-1 px-3 text-sm sm:h-8 sm:flex-none"
-									title={client.isActive ? '비활성화' : '활성화'}
-								>
-									<i class="fas {client.isActive ? 'fa-pause' : 'fa-play'} mr-1 sm:mr-0"></i>
-									<span class="sm:hidden">{client.isActive ? '비활성화' : '활성화'}</span>
-								</Button>
-								<Button
-									variant="outline"
-									size="sm"
-									onclick={() => deleteClient(client.id)}
-									class="h-9 flex-1 px-3 text-sm text-red-600 hover:text-red-700 sm:h-8 sm:flex-none"
-									title="삭제"
-								>
-									<i class="fas fa-trash mr-1 sm:mr-0"></i>
-									<span class="sm:hidden">삭제</span>
-								</Button>
-							</div>
-						</div>
-					</div>
-				{/each}
-			</div>
-		{/if}
-	</Card>
+	<ClientList
+		{clients}
+		{isLoading}
+		onToggleCreateForm={toggleCreateForm}
+		onEditClient={editClient}
+		onToggleClientStatus={toggleClientStatus}
+		onDeleteClient={deleteClient}
+		onCopyToClipboard={copyToClipboard}
+	/>
 </DashboardLayout>
 
-{#if showSecretModal}
-	<Modal open={showSecretModal} title="클라이언트 생성 완료" onClose={() => showSecretModal = false}>
-		{#snippet children()}
-			<div class="space-y-4">
-				<p class="text-sm text-gray-600">
-					클라이언트가 성공적으로 생성되었습니다. 아래의 클라이언트 시크릿을 안전하게 저장하세요 - 클라이언트 애플리케이션의 신원을 인증하고 토큰 요청 시 클라이언트의 신뢰성을 검증하는 비밀 키입니다. <strong>이 시크릿은 다시 확인할 수 없습니다.</strong>
-				</p>
-				<div>
-					<label for="clientSecret" class="block text-sm font-medium text-gray-700 mb-2">Client Secret</label>
-					<div class="flex space-x-2">
-						<input
-							id="clientSecret"
-							type="text"
-							value={createdClientSecret}
-							readonly
-							class="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm font-mono"
-						/>
-						<Button onclick={() => copyToClipboard(createdClientSecret)} variant="outline" size="sm">
-							<i class="fas fa-copy mr-1"></i>
-							복사
-						</Button>
-					</div>
-				</div>
-				<div class="flex justify-end">
-					<Button onclick={() => showSecretModal = false}>확인</Button>
-				</div>
-			</div>
-		{/snippet}
-	</Modal>
-{/if}
+	<ClientSecretModal
+		showSecretModal={showSecretModal}
+		{createdClientSecret}
+		onClose={() => showSecretModal = false}
+		onCopyToClipboard={copyToClipboard}
+	/>
 
-{#if showDeleteModal && clientToDelete}
-	<Modal open={showDeleteModal} title="클라이언트 삭제 확인" onClose={() => { showDeleteModal = false; clientToDelete = null; }}>
-		{#snippet children()}
-			<div class="space-y-4">
-				<div class="flex items-start space-x-3">
-					<div class="flex-shrink-0">
-						<i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
-					</div>
-					<div class="flex-1">
-						<h3 class="text-lg font-medium text-gray-900 mb-2">
-							정말로 이 클라이언트를 삭제하시겠습니까?
-						</h3>
-						<p class="text-sm text-gray-600 mb-4">
-							이 작업은 되돌릴 수 없습니다. 클라이언트와 관련된 모든 데이터가 영구적으로 삭제됩니다.
-						</p>
-						<div class="bg-gray-50 rounded-lg p-3">
-							<div class="text-sm">
-								{#if clientToDelete}
-									<p class="font-medium text-gray-900">{clientToDelete.name}</p>
-									<p class="text-gray-600 mt-1">Client ID: {clientToDelete.clientId}</p>
-								{:else}
-									<p class="text-gray-600">클라이언트 정보가 없습니다.</p>
-								{/if}
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
-					<Button
-						variant="outline"
-						onclick={() => { showDeleteModal = false; clientToDelete = null; }}
-						class="h-10 w-full sm:h-11 sm:w-auto"
-					>
-						취소
-					</Button>
-					<Button
-						onclick={confirmDeleteClient}
-						class="h-10 w-full sm:h-11 sm:w-auto bg-red-600 hover:bg-red-700 text-white"
-					>
-						<i class="fas fa-trash mr-2"></i>
-						삭제
-					</Button>
-				</div>
-			</div>
-		{/snippet}
-	</Modal>
-{/if}
+	<ClientDeleteModal
+		showDeleteModal={showDeleteModal}
+		{clientToDelete}
+		onClose={() => { showDeleteModal = false; clientToDelete = null; }}
+		onConfirmDelete={confirmDeleteClient}
+	/>
+
+	<ClientEditModal
+		{showEditModal}
+		{clientToEdit}
+		bind:editClientName
+		bind:editClientDescription
+		bind:editRedirectUris
+		bind:editScopes
+		bind:editLogoUri
+		bind:editTermsOfServiceUri
+		bind:editPolicyUri
+		{editClientNameError}
+		{editRedirectUrisError}
+		{editScopesError}
+		{editLogoUriError}
+		{editTermsOfServiceUriError}
+		{editPolicyUriError}
+		onClose={() => { showEditModal = false; clientToEdit = null; }}
+		onUpdateClient={updateClient}
+	/>

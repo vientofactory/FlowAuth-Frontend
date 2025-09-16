@@ -148,11 +148,7 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 					retryable: false
 				};
 				state.update((current) => ({ ...current, error, loading: false }));
-
-				// 로그인 페이지로 리다이렉트 (약간의 지연을 주어 사용자에게 메시지를 보여줌)
-				setTimeout(() => {
-					window.location.href = '/auth/login';
-				}, 1500);
+				window.location.href = '/auth/login';
 				return;
 			}
 

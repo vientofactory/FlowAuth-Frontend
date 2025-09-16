@@ -14,6 +14,9 @@ export interface CreateClientData {
 	redirectUris: string[];
 	grants: string[];
 	scopes?: string[];
+	logoUri?: string;
+	termsOfServiceUri?: string;
+	policyUri?: string;
 }
 
 class ApiClient {

@@ -2,6 +2,7 @@
 	import { Card, Button, Input } from '$lib';
 	import { authStore, useToast } from '$lib';
 	import { MESSAGES, ROUTES } from '$lib/constants/app.constants';
+	import { validateEmail, validateRequired } from '$lib/utils/validation.utils';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
@@ -10,6 +11,10 @@
 	let password = $state('');
 	let isLoading = $state(false);
 	let returnUrl = $state('');
+
+	// 폼 검증 상태
+	let emailError = $state('');
+	let passwordError = $state('');
 
 	// 중앙화된 토스트 훅 사용
 	const toast = useToast();
@@ -23,11 +28,26 @@
 		return unsubscribe;
 	});
 
+	// 실시간 검증
+	function validateEmailField() {
+		const result = validateEmail(email);
+		emailError = result.isValid ? '' : result.message || '';
+	}
+
+	function validatePasswordField() {
+		const result = validateRequired(password, '비밀번호');
+		passwordError = result.isValid ? '' : result.message || '';
+	}
+
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault(); // 폼 기본 동작 방지
 
-		if (!email || !password) {
-			toast.warning(MESSAGES.VALIDATION.EMAIL_PASSWORD_REQUIRED);
+		// 최종 검증
+		validateEmailField();
+		validatePasswordField();
+
+		if (emailError || passwordError) {
+			toast.warning('입력 정보를 확인해주세요.');
 			return;
 		}
 
@@ -110,11 +130,20 @@
 						name="email"
 						placeholder="your@email.com"
 						value={email}
-						oninput={(e: Event) => (email = (e.target as HTMLInputElement).value)}
+						oninput={(e: Event) => {
+							email = (e.target as HTMLInputElement).value;
+							validateEmailField();
+						}}
 						onkeydown={handleKeyPress}
 						disabled={isLoading}
-						class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+						class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {emailError ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}"
 					/>
+					{#if emailError}
+						<p class="mt-1 text-sm text-red-600">
+							<i class="fas fa-exclamation-circle mr-1"></i>
+							{emailError}
+						</p>
+					{/if}
 				</div>
 
 				<!-- 비밀번호 입력 -->
@@ -129,11 +158,20 @@
 						name="password"
 						placeholder="비밀번호를 입력하세요"
 						value={password}
-						oninput={(e: Event) => (password = (e.target as HTMLInputElement).value)}
+						oninput={(e: Event) => {
+							password = (e.target as HTMLInputElement).value;
+							validatePasswordField();
+						}}
 						onkeydown={handleKeyPress}
 						disabled={isLoading}
-						class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+						class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {passwordError ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}"
 					/>
+					{#if passwordError}
+						<p class="mt-1 text-sm text-red-600">
+							<i class="fas fa-exclamation-circle mr-1"></i>
+							{passwordError}
+						</p>
+					{/if}
 				</div>
 
 				<!-- 추가 옵션 -->

@@ -6,6 +6,10 @@ export interface Client {
 	redirectUris: string[];
 	isConfidential: boolean;
 	isActive: boolean;
+	scopes?: string[];
+	logoUri?: string;
+	termsOfServiceUri?: string;
+	policyUri?: string;
 	createdAt: string;
 	updatedAt: string;
 }

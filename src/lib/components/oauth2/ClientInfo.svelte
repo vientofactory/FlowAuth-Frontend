@@ -25,3 +25,47 @@
 		</div>
 	</div>
 {/if}
+
+<!-- 정책 링크들 -->
+{#if client.termsOfServiceUri || client.policyUri}
+	<div class="mb-4 rounded-lg border border-gray-100 bg-gray-50 p-3 shadow-sm sm:mb-6 sm:rounded-xl">
+		<div class="flex items-start space-x-2 sm:space-x-3">
+			<div class="flex-shrink-0">
+				<div
+					class="flex h-6 w-6 items-center justify-center rounded-md bg-gray-100 sm:h-8 sm:w-8 sm:rounded-lg"
+				>
+					<i class="fas fa-file-contract text-sm text-gray-600" aria-hidden="true"></i>
+				</div>
+			</div>
+			<div class="flex-1">
+				<h3 class="mb-2 text-sm font-semibold text-gray-900 sm:text-base">
+					정책 및 약관
+				</h3>
+				<div class="flex flex-wrap gap-2 sm:gap-3">
+					{#if client.termsOfServiceUri}
+						<a
+							href={client.termsOfServiceUri}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="inline-flex items-center rounded-md bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 transition-colors duration-200 hover:bg-gray-50 hover:text-gray-900 sm:px-3 sm:py-1.5 sm:text-sm"
+						>
+							<i class="fas fa-external-link-alt mr-1" aria-hidden="true"></i>
+							이용약관
+						</a>
+					{/if}
+					{#if client.policyUri}
+						<a
+							href={client.policyUri}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="inline-flex items-center rounded-md bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 transition-colors duration-200 hover:bg-gray-50 hover:text-gray-900 sm:px-3 sm:py-1.5 sm:text-sm"
+						>
+							<i class="fas fa-external-link-alt mr-1" aria-hidden="true"></i>
+							개인정보처리방침
+						</a>
+					{/if}
+				</div>
+			</div>
+		</div>
+	</div>
+{/if}

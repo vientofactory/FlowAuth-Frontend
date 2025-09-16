@@ -34,10 +34,10 @@ export const load = async ({ url }: LoadEvent) => {
 			client_id,
 			redirect_uri,
 			response_type,
-			scope,
-			state,
-			code_challenge,
-			code_challenge_method
+			scope: scope || undefined,
+			state: state || undefined,
+			code_challenge: code_challenge || undefined,
+			code_challenge_method: code_challenge_method || undefined
 		}
 	};
 };
