@@ -474,17 +474,19 @@
 	async function removeClientLogo() {
 		if (!clientToEdit) return;
 
+		// 원본 로고 URI를 함수 시작 시 저장
+		const originalLogoUri = editLogoUri;
+
 		try {
 			isUpdating = true;
 
 			// UI를 즉시 업데이트하기 위해 먼저 로고 URI를 제거
-			const _originalLogoUri = editLogoUri;
 			editLogoUri = '';
 
 			// 캐시 버스터 업데이트로 이미지 캐시 무효화
 			logoCacheBuster = Date.now().toString();
 
-			const updatedClient = await apiClient.removeClientLogo(clientToEdit.id);
+			const updatedClient = (await apiClient.removeClientLogo(clientToEdit.id)) as Client;
 
 			// 클라이언트 정보 업데이트
 			clientToEdit = updatedClient;
@@ -579,7 +581,7 @@
 				description: editClientDescription || undefined,
 				redirectUris,
 				scopes,
-				logoUri: editLogoUri || undefined,
+				logoUri: editLogoUri || '',
 				termsOfServiceUri: editTermsOfServiceUri || undefined,
 				policyUri: editPolicyUri || undefined
 			});
@@ -679,7 +681,7 @@
 
 		try {
 			isResettingSecret = true;
-			const response = await apiClient.resetClientSecret(clientToResetSecret.id);
+			const response = await apiClient.resetClientSecret(clientToResetSecret.id) as { clientSecret: string };
 			newResetSecret = response.clientSecret;
 			toast.success('클라이언트 시크릿이 성공적으로 재설정되었습니다.');
 		} catch (error) {

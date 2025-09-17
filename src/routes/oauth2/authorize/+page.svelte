@@ -139,24 +139,13 @@
 					<div class="flex flex-col items-center space-y-4">
 						<!-- 앱 로고 표시 -->
 						<div class="relative">
-							{#if getLogoUrl(currentState.client?.logoUri)}
-								<!-- 클라이언트 제공 로고 우선 사용 -->
-								<Logo
-									src={getLogoUrl(currentState.client?.logoUri) || ''}
-									alt="{currentState.client?.name} 로고"
-									size="lg"
-									fallbackSrc="/logo_icon.png"
-									className="rounded-full border-2 border-white shadow-lg object-cover"
-								/>
-							{:else}
-								<!-- 백엔드 기본 로고 사용 -->
-								<Logo
-									size="lg"
-									alt="FlowAuth 로고"
-									fallbackSrc="/logo_icon.png"
-									className="rounded-full border-2 border-white shadow-lg object-cover"
-								/>
-							{/if}
+							<Logo
+								src={getLogoUrl(currentState.client?.logoUri) || '/logo_icon.png'}
+								alt="{currentState.client?.name || 'FlowAuth'} 로고"
+								size="lg"
+								fallbackSrc="/logo_icon.png"
+								className="rounded-full border-2 border-white shadow-lg object-cover"
+							/>
 						</div>
 
 						<!-- 앱 이름과 설명 -->
@@ -282,7 +271,12 @@
 		<!-- OAuth2 플랫폼 정보 -->
 		<div class="mt-6 text-center">
 			<div class="mb-3 flex items-center justify-center">
-				<Logo size="sm" alt="FlowAuth 로고" fallbackSrc="/logo_icon.png" className="rounded-md" />
+				<img
+					src="/logo_icon.png"
+					alt="FlowAuth 로고"
+					class="h-6 w-6 rounded-md object-cover mr-1"
+					loading="lazy"
+				/>
 				<span class="text-sm font-medium text-gray-600">FlowAuth</span>
 			</div>
 			<p class="mb-2 text-xs text-gray-500">오픈소스 OAuth 2.0 통합 인증 시스템</p>
