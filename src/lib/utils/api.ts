@@ -325,6 +325,71 @@ class ApiClient {
 		});
 	}
 
+	async resetClientSecret(id: number) {
+		return this.request(`/auth/clients/${id}/reset-secret`, {
+			method: 'PUT'
+		});
+	}
+
+	async removeClientLogo(id: number) {
+		return this.request(`/auth/clients/${id}/logo`, {
+			method: 'DELETE'
+		});
+	}
+
+	// 로고 업로드 API
+	async uploadLogo(file: File): Promise<{
+		success: boolean;
+		message: string;
+		data: { filename: string; url: string; originalName: string; size: number; mimetype: string };
+	}> {
+		const formData = new FormData();
+		formData.append('logo', file);
+
+		const config: RequestInit = {
+			method: 'POST',
+			body: formData,
+			credentials: 'include'
+		};
+
+		// JWT 토큰이 있으면 헤더에 추가 (FormData 사용 시 별도 처리)
+		const token = this.getToken();
+		if (token) {
+			config.headers = {
+				Authorization: `Bearer ${token}`
+			};
+		}
+
+		const url = `${this.baseURL}/uploads/logo`;
+
+		try {
+			const response = await fetch(url, config);
+
+			if (response.status === 401) {
+				this.removeToken();
+				if (typeof window !== 'undefined') {
+					window.location.href = ROUTES.LOGIN;
+				}
+				throw new Error(MESSAGES.VALIDATION.AUTHENTICATION_REQUIRED);
+			}
+
+			if (!response.ok) {
+				const errorData = await this.parseErrorResponse(response);
+				throw this.createErrorFromResponse(errorData, response.status);
+			}
+
+			return await response.json();
+		} catch (error) {
+			if (
+				error instanceof TypeError ||
+				(error as Error & { name?: string }).name === 'NetworkError'
+			) {
+				throw new Error('서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.');
+			}
+			throw error;
+		}
+	}
+
 	// 온라인 상태 감지 및 자동 세션 복원
 	private isOnline = true;
 	private reconnectTimer: number | null = null;
@@ -406,6 +471,16 @@ class ApiClient {
 	// 현재 온라인 상태 확인
 	isNetworkOnline(): boolean {
 		return this.isOnline && (typeof navigator === 'undefined' || navigator.onLine);
+	}
+
+	// 업로드 설정 정보 가져오기
+	async getUploadConfig(type: string): Promise<{
+		allowedMimes: readonly string[];
+		maxSize: number;
+		maxSizeMB: number;
+		destination: string;
+	}> {
+		return this.request(`/uploads/config/${type}`);
 	}
 }
 

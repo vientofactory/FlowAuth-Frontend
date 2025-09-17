@@ -13,14 +13,18 @@
 	import ClientCreateForm from '$lib/components/clients/ClientCreateForm.svelte';
 	import ClientList from '$lib/components/clients/ClientList.svelte';
 	import ClientSecretModal from '$lib/components/clients/ClientSecretModal.svelte';
+	import ClientSecretResetModal from '$lib/components/clients/ClientSecretResetModal.svelte';
 	import ClientDeleteModal from '$lib/components/clients/ClientDeleteModal.svelte';
 	import ClientEditModal from '$lib/components/clients/ClientEditModal.svelte';
+	import ClientStatusModal from '$lib/components/clients/ClientStatusModal.svelte';
 
 	let clients = $state<Client[]>([]);
 	let isLoading = $state(true);
 
 	let showCreateForm = $state(false);
 	let isCreating = $state(false);
+	let isUpdating = $state(false);
+	let isDeleting = $state(false);
 	let newClient = $state({
 		name: '',
 		description: '',
@@ -51,6 +55,17 @@
 	let showDeleteModal = $state(false);
 	let clientToDelete = $state<Client | null>(null);
 
+	// 시크릿 재설정 관련
+	let showSecretResetModal = $state(false);
+	let clientToResetSecret = $state<Client | null>(null);
+	let isResettingSecret = $state(false);
+	let newResetSecret = $state('');
+
+	// 상태 변경 관련
+	let showStatusModal = $state(false);
+	let clientToChangeStatus = $state<Client | null>(null);
+	let isChangingStatus = $state(false);
+
 	// 디버깅을 위한 reactive 값들
 	let clientNameValue = $state('');
 	let clientDescriptionValue = $state('');
@@ -59,6 +74,11 @@
 	let logoUriValue = $state('');
 	let termsOfServiceUriValue = $state('');
 	let policyUriValue = $state('');
+
+	// 로고 업로드 관련
+	let selectedLogoFile = $state<File | null>(null);
+	let logoPreviewUrl = $state<string | null>(null);
+	let logoCacheBuster = $state('');
 
 	// 폼 검증 상태 (등록 폼)
 	let clientNameError = $state('');
@@ -279,6 +299,11 @@
 			isLoading = true;
 			const response = await apiClient.getClients();
 			clients = Array.isArray(response) ? response : [];
+
+			// 디버깅: 클라이언트 로고 정보 확인
+			clients.forEach((client) => {
+				console.log(`Client ${client.name}: logoUri =`, client.logoUri);
+			});
 		} catch (error) {
 			console.error('Failed to load clients:', error);
 			toast.error('클라이언트 목록을 불러오는데 실패했습니다.');
@@ -302,6 +327,14 @@
 		logoUriValue = '';
 		termsOfServiceUriValue = '';
 		policyUriValue = '';
+
+		// 로고 업로드 상태 초기화
+		selectedLogoFile = null;
+		if (logoPreviewUrl) {
+			URL.revokeObjectURL(logoPreviewUrl);
+			logoPreviewUrl = null;
+		}
+
 		newClient = {
 			name: '',
 			description: '',
@@ -339,6 +372,24 @@
 		isCreating = true;
 
 		try {
+			// 로고 파일이 선택된 경우 먼저 업로드
+			if (selectedLogoFile) {
+				try {
+					const uploadResult = await apiClient.uploadLogo(selectedLogoFile);
+					if (uploadResult.success) {
+						logoUriValue = uploadResult.data.url;
+						toast.success('로고가 업로드되었습니다.');
+					} else {
+						throw new Error('로고 업로드에 실패했습니다.');
+					}
+				} catch (uploadError) {
+					console.error('Logo upload failed:', uploadError);
+					toast.error('로고 업로드에 실패했습니다. 다시 시도해주세요.');
+					isCreating = false;
+					return;
+				}
+			}
+
 			const redirectUris = redirectUrisValue
 				.split('\n')
 				.map((uri) => uri.trim())
@@ -371,6 +422,8 @@
 		} catch (error) {
 			console.error('Failed to create client:', error);
 			toast.error('클라이언트 생성에 실패했습니다.');
+		} finally {
+			isCreating = false;
 		}
 	}
 
@@ -383,15 +436,89 @@
 	}
 
 	async function editClient(client: Client) {
+		console.log('Editing client:', client);
+		console.log('Client logoUri:', client.logoUri);
+
 		clientToEdit = client;
 		editClientName = client.name;
 		editClientDescription = client.description || '';
 		editRedirectUris = client.redirectUris.join('\n');
 		editScopes = client.scopes ? client.scopes.join(' ') : 'read write';
-		editLogoUri = client.logoUri || '';
+
+		// 로고 URI가 유효한 경우만 설정, 그렇지 않으면 빈 문자열
+		const originalLogoUri = client.logoUri;
+		editLogoUri =
+			originalLogoUri &&
+			originalLogoUri.trim() &&
+			originalLogoUri !== 'null' &&
+			originalLogoUri !== 'undefined'
+				? originalLogoUri
+				: '';
+
 		editTermsOfServiceUri = client.termsOfServiceUri || '';
 		editPolicyUri = client.policyUri || '';
+
+		console.log(`편집할 클라이언트 [${client.name}] - 원본 logoUri:`, originalLogoUri);
+		console.log(`편집할 클라이언트 [${client.name}] - 처리된 editLogoUri:`, editLogoUri);
+
+		// 로고 업로드 상태 초기화
+		selectedLogoFile = null;
+		if (logoPreviewUrl) {
+			URL.revokeObjectURL(logoPreviewUrl);
+			logoPreviewUrl = null;
+		}
+
 		showEditModal = true;
+	}
+
+	async function removeClientLogo() {
+		if (!clientToEdit) return;
+
+		// 원본 로고 URI를 함수 시작 시 저장
+		const originalLogoUri = editLogoUri;
+
+		try {
+			isUpdating = true;
+
+			// UI를 즉시 업데이트하기 위해 먼저 로고 URI를 제거
+			editLogoUri = '';
+
+			// 캐시 버스터 업데이트로 이미지 캐시 무효화
+			logoCacheBuster = Date.now().toString();
+
+			const updatedClient = (await apiClient.removeClientLogo(clientToEdit.id)) as Client;
+
+			// 클라이언트 정보 업데이트
+			clientToEdit = updatedClient;
+			editLogoUri = updatedClient.logoUri || '';
+
+			// 로고 업로드 상태 초기화
+			selectedLogoFile = null;
+			if (logoPreviewUrl) {
+				URL.revokeObjectURL(logoPreviewUrl);
+				logoPreviewUrl = null;
+			}
+
+			// 클라이언트 목록에서도 해당 클라이언트 업데이트
+			const clientIndex = clients.findIndex((c) => c.id === updatedClient.id);
+			if (clientIndex >= 0) {
+				clients[clientIndex] = updatedClient;
+			}
+
+			toast.success('로고가 성공적으로 제거되었습니다.');
+			await loadClients(); // 목록 새로고침
+		} catch (error) {
+			console.error('Failed to remove client logo:', error);
+
+			// 에러 발생 시 원래 로고 URI로 복원
+			if (originalLogoUri) {
+				editLogoUri = originalLogoUri;
+			}
+
+			toast.error('로고 제거에 실패했습니다.');
+		} finally {
+			isUpdating = false;
+		}
 	}
 
 	async function updateClient() {
@@ -418,7 +545,27 @@
 			return;
 		}
 
+		isUpdating = true;
+
 		try {
+			// 로고 파일이 선택된 경우 먼저 업로드
+			if (selectedLogoFile) {
+				try {
+					const uploadResult = await apiClient.uploadLogo(selectedLogoFile);
+					if (uploadResult.success) {
+						editLogoUri = uploadResult.data.url;
+						toast.success('로고가 업로드되었습니다.');
+					} else {
+						throw new Error('로고 업로드에 실패했습니다.');
+					}
+				} catch (uploadError) {
+					console.error('Logo upload failed:', uploadError);
+					toast.error('로고 업로드에 실패했습니다. 다시 시도해주세요.');
+					isUpdating = false;
+					return;
+				}
+			}
+
 			const redirectUris = editRedirectUris
 				.split('\n')
 				.map((uri) => uri.trim())
@@ -434,7 +581,7 @@
 				description: editClientDescription || undefined,
 				redirectUris,
 				scopes,
-				logoUri: editLogoUri || undefined,
+				logoUri: editLogoUri || '',
 				termsOfServiceUri: editTermsOfServiceUri || undefined,
 				policyUri: editPolicyUri || undefined
 			});
@@ -446,24 +593,46 @@
 		} catch (error) {
 			console.error('Failed to update client:', error);
 			toast.error('클라이언트 수정에 실패했습니다.');
+		} finally {
+			isUpdating = false;
 		}
 	}
 
 	async function toggleClientStatus(client: Client) {
+		clientToChangeStatus = client;
+		showStatusModal = true;
+	}
+
+	async function confirmToggleClientStatus() {
+		if (!clientToChangeStatus) return;
+
 		try {
-			await apiClient.updateClientStatus(client.id, !client.isActive);
-			toast.success(`클라이언트가 ${!client.isActive ? '활성화' : '비활성화'} 되었습니다.`);
+			isChangingStatus = true;
+			await apiClient.updateClientStatus(clientToChangeStatus.id, !clientToChangeStatus.isActive);
+			toast.success(
+				`클라이언트가 ${!clientToChangeStatus.isActive ? '활성화' : '비활성화'} 되었습니다.`
+			);
+			showStatusModal = false;
+			clientToChangeStatus = null;
 			await loadClients(); // 목록 새로고침
 		} catch (error) {
 			console.error('Failed to update client status:', error);
 			toast.error('클라이언트 상태 변경에 실패했습니다.');
+		} finally {
+			isChangingStatus = false;
 		}
+	}
+
+	function closeStatusModal() {
+		showStatusModal = false;
+		clientToChangeStatus = null;
 	}
 
 	async function confirmDeleteClient() {
 		if (!clientToDelete) return;
 
 		try {
+			isDeleting = true;
 			await apiClient.deleteClient(clientToDelete.id);
 			toast.success('클라이언트가 성공적으로 삭제되었습니다.');
 			showDeleteModal = false;
@@ -472,6 +641,8 @@
 		} catch (error) {
 			console.error('Failed to delete client:', error);
 			toast.error('클라이언트 삭제에 실패했습니다.');
+		} finally {
+			isDeleting = false;
 		}
 	}
 
@@ -498,6 +669,36 @@
 			toast.error('토큰 새로고침에 실패했습니다. 다시 로그인해주세요.');
 		}
 	}
+
+	function resetClientSecret(client: Client) {
+		clientToResetSecret = client;
+		showSecretResetModal = true;
+		newResetSecret = '';
+	}
+
+	async function confirmResetClientSecret() {
+		if (!clientToResetSecret) return;
+
+		try {
+			isResettingSecret = true;
+			const response = (await apiClient.resetClientSecret(clientToResetSecret.id)) as {
+				clientSecret: string;
+			};
+			newResetSecret = response.clientSecret;
+			toast.success('클라이언트 시크릿이 성공적으로 재설정되었습니다.');
+		} catch (error) {
+			console.error('Failed to reset client secret:', error);
+			toast.error('클라이언트 시크릿 재설정에 실패했습니다.');
+		} finally {
+			isResettingSecret = false;
+		}
+	}
+
+	function closeSecretResetModal() {
+		showSecretResetModal = false;
+		clientToResetSecret = null;
+		newResetSecret = '';
+	}
 </script>
 
 <DashboardLayout
@@ -508,7 +709,7 @@
 		<div class="flex flex-col gap-2 sm:flex-row">
 			<!-- 모바일에서는 기본 액션만 표시 -->
 			<div class="flex gap-2 lg:hidden">
-				<Button onclick={toggleCreateForm} class="flex-1 sm:flex-none min-w-0">
+				<Button onclick={toggleCreateForm} class="min-w-0 flex-1 sm:flex-none">
 					<i class="fas fa-plus mr-1 sm:mr-2"></i>
 					<span class="truncate">{showCreateForm ? '취소' : '클라이언트 추가'}</span>
 				</Button>
@@ -553,6 +754,9 @@
 		{logoUriError}
 		{termsOfServiceUriError}
 		{policyUriError}
+		bind:selectedLogoFile
+		bind:logoPreviewUrl
+		cacheBuster={logoCacheBuster}
 		onToggleCreateForm={toggleCreateForm}
 		onCreateClient={createClient}
 	/>
@@ -564,6 +768,7 @@
 		onEditClient={editClient}
 		onToggleClientStatus={toggleClientStatus}
 		onDeleteClient={deleteClient}
+		onResetClientSecret={resetClientSecret}
 		onCopyToClipboard={copyToClipboard}
 	/>
 </DashboardLayout>
@@ -578,11 +783,30 @@
 <ClientDeleteModal
 	{showDeleteModal}
 	{clientToDelete}
+	{isDeleting}
 	onClose={() => {
 		showDeleteModal = false;
 		clientToDelete = null;
 	}}
 	onConfirmDelete={confirmDeleteClient}
+/>
+
+<ClientSecretResetModal
+	show={showSecretResetModal}
+	clientName={clientToResetSecret?.name || ''}
+	isLoading={isResettingSecret}
+	newSecret={newResetSecret}
+	onConfirm={confirmResetClientSecret}
+	onClose={closeSecretResetModal}
+	onCopyToClipboard={copyToClipboard}
+/>
+
+<ClientStatusModal
+	show={showStatusModal}
+	client={clientToChangeStatus}
+	isLoading={isChangingStatus}
+	onConfirm={confirmToggleClientStatus}
+	onClose={closeStatusModal}
 />
 
 <ClientEditModal
@@ -601,9 +825,14 @@
 	{editLogoUriError}
 	{editTermsOfServiceUriError}
 	{editPolicyUriError}
+	bind:selectedLogoFile
+	bind:logoPreviewUrl
+	{isUpdating}
+	{logoCacheBuster}
 	onClose={() => {
 		showEditModal = false;
 		clientToEdit = null;
 	}}
 	onUpdateClient={updateClient}
+	onRemoveClientLogo={removeClientLogo}
 />

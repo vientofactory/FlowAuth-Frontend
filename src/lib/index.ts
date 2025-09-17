@@ -16,6 +16,7 @@ export { default as DashboardLayout } from './components/DashboardLayout.svelte'
 export { default as AuthLayout } from './components/AuthLayout.svelte';
 export { default as PageHeader } from './components/PageHeader.svelte';
 export { default as Navigation } from './components/Navigation.svelte';
+export { default as LogoUpload } from './components/LogoUpload.svelte';
 
 // Composables
 export { useToast } from './composables/useToast';

@@ -9,6 +9,7 @@
 		onEditClient: (client: Client) => void;
 		onToggleClientStatus: (client: Client) => void;
 		onDeleteClient: (clientId: number) => void;
+		onResetClientSecret: (client: Client) => void;
 		onCopyToClipboard: (text: string) => void;
 	}
 
@@ -19,6 +20,7 @@
 		onEditClient,
 		onToggleClientStatus,
 		onDeleteClient,
+		onResetClientSecret,
 		onCopyToClipboard
 	}: Props = $props();
 </script>
@@ -116,6 +118,16 @@
 							>
 								<i class="fas fa-edit mr-1 sm:mr-0"></i>
 								<span class="sm:hidden">수정</span>
+							</Button>
+							<Button
+								variant="outline"
+								size="sm"
+								onclick={() => onResetClientSecret(client)}
+								class="h-9 flex-1 px-3 text-sm text-orange-600 hover:text-orange-700 sm:h-8 sm:flex-none"
+								title="시크릿 재설정"
+							>
+								<i class="fas fa-key mr-1 sm:mr-0"></i>
+								<span class="sm:hidden">시크릿</span>
 							</Button>
 							<Button
 								variant="outline"

@@ -70,9 +70,7 @@
 	function handleLogout() {
 		profileDropdownOpen = false;
 		authStore.logout();
-		setTimeout(() => {
-			window.location.href = '/auth/login';
-		}, 1000);
+		window.location.href = '/';
 	}
 </script>
 
@@ -83,7 +81,7 @@
 		: 'border-gray-200 bg-white shadow-sm'}"
 >
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-		<div class="flex h-16 items-center justify-between relative">
+		<div class="relative flex h-16 items-center justify-between">
 			<!-- 로고 -->
 			<a href="/" class="flex cursor-pointer items-center">
 				<img src="/logo_1.png" alt="FlowAuth Logo" class="h-8 w-auto rounded object-contain" />
@@ -144,18 +142,19 @@
 							<!-- 프로필 드롭다운 메뉴 -->
 							{#if profileDropdownOpen}
 								<div
-									class="ring-opacity-5 absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-200/50 focus:outline-none transform transition-all duration-200 ease-out animate-in fade-in slide-in-from-top-2 dropdown-shadow"
+									class="ring-opacity-5 animate-in fade-in slide-in-from-top-2 dropdown-shadow absolute right-0 z-50 mt-2 w-56 origin-top-right transform rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-200/50 transition-all duration-200 ease-out focus:outline-none"
 								>
-									<div class="border-b border-gray-100 px-4 py-3 mb-1">
+									<div class="mb-1 border-b border-gray-100 px-4 py-3">
 										<p class="text-sm font-semibold text-gray-900">
-											{user?.firstName} {user?.lastName}
+											{user?.firstName}
+											{user?.lastName}
 										</p>
-										<p class="text-xs text-gray-500 mt-0.5">{user?.email}</p>
+										<p class="mt-0.5 text-xs text-gray-500">{user?.email}</p>
 									</div>
 									<div class="space-y-1">
 										<a
 											href="/dashboard/profile"
-											class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 rounded-md mx-1"
+											class="mx-1 flex items-center rounded-md px-4 py-2.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
 											onclick={() => (profileDropdownOpen = false)}
 										>
 											<i class="fas fa-user mr-3 w-4 text-center text-gray-400"></i>
@@ -163,19 +162,19 @@
 										</a>
 										<a
 											href="/dashboard/settings"
-											class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 rounded-md mx-1"
+											class="mx-1 flex items-center rounded-md px-4 py-2.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
 											onclick={() => (profileDropdownOpen = false)}
 										>
 											<i class="fas fa-cog mr-3 w-4 text-center text-gray-400"></i>
 											설정
 										</a>
-										<div class="border-t border-gray-100 my-1"></div>
+										<div class="my-1 border-t border-gray-100"></div>
 										<button
 											onclick={() => {
 												handleLogout();
 												profileDropdownOpen = false;
 											}}
-											class="flex items-center w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-150 rounded-md mx-1"
+											class="mx-1 flex w-full items-center rounded-md px-4 py-2.5 text-sm text-red-600 transition-colors duration-150 hover:bg-red-50 hover:text-red-700"
 										>
 											<i class="fas fa-sign-out-alt mr-3 w-4 text-center"></i>
 											로그아웃
@@ -232,18 +231,19 @@
 						<!-- 모바일 프로필 드롭다운 메뉴 -->
 						{#if profileDropdownOpen}
 							<div
-								class="ring-opacity-5 absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-200/50 focus:outline-none transform transition-all duration-200 ease-out animate-in fade-in slide-in-from-top-2 dropdown-shadow"
+								class="ring-opacity-5 animate-in fade-in slide-in-from-top-2 dropdown-shadow absolute right-0 z-50 mt-2 w-48 origin-top-right transform rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-200/50 transition-all duration-200 ease-out focus:outline-none"
 							>
-								<div class="border-b border-gray-100 px-4 py-3 mb-1">
+								<div class="mb-1 border-b border-gray-100 px-4 py-3">
 									<p class="text-sm font-semibold text-gray-900">
-										{user?.firstName} {user?.lastName}
+										{user?.firstName}
+										{user?.lastName}
 									</p>
-									<p class="text-xs text-gray-500 mt-0.5">{user?.email}</p>
+									<p class="mt-0.5 text-xs text-gray-500">{user?.email}</p>
 								</div>
 								<div class="space-y-1">
 									<a
 										href="/dashboard/profile"
-										class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 rounded-md mx-1"
+										class="mx-1 flex items-center rounded-md px-4 py-2.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
 										onclick={() => (profileDropdownOpen = false)}
 									>
 										<i class="fas fa-user mr-3 w-4 text-center text-gray-400"></i>
@@ -251,19 +251,19 @@
 									</a>
 									<a
 										href="/dashboard/settings"
-										class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 rounded-md mx-1"
+										class="mx-1 flex items-center rounded-md px-4 py-2.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
 										onclick={() => (profileDropdownOpen = false)}
 									>
 										<i class="fas fa-cog mr-3 w-4 text-center text-gray-400"></i>
 										설정
 									</a>
-									<div class="border-t border-gray-100 my-1"></div>
+									<div class="my-1 border-t border-gray-100"></div>
 									<button
 										onclick={() => {
 											handleLogout();
 											profileDropdownOpen = false;
 										}}
-										class="flex items-center w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-150 rounded-md mx-1"
+										class="mx-1 flex w-full items-center rounded-md px-4 py-2.5 text-sm text-red-600 transition-colors duration-150 hover:bg-red-50 hover:text-red-700"
 									>
 										<i class="fas fa-sign-out-alt mr-3 w-4 text-center"></i>
 										로그아웃
@@ -274,8 +274,8 @@
 					</div>
 				{:else}
 					<!-- 비로그인 상태: 햄버거 메뉴 -->
-					<button 
-						class="text-gray-600 hover:text-blue-600 p-2" 
+					<button
+						class="p-2 text-gray-600 hover:text-blue-600"
 						aria-label="메뉴 열기"
 						onclick={() => (mobileMenuOpen = !mobileMenuOpen)}
 					>
@@ -288,22 +288,28 @@
 
 	<!-- 모바일 드롭다운 메뉴 -->
 	{#if mobileMenuOpen}
-		<!-- 백드롭 (외부 클릭 시 메뉴 닫기) -->
+		<!-- 백드롭 (외부 클릭 시 메뉴 닫기) - 투명한 배경 -->
 		<button
 			type="button"
-			class="fixed top-16 left-0 right-0 bottom-0 bg-black bg-opacity-50 z-40 md:hidden reset-button"
+			class="reset-button fixed top-16 right-0 bottom-0 left-0 z-40 bg-transparent md:hidden"
 			aria-label="메뉴 닫기"
 			tabindex="0"
 			onclick={() => (mobileMenuOpen = false)}
-			onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { mobileMenuOpen = false; } }}
+			onkeydown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					mobileMenuOpen = false;
+				}
+			}}
 		></button>
-		
+
 		<!-- 드롭다운 메뉴 -->
-		<div class="fixed top-16 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 md:hidden">
+		<div
+			class="fixed top-16 right-0 left-0 z-50 border-t border-gray-200 bg-white shadow-lg md:hidden"
+		>
 			<div class="max-h-[calc(100vh-4rem)] overflow-y-auto">
 				{#if isAuthenticated}
 					<!-- 로그인 상태 메뉴 -->
-					<div class="px-4 py-3 border-b border-gray-100">
+					<div class="border-b border-gray-100 px-4 py-3">
 						<div class="flex items-center space-x-3">
 							<div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
 								<span class="text-sm font-medium text-blue-800">
@@ -316,7 +322,7 @@
 							</div>
 						</div>
 					</div>
-					
+
 					<div class="py-2">
 						<a
 							href="/dashboard"
@@ -347,7 +353,7 @@
 								handleLogout();
 								mobileMenuOpen = false;
 							}}
-							class="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+							class="flex w-full items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
 						>
 							<i class="fas fa-sign-out-alt mr-3 w-5 text-center"></i>
 							로그아웃
@@ -407,7 +413,9 @@
 
 	/* Custom shadow for dropdowns */
 	.dropdown-shadow {
-		box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+		box-shadow:
+			0 20px 25px -5px rgba(0, 0, 0, 0.1),
+			0 10px 10px -5px rgba(0, 0, 0, 0.04);
 	}
 
 	/* Reset button styles */

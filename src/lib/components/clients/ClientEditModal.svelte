@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Modal, Button } from '$lib';
+	import { Modal, Button, LogoUpload } from '$lib';
 	import type { Client } from '$lib/types/oauth.types';
 
 	interface Props {
@@ -15,11 +15,16 @@
 		editClientNameError: string;
 		editRedirectUrisError: string;
 		editScopesError: string;
-		editLogoUriError: string;
+		_editLogoUriError: string;
 		editTermsOfServiceUriError: string;
 		editPolicyUriError: string;
+		selectedLogoFile: File | null;
+		logoPreviewUrl: string | null;
+		isUpdating: boolean;
+		logoCacheBuster?: string;
 		onClose: () => void;
 		onUpdateClient: () => void;
+		onRemoveClientLogo?: () => void;
 	}
 
 	let {
@@ -35,12 +40,25 @@
 		editClientNameError,
 		editRedirectUrisError,
 		editScopesError,
-		editLogoUriError,
+		_editLogoUriError: _editLogoUriError,
 		editTermsOfServiceUriError,
 		editPolicyUriError,
+		selectedLogoFile = $bindable(),
+		logoPreviewUrl = $bindable(),
+		isUpdating,
+		logoCacheBuster = '',
 		onClose,
-		onUpdateClient
+		onUpdateClient,
+		onRemoveClientLogo
 	}: Props = $props();
+
+	function handleLogoFileSelect(file: File | null) {
+		selectedLogoFile = file;
+		if (!file && logoPreviewUrl) {
+			URL.revokeObjectURL(logoPreviewUrl);
+			logoPreviewUrl = null;
+		}
+	}
 </script>
 
 {#if showEditModal && clientToEdit}
@@ -118,21 +136,15 @@
 				</div>
 
 				<div>
-					<label for="editLogoUri" class="mb-1 block text-sm font-medium text-gray-700">
-						로고 URL
-					</label>
-					<input
-						id="editLogoUri"
-						bind:value={editLogoUri}
-						placeholder="https://example.com/logo.png"
-						type="url"
-						class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-11"
+					<LogoUpload
+						selectedFile={selectedLogoFile}
+						previewUrl={logoPreviewUrl}
+						isUploading={isUpdating}
+						existingLogoUri={editLogoUri || ''}
+						onFileSelect={handleLogoFileSelect}
+						onRemoveExistingLogo={onRemoveClientLogo}
+						cacheBuster={logoCacheBuster}
 					/>
-					{#if editLogoUriError}
-						<p class="mt-1 text-sm text-red-600">{editLogoUriError}</p>
-					{:else}
-						<p class="mt-1 text-xs text-gray-500">클라이언트 로고 이미지 URL (선택사항)</p>
-					{/if}
 				</div>
 
 				<div>
@@ -176,13 +188,19 @@
 						type="button"
 						variant="outline"
 						onclick={onClose}
+						disabled={isUpdating}
 						class="h-10 w-full sm:h-11 sm:w-auto"
 					>
 						취소
 					</Button>
-					<Button type="submit" class="h-10 w-full sm:h-11 sm:w-auto">
-						<i class="fas fa-save mr-2"></i>
-						수정
+					<Button type="submit" disabled={isUpdating} class="h-10 w-full sm:h-11 sm:w-auto">
+						{#if isUpdating}
+							<i class="fas fa-spinner fa-spin mr-2"></i>
+							수정 중...
+						{:else}
+							<i class="fas fa-save mr-2"></i>
+							수정
+						{/if}
 					</Button>
 				</div>
 			</form>

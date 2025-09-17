@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Card, Button, Loading } from '$lib';
+	import { Card, Button, Loading, LogoUpload } from '$lib';
+	import { useToast } from '$lib';
 
 	interface Props {
 		showCreateForm: boolean;
@@ -14,9 +15,12 @@
 		clientNameError: string;
 		redirectUrisError: string;
 		scopesError: string;
-		logoUriError: string;
+		_logoUriError: string;
 		termsOfServiceUriError: string;
 		policyUriError: string;
+		selectedLogoFile: File | null;
+		logoPreviewUrl: string | null;
+		cacheBuster?: string;
 		onToggleCreateForm: () => void;
 		onCreateClient: () => void;
 	}
@@ -34,12 +38,25 @@
 		clientNameError,
 		redirectUrisError,
 		scopesError,
-		logoUriError,
+		_logoUriError: _logoUriError,
 		termsOfServiceUriError,
 		policyUriError,
+		selectedLogoFile = $bindable(),
+		logoPreviewUrl = $bindable(),
+		cacheBuster = '',
 		onToggleCreateForm,
 		onCreateClient
 	}: Props = $props();
+
+	const { success: _success } = useToast();
+
+	function handleLogoFileSelect(file: File | null) {
+		selectedLogoFile = file;
+		if (!file && logoPreviewUrl) {
+			URL.revokeObjectURL(logoPreviewUrl);
+			logoPreviewUrl = null;
+		}
+	}
 </script>
 
 {#if showCreateForm}
@@ -119,21 +136,14 @@
 					</div>
 
 					<div class="sm:col-span-2">
-						<label for="logoUri" class="mb-1 block text-sm font-medium text-gray-700">
-							로고 URL
-						</label>
-						<input
-							id="logoUri"
-							bind:value={logoUriValue}
-							placeholder="https://example.com/logo.png"
-							type="url"
-							class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-11"
+						<LogoUpload
+							selectedFile={selectedLogoFile}
+							previewUrl={logoPreviewUrl}
+							isUploading={isCreating}
+							existingLogoUri={logoUriValue}
+							onFileSelect={handleLogoFileSelect}
+							{cacheBuster}
 						/>
-						{#if logoUriError}
-							<p class="mt-1 text-sm text-red-600">{logoUriError}</p>
-						{:else}
-							<p class="mt-1 text-xs text-gray-500">클라이언트 로고 이미지 URL (선택사항)</p>
-						{/if}
 					</div>
 
 					<div>
@@ -178,6 +188,7 @@
 						type="button"
 						variant="outline"
 						onclick={onToggleCreateForm}
+						disabled={isCreating}
 						class="h-10 w-full sm:h-11 sm:w-auto"
 					>
 						취소

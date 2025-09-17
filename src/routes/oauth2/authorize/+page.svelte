@@ -3,10 +3,12 @@
 	import Card from '$lib/components/Card.svelte';
 	import LoadingState from '$lib/components/oauth2/LoadingState.svelte';
 	import ErrorState from '$lib/components/oauth2/ErrorState.svelte';
+	import Logo from '$lib/components/Logo.svelte';
 	import { useAuthorization } from '$lib/hooks/useAuthorization';
 	import type { AuthorizationState } from '$lib/types/authorization.types';
 	import { ErrorType } from '$lib/types/authorization.types';
 	import type { PageData } from './$types';
+	import { env } from '$lib/config/env';
 
 	let { data }: { data: PageData } = $props();
 
@@ -35,6 +37,32 @@
 		}
 	}
 
+	// Function to convert logo URI to absolute URL
+	function getLogoUrl(logoUri?: string): string | null {
+		if (!logoUri || !logoUri.trim()) return null;
+
+		const trimmedUri = logoUri.trim();
+
+		// 빈 문자열이나 placeholder 값인 경우 null 반환
+		if (trimmedUri === '' || trimmedUri === 'null' || trimmedUri === 'undefined') {
+			return null;
+		}
+
+		// 상대 경로인 경우 백엔드 호스트를 붙임
+		if (trimmedUri.startsWith('/uploads/')) {
+			return `${env.API_BASE_URL}${trimmedUri}`;
+		}
+
+		// 이미 절대 URL인 경우 그대로 반환
+		try {
+			new URL(trimmedUri);
+			return trimmedUri;
+		} catch {
+			// 유효하지 않은 URL인 경우 null 반환
+			return null;
+		}
+	}
+
 	onMount(() => {
 		console.log('[Page] Component mounted, starting authorization data load');
 		loadAuthorizationData();
@@ -59,18 +87,6 @@
 		}, 45000);
 
 		return unsubscribe;
-	});
-
-	// 로고 로딩 상태 관리
-	let _logoLoaded = $state(false);
-	let logoError = $state(false);
-
-	// 로고 상태 초기화
-	$effect(() => {
-		if (currentState && currentState.client?.logoUri) {
-			_logoLoaded = false;
-			logoError = false;
-		}
 	});
 
 	// 이벤트 핸들러
@@ -121,22 +137,15 @@
 				<!-- 앱 정보 헤더 -->
 				<div class="border-b border-gray-100 px-8 py-6 text-center">
 					<div class="flex flex-col items-center space-y-4">
-						<!-- 앱 로고 또는 기본 아이콘 -->
-						<div
-							class="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg"
-						>
-							{#if currentState.client?.logoUri && !logoError}
-								<img
-									src={currentState.client.logoUri}
-									alt="{currentState.client.name} 로고"
-									class="h-14 w-14 rounded-xl object-cover"
-									onload={() => (_logoLoaded = true)}
-									onerror={() => (logoError = true)}
-								/>
-							{/if}
-							{#if !currentState.client?.logoUri || logoError}
-								<i class="fas fa-shield-alt text-2xl text-white"></i>
-							{/if}
+						<!-- 앱 로고 표시 -->
+						<div class="relative">
+							<Logo
+								src={getLogoUrl(currentState.client?.logoUri) || '/logo_icon.png'}
+								alt="{currentState.client?.name || 'FlowAuth'} 로고"
+								size="lg"
+								fallbackSrc="/logo_icon.png"
+								className="rounded-full border-2 border-white shadow-lg object-cover"
+							/>
 						</div>
 
 						<!-- 앱 이름과 설명 -->
@@ -258,6 +267,48 @@
 				</div>
 			</Card>
 		{/if}
+
+		<!-- OAuth2 플랫폼 정보 -->
+		<div class="mt-6 text-center">
+			<div class="mb-3 flex items-center justify-center">
+				<img
+					src="/logo_icon.png"
+					alt="FlowAuth 로고"
+					class="mr-1 h-6 w-6 rounded-md object-cover"
+					loading="lazy"
+				/>
+				<span class="text-sm font-medium text-gray-600">FlowAuth</span>
+			</div>
+			<p class="mb-2 text-xs text-gray-500">오픈소스 OAuth 2.0 통합 인증 시스템</p>
+			<div class="flex items-center justify-center space-x-4 text-xs text-gray-400">
+				<a
+					href="/about"
+					class="transition-colors hover:text-gray-600"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					서비스 소개
+				</a>
+				<span>•</span>
+				<a
+					href="/terms"
+					class="transition-colors hover:text-gray-600"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					이용약관
+				</a>
+				<span>•</span>
+				<a
+					href="/privacy"
+					class="transition-colors hover:text-gray-600"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					개인정보처리방침
+				</a>
+			</div>
+		</div>
 	</div>
 </div>
 

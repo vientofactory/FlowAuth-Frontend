@@ -100,11 +100,11 @@
 			dashboardMenuItems[1], // 클라이언트 관리
 			dashboardMenuItems[3], // OAuth 테스터
 			dashboardMenuItems[4], // 프로필
-			dashboardMenuItems[5]  // 설정
+			dashboardMenuItems[5] // 설정
 		];
 
 		// 모바일용 짧은 라벨 추가
-		return selectedItems.map(item => ({
+		return selectedItems.map((item) => ({
 			...item,
 			mobileLabel: getMobileLabel(item.id)
 		}));
@@ -113,11 +113,11 @@
 	// 모바일용 짧은 라벨 생성
 	function getMobileLabel(id: string): string {
 		const labels: Record<string, string> = {
-			'dashboard': '홈',
-			'clients': '클라이언트',
+			dashboard: '홈',
+			clients: '클라이언트',
 			'oauth-tester': '테스터',
-			'profile': '프로필',
-			'settings': '설정'
+			profile: '프로필',
+			settings: '설정'
 		};
 		return labels[id] || '메뉴';
 	}
@@ -204,15 +204,9 @@
 				<h2 class="text-2xl font-bold text-gray-900">FlowAuth</h2>
 				<p class="animate-pulse text-lg font-medium text-gray-600">대시보드를 준비하는 중...</p>
 				<div class="mt-4 flex justify-center space-x-1">
-					<div
-						class="h-2 w-2 animate-bounce rounded-full bg-blue-500 bounce-delay-0"
-					></div>
-					<div
-						class="h-2 w-2 animate-bounce rounded-full bg-blue-500 bounce-delay-150"
-					></div>
-					<div
-						class="h-2 w-2 animate-bounce rounded-full bg-blue-500 bounce-delay-300"
-					></div>
+					<div class="bounce-delay-0 h-2 w-2 animate-bounce rounded-full bg-blue-500"></div>
+					<div class="bounce-delay-150 h-2 w-2 animate-bounce rounded-full bg-blue-500"></div>
+					<div class="bounce-delay-300 h-2 w-2 animate-bounce rounded-full bg-blue-500"></div>
 				</div>
 			</div>
 		</div>
@@ -250,7 +244,9 @@
 
 		/* Mobile dropdown shadow */
 		.mobile-dropdown-shadow {
-			box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+			box-shadow:
+				0 20px 25px -5px rgba(0, 0, 0, 0.1),
+				0 10px 10px -5px rgba(0, 0, 0, 0.04);
 			background-color: #ffffff;
 			z-index: 50;
 		}
@@ -313,7 +309,7 @@
 					{/if}
 					<button
 						onclick={toggleMobileMenu}
-						class="flex h-10 w-10 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+						class="flex h-10 w-10 items-center justify-center rounded-lg text-gray-600 transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none active:scale-95"
 						aria-label="메뉴 열기"
 						aria-expanded={mobileMenuOpen}
 					>
@@ -324,47 +320,63 @@
 
 			<!-- 모바일 메뉴 드롭다운 -->
 			{#if mobileMenuOpen}
-				<!-- 백드롭 -->
+				<!-- 백드롭 - 투명한 배경 -->
 				<div
-					class="fixed inset-0 top-16 bg-gray-900 bg-opacity-20 z-40 transition-opacity duration-300 ease-out mobile-backdrop {mobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}"
+					class="mobile-backdrop fixed inset-0 top-16 z-40 bg-transparent transition-opacity duration-300 ease-out {mobileMenuOpen
+						? 'opacity-100'
+						: 'pointer-events-none opacity-0'}"
 					onclick={() => (mobileMenuOpen = false)}
-					onkeydown={(e) => { if (e.key === 'Escape') mobileMenuOpen = false; }}
+					onkeydown={(e) => {
+						if (e.key === 'Escape') mobileMenuOpen = false;
+					}}
 					role="button"
 					tabindex="0"
 					aria-label="메뉴 닫기"
 				></div>
 
 				<!-- 드롭다운 메뉴 -->
-				<div class="absolute top-full right-0 left-0 z-50 border-t border-gray-200 bg-white shadow-xl transform transition-all duration-300 ease-out mobile-dropdown-shadow {mobileMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-2 opacity-0 pointer-events-none'}">
-					<nav class="max-h-96 overflow-y-auto px-2 py-4 mobile-nav-bg" aria-label="모바일 메뉴">
+				<div
+					class="mobile-dropdown-shadow absolute top-full right-0 left-0 z-50 transform border-t border-gray-200 bg-white shadow-xl transition-all duration-300 ease-out {mobileMenuOpen
+						? 'translate-y-0 opacity-100'
+						: 'pointer-events-none -translate-y-2 opacity-0'}"
+				>
+					<nav class="mobile-nav-bg max-h-96 overflow-y-auto px-2 py-4" aria-label="모바일 메뉴">
 						<div class="space-y-2">
 							{#each dashboardMenuItems as item (item.href)}
 								<a
 									href={item.href}
-									class="group flex items-center rounded-xl px-4 py-4 text-sm font-medium transition-all duration-200 ease-out transform hover:scale-[1.02] active:scale-[0.98]
+									class="group flex transform items-center rounded-xl px-4 py-4 text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.02] active:scale-[0.98]
 										{isMenuActive(item.href)
-										? 'bg-blue-50 text-blue-900 shadow-md border border-blue-200 menu-item-active'
-										: 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 hover:shadow-md menu-item-inactive'}"
+										? 'menu-item-active border border-blue-200 bg-blue-50 text-blue-900 shadow-md'
+										: 'menu-item-inactive text-gray-700 hover:bg-gray-50 hover:text-gray-900 hover:shadow-md'}"
 									onclick={() => (mobileMenuOpen = false)}
 									role="menuitem"
 									aria-current={isMenuActive(item.href) ? 'page' : undefined}
 								>
-									<div class="flex h-10 w-10 items-center justify-center rounded-lg mr-4 transition-all duration-200 ease-out transform group-hover:scale-110
+									<div
+										class="mr-4 flex h-10 w-10 transform items-center justify-center rounded-lg transition-all duration-200 ease-out group-hover:scale-110
 										{isMenuActive(item.href)
-										? 'bg-blue-100 text-blue-600 shadow-sm'
-										: 'bg-gray-100 text-gray-600 group-hover:bg-blue-50 group-hover:text-blue-600'}">
-										<i class="{item.icon} text-lg transition-transform duration-200 group-hover:scale-110"></i>
+											? 'bg-blue-100 text-blue-600 shadow-sm'
+											: 'bg-gray-100 text-gray-600 group-hover:bg-blue-50 group-hover:text-blue-600'}"
+									>
+										<i
+											class="{item.icon} text-lg transition-transform duration-200 group-hover:scale-110"
+										></i>
 									</div>
 									<div class="flex-1">
 										<div class="font-semibold">{item.label}</div>
-										<div class="text-xs text-gray-500 mt-0.5">{item.description}</div>
+										<div class="mt-0.5 text-xs text-gray-500">{item.description}</div>
 									</div>
 									{#if isMenuActive(item.href)}
-										<div class="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 shadow-sm">
+										<div
+											class="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 shadow-sm"
+										>
 											<i class="fas fa-check text-xs text-blue-600"></i>
 										</div>
 									{:else}
-										<i class="fas fa-chevron-right text-gray-400 text-sm group-hover:text-gray-600 transition-all duration-200 group-hover:translate-x-1"></i>
+										<i
+											class="fas fa-chevron-right text-sm text-gray-400 transition-all duration-200 group-hover:translate-x-1 group-hover:text-gray-600"
+										></i>
 									{/if}
 								</a>
 							{/each}
@@ -436,28 +448,33 @@
 		</div>
 
 		<!-- 모바일 하단 네비게이션 -->
-		<div class="fixed right-0 bottom-0 left-0 z-50 border-t border-gray-200 bg-white/95 backdrop-blur-sm lg:hidden">
+		<div
+			class="fixed right-0 bottom-0 left-0 z-50 border-t border-gray-200 bg-white/95 backdrop-blur-sm lg:hidden"
+		>
 			<nav class="flex items-center justify-around px-1 py-1" aria-label="모바일 하단 메뉴">
 				{#each getMobileMenuItems() as item (item.href)}
 					<a
 						href={item.href}
-						class="group relative flex flex-col items-center justify-center rounded-xl px-3 py-3 text-xs font-medium transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+						class="group relative flex flex-col items-center justify-center rounded-xl px-3 py-3 text-xs font-medium transition-all duration-300 ease-out focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none
 							{isMenuActive(item.href)
-							? 'bg-blue-500 text-white shadow-lg scale-105'
-							: 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:scale-105 active:scale-95'}"
+							? 'scale-105 bg-blue-500 text-white shadow-lg'
+							: 'text-gray-600 hover:scale-105 hover:bg-gray-50 hover:text-gray-900 active:scale-95'}"
 						aria-current={isMenuActive(item.href) ? 'page' : undefined}
 						aria-label="{item.label} 메뉴"
 					>
 						<!-- 활성 상태 배경 효과 -->
 						{#if isMenuActive(item.href)}
-							<div class="absolute inset-0 rounded-xl bg-blue-500 opacity-10 animate-pulse"></div>
+							<div class="absolute inset-0 animate-pulse rounded-xl bg-blue-500 opacity-10"></div>
 						{/if}
 
 						<!-- 아이콘 -->
 						<div class="relative mb-1">
-							<i class="{item.icon} h-5 w-5 transition-transform duration-200 group-hover:scale-110"></i>
+							<i class="{item.icon} h-5 w-5 transition-transform duration-200 group-hover:scale-110"
+							></i>
 							{#if isMenuActive(item.href)}
-								<div class="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-white animate-ping"></div>
+								<div
+									class="absolute -top-1 -right-1 h-2 w-2 animate-ping rounded-full bg-white"
+								></div>
 								<div class="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-white"></div>
 							{/if}
 						</div>
@@ -469,7 +486,9 @@
 
 						<!-- 호버 효과 -->
 						{#if !isMenuActive(item.href)}
-							<div class="absolute inset-0 rounded-xl bg-gradient-to-t from-gray-100 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+							<div
+								class="absolute inset-0 rounded-xl bg-gradient-to-t from-gray-100 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+							></div>
 						{/if}
 					</a>
 				{/each}
