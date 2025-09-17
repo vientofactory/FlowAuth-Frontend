@@ -205,16 +205,13 @@
 				<p class="animate-pulse text-lg font-medium text-gray-600">대시보드를 준비하는 중...</p>
 				<div class="mt-4 flex justify-center space-x-1">
 					<div
-						class="h-2 w-2 animate-bounce rounded-full bg-blue-500"
-						style="animation-delay: 0ms;"
+						class="h-2 w-2 animate-bounce rounded-full bg-blue-500 bounce-delay-0"
 					></div>
 					<div
-						class="h-2 w-2 animate-bounce rounded-full bg-blue-500"
-						style="animation-delay: 150ms;"
+						class="h-2 w-2 animate-bounce rounded-full bg-blue-500 bounce-delay-150"
 					></div>
 					<div
-						class="h-2 w-2 animate-bounce rounded-full bg-blue-500"
-						style="animation-delay: 300ms;"
+						class="h-2 w-2 animate-bounce rounded-full bg-blue-500 bounce-delay-300"
 					></div>
 				</div>
 			</div>
@@ -232,6 +229,46 @@
 			100% {
 				width: 60%;
 			}
+		}
+
+		/* Bounce animation delays */
+		.bounce-delay-0 {
+			animation-delay: 0ms;
+		}
+		.bounce-delay-150 {
+			animation-delay: 150ms;
+		}
+		.bounce-delay-300 {
+			animation-delay: 300ms;
+		}
+
+		/* Mobile menu backdrop */
+		.mobile-backdrop {
+			background-color: rgba(0, 0, 0, 0.1);
+			z-index: 40;
+		}
+
+		/* Mobile dropdown shadow */
+		.mobile-dropdown-shadow {
+			box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+			background-color: #ffffff;
+			z-index: 50;
+		}
+
+		/* Mobile menu navigation background */
+		.mobile-nav-bg {
+			background-color: #ffffff;
+		}
+
+		/* Active menu item colors */
+		.menu-item-active {
+			background-color: #eff6ff;
+			color: #1e3a8a;
+		}
+
+		.menu-item-inactive {
+			background-color: transparent;
+			color: #374151;
 		}
 	</style>
 {:else if !isAuthenticated}
@@ -289,30 +326,28 @@
 			{#if mobileMenuOpen}
 				<!-- 백드롭 -->
 				<div
-					class="fixed inset-0 top-16 bg-gray-900 bg-opacity-20 z-40 transition-opacity duration-300 ease-out {mobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}"
+					class="fixed inset-0 top-16 bg-gray-900 bg-opacity-20 z-40 transition-opacity duration-300 ease-out mobile-backdrop {mobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}"
 					onclick={() => (mobileMenuOpen = false)}
 					onkeydown={(e) => { if (e.key === 'Escape') mobileMenuOpen = false; }}
 					role="button"
 					tabindex="0"
 					aria-label="메뉴 닫기"
-					style="z-index: 40; background-color: rgba(0, 0, 0, 0.1);"
 				></div>
 
 				<!-- 드롭다운 메뉴 -->
-				<div class="absolute top-full right-0 left-0 z-50 border-t border-gray-200 bg-white shadow-xl transform transition-all duration-300 ease-out {mobileMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-2 opacity-0 pointer-events-none'}" style="background-color: #ffffff; z-index: 50; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
-					<nav class="max-h-96 overflow-y-auto px-2 py-4" aria-label="모바일 메뉴" style="background-color: #ffffff;">
+				<div class="absolute top-full right-0 left-0 z-50 border-t border-gray-200 bg-white shadow-xl transform transition-all duration-300 ease-out mobile-dropdown-shadow {mobileMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-2 opacity-0 pointer-events-none'}">
+					<nav class="max-h-96 overflow-y-auto px-2 py-4 mobile-nav-bg" aria-label="모바일 메뉴">
 						<div class="space-y-2">
 							{#each dashboardMenuItems as item (item.href)}
 								<a
 									href={item.href}
 									class="group flex items-center rounded-xl px-4 py-4 text-sm font-medium transition-all duration-200 ease-out transform hover:scale-[1.02] active:scale-[0.98]
 										{isMenuActive(item.href)
-										? 'bg-blue-50 text-blue-900 shadow-md border border-blue-200'
-										: 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 hover:shadow-md'}"
+										? 'bg-blue-50 text-blue-900 shadow-md border border-blue-200 menu-item-active'
+										: 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 hover:shadow-md menu-item-inactive'}"
 									onclick={() => (mobileMenuOpen = false)}
 									role="menuitem"
 									aria-current={isMenuActive(item.href) ? 'page' : undefined}
-									style="background-color: {isMenuActive(item.href) ? '#eff6ff' : 'transparent'}; color: {isMenuActive(item.href) ? '#1e3a8a' : '#374151'};"
 								>
 									<div class="flex h-10 w-10 items-center justify-center rounded-lg mr-4 transition-all duration-200 ease-out transform group-hover:scale-110
 										{isMenuActive(item.href)

@@ -177,10 +177,8 @@ export class PermissionUtils {
 	}
 }
 
-// 인증 관련 상수들
+// 프론트엔드에서 사용하는 인증 관련 상수들
 export const AUTH_CONSTANTS = {
-	BCRYPT_SALT_ROUNDS: 10,
 	DEFAULT_USER_PERMISSIONS: ROLES.CLIENT_MANAGER, // OAuth2 기본 기능 권한
-	TOKEN_EXPIRATION_SECONDS: 86400, // 24 hours
 	TOKEN_TYPE: 'access' as const
 } as const;

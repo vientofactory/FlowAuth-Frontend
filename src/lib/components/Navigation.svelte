@@ -144,8 +144,7 @@
 							<!-- 프로필 드롭다운 메뉴 -->
 							{#if profileDropdownOpen}
 								<div
-									class="ring-opacity-5 absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-200/50 focus:outline-none transform transition-all duration-200 ease-out animate-in fade-in slide-in-from-top-2"
-									style="box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);"
+									class="ring-opacity-5 absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-200/50 focus:outline-none transform transition-all duration-200 ease-out animate-in fade-in slide-in-from-top-2 dropdown-shadow"
 								>
 									<div class="border-b border-gray-100 px-4 py-3 mb-1">
 										<p class="text-sm font-semibold text-gray-900">
@@ -233,8 +232,7 @@
 						<!-- 모바일 프로필 드롭다운 메뉴 -->
 						{#if profileDropdownOpen}
 							<div
-								class="ring-opacity-5 absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-200/50 focus:outline-none transform transition-all duration-200 ease-out animate-in fade-in slide-in-from-top-2"
-								style="box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);"
+								class="ring-opacity-5 absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-200/50 focus:outline-none transform transition-all duration-200 ease-out animate-in fade-in slide-in-from-top-2 dropdown-shadow"
 							>
 								<div class="border-b border-gray-100 px-4 py-3 mb-1">
 									<p class="text-sm font-semibold text-gray-900">
@@ -293,12 +291,11 @@
 		<!-- 백드롭 (외부 클릭 시 메뉴 닫기) -->
 		<button
 			type="button"
-			class="fixed top-16 left-0 right-0 bottom-0 bg-black bg-opacity-50 z-40 md:hidden"
+			class="fixed top-16 left-0 right-0 bottom-0 bg-black bg-opacity-50 z-40 md:hidden reset-button"
 			aria-label="메뉴 닫기"
 			tabindex="0"
 			onclick={() => (mobileMenuOpen = false)}
 			onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { mobileMenuOpen = false; } }}
-			style="border: none; padding: 0; margin: 0; background: none; cursor: pointer;"
 		></button>
 		
 		<!-- 드롭다운 메뉴 -->
@@ -406,5 +403,19 @@
 		background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
 		background-size: 200px 100%;
 		animation: skeleton-shimmer 1.5s infinite;
+	}
+
+	/* Custom shadow for dropdowns */
+	.dropdown-shadow {
+		box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	}
+
+	/* Reset button styles */
+	.reset-button {
+		border: none;
+		padding: 0;
+		margin: 0;
+		background: none;
+		cursor: pointer;
 	}
 </style>

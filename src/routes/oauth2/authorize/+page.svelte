@@ -24,6 +24,17 @@
 		currentState = value;
 	});
 
+	// Function to extract host from redirect URI
+	function getRedirectHost(redirectUri?: string): string {
+		if (!redirectUri) return 'N/A';
+		try {
+			const url = new URL(redirectUri);
+			return `${url.protocol}//${url.host}`;
+		} catch {
+			return 'N/A';
+		}
+	}
+
 	onMount(() => {
 		console.log('[Page] Component mounted, starting authorization data load');
 		loadAuthorizationData();
@@ -210,18 +221,7 @@
 							<p class="text-xs text-gray-500">
 								승인 시 다음 사이트로 이동합니다:
 								<span class="break-all text-gray-700">
-									{#if data.authorizeParams?.redirect_uri}
-										{(() => {
-											try {
-												const url = new URL(data.authorizeParams.redirect_uri);
-												return `${url.protocol}//${url.host}`;
-											} catch {
-												return 'N/A';
-											}
-										})()}
-									{:else}
-										N/A
-									{/if}
+									{getRedirectHost(data.authorizeParams?.redirect_uri)}
 								</span>
 							</p>
 							<p class="text-xs text-gray-500">
