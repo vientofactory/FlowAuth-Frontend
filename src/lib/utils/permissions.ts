@@ -1,4 +1,10 @@
-// 권한 비트마스크 상수들 (백엔드와 동일하게 유지)
+// JWT 관련 상수들
+export const JWT_CONSTANTS = {
+	SECRET_KEY_FALLBACK: 'your-secret-key', // fallback value, use ConfigService.get('JWT_SECRET') in actual usage
+	EXPIRES_IN: '1h',
+	ALGORITHMS: ['HS256'] as const,
+	TOKEN_TYPE: 'access' as const
+} as const;
 export const PERMISSIONS = {
 	// 사용자 권한
 	READ_USER: 1 << 0, // 1
@@ -51,7 +57,13 @@ export const PERMISSION_UTILS = {
 // 사전 정의된 역할들
 export const ROLES = {
 	USER: PERMISSIONS.READ_USER,
-	CLIENT_MANAGER: PERMISSIONS.READ_CLIENT | PERMISSIONS.WRITE_CLIENT | PERMISSIONS.DELETE_CLIENT,
+	CLIENT_MANAGER:
+		PERMISSIONS.READ_CLIENT |
+		PERMISSIONS.WRITE_CLIENT |
+		PERMISSIONS.DELETE_CLIENT |
+		PERMISSIONS.READ_TOKEN |
+		PERMISSIONS.WRITE_TOKEN |
+		PERMISSIONS.DELETE_TOKEN, // OAuth2 기본 기능 포함
 	TOKEN_MANAGER: PERMISSIONS.READ_TOKEN | PERMISSIONS.WRITE_TOKEN | PERMISSIONS.DELETE_TOKEN,
 	USER_MANAGER:
 		PERMISSIONS.READ_USER |
@@ -62,13 +74,13 @@ export const ROLES = {
 } as const;
 
 // 역할 이름 매핑
-export const ROLE_NAMES: Record<number, string> = {
+export const ROLE_NAMES = {
 	[ROLES.USER]: '일반 사용자',
 	[ROLES.CLIENT_MANAGER]: '클라이언트 관리자',
 	[ROLES.TOKEN_MANAGER]: '토큰 관리자',
 	[ROLES.USER_MANAGER]: '사용자 관리자',
 	[ROLES.ADMIN]: '시스템 관리자'
-};
+} as const;
 
 // 권한 이름 매핑
 export const PERMISSION_NAMES: Record<number, string> = {
@@ -103,6 +115,15 @@ export class PermissionUtils {
 	 */
 	static hasAnyPermission(userPermissions: number, requiredPermissions: number[]): boolean {
 		return requiredPermissions.some((permission) =>
+			this.hasPermission(userPermissions, permission)
+		);
+	}
+
+	/**
+	 * 사용자가 모든 필요한 권한을 가지고 있는지 확인
+	 */
+	static hasAllPermissions(userPermissions: number, requiredPermissions: number[]): boolean {
+		return requiredPermissions.every((permission) =>
 			this.hasPermission(userPermissions, permission)
 		);
 	}
@@ -154,16 +175,10 @@ export class PermissionUtils {
 	static isAdmin(permissions: number): boolean {
 		return this.hasPermission(permissions, PERMISSION_UTILS.getAdminPermission());
 	}
-
-	/**
-	 * 모든 필요한 권한을 가지고 있는지 확인
-	 */
-	private static hasAllPermissions(
-		userPermissions: number,
-		requiredPermissions: number[]
-	): boolean {
-		return requiredPermissions.every((permission) =>
-			this.hasPermission(userPermissions, permission)
-		);
-	}
 }
+
+// 프론트엔드에서 사용하는 인증 관련 상수들
+export const AUTH_CONSTANTS = {
+	DEFAULT_USER_PERMISSIONS: ROLES.CLIENT_MANAGER, // OAuth2 기본 기능 권한
+	TOKEN_TYPE: 'access' as const
+} as const;

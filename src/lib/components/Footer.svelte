@@ -3,25 +3,20 @@
 </script>
 
 <!-- 푸터 -->
-<footer class="bg-gradient-to-r from-gray-900 to-gray-800 text-white">
+<footer class="bg-gray-100 text-gray-900">
 	<div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
 		<div class="grid grid-cols-1 gap-8 md:grid-cols-4">
 			<div class="col-span-1 md:col-span-2">
-				<div class="mb-4 flex items-center space-x-2">
-					<div
-						class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600"
-					>
-						<i class="fas fa-shield-alt text-lg text-white"></i>
-					</div>
-					<span class="text-xl font-bold">FlowAuth</span>
+				<div class="mb-4 flex items-center">
+					<img src="/logo_1.png" alt="FlowAuth Logo" class="h-8 w-auto rounded object-contain" />
 				</div>
-				<p class="mb-4 max-w-md text-gray-300">
-					오픈소스 OAuth2 인증 시스템으로 애플리케이션의 보안을 강화하세요.
+				<p class="mb-4 max-w-md text-gray-600">
+					오픈소스 통합 인증 시스템으로 애플리케이션의 보안을 강화하세요.
 				</p>
 				<div class="flex space-x-4">
 					<a
 						href="https://github.com/vientofactory/FlowAuth"
-						class="text-gray-400 transition-colors duration-200 hover:text-white"
+						class="text-gray-600 transition-colors duration-200 hover:text-gray-900"
 						aria-label="GitHub"
 					>
 						<i class="fab fa-github text-xl"></i>
@@ -36,7 +31,7 @@
 						<a
 							href="/features"
 							data-sveltekit-preload-data
-							class="text-gray-400 transition-colors duration-200 hover:text-white"
+							class="text-gray-600 transition-colors duration-200 hover:text-gray-900"
 						>
 							기능
 						</a>
@@ -45,7 +40,7 @@
 						<a
 							href="/security"
 							data-sveltekit-preload-data
-							class="text-gray-400 transition-colors duration-200 hover:text-white"
+							class="text-gray-600 transition-colors duration-200 hover:text-gray-900"
 						>
 							보안
 						</a>
@@ -54,7 +49,7 @@
 						<a
 							href="/integrations"
 							data-sveltekit-preload-data
-							class="text-gray-400 transition-colors duration-200 hover:text-white"
+							class="text-gray-600 transition-colors duration-200 hover:text-gray-900"
 						>
 							통합
 						</a>
@@ -69,7 +64,7 @@
 						<a
 							href="/docs"
 							data-sveltekit-preload-data
-							class="text-gray-400 transition-colors duration-200 hover:text-white"
+							class="text-gray-600 transition-colors duration-200 hover:text-gray-900"
 						>
 							문서
 						</a>
@@ -78,7 +73,7 @@
 						<a
 							href="/api"
 							data-sveltekit-preload-data
-							class="text-gray-400 transition-colors duration-200 hover:text-white"
+							class="text-gray-600 transition-colors duration-200 hover:text-gray-900"
 						>
 							API 레퍼런스
 						</a>
@@ -87,7 +82,7 @@
 						<a
 							href="/community"
 							data-sveltekit-preload-data
-							class="text-gray-400 transition-colors duration-200 hover:text-white"
+							class="text-gray-600 transition-colors duration-200 hover:text-gray-900"
 						>
 							커뮤니티
 						</a>
@@ -96,8 +91,8 @@
 			</div>
 		</div>
 
-		<div class="mt-8 border-t border-gray-700 pt-8 text-center">
-			<p class="text-gray-400">
+		<div class="mt-8 border-t border-gray-300 pt-8 text-center">
+			<p class="text-gray-600">
 				&copy; 2025 FlowAuth<br />
 				MIT 라이선스 · 자유롭게 사용/기여할 수 있습니다.
 			</p>

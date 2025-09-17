@@ -23,6 +23,11 @@
 		const unsubscribe = authState.subscribe((state) => {
 			user = state.user;
 			_isLoading = state.isLoading;
+
+			// user가 로드되면 accountCreated 업데이트
+			if (user?.createdAt && dashboardStats.accountCreated !== user.createdAt) {
+				dashboardStats.accountCreated = user.createdAt;
+			}
 		});
 
 		// 대시보드 통계 로드
@@ -34,9 +39,20 @@
 		try {
 			// 실제 API 호출로 대시보드 통계 가져오기
 			const stats = await apiClient.getDashboardStats();
-			dashboardStats = stats;
+			dashboardStats = {
+				...stats,
+				// user 객체에서 accountCreated가 없으면 API 응답 사용
+				accountCreated: user?.createdAt || stats.accountCreated
+			};
 		} catch (error) {
 			console.error('Failed to load dashboard data:', error);
+			// API 호출 실패 시 user 객체에서 데이터 사용
+			dashboardStats = {
+				totalClients: 0,
+				activeTokens: 0,
+				lastLoginDate: null,
+				accountCreated: user?.createdAt || null
+			};
 			toast.error('대시보드 데이터를 불러오는데 실패했습니다.');
 		}
 	}
@@ -158,10 +174,9 @@
 						</div>
 						<p class="mb-1 text-sm font-medium opacity-80">계정</p>
 						<p class="text-xs leading-tight font-bold sm:text-sm">
-							{new Date(dashboardStats.accountCreated)?.toLocaleDateString('ko-KR', {
-								year: '2-digit',
-								month: 'short'
-							}) || 'N/A'}
+							{user?.createdAt
+								? new Date(user.createdAt).toLocaleDateString('ko-KR')
+								: 'N/A'}
 						</p>
 					</div>
 				</div>
@@ -214,7 +229,7 @@
 													<span class="font-medium">역할:</span>
 													{#if user.permissions !== undefined}
 														<Badge variant="info" size="sm" class="ml-1">
-															{PermissionUtils.getRoleName(user.permissions)}
+															{PermissionUtils.getRoleName(parseInt(user.permissions, 10))}
 														</Badge>
 													{:else}
 														<Badge variant="secondary" size="sm" class="ml-1">권한 없음</Badge>
@@ -299,10 +314,10 @@
 							<h3 class="mb-2 text-lg font-semibold text-gray-900">빠른 작업</h3>
 							<p class="text-sm text-gray-600">자주 사용하는 기능을 빠르게 실행하세요</p>
 						</div>
-						<div class="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+						<div class="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 							<Button
 								variant="outline"
-								class="group flex h-20 flex-col items-center justify-center space-y-2 border-dashed border-gray-300 transition-all duration-200 hover:scale-105 hover:border-blue-500 hover:bg-blue-50 sm:h-24"
+								class="group flex h-24 flex-col items-center justify-center space-y-1 px-2 py-2 border-dashed border-gray-300 transition-all duration-200 hover:scale-105 hover:border-blue-500 hover:bg-blue-50 sm:h-28 sm:px-3 sm:py-3"
 								onclick={navigateToClients}
 							>
 								<div
@@ -310,14 +325,14 @@
 								>
 									<i class="fas fa-plus-circle text-lg text-blue-600 sm:text-xl"></i>
 								</div>
-								<span class="text-center text-xs leading-tight font-medium sm:text-sm"
-									>새 클라이언트<br />생성</span
+								<span class="text-center text-xs leading-none font-medium sm:text-sm"
+									>클라이언트<br />생성</span
 								>
 							</Button>
 
 							<Button
 								variant="outline"
-								class="group flex h-20 flex-col items-center justify-center space-y-2 border-dashed border-gray-300 transition-all duration-200 hover:scale-105 hover:border-green-500 hover:bg-green-50 sm:h-24"
+								class="group flex h-24 flex-col items-center justify-center space-y-2 border-dashed border-gray-300 transition-all duration-200 hover:scale-105 hover:border-green-500 hover:bg-green-50 sm:h-28"
 								onclick={navigateToTokens}
 							>
 								<div
@@ -325,14 +340,14 @@
 								>
 									<i class="fas fa-key text-lg text-green-600 sm:text-xl"></i>
 								</div>
-								<span class="text-center text-xs leading-tight font-medium sm:text-sm"
+								<span class="text-center text-xs leading-none font-medium sm:text-sm"
 									>토큰<br />관리</span
 								>
 							</Button>
 
 							<Button
 								variant="outline"
-								class="group flex h-20 flex-col items-center justify-center space-y-2 border-dashed border-gray-300 transition-all duration-200 hover:scale-105 hover:border-purple-500 hover:bg-purple-50 sm:h-24"
+								class="group flex h-24 flex-col items-center justify-center space-y-2 border-dashed border-gray-300 transition-all duration-200 hover:scale-105 hover:border-purple-500 hover:bg-purple-50 sm:h-28"
 								onclick={navigateToSettings}
 							>
 								<div
@@ -340,14 +355,14 @@
 								>
 									<i class="fas fa-cog text-lg text-purple-600 sm:text-xl"></i>
 								</div>
-								<span class="text-center text-xs leading-tight font-medium sm:text-sm"
+								<span class="text-center text-xs leading-none font-medium sm:text-sm"
 									>시스템<br />설정</span
 								>
 							</Button>
 
 							<Button
 								variant="outline"
-								class="group flex h-20 flex-col items-center justify-center space-y-2 border-dashed border-gray-300 transition-all duration-200 hover:scale-105 hover:border-orange-500 hover:bg-orange-50 sm:h-24"
+								class="group flex h-24 flex-col items-center justify-center space-y-2 border-dashed border-gray-300 transition-all duration-200 hover:scale-105 hover:border-orange-500 hover:bg-orange-50 sm:h-28"
 								onclick={navigateToOAuthTester}
 							>
 								<div
@@ -355,7 +370,7 @@
 								>
 									<i class="fas fa-link text-lg text-orange-600 sm:text-xl"></i>
 								</div>
-								<span class="text-center text-xs leading-tight font-medium sm:text-sm"
+								<span class="text-center text-xs leading-none font-medium sm:text-sm"
 									>OAuth2<br />테스터</span
 								>
 							</Button>

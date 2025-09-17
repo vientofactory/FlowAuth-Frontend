@@ -508,9 +508,9 @@
 		<div class="flex flex-col gap-2 sm:flex-row">
 			<!-- 모바일에서는 기본 액션만 표시 -->
 			<div class="flex gap-2 lg:hidden">
-				<Button onclick={toggleCreateForm} class="flex-1 sm:flex-none">
-					<i class="fas fa-plus mr-2"></i>
-					{showCreateForm ? '취소' : '새 클라이언트'}
+				<Button onclick={toggleCreateForm} class="flex-1 sm:flex-none min-w-0">
+					<i class="fas fa-plus mr-1 sm:mr-2"></i>
+					<span class="truncate">{showCreateForm ? '취소' : '클라이언트 추가'}</span>
 				</Button>
 			</div>
 			<!-- 데스크톱에서는 모든 액션 표시 -->
@@ -527,7 +527,7 @@
 					<i class="fas fa-trash mr-2"></i>
 					토큰 초기화
 				</Button>
-				<Button onclick={toggleCreateForm}>
+				<Button onclick={toggleCreateForm} class="whitespace-nowrap">
 					<i class="fas fa-plus mr-2"></i>
 					{showCreateForm ? '취소' : '새 클라이언트 생성'}
 				</Button>
