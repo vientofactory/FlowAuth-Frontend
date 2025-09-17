@@ -324,9 +324,9 @@
 
 			<!-- 모바일 메뉴 드롭다운 -->
 			{#if mobileMenuOpen}
-				<!-- 백드롭 -->
+				<!-- 백드롭 - 투명한 배경 -->
 				<div
-					class="fixed inset-0 top-16 bg-gray-900 bg-opacity-20 z-40 transition-opacity duration-300 ease-out mobile-backdrop {mobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}"
+					class="fixed inset-0 top-16 bg-transparent z-40 transition-opacity duration-300 ease-out mobile-backdrop {mobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}"
 					onclick={() => (mobileMenuOpen = false)}
 					onkeydown={(e) => { if (e.key === 'Escape') mobileMenuOpen = false; }}
 					role="button"

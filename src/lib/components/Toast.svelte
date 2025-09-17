@@ -91,7 +91,7 @@
 	}
 
 	function getPositionClasses() {
-		const baseClasses = 'fixed z-50 animate-slide-in-right';
+		const baseClasses = 'fixed z-[90] animate-slide-in-right';
 
 		switch (position) {
 			case 'top-left':

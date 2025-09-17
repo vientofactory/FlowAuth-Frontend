@@ -47,7 +47,7 @@
 {#if open}
 	<!-- Backdrop overlay -->
 	<div
-		class="fixed inset-0 z-40 transition-opacity"
+		class="fixed inset-0 z-[60] transition-opacity"
 		style="background-color: rgba(0, 0, 0, 0.5);"
 		onclick={handleBackdropClick}
 		role="presentation"
@@ -55,7 +55,7 @@
 
 	<!-- Modal container -->
 	<div
-		class="fixed inset-0 z-50 overflow-y-auto"
+		class="fixed inset-0 z-[70] overflow-y-auto"
 		onkeydown={handleKeydown}
 		role="dialog"
 		aria-modal="true"

@@ -45,7 +45,7 @@
 </script>
 
 {#if fullscreen}
-	<div class="bg-opacity-75 fixed inset-0 z-50 flex items-center justify-center bg-white">
+	<div class="bg-opacity-75 fixed inset-0 z-[80] flex items-center justify-center bg-white">
 		<div class="flex flex-col items-center space-y-4">
 			{#if variant === 'spinner'}
 				<div

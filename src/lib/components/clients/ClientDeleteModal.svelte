@@ -5,11 +5,12 @@
 	interface Props {
 		showDeleteModal: boolean;
 		clientToDelete: Client | null;
+		isDeleting?: boolean;
 		onClose: () => void;
 		onConfirmDelete: () => void;
 	}
 
-	let { showDeleteModal, clientToDelete, onClose, onConfirmDelete }: Props = $props();
+	let { showDeleteModal, clientToDelete, isDeleting = false, onClose, onConfirmDelete }: Props = $props();
 </script>
 
 {#if showDeleteModal && clientToDelete}
@@ -39,15 +40,26 @@
 				</div>
 			</div>
 			<div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
-				<Button variant="outline" onclick={onClose} class="h-10 w-full sm:h-11 sm:w-auto">
+				<Button 
+					variant="outline" 
+					onclick={onClose} 
+					disabled={isDeleting}
+					class="h-10 w-full sm:h-11 sm:w-auto"
+				>
 					취소
 				</Button>
 				<Button
 					onclick={onConfirmDelete}
+					disabled={isDeleting}
 					class="h-10 w-full bg-red-600 text-white hover:bg-red-700 sm:h-11 sm:w-auto"
 				>
-					<i class="fas fa-trash mr-2"></i>
-					삭제
+					{#if isDeleting}
+						<i class="fas fa-spinner fa-spin mr-2"></i>
+						삭제 중...
+					{:else}
+						<i class="fas fa-trash mr-2"></i>
+						삭제
+					{/if}
 				</Button>
 			</div>
 		</div>

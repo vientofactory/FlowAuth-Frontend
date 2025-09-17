@@ -70,9 +70,7 @@
 	function handleLogout() {
 		profileDropdownOpen = false;
 		authStore.logout();
-		setTimeout(() => {
-			window.location.href = '/auth/login';
-		}, 1000);
+		window.location.href = '/';
 	}
 </script>
 
@@ -288,10 +286,10 @@
 
 	<!-- 모바일 드롭다운 메뉴 -->
 	{#if mobileMenuOpen}
-		<!-- 백드롭 (외부 클릭 시 메뉴 닫기) -->
+		<!-- 백드롭 (외부 클릭 시 메뉴 닫기) - 투명한 배경 -->
 		<button
 			type="button"
-			class="fixed top-16 left-0 right-0 bottom-0 bg-black bg-opacity-50 z-40 md:hidden reset-button"
+			class="fixed top-16 left-0 right-0 bottom-0 bg-transparent z-40 md:hidden reset-button"
 			aria-label="메뉴 닫기"
 			tabindex="0"
 			onclick={() => (mobileMenuOpen = false)}
