@@ -74,17 +74,8 @@
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<div class="flex h-16 items-center justify-between">
 			<!-- 로고 -->
-			<a href="/" class="flex cursor-pointer items-center space-x-2">
-				<div
-					class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600"
-				>
-					<i class="fas fa-shield-alt text-lg text-white"></i>
-				</div>
-				<h1
-					class="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-xl font-bold text-transparent"
-				>
-					FlowAuth
-				</h1>
+			<a href="/" class="flex cursor-pointer items-center">
+				<img src="/logo_1.png" alt="FlowAuth Logo" class="h-8 w-auto object-contain rounded">
 			</a>
 
 			<!-- 데스크톱 네비게이션 -->
@@ -280,13 +271,6 @@
 </header>
 
 <style>
-	/* 그라데이션 텍스트 효과 */
-	.bg-clip-text {
-		-webkit-background-clip: text;
-		background-clip: text;
-		-webkit-text-fill-color: transparent;
-	}
-
 	/* 백드롭 블러 효과 */
 	.backdrop-blur-md {
 		backdrop-filter: blur(12px);
