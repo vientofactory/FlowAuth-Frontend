@@ -10,7 +10,13 @@
 		onConfirmDelete: () => void;
 	}
 
-	let { showDeleteModal, clientToDelete, isDeleting = false, onClose, onConfirmDelete }: Props = $props();
+	let {
+		showDeleteModal,
+		clientToDelete,
+		isDeleting = false,
+		onClose,
+		onConfirmDelete
+	}: Props = $props();
 </script>
 
 {#if showDeleteModal && clientToDelete}
@@ -40,9 +46,9 @@
 				</div>
 			</div>
 			<div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
-				<Button 
-					variant="outline" 
-					onclick={onClose} 
+				<Button
+					variant="outline"
+					onclick={onClose}
 					disabled={isDeleting}
 					class="h-10 w-full sm:h-11 sm:w-auto"
 				>

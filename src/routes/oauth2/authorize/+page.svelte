@@ -40,19 +40,19 @@
 	// Function to convert logo URI to absolute URL
 	function getLogoUrl(logoUri?: string): string | null {
 		if (!logoUri || !logoUri.trim()) return null;
-		
+
 		const trimmedUri = logoUri.trim();
-		
+
 		// 빈 문자열이나 placeholder 값인 경우 null 반환
 		if (trimmedUri === '' || trimmedUri === 'null' || trimmedUri === 'undefined') {
 			return null;
 		}
-		
+
 		// 상대 경로인 경우 백엔드 호스트를 붙임
 		if (trimmedUri.startsWith('/uploads/')) {
 			return `${env.API_BASE_URL}${trimmedUri}`;
 		}
-		
+
 		// 이미 절대 URL인 경우 그대로 반환
 		try {
 			new URL(trimmedUri);
@@ -282,21 +282,14 @@
 		<!-- OAuth2 플랫폼 정보 -->
 		<div class="mt-6 text-center">
 			<div class="mb-3 flex items-center justify-center">
-				<Logo
-					size="sm"
-					alt="FlowAuth 로고"
-					fallbackSrc="/logo_icon.png"
-					className="rounded-md"
-				/>
+				<Logo size="sm" alt="FlowAuth 로고" fallbackSrc="/logo_icon.png" className="rounded-md" />
 				<span class="text-sm font-medium text-gray-600">FlowAuth</span>
 			</div>
-			<p class="mb-2 text-xs text-gray-500">
-				오픈소스 OAuth 2.0 통합 인증 시스템
-			</p>
+			<p class="mb-2 text-xs text-gray-500">오픈소스 OAuth 2.0 통합 인증 시스템</p>
 			<div class="flex items-center justify-center space-x-4 text-xs text-gray-400">
 				<a
 					href="/about"
-					class="hover:text-gray-600 transition-colors"
+					class="transition-colors hover:text-gray-600"
 					target="_blank"
 					rel="noopener noreferrer"
 				>
@@ -305,7 +298,7 @@
 				<span>•</span>
 				<a
 					href="/terms"
-					class="hover:text-gray-600 transition-colors"
+					class="transition-colors hover:text-gray-600"
 					target="_blank"
 					rel="noopener noreferrer"
 				>
@@ -314,7 +307,7 @@
 				<span>•</span>
 				<a
 					href="/privacy"
-					class="hover:text-gray-600 transition-colors"
+					class="transition-colors hover:text-gray-600"
 					target="_blank"
 					rel="noopener noreferrer"
 				>

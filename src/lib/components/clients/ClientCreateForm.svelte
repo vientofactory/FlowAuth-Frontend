@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Card, Button, Loading, LogoUpload } from '$lib';
-	import { apiClient } from '$lib';
 	import { useToast } from '$lib';
 
 	interface Props {
@@ -16,7 +15,7 @@
 		clientNameError: string;
 		redirectUrisError: string;
 		scopesError: string;
-		logoUriError: string;
+		_logoUriError: string;
 		termsOfServiceUriError: string;
 		policyUriError: string;
 		selectedLogoFile: File | null;
@@ -39,7 +38,7 @@
 		clientNameError,
 		redirectUrisError,
 		scopesError,
-		logoUriError,
+		_logoUriError: _logoUriError,
 		termsOfServiceUriError,
 		policyUriError,
 		selectedLogoFile = $bindable(),
@@ -49,7 +48,7 @@
 		onCreateClient
 	}: Props = $props();
 
-	const { success } = useToast();
+	const { success: _success } = useToast();
 
 	function handleLogoFileSelect(file: File | null) {
 		selectedLogoFile = file;
@@ -143,7 +142,7 @@
 							isUploading={isCreating}
 							existingLogoUri={logoUriValue}
 							onFileSelect={handleLogoFileSelect}
-							cacheBuster={cacheBuster}
+							{cacheBuster}
 						/>
 					</div>
 

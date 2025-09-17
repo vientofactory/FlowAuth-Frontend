@@ -325,6 +325,12 @@ class ApiClient {
 		});
 	}
 
+	async resetClientSecret(id: number) {
+		return this.request(`/auth/clients/${id}/reset-secret`, {
+			method: 'PUT'
+		});
+	}
+
 	async removeClientLogo(id: number) {
 		return this.request(`/auth/clients/${id}/logo`, {
 			method: 'DELETE'

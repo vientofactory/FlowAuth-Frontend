@@ -15,7 +15,7 @@
 		editClientNameError: string;
 		editRedirectUrisError: string;
 		editScopesError: string;
-		editLogoUriError: string;
+		_editLogoUriError: string;
 		editTermsOfServiceUriError: string;
 		editPolicyUriError: string;
 		selectedLogoFile: File | null;
@@ -40,6 +40,7 @@
 		editClientNameError,
 		editRedirectUrisError,
 		editScopesError,
+		_editLogoUriError: _editLogoUriError,
 		editTermsOfServiceUriError,
 		editPolicyUriError,
 		selectedLogoFile = $bindable(),

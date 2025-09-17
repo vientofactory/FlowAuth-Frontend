@@ -174,9 +174,7 @@
 						</div>
 						<p class="mb-1 text-sm font-medium opacity-80">계정</p>
 						<p class="text-xs leading-tight font-bold sm:text-sm">
-							{user?.createdAt
-								? new Date(user.createdAt).toLocaleDateString('ko-KR')
-								: 'N/A'}
+							{user?.createdAt ? new Date(user.createdAt).toLocaleDateString('ko-KR') : 'N/A'}
 						</p>
 					</div>
 				</div>
@@ -317,7 +315,7 @@
 						<div class="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 							<Button
 								variant="outline"
-								class="group flex h-24 flex-col items-center justify-center space-y-1 px-2 py-2 border-dashed border-gray-300 transition-all duration-200 hover:scale-105 hover:border-blue-500 hover:bg-blue-50 sm:h-28 sm:px-3 sm:py-3"
+								class="group flex h-24 flex-col items-center justify-center space-y-1 border-dashed border-gray-300 px-2 py-2 transition-all duration-200 hover:scale-105 hover:border-blue-500 hover:bg-blue-50 sm:h-28 sm:px-3 sm:py-3"
 								onclick={navigateToClients}
 							>
 								<div

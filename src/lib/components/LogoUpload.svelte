@@ -27,6 +27,7 @@
 
 	// 로컬 에러 상태
 	let error = $state('');
+	// eslint-disable-next-line svelte/prefer-writable-derived
 	let imageLoadError = $state(false); // 이미지 로딩 실패 상태
 
 	// 업로드 설정 정보
@@ -54,11 +55,11 @@
 		if (fileName.length <= maxLength) {
 			return fileName;
 		}
-		
+
 		const extension = fileName.substring(fileName.lastIndexOf('.'));
 		const nameWithoutExt = fileName.substring(0, fileName.lastIndexOf('.'));
 		const truncatedName = nameWithoutExt.substring(0, maxLength - extension.length - 3);
-		
+
 		return `${truncatedName}...${extension}`;
 	}
 
@@ -96,12 +97,20 @@
 			// 설정이 로드되지 않은 경우 기본값 사용
 			const defaultMaxSize = 5 * 1024 * 1024; // 5MB
 			const defaultMaxSizeMB = 5;
-			const defaultAllowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+			const defaultAllowedMimes = [
+				'image/jpeg',
+				'image/jpg',
+				'image/png',
+				'image/gif',
+				'image/webp'
+			];
 
 			// 파일 타입 검증
 			const allowedMimes = uploadConfig?.allowedMimes || defaultAllowedMimes;
 			if (!allowedMimes.includes(file.type)) {
-				const supportedFormats = allowedMimes.map(mime => mime.split('/')[1].toUpperCase()).join(', ');
+				const supportedFormats = allowedMimes
+					.map((mime) => mime.split('/')[1].toUpperCase())
+					.join(', ');
 				error = `지원하지 않는 파일 형식입니다. 지원 형식: ${supportedFormats}`;
 				// 파일 입력 초기화
 				if (target) target.value = '';
@@ -111,7 +120,7 @@
 			// 파일 크기 검증
 			const maxSize = uploadConfig?.maxSize || defaultMaxSize;
 			const maxSizeMB = uploadConfig?.maxSizeMB || defaultMaxSizeMB;
-			
+
 			if (file.size > maxSize) {
 				const currentSizeMB = (file.size / (1024 * 1024)).toFixed(1);
 				error = `파일 크기가 너무 큽니다. 현재: ${currentSizeMB}MB, 최대: ${maxSizeMB}MB`;
@@ -170,34 +179,34 @@
 	function getDisplayLogoUrl(): string | null {
 		// 새로 선택된 파일의 미리보기가 있으면 우선 표시
 		if (previewUrl) return previewUrl;
-		
+
 		// 기존 로고 URI가 있는지 확인
 		if (existingLogoUri && existingLogoUri.trim()) {
 			const trimmedUri = existingLogoUri.trim();
-			
+
 			// 빈 문자열이나 placeholder 값인 경우 null 반환
 			if (trimmedUri === '' || trimmedUri === 'null' || trimmedUri === 'undefined') {
 				return null;
 			}
-			
+
 			// 상대 경로인 경우 백엔드 호스트를 붙임
 			if (trimmedUri.startsWith('/uploads/')) {
 				let url = `${env.API_BASE_URL}${trimmedUri}`;
-				
+
 				// 캐시 버스터가 있을 때만 추가
 				if (cacheBuster) {
 					url += `?v=${cacheBuster}`;
 				}
-				
+
 				return url;
 			}
-			
+
 			// 유효한 절대 URL인지 확인
 			if (isValidUrl(trimmedUri)) {
 				return trimmedUri;
 			}
 		}
-		
+
 		return null;
 	}
 </script>
@@ -205,19 +214,13 @@
 <div class="space-y-4">
 	{#if configLoading}
 		<div class="flex items-center justify-center py-4">
-			<div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+			<div class="h-6 w-6 animate-spin rounded-full border-b-2 border-blue-500"></div>
 			<span class="ml-2 text-sm text-gray-600">설정 정보를 불러오는 중...</span>
 		</div>
 	{:else if configError}
-		<div class="p-3 bg-red-50 border border-red-200 rounded-md">
+		<div class="rounded-md border border-red-200 bg-red-50 p-3">
 			<p class="text-sm text-red-600">{configError}</p>
-			<Button
-				type="button"
-				variant="outline"
-				size="sm"
-				class="mt-2"
-				onclick={loadUploadConfig}
-			>
+			<Button type="button" variant="outline" size="sm" class="mt-2" onclick={loadUploadConfig}>
 				다시 시도
 			</Button>
 		</div>
@@ -226,7 +229,7 @@
 			<p class="mb-1 block text-sm font-medium text-gray-700" aria-label="로고 이미지 업로드">
 				로고 이미지
 			</p>
-			<div class="mt-1 flex items-center space-x-4 w-full">
+			<div class="mt-1 flex w-full items-center space-x-4">
 				<Button
 					type="button"
 					variant="outline"
@@ -240,12 +243,9 @@
 				</Button>
 
 				{#if selectedFile}
-					<div class="flex items-center space-x-2 flex-1 min-w-0">
-						<div class="flex-1 min-w-0">
-							<span 
-								class="text-sm text-gray-600 truncate block" 
-								title={selectedFile.name}
-							>
+					<div class="flex min-w-0 flex-1 items-center space-x-2">
+						<div class="min-w-0 flex-1">
+							<span class="block truncate text-sm text-gray-600" title={selectedFile.name}>
 								{truncateFileName(selectedFile.name)}
 							</span>
 							<span class="text-xs text-gray-400">
@@ -279,8 +279,9 @@
 			{:else}
 				<p class="mt-1 text-xs text-gray-500">
 					{#if uploadConfig}
-						지원 형식: {uploadConfig.allowedMimes.map(mime => mime.split('/')[1].toUpperCase()).join(', ')} |
-						최대 크기: {uploadConfig.maxSizeMB}MB
+						지원 형식: {uploadConfig.allowedMimes
+							.map((mime) => mime.split('/')[1].toUpperCase())
+							.join(', ')} | 최대 크기: {uploadConfig.maxSizeMB}MB
 					{:else}
 						PNG, JPG, GIF 파일을 지원합니다. (최대 5MB)
 					{/if}
@@ -294,7 +295,7 @@
 					<img
 						src={getDisplayLogoUrl()}
 						alt="로고 미리보기"
-						class="h-16 w-16 object-contain border border-gray-300 rounded-md"
+						class="h-16 w-16 rounded-md border border-gray-300 object-contain"
 						onerror={(e) => {
 							console.log('이미지 로딩 실패:', getDisplayLogoUrl());
 							imageLoadError = true;
@@ -308,7 +309,9 @@
 						}}
 					/>
 					{#if previewUrl && existingLogoUri && existingLogoUri.trim()}
-						<span class="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-1 py-0.5 rounded">
+						<span
+							class="absolute -top-2 -right-2 rounded bg-blue-500 px-1 py-0.5 text-xs text-white"
+						>
 							새 로고
 						</span>
 					{/if}
@@ -317,7 +320,7 @@
 					<p class="text-sm text-gray-600">
 						{#if isUploading}
 							<i class="fas fa-spinner fa-spin mr-2 text-blue-500"></i>
-							<span class="text-blue-600 font-medium">로고를 업로드하고 있습니다...</span>
+							<span class="font-medium text-blue-600">로고를 업로드하고 있습니다...</span>
 						{:else if previewUrl}
 							<i class="fas fa-clock mr-2 text-orange-500"></i>
 							저장 시 자동으로 업로드됩니다.
@@ -327,9 +330,7 @@
 						{/if}
 					</p>
 					{#if previewUrl && existingLogoUri && existingLogoUri.trim()}
-						<p class="text-xs text-blue-600 mt-1">
-							새 로고로 교체됩니다.
-						</p>
+						<p class="mt-1 text-xs text-blue-600">새 로고로 교체됩니다.</p>
 					{/if}
 					{#if !previewUrl && existingLogoUri && existingLogoUri.trim() && onRemoveExistingLogo}
 						<div class="mt-2">
@@ -339,7 +340,7 @@
 								size="sm"
 								onclick={handleRemoveExistingLogo}
 								disabled={isUploading}
-								class="text-red-600 hover:text-red-700 hover:border-red-300"
+								class="text-red-600 hover:border-red-300 hover:text-red-700"
 							>
 								<i class="fas fa-trash mr-1"></i>
 								로고 제거
@@ -350,7 +351,7 @@
 			</div>
 		{:else}
 			<!-- 로고가 없을 때 표시할 상태 메시지 (선택사항) -->
-			<div class="text-sm text-gray-500 py-2">
+			<div class="py-2 text-sm text-gray-500">
 				<i class="fas fa-image mr-2"></i>
 				등록된 로고가 없습니다.
 			</div>
