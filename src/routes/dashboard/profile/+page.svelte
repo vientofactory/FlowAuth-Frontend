@@ -361,7 +361,7 @@
 							<span class="text-sm text-gray-600">역할</span>
 							{#if user.permissions !== undefined}
 								<Badge variant="info" size="sm">
-									{PermissionUtils.getRoleName(user.permissions)}
+									{PermissionUtils.getRoleName(parseInt(user.permissions, 10))}
 								</Badge>
 							{:else}
 								<Badge variant="secondary" size="sm">권한 없음</Badge>
@@ -371,8 +371,8 @@
 							<span class="text-sm text-gray-600">세부 권한</span>
 							{#if user.permissions !== undefined}
 								<div class="flex max-w-48 flex-wrap gap-1">
-									{#each PermissionUtils.getPermissionNames(user.permissions) as permission (permission)}
-										<Badge variant="outline" size="xs">{permission}</Badge>
+									{#each PermissionUtils.getPermissionNames(parseInt(user.permissions, 10)) as permission (permission)}
+										<Badge variant="secondary" size="xs">{permission}</Badge>
 									{/each}
 								</div>
 							{:else}

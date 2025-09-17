@@ -97,17 +97,10 @@
 	<div class="w-full max-w-md">
 		<!-- 로고 및 타이틀 -->
 		<div class="mb-8 text-center">
-			<div
-				class="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg"
-			>
-				<i class="fas fa-shield-alt text-2xl text-white"></i>
+			<div class="inline-flex items-center">
+				<img src="/logo_1.png" alt="FlowAuth Logo" class="h-16 w-auto rounded-2xl object-contain" />
 			</div>
-			<h1
-				class="gradient-text mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-3xl font-bold text-transparent"
-			>
-				FlowAuth
-			</h1>
-			<p class="text-lg text-gray-600">오픈소스 OAuth2 시스템</p>
+			<p class="text-lg text-gray-600">오픈소스 통합 인증 시스템</p>
 		</div>
 
 		<Card class="animate-card-enter border-0 bg-white/80 shadow-2xl backdrop-blur-sm">

@@ -18,6 +18,7 @@
 	let user = $state<User | null>(null);
 	let isAuthenticated = $state(false);
 	let _isLoading = $state(true); // 초기 상태를 로딩 중으로 설정
+	let mobileMenuOpen = $state(false);
 	let profileDropdownOpen = $state(false);
 	let unsubscribe: (() => void) | null = null;
 	let initialAuthCheckDone = $state(false); // 초기 인증 확인 완료 여부
@@ -35,7 +36,7 @@
 			_isLoading = state.isLoading;
 		});
 
-		// 드롭다운 외부 클릭 시 닫기
+		// 드롭다운 외부 클릭 감지
 		const handleClickOutside = (event: MouseEvent) => {
 			const target = event.target as HTMLElement;
 			if (!target.closest('.profile-dropdown')) {
@@ -43,10 +44,20 @@
 			}
 		};
 
+		// ESC 키 이벤트 핸들러
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') {
+				profileDropdownOpen = false;
+				mobileMenuOpen = false;
+			}
+		};
+
 		document.addEventListener('click', handleClickOutside);
+		document.addEventListener('keydown', handleKeyDown);
 
 		return () => {
 			document.removeEventListener('click', handleClickOutside);
+			document.removeEventListener('keydown', handleKeyDown);
 		};
 	});
 
@@ -72,10 +83,10 @@
 		: 'border-gray-200 bg-white shadow-sm'}"
 >
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-		<div class="flex h-16 items-center justify-between">
+		<div class="flex h-16 items-center justify-between relative">
 			<!-- 로고 -->
 			<a href="/" class="flex cursor-pointer items-center">
-				<img src="/logo_1.png" alt="FlowAuth Logo" class="h-8 w-auto object-contain rounded">
+				<img src="/logo_1.png" alt="FlowAuth Logo" class="h-8 w-auto rounded object-contain" />
 			</a>
 
 			<!-- 데스크톱 네비게이션 -->
@@ -133,37 +144,44 @@
 							<!-- 프로필 드롭다운 메뉴 -->
 							{#if profileDropdownOpen}
 								<div
-									class="ring-opacity-5 absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black focus:outline-none"
+									class="ring-opacity-5 absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-200/50 focus:outline-none transform transition-all duration-200 ease-out animate-in fade-in slide-in-from-top-2"
+									style="box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);"
 								>
-									<div class="border-b border-gray-200 px-4 py-2">
-										<p class="text-sm font-medium text-gray-900">
-											{user?.firstName}
-											{user?.lastName}
+									<div class="border-b border-gray-100 px-4 py-3 mb-1">
+										<p class="text-sm font-semibold text-gray-900">
+											{user?.firstName} {user?.lastName}
 										</p>
-										<p class="text-xs text-gray-500">{user?.email}</p>
+										<p class="text-xs text-gray-500 mt-0.5">{user?.email}</p>
 									</div>
-									<a
-										href="/dashboard/profile"
-										class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-									>
-										<i class="fas fa-user mr-2"></i>
-										프로필
-									</a>
-									<a
-										href="/dashboard/settings"
-										class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-									>
-										<i class="fas fa-cog mr-2"></i>
-										설정
-									</a>
-									<div class="border-t border-gray-200"></div>
-									<button
-										onclick={handleLogout}
-										class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-									>
-										<i class="fas fa-sign-out-alt mr-2"></i>
-										로그아웃
-									</button>
+									<div class="space-y-1">
+										<a
+											href="/dashboard/profile"
+											class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 rounded-md mx-1"
+											onclick={() => (profileDropdownOpen = false)}
+										>
+											<i class="fas fa-user mr-3 w-4 text-center text-gray-400"></i>
+											프로필
+										</a>
+										<a
+											href="/dashboard/settings"
+											class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 rounded-md mx-1"
+											onclick={() => (profileDropdownOpen = false)}
+										>
+											<i class="fas fa-cog mr-3 w-4 text-center text-gray-400"></i>
+											설정
+										</a>
+										<div class="border-t border-gray-100 my-1"></div>
+										<button
+											onclick={() => {
+												handleLogout();
+												profileDropdownOpen = false;
+											}}
+											class="flex items-center w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-150 rounded-md mx-1"
+										>
+											<i class="fas fa-sign-out-alt mr-3 w-4 text-center"></i>
+											로그아웃
+										</button>
+									</div>
 								</div>
 							{/if}
 						</div>
@@ -198,21 +216,71 @@
 					</div>
 				{:else if isAuthenticated}
 					<!-- 로그인 상태: 프로필 버튼 -->
-					<button
-						class="profile-dropdown flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-800 transition-colors duration-200 {profileDropdownOpen
-							? 'ring-2 ring-blue-300'
-							: ''}"
-						onclick={() => (profileDropdownOpen = !profileDropdownOpen)}
-						aria-expanded={profileDropdownOpen}
-						aria-label="프로필 메뉴"
-					>
-						<span class="text-sm font-medium">
-							{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
-						</span>
-					</button>
+					<div class="relative">
+						<button
+							class="profile-dropdown flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-800 transition-colors duration-200 {profileDropdownOpen
+								? 'ring-2 ring-blue-300'
+								: ''}"
+							onclick={() => (profileDropdownOpen = !profileDropdownOpen)}
+							aria-expanded={profileDropdownOpen}
+							aria-label="프로필 메뉴"
+						>
+							<span class="text-sm font-medium">
+								{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+							</span>
+						</button>
+
+						<!-- 모바일 프로필 드롭다운 메뉴 -->
+						{#if profileDropdownOpen}
+							<div
+								class="ring-opacity-5 absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-200/50 focus:outline-none transform transition-all duration-200 ease-out animate-in fade-in slide-in-from-top-2"
+								style="box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);"
+							>
+								<div class="border-b border-gray-100 px-4 py-3 mb-1">
+									<p class="text-sm font-semibold text-gray-900">
+										{user?.firstName} {user?.lastName}
+									</p>
+									<p class="text-xs text-gray-500 mt-0.5">{user?.email}</p>
+								</div>
+								<div class="space-y-1">
+									<a
+										href="/dashboard/profile"
+										class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 rounded-md mx-1"
+										onclick={() => (profileDropdownOpen = false)}
+									>
+										<i class="fas fa-user mr-3 w-4 text-center text-gray-400"></i>
+										프로필
+									</a>
+									<a
+										href="/dashboard/settings"
+										class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 rounded-md mx-1"
+										onclick={() => (profileDropdownOpen = false)}
+									>
+										<i class="fas fa-cog mr-3 w-4 text-center text-gray-400"></i>
+										설정
+									</a>
+									<div class="border-t border-gray-100 my-1"></div>
+									<button
+										onclick={() => {
+											handleLogout();
+											profileDropdownOpen = false;
+										}}
+										class="flex items-center w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-150 rounded-md mx-1"
+									>
+										<i class="fas fa-sign-out-alt mr-3 w-4 text-center"></i>
+										로그아웃
+									</button>
+								</div>
+							</div>
+						{/if}
+					</div>
 				{:else}
 					<!-- 비로그인 상태: 햄버거 메뉴 -->
-					<button class="text-gray-600 hover:text-blue-600" aria-label="메뉴 열기">
+					<button 
+						class="text-gray-600 hover:text-blue-600 p-2" 
+						aria-label="메뉴 열기"
+						onclick={() => (mobileMenuOpen = !mobileMenuOpen)}
+					>
 						<i class="fas fa-bars text-xl"></i>
 					</button>
 				{/if}
@@ -221,50 +289,94 @@
 	</div>
 
 	<!-- 모바일 드롭다운 메뉴 -->
-	{#if profileDropdownOpen && isAuthenticated}
-		<div class="border-t border-gray-200 bg-white md:hidden">
-			<div class="px-4 py-3">
-				<div class="flex items-center space-x-3">
-					<div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-						<span class="text-sm font-medium text-blue-800">
-							{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
-						</span>
+	{#if mobileMenuOpen}
+		<!-- 백드롭 (외부 클릭 시 메뉴 닫기) -->
+		<button
+			type="button"
+			class="fixed top-16 left-0 right-0 bottom-0 bg-black bg-opacity-50 z-40 md:hidden"
+			aria-label="메뉴 닫기"
+			tabindex="0"
+			onclick={() => (mobileMenuOpen = false)}
+			onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { mobileMenuOpen = false; } }}
+			style="border: none; padding: 0; margin: 0; background: none; cursor: pointer;"
+		></button>
+		
+		<!-- 드롭다운 메뉴 -->
+		<div class="fixed top-16 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 md:hidden">
+			<div class="max-h-[calc(100vh-4rem)] overflow-y-auto">
+				{#if isAuthenticated}
+					<!-- 로그인 상태 메뉴 -->
+					<div class="px-4 py-3 border-b border-gray-100">
+						<div class="flex items-center space-x-3">
+							<div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+								<span class="text-sm font-medium text-blue-800">
+									{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+								</span>
+							</div>
+							<div>
+								<p class="text-sm font-medium text-gray-900">{user?.firstName} {user?.lastName}</p>
+								<p class="text-xs text-gray-500">{user?.email}</p>
+							</div>
+						</div>
 					</div>
-					<div>
-						<p class="text-sm font-medium text-gray-900">{user?.firstName} {user?.lastName}</p>
-						<p class="text-xs text-gray-500">{user?.email}</p>
+					
+					<div class="py-2">
+						<a
+							href="/dashboard"
+							class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+							onclick={() => (mobileMenuOpen = false)}
+						>
+							<i class="fas fa-tachometer-alt mr-3 w-5 text-center"></i>
+							대시보드
+						</a>
+						<a
+							href="/dashboard/profile"
+							class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+							onclick={() => (mobileMenuOpen = false)}
+						>
+							<i class="fas fa-user mr-3 w-5 text-center"></i>
+							프로필
+						</a>
+						<a
+							href="/dashboard/settings"
+							class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+							onclick={() => (mobileMenuOpen = false)}
+						>
+							<i class="fas fa-cog mr-3 w-5 text-center"></i>
+							설정
+						</a>
+						<button
+							onclick={() => {
+								handleLogout();
+								mobileMenuOpen = false;
+							}}
+							class="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+						>
+							<i class="fas fa-sign-out-alt mr-3 w-5 text-center"></i>
+							로그아웃
+						</button>
 					</div>
-				</div>
-				<div class="mt-3 space-y-1">
-					<a
-						href="/dashboard"
-						class="block rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-					>
-						<i class="fas fa-tachometer-alt mr-2"></i>
-						대시보드
-					</a>
-					<a
-						href="/dashboard/profile"
-						class="block rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-					>
-						<i class="fas fa-user mr-2"></i>
-						프로필
-					</a>
-					<a
-						href="/dashboard/settings"
-						class="block rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-					>
-						<i class="fas fa-cog mr-2"></i>
-						설정
-					</a>
-					<button
-						onclick={handleLogout}
-						class="block w-full rounded-md px-3 py-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-100"
-					>
-						<i class="fas fa-sign-out-alt mr-2"></i>
-						로그아웃
-					</button>
-				</div>
+				{:else}
+					<!-- 비로그인 상태 메뉴 -->
+					<div class="py-2">
+						<a
+							href="/auth/login"
+							class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+							onclick={() => (mobileMenuOpen = false)}
+						>
+							<i class="fas fa-sign-in-alt mr-3 w-5 text-center"></i>
+							로그인
+						</a>
+						<a
+							href="/auth/register"
+							class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+							onclick={() => (mobileMenuOpen = false)}
+						>
+							<i class="fas fa-user-plus mr-3 w-5 text-center"></i>
+							회원가입
+						</a>
+					</div>
+				{/if}
 			</div>
 		</div>
 	{/if}

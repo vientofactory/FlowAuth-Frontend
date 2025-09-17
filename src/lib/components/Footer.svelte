@@ -8,10 +8,10 @@
 		<div class="grid grid-cols-1 gap-8 md:grid-cols-4">
 			<div class="col-span-1 md:col-span-2">
 				<div class="mb-4 flex items-center">
-					<img src="/logo_1.png" alt="FlowAuth Logo" class="h-8 w-auto object-contain rounded">
+					<img src="/logo_1.png" alt="FlowAuth Logo" class="h-8 w-auto rounded object-contain" />
 				</div>
 				<p class="mb-4 max-w-md text-gray-600">
-					오픈소스 OAuth2 인증 시스템으로 애플리케이션의 보안을 강화하세요.
+					오픈소스 통합 인증 시스템으로 애플리케이션의 보안을 강화하세요.
 				</p>
 				<div class="flex space-x-4">
 					<a

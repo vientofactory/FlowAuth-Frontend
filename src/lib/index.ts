@@ -40,10 +40,10 @@ export interface User {
 	email: string;
 	firstName: string;
 	lastName: string;
-	isEmailVerified?: boolean;
-	permissions?: number;
-	createdAt?: string;
-	updatedAt?: string;
+	isEmailVerified: number;
+	permissions: string;
+	createdAt: string;
+	updatedAt: string;
 }
 
 export interface LoginData {

@@ -4,7 +4,8 @@
 	import LoadingState from '$lib/components/oauth2/LoadingState.svelte';
 	import ErrorState from '$lib/components/oauth2/ErrorState.svelte';
 	import { useAuthorization } from '$lib/hooks/useAuthorization';
-	import type { AuthorizationState, ErrorType } from '$lib/types/authorization.types';
+	import type { AuthorizationState } from '$lib/types/authorization.types';
+	import { ErrorType } from '$lib/types/authorization.types';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -55,7 +56,7 @@
 
 	// 로고 상태 초기화
 	$effect(() => {
-		if (currentState.client?.logoUri) {
+		if (currentState && currentState.client?.logoUri) {
 			_logoLoaded = false;
 			logoError = false;
 		}
@@ -118,7 +119,7 @@
 									src={currentState.client.logoUri}
 									alt="{currentState.client.name} 로고"
 									class="h-14 w-14 rounded-xl object-cover"
-									onload={() => (logoLoaded = true)}
+									onload={() => (_logoLoaded = true)}
 									onerror={() => (logoError = true)}
 								/>
 							{/if}
@@ -207,9 +208,20 @@
 						<!-- Redirect URL 표시 -->
 						<div class="text-center">
 							<p class="text-xs text-gray-500">
-								승인 시 다음 URL로 이동합니다:
+								승인 시 다음 사이트로 이동합니다:
 								<span class="break-all text-gray-700">
-									{data.authorizeParams?.redirect_uri || 'N/A'}
+									{#if data.authorizeParams?.redirect_uri}
+										{(() => {
+											try {
+												const url = new URL(data.authorizeParams.redirect_uri);
+												return `${url.protocol}//${url.host}`;
+											} catch {
+												return 'N/A';
+											}
+										})()}
+									{:else}
+										N/A
+									{/if}
 								</span>
 							</p>
 							<p class="text-xs text-gray-500">
