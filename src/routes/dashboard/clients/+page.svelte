@@ -681,7 +681,9 @@
 
 		try {
 			isResettingSecret = true;
-			const response = await apiClient.resetClientSecret(clientToResetSecret.id) as { clientSecret: string };
+			const response = (await apiClient.resetClientSecret(clientToResetSecret.id)) as {
+				clientSecret: string;
+			};
 			newResetSecret = response.clientSecret;
 			toast.success('클라이언트 시크릿이 성공적으로 재설정되었습니다.');
 		} catch (error) {

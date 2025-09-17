@@ -274,7 +274,7 @@
 				<img
 					src="/logo_icon.png"
 					alt="FlowAuth 로고"
-					class="h-6 w-6 rounded-md object-cover mr-1"
+					class="mr-1 h-6 w-6 rounded-md object-cover"
 					loading="lazy"
 				/>
 				<span class="text-sm font-medium text-gray-600">FlowAuth</span>
