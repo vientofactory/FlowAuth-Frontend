@@ -247,7 +247,7 @@ class ApiClient {
 	}
 
 	async updateProfile(data: { firstName?: string; lastName?: string }) {
-		return this.request('/auth/profile', {
+		return this.request('/profile', {
 			method: 'PUT',
 			body: JSON.stringify(data)
 		});
@@ -271,7 +271,7 @@ class ApiClient {
 		lastLoginDate: string | null;
 		accountCreated: string | null;
 	}> {
-		return this.request('/oauth2/dashboard/stats');
+		return this.request('/dashboard/stats');
 	} // 사용자 토큰 관리 API
 	async getUserTokens() {
 		return this.request('/auth/tokens');
