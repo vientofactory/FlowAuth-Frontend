@@ -482,6 +482,27 @@ class ApiClient {
 	}> {
 		return this.request(`/uploads/config/${type}`);
 	}
+
+	// OAuth2 스코프 관련 API
+	async getAvailableScopes(): Promise<
+		{
+			id: string;
+			name: string;
+			description: string;
+		}[]
+	> {
+		const response = await this.request<{
+			scopes: { name: string; description: string; isDefault: boolean }[];
+			meta: { total: number; cached: boolean; cacheSize: number };
+		}>('/oauth2/scopes');
+
+		// 백엔드 응답에서 스코프 배열만 추출하고 프론트엔드 형식에 맞게 변환
+		return response.scopes.map((scope) => ({
+			id: scope.name,
+			name: scope.name.charAt(0).toUpperCase() + scope.name.slice(1).replace(/[_:]/g, ' '),
+			description: scope.description
+		}));
+	}
 }
 
 export const apiClient = new ApiClient();
