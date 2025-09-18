@@ -7,6 +7,7 @@
 		validateClientName,
 		validateRedirectUri,
 		validateUrl,
+		validateLogoUrl,
 		validateScopes
 	} from '$lib/utils/validation.utils';
 	import ClientStats from '$lib/components/clients/ClientStats.svelte';
@@ -213,29 +214,51 @@
 	}
 
 	function validateLogoUriField() {
-		const result = validateUrl(logoUriValue, '로고 URL');
+		// 빈 값은 허용 (선택적 필드)
+		if (!logoUriValue || logoUriValue.trim() === '') {
+			logoUriError = '';
+			return;
+		}
+		
+		const result = validateLogoUrl(logoUriValue);
 		logoUriError = result.isValid ? '' : result.message || '';
 	}
 
 	function validateTermsOfServiceUriField() {
+		// 빈 값은 허용 (선택적 필드)
+		if (!termsOfServiceUriValue || termsOfServiceUriValue.trim() === '') {
+			termsOfServiceUriError = '';
+			return;
+		}
+		
 		const result = validateUrl(termsOfServiceUriValue, '서비스 약관 URL');
 		termsOfServiceUriError = result.isValid ? '' : result.message || '';
 	}
 
 	function validatePolicyUriField() {
+		// 빈 값은 허용 (선택적 필드)
+		if (!policyUriValue || policyUriValue.trim() === '') {
+			policyUriError = '';
+			return;
+		}
+		
 		const result = validateUrl(policyUriValue, '개인정보처리방침 URL');
 		policyUriError = result.isValid ? '' : result.message || '';
 	}
 
 	// 검증 함수들 (수정 폼)
 	function validateEditClientNameField() {
+		console.log('validateEditClientNameField - editClientName:', editClientName);
 		const result = validateClientName(editClientName);
 		editClientNameError = result.isValid ? '' : result.message || '';
+		console.log('validateEditClientNameField - result:', result, 'error:', editClientNameError);
 	}
 
 	function validateEditRedirectUrisField() {
+		console.log('validateEditRedirectUrisField - editRedirectUris:', editRedirectUris);
 		if (!editRedirectUris.trim()) {
 			editRedirectUrisError = '리다이렉트 URI를 입력해주세요.';
+			console.log('validateEditRedirectUrisField - empty error:', editRedirectUrisError);
 			return;
 		}
 
@@ -244,8 +267,11 @@
 			.map((uri) => uri.trim())
 			.filter((uri) => uri.length > 0);
 
+		console.log('validateEditRedirectUrisField - parsed uris:', uris);
+
 		if (uris.length === 0) {
 			editRedirectUrisError = '최소 하나의 리다이렉트 URI를 입력해주세요.';
+			console.log('validateEditRedirectUrisField - no uris error:', editRedirectUrisError);
 			return;
 		}
 
@@ -253,16 +279,20 @@
 			const result = validateRedirectUri(uri);
 			if (!result.isValid) {
 				editRedirectUrisError = result.message || '올바르지 않은 리다이렉트 URI가 있습니다.';
+				console.log('validateEditRedirectUrisField - invalid uri:', uri, 'error:', editRedirectUrisError);
 				return;
 			}
 		}
 
 		editRedirectUrisError = '';
+		console.log('validateEditRedirectUrisField - success');
 	}
 
 	function validateEditScopesField() {
+		console.log('validateEditScopesField - editScopes:', editScopes);
 		if (!editScopes.trim()) {
 			editScopesError = '권한 범위를 입력해주세요.';
+			console.log('validateEditScopesField - empty error:', editScopesError);
 			return;
 		}
 
@@ -271,23 +301,52 @@
 			.map((scope) => scope.trim())
 			.filter((scope) => scope.length > 0);
 
+		console.log('validateEditScopesField - parsed scopes:', scopes);
 		const result = validateScopes(scopes);
 		editScopesError = result.isValid ? '' : result.message || '';
+		console.log('validateEditScopesField - result:', result, 'error:', editScopesError);
 	}
 
 	function validateEditLogoUriField() {
-		const result = validateUrl(editLogoUri, '로고 URL');
+		console.log('validateEditLogoUriField - editLogoUri:', editLogoUri);
+		// 빈 값은 허용 (선택적 필드)
+		if (!editLogoUri || editLogoUri.trim() === '') {
+			editLogoUriError = '';
+			console.log('validateEditLogoUriField - empty value allowed');
+			return;
+		}
+		
+		const result = validateLogoUrl(editLogoUri);
 		editLogoUriError = result.isValid ? '' : result.message || '';
+		console.log('validateEditLogoUriField - result:', result, 'error:', editLogoUriError);
 	}
 
 	function validateEditTermsOfServiceUriField() {
+		console.log('validateEditTermsOfServiceUriField - editTermsOfServiceUri:', editTermsOfServiceUri);
+		// 빈 값은 허용 (선택적 필드)
+		if (!editTermsOfServiceUri || editTermsOfServiceUri.trim() === '') {
+			editTermsOfServiceUriError = '';
+			console.log('validateEditTermsOfServiceUriField - empty value allowed');
+			return;
+		}
+		
 		const result = validateUrl(editTermsOfServiceUri, '서비스 약관 URL');
 		editTermsOfServiceUriError = result.isValid ? '' : result.message || '';
+		console.log('validateEditTermsOfServiceUriField - result:', result, 'error:', editTermsOfServiceUriError);
 	}
 
 	function validateEditPolicyUriField() {
+		console.log('validateEditPolicyUriField - editPolicyUri:', editPolicyUri);
+		// 빈 값은 허용 (선택적 필드)
+		if (!editPolicyUri || editPolicyUri.trim() === '') {
+			editPolicyUriError = '';
+			console.log('validateEditPolicyUriField - empty value allowed');
+			return;
+		}
+		
 		const result = validateUrl(editPolicyUri, '개인정보처리방침 URL');
 		editPolicyUriError = result.isValid ? '' : result.message || '';
+		console.log('validateEditPolicyUriField - result:', result, 'error:', editPolicyUriError);
 	}
 
 	onMount(async () => {
@@ -458,6 +517,14 @@
 		editTermsOfServiceUri = client.termsOfServiceUri || '';
 		editPolicyUri = client.policyUri || '';
 
+		// 에러 상태 초기화 (매우 중요!)
+		editClientNameError = '';
+		editRedirectUrisError = '';
+		editScopesError = '';
+		editLogoUriError = '';
+		editTermsOfServiceUriError = '';
+		editPolicyUriError = '';
+
 		console.log(`편집할 클라이언트 [${client.name}] - 원본 logoUri:`, originalLogoUri);
 		console.log(`편집할 클라이언트 [${client.name}] - 처리된 editLogoUri:`, editLogoUri);
 
@@ -524,6 +591,14 @@
 	async function updateClient() {
 		if (!clientToEdit) return;
 
+		console.log('=== 클라이언트 수정 검증 시작 ===');
+		console.log('editClientName:', editClientName);
+		console.log('editRedirectUris:', editRedirectUris);
+		console.log('editScopes:', editScopes);
+		console.log('editLogoUri:', editLogoUri);
+		console.log('editTermsOfServiceUri:', editTermsOfServiceUri);
+		console.log('editPolicyUri:', editPolicyUri);
+
 		// 모든 필드 검증 수행
 		validateEditClientNameField();
 		validateEditRedirectUrisField();
@@ -532,19 +607,32 @@
 		validateEditTermsOfServiceUriField();
 		validateEditPolicyUriField();
 
-		// 검증 실패 시 중단
-		if (
-			editClientNameError ||
-			editRedirectUrisError ||
-			editScopesError ||
-			editLogoUriError ||
-			editTermsOfServiceUriError ||
-			editPolicyUriError
-		) {
-			toast.warning('입력 정보를 확인해주세요.');
+		console.log('=== 검증 결과 ===');
+		console.log('editClientNameError:', editClientNameError);
+		console.log('editRedirectUrisError:', editRedirectUrisError);
+		console.log('editScopesError:', editScopesError);
+		console.log('editLogoUriError:', editLogoUriError);
+		console.log('editTermsOfServiceUriError:', editTermsOfServiceUriError);
+		console.log('editPolicyUriError:', editPolicyUriError);
+
+		// 에러가 있는 필드들 수집
+		const errors = [];
+		if (editClientNameError) errors.push(`클라이언트 이름: ${editClientNameError}`);
+		if (editRedirectUrisError) errors.push(`리다이렉트 URI: ${editRedirectUrisError}`);
+		if (editScopesError) errors.push(`권한 범위: ${editScopesError}`);
+		if (editLogoUriError) errors.push(`로고 URL: ${editLogoUriError}`);
+		if (editTermsOfServiceUriError) errors.push(`서비스 약관 URL: ${editTermsOfServiceUriError}`);
+		if (editPolicyUriError) errors.push(`개인정보처리방침 URL: ${editPolicyUriError}`);
+
+		// 검증 실패 시 구체적인 피드백 제공
+		if (errors.length > 0) {
+			console.log('검증 실패:', errors);
+			const errorMessage = `다음 필드를 확인해주세요:\n${errors.join('\n')}`;
+			toast.error(errorMessage);
 			return;
 		}
 
+		console.log('=== 모든 검증 통과, 클라이언트 업데이트 진행 ===');
 		isUpdating = true;
 
 		try {

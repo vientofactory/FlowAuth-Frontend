@@ -134,6 +134,35 @@ export function validateUrl(url: string, fieldName: string): ValidationResult {
 }
 
 /**
+ * 로고 URL 검증 (업로드된 파일 경로와 외부 URL 모두 허용)
+ */
+export function validateLogoUrl(url: string): ValidationResult {
+	if (!url || url.trim().length === 0) {
+		// 선택적 필드이므로 빈 값은 유효
+		return { isValid: true };
+	}
+
+	// 상대 경로 형식 (/uploads/logos/...) 허용
+	if (url.startsWith('/uploads/')) {
+		return { isValid: true };
+	}
+
+	// 완전한 URL 형식도 허용
+	try {
+		const parsedUrl = new URL(url);
+		if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+			return {
+				isValid: false,
+				message: '로고 URL은 업로드된 파일 경로이거나 http/https 프로토콜을 사용해야 합니다.'
+			};
+		}
+		return { isValid: true };
+	} catch {
+		return { isValid: false, message: '올바른 로고 URL 형식이 아닙니다.' };
+	}
+}
+
+/**
  * 스코프 검증
  */
 export function validateScopes(scopes: string[]): ValidationResult {

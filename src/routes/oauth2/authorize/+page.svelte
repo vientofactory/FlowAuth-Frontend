@@ -9,6 +9,7 @@
 	import { ErrorType } from '$lib/types/authorization.types';
 	import type { PageData } from './$types';
 	import { env } from '$lib/config/env';
+	import { getScopeInfo, groupScopesByCategory, SCOPE_CATEGORIES } from '$lib/utils/scope.utils';
 
 	let { data }: { data: PageData } = $props();
 
@@ -25,6 +26,29 @@
 	const unsubscribe = authState.subscribe((value) => {
 		currentState = value;
 	});
+
+	// 설명 표시 상태 관리
+	let isDescriptionExpanded = $state(false);
+
+	// 설명 중략 처리 설정
+	const DESCRIPTION_MAX_LENGTH = 80; // 모바일에서 약 3-4줄
+	const DESCRIPTION_PREVIEW_LENGTH = 20; // 미리보기 길이
+
+	// 스코프 아이콘 색상 클래스 가져오기 함수
+	function getScopeColorClasses(color: string) {
+		const colorMap = {
+			blue: 'bg-blue-100 text-blue-600',
+			orange: 'bg-orange-100 text-orange-600',
+			green: 'bg-green-100 text-green-600',
+			purple: 'bg-purple-100 text-purple-600',
+			indigo: 'bg-indigo-100 text-indigo-600',
+			red: 'bg-red-100 text-red-600',
+			gray: 'bg-gray-100 text-gray-600',
+			cyan: 'bg-cyan-100 text-cyan-600'
+		};
+		
+		return colorMap[color as keyof typeof colorMap] || colorMap.gray;
+	}
 
 	// Function to extract host from redirect URI
 	function getRedirectHost(redirectUri?: string): string {
@@ -61,6 +85,44 @@
 			// 유효하지 않은 URL인 경우 null 반환
 			return null;
 		}
+	}
+
+	// Function to check if description needs truncation
+	function needsTruncation(description?: string): boolean {
+		return (description?.length || 0) > DESCRIPTION_MAX_LENGTH;
+	}
+
+	// Function to get truncated description
+	function getTruncatedDescription(description?: string): string {
+		if (!description) return '';
+		if (description.length <= DESCRIPTION_MAX_LENGTH) return description;
+		
+		// 단어 경계에서 자르기 위해 공백을 찾음
+		const truncated = description.substring(0, DESCRIPTION_PREVIEW_LENGTH);
+		const lastSpace = truncated.lastIndexOf(' ');
+		
+		// 마지막 공백이 너무 앞쪽에 있으면 그냥 문자 기준으로 자름
+		if (lastSpace < DESCRIPTION_PREVIEW_LENGTH * 0.8) {
+			return truncated + '...';
+		}
+		
+		return description.substring(0, lastSpace) + '...';
+	}
+
+	// Function to get display description based on expanded state
+	function getDisplayDescription(description?: string): string {
+		if (!description) return '';
+		
+		if (!needsTruncation(description) || isDescriptionExpanded) {
+			return description;
+		}
+		
+		return getTruncatedDescription(description);
+	}
+
+	// Function to toggle description expansion
+	function toggleDescription() {
+		isDescriptionExpanded = !isDescriptionExpanded;
 	}
 
 	onMount(() => {
@@ -153,6 +215,21 @@
 							<h1 class="mb-1 text-xl font-bold text-gray-900">
 								{currentState.client?.name || '알 수 없는 앱'}
 							</h1>
+							{#if currentState.client?.description}
+								<div class="mb-1 flex flex-col items-center space-y-1">
+									<p class="text-sm text-gray-700 leading-relaxed">
+										{getDisplayDescription(currentState.client.description)}
+									</p>
+									{#if needsTruncation(currentState.client.description)}
+										<button
+											onclick={toggleDescription}
+											class="text-xs text-blue-600 hover:text-blue-800 transition-colors focus:outline-none"
+										>
+											{isDescriptionExpanded ? '간략히 보기' : '더 보기'}
+										</button>
+									{/if}
+								</div>
+							{/if}
 							<p class="text-sm text-gray-600">귀하의 계정에 접근하려고 합니다</p>
 						</div>
 					</div>
@@ -164,25 +241,42 @@
 						이 앱이 요청하는 권한
 					</h3>
 
-					<div class="space-y-3">
-						{#each currentState.scopes || [] as scope (scope)}
-							<div class="flex items-center space-x-3 rounded-lg bg-gray-50 p-3">
-								<div
-									class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-100"
-								>
-									<i class="fas fa-check text-sm text-green-600"></i>
+					{#if currentState.scopes && currentState.scopes.length > 0}
+						<div class="space-y-3">
+							{#each currentState.scopes as scope (scope)}
+								{@const scopeInfo = getScopeInfo(scope)}
+								<div class="flex items-center space-x-3 rounded-lg bg-gray-50 p-3">
+									<div
+										class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full {getScopeColorClasses(scopeInfo.color)}"
+									>
+										<i class="fas {scopeInfo.icon} text-sm"></i>
+									</div>
+									<div class="flex-1">
+										<p class="text-sm font-medium text-gray-900">
+											{scopeInfo.name}
+										</p>
+										<p class="text-xs text-gray-600">
+											{scopeInfo.description}
+										</p>
+									</div>
 								</div>
-								<div class="flex-1">
-									<p class="text-sm font-medium text-gray-900 capitalize">
-										{scope.replace(/_/g, ' ')}
-									</p>
-									<p class="text-xs text-gray-600">
-										앱이 {scope.replace(/_/g, ' ')} 권한을 사용할 수 있습니다
-									</p>
+							{/each}
+						</div>
+					{:else}
+						<div class="text-center py-4">
+							<div class="flex justify-center items-center mb-3">
+								<div class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+									<i class="fas fa-info text-gray-400"></i>
 								</div>
 							</div>
-						{/each}
-					</div>
+							<p class="text-sm text-gray-500">
+								이 앱은 특별한 권한을 요청하지 않습니다
+							</p>
+							<p class="text-xs text-gray-400 mt-1">
+								기본적인 인증 정보만 사용됩니다
+							</p>
+						</div>
+					{/if}
 
 					<!-- 보안 알림 -->
 					<div class="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4">

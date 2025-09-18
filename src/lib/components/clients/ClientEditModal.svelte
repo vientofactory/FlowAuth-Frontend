@@ -15,7 +15,7 @@
 		editClientNameError: string;
 		editRedirectUrisError: string;
 		editScopesError: string;
-		_editLogoUriError: string;
+		editLogoUriError: string;
 		editTermsOfServiceUriError: string;
 		editPolicyUriError: string;
 		selectedLogoFile: File | null;
@@ -40,7 +40,7 @@
 		editClientNameError,
 		editRedirectUrisError,
 		editScopesError,
-		_editLogoUriError: _editLogoUriError,
+		editLogoUriError,
 		editTermsOfServiceUriError,
 		editPolicyUriError,
 		selectedLogoFile = $bindable(),
@@ -145,6 +145,9 @@
 						onRemoveExistingLogo={onRemoveClientLogo}
 						cacheBuster={logoCacheBuster}
 					/>
+					{#if editLogoUriError}
+						<p class="mt-1 text-sm text-red-600">{editLogoUriError}</p>
+					{/if}
 				</div>
 
 				<div>
