@@ -57,6 +57,9 @@ export interface ScopeInfo {
 	sensitive: boolean;
 }
 
+// 유효한 스코프들의 Set (한 번만 생성하여 재사용)
+const VALID_SCOPES_SET: Set<string> = new Set(Object.values(OAUTH2_SCOPES));
+
 // 스코프별 메타데이터 매핑
 export const SCOPE_MAPPINGS: Record<string, ScopeInfo> = {
 	// 사용자 관련
@@ -291,9 +294,7 @@ export function validateScopes(scopes: string[]): { isValid: boolean; message?: 
 		return { isValid: false, message: '최소 하나의 권한 범위를 선택해주세요.' };
 	}
 
-	// 모든 정의된 스코프 목록
-	const allValidScopes: string[] = Object.values(OAUTH2_SCOPES);
-	const invalidScopes = scopes.filter((scope) => !allValidScopes.includes(scope));
+	const invalidScopes = scopes.filter((scope) => !VALID_SCOPES_SET.has(scope));
 
 	if (invalidScopes.length > 0) {
 		return {
