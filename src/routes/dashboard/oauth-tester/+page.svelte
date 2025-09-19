@@ -6,8 +6,12 @@
 	import { createApiUrl } from '$lib/config/env';
 	import { CryptoUtils } from '$lib/utils/crypto.util';
 	import type { Client } from '$lib/types/oauth.types';
+	import { USER_TYPES } from '$lib/types/user.types';
+	import { authState } from '$lib';
+	import type { User } from '$lib';
 
 	// 상태 변수들
+	let user = $state<User | null>(null);
 	let clients = $state<Client[]>([]);
 	let isLoading = $state(true);
 	let selectedClient = $state<Client | null>(null);
@@ -19,21 +23,11 @@
 	let copySuccess = $state(false);
 
 	// 스코프 관련 상태
-	let selectedScopes = $state<Set<string>>(new Set(['openid', 'profile', 'email']));
+	let selectedScopes = $state<Set<string>>(new Set(['read:user', 'profile', 'email']));
 	let showScopeSelector = $state(false);
-
-	// 사용 가능한 스코프 정의
-	const availableScopes = [
-		{ id: 'openid', name: 'OpenID', description: 'OpenID Connect 인증' },
-		{ id: 'profile', name: 'Profile', description: '사용자 프로필 정보' },
-		{ id: 'email', name: 'Email', description: '이메일 주소' },
-		{ id: 'address', name: 'Address', description: '주소 정보' },
-		{ id: 'phone', name: 'Phone', description: '전화번호' },
-		{ id: 'offline_access', name: 'Offline Access', description: '리프레시 토큰 발급' },
-		{ id: 'read', name: 'Read', description: '읽기 권한' },
-		{ id: 'write', name: 'Write', description: '쓰기 권한' },
-		{ id: 'admin', name: 'Admin', description: '관리자 권한' }
-	];
+	let availableScopes = $state<{ id: string; name: string; description: string }[]>([]);
+	let scopesLoading = $state(false);
+	let scopesError = $state<string | null>(null);
 
 	const toast = useToast();
 
@@ -64,9 +58,23 @@
 		showScopeSelector = !showScopeSelector;
 	}
 
-	onMount(async () => {
-		await loadClients();
-		// 초기 스코프 문자열 설정은 getScopesString()으로 계산됨
+	onMount(() => {
+		// 사용자 유형 검증
+		const unsubscribe = authState.subscribe((state) => {
+			user = state.user;
+			if (user && user.userType !== USER_TYPES.DEVELOPER) {
+				// 일반 사용자는 접근 불가
+				goto('/dashboard');
+				return;
+			}
+		});
+
+		Promise.all([loadClients(), loadAvailableScopes()]);
+		
+		// cleanup 함수 반환
+		return () => {
+			unsubscribe();
+		};
 	});
 
 	async function loadClients() {
@@ -79,6 +87,28 @@
 			toast.error('클라이언트 목록을 불러오는데 실패했습니다.');
 		} finally {
 			isLoading = false;
+		}
+	}
+
+	async function loadAvailableScopes() {
+		try {
+			scopesLoading = true;
+			scopesError = null;
+			const response = await apiClient.getAvailableScopes();
+			availableScopes = response;
+		} catch (error) {
+			console.error('Failed to load available scopes:', error);
+			scopesError = '스코프 목록을 불러오는데 실패했습니다.';
+			toast.error('스코프 목록을 불러오는데 실패했습니다.');
+
+			// 오류 시 기본 스코프들로 폴백
+			availableScopes = [
+				{ id: 'openid', name: 'OpenID', description: 'OpenID Connect 인증' },
+				{ id: 'profile', name: 'Profile', description: '사용자 프로필 정보' },
+				{ id: 'email', name: 'Email', description: '이메일 주소' }
+			];
+		} finally {
+			scopesLoading = false;
 		}
 	}
 
@@ -171,7 +201,13 @@
 
 	function resetTest() {
 		selectedClient = null;
-		selectedScopes = new Set(['openid', 'profile', 'email']);
+		// 기본 스코프로 재설정 (서버에서 받아온 스코프들 중에서)
+		const defaultScopeIds = ['openid', 'profile', 'email'];
+		const validDefaultScopes = defaultScopeIds.filter((id) =>
+			availableScopes.some((scope) => scope.id === id)
+		);
+		selectedScopes = new Set(validDefaultScopes.length > 0 ? validDefaultScopes : []);
+
 		responseType = 'code';
 		usePKCE = true;
 		generatedUrl = '';
@@ -321,32 +357,68 @@
 									>
 										전체 해제
 									</Button>
+									<Button
+										variant="ghost"
+										size="sm"
+										onclick={loadAvailableScopes}
+										disabled={scopesLoading}
+										class="text-xs"
+									>
+										{#if scopesLoading}
+											<i class="fas fa-spinner fa-spin mr-1"></i>
+										{:else}
+											<i class="fas fa-sync mr-1"></i>
+										{/if}
+										새로고침
+									</Button>
 								</div>
 							</div>
 
-							<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-								{#each availableScopes as scope (scope.id)}
-									<label
-										class="flex cursor-pointer items-start space-x-3 rounded p-2 hover:bg-gray-50"
-									>
-										<input
-											type="checkbox"
-											checked={selectedScopes.has(scope.id)}
-											onchange={() => toggleScope(scope.id)}
-											class="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-										/>
-										<div class="flex-1">
-											<div class="flex items-center">
-												<span class="text-sm font-medium text-gray-900">{scope.name}</span>
-												<code class="ml-2 rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">
-													{scope.id}
-												</code>
+							{#if scopesLoading}
+								<div class="py-8 text-center">
+									<i class="fas fa-spinner fa-spin mb-2 text-2xl text-gray-400"></i>
+									<p class="text-sm text-gray-500">스코프를 불러오는 중...</p>
+								</div>
+							{:else if scopesError}
+								<div class="py-8 text-center">
+									<i class="fas fa-exclamation-triangle mb-2 text-2xl text-red-400"></i>
+									<p class="text-sm text-red-600">{scopesError}</p>
+									<Button variant="outline" size="sm" onclick={loadAvailableScopes} class="mt-2">
+										다시 시도
+									</Button>
+								</div>
+							{:else if availableScopes.length === 0}
+								<div class="py-8 text-center">
+									<i class="fas fa-info-circle mb-2 text-2xl text-gray-400"></i>
+									<p class="text-sm text-gray-500">사용 가능한 스코프가 없습니다.</p>
+								</div>
+							{:else}
+								<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+									{#each availableScopes as scope (scope.id)}
+										<label
+											class="flex cursor-pointer items-start space-x-3 rounded p-2 hover:bg-gray-50"
+										>
+											<input
+												type="checkbox"
+												checked={selectedScopes.has(scope.id)}
+												onchange={() => toggleScope(scope.id)}
+												class="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+											/>
+											<div class="flex-1">
+												<div class="flex items-center">
+													<span class="text-sm font-medium text-gray-900">{scope.name}</span>
+													<code
+														class="ml-2 rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500"
+													>
+														{scope.id}
+													</code>
+												</div>
+												<p class="mt-1 text-xs text-gray-600">{scope.description}</p>
 											</div>
-											<p class="mt-1 text-xs text-gray-600">{scope.description}</p>
-										</div>
-									</label>
-								{/each}
-							</div>
+										</label>
+									{/each}
+								</div>
+							{/if}
 
 							<!-- 선택된 스코프 미리보기 -->
 							{#if selectedScopes.size > 0}

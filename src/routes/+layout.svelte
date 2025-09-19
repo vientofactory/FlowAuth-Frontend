@@ -1,13 +1,14 @@
 <script lang="ts">
 	import '../app.css';
 	import favicon from '$lib/assets/favicon.svg';
-	import { authStore, ToastContainer, apiClient } from '$lib';
+	import { ToastContainer, apiClient } from '$lib';
+	import { authStore } from '$lib/stores/auth';
 	import { onMount, onDestroy } from 'svelte';
 
 	let { children } = $props();
 
 	onMount(async () => {
-		// 앱 시작 시 인증 상태 초기화
+		// 인증 상태 초기화 (세션 복원)
 		await authStore.initialize();
 
 		// 네트워크 모니터링 시작

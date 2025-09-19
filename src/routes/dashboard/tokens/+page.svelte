@@ -1,16 +1,31 @@
 <script lang="ts">
 	import { DashboardLayout, Card, Button, Badge, apiClient } from '$lib';
 	import { useToast } from '$lib';
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import type { Token } from '$lib/types/oauth.types';
+	import { authState } from '$lib';
+	import type { User } from '$lib';
 
+	let _user = $state<User | null>(null);
 	let tokens = $state<Token[]>([]);
 	let isLoading = $state(true);
+	let unsubscribe: (() => void) | null = null;
 
 	const toast = useToast();
 
 	onMount(async () => {
+		// 사용자 정보 구독
+		unsubscribe = authState.subscribe((state) => {
+			_user = state.user;
+		});
+
 		await loadTokens();
+	});
+
+	onDestroy(() => {
+		if (unsubscribe) {
+			unsubscribe();
+		}
 	});
 
 	async function loadTokens() {

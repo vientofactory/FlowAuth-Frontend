@@ -6,13 +6,15 @@ interface AuthState {
 	user: User | null;
 	isAuthenticated: boolean;
 	isLoading: boolean;
+	isInitialized: boolean; // 초기화 완료 여부 추가
 }
 
 // Svelte writable store 생성
 export const authState = writable<AuthState>({
 	user: null,
 	isAuthenticated: false,
-	isLoading: false
+	isLoading: false,
+	isInitialized: false // 초기값 false
 });
 
 class AuthStore {
@@ -37,7 +39,8 @@ class AuthStore {
 					...state,
 					user,
 					isAuthenticated: true,
-					isLoading: false
+					isLoading: false,
+					isInitialized: true
 				}));
 			} else {
 				// JWT 토큰이 없어도 쿠키 기반으로 사용자 정보 시도
@@ -49,7 +52,8 @@ class AuthStore {
 						...state,
 						user,
 						isAuthenticated: true,
-						isLoading: false
+						isLoading: false,
+						isInitialized: true
 					}));
 				} catch (cookieError) {
 					// 쿠키 기반 인증도 실패하면 로그아웃 처리
@@ -58,7 +62,8 @@ class AuthStore {
 						...state,
 						user: null,
 						isAuthenticated: false,
-						isLoading: false
+						isLoading: false,
+						isInitialized: true
 					}));
 				}
 			}
@@ -103,7 +108,8 @@ class AuthStore {
 					// 네트워크 오류 시 세션 유지 (나중에 재연결 시도)
 					authState.update((state) => ({
 						...state,
-						isLoading: false
+						isLoading: false,
+						isInitialized: true
 						// user와 isAuthenticated는 유지
 					}));
 				} else {
@@ -113,7 +119,8 @@ class AuthStore {
 						...state,
 						user: null,
 						isAuthenticated: false,
-						isLoading: false
+						isLoading: false,
+						isInitialized: true
 					}));
 				}
 			}
@@ -149,24 +156,84 @@ class AuthStore {
 		}
 	}
 
+	// 2FA 토큰 검증 로그인
+	async verifyTwoFactorLogin(email: string, token: string) {
+		console.log('AuthStore: 2FA login attempt for:', email);
+		authState.update((state) => ({ ...state, isLoading: true }));
+
+		try {
+			const result = await apiClient.verifyTwoFactorLogin(email, token);
+			console.log('AuthStore: 2FA login successful, token received:', !!result.accessToken);
+
+			authState.update((state) => ({
+				...state,
+				user: result.user,
+				isAuthenticated: true,
+				isLoading: false
+			}));
+
+			console.log('AuthStore: 2FA auth state updated successfully');
+			return result;
+		} catch (error) {
+			console.log('AuthStore: 2FA login failed:', error);
+			authState.update((state) => ({ ...state, isLoading: false }));
+			throw error;
+		}
+	}
+
+	// 백업 코드 검증 로그인
+	async verifyBackupCodeLogin(email: string, backupCode: string) {
+		console.log('AuthStore: Backup code login attempt for:', email);
+		authState.update((state) => ({ ...state, isLoading: true }));
+
+		try {
+			const result = await apiClient.verifyBackupCodeLogin(email, backupCode);
+			console.log('AuthStore: Backup code login successful, token received:', !!result.accessToken);
+
+			authState.update((state) => ({
+				...state,
+				user: result.user,
+				isAuthenticated: true,
+				isLoading: false
+			}));
+
+			console.log('AuthStore: Backup code auth state updated successfully');
+			return result;
+		} catch (error) {
+			console.log('AuthStore: Backup code login failed:', error);
+			authState.update((state) => ({ ...state, isLoading: false }));
+			throw error;
+		}
+	}
+
 	// 로그아웃
-	logout() {
+	async logout() {
 		console.log('AuthStore: Logout initiated');
 
-		// 로그아웃 전에 토큰 상태 확인
-		const tokenBefore = this.getToken();
-		console.log('AuthStore: Token before logout:', !!tokenBefore);
+		try {
+			// 백엔드에 로그아웃 요청
+			await apiClient.logout();
+			console.log('AuthStore: Backend logout successful');
+		} catch (error) {
+			console.log('AuthStore: Backend logout failed, proceeding with client-side cleanup:', error);
+			// 백엔드 로그아웃 실패해도 클라이언트 측 정리 진행
+		}
 
-		apiClient.logout();
+		// 클라이언트 측 토큰 제거
+		if (typeof window !== 'undefined') {
+			console.log('AuthStore: Removing token from localStorage');
+			localStorage.removeItem('auth_token');
+			// 쿠키도 제거
+			document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+			console.log('AuthStore: Token removed successfully');
+		}
 
-		// 로그아웃 후 토큰 상태 확인
-		const tokenAfter = this.getToken();
-		console.log('AuthStore: Token after logout:', !!tokenAfter);
-
+		// 상태 업데이트
 		authState.update(() => ({
 			user: null,
 			isAuthenticated: false,
-			isLoading: false
+			isLoading: false,
+			isInitialized: true
 		}));
 
 		console.log('AuthStore: Logout completed');

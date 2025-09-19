@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { authStore, authState, Navigation } from '$lib';
+	import { authState, Navigation } from '$lib';
 	import { onMount, onDestroy } from 'svelte';
 	import { page } from '$app/stores';
 	import Button from '$lib/components/Button.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import type { User } from '$lib';
+	import { USER_TYPES } from '$lib/types/user.types';
 
 	interface Props {
 		children: import('svelte').Snippet;
@@ -34,8 +35,6 @@
 	let mobileMenuOpen = $state(false);
 
 	onMount(() => {
-		authStore.initialize().catch(console.error);
-
 		unsubscribe = authState.subscribe((state) => {
 			user = state.user;
 			isLoading = state.isLoading;
@@ -82,7 +81,8 @@
 	}
 
 	// 메뉴 활성화 상태 확인 함수
-	function isMenuActive(href: string): boolean {
+	function isMenuActive(href: string | undefined): boolean {
+		if (!href) return false;
 		return currentPath === href || (href !== '/dashboard' && currentPath.startsWith(href));
 	}
 
@@ -95,18 +95,25 @@
 
 	// 모바일 메뉴 항목 선택 함수
 	function getMobileMenuItems() {
+		if (!dashboardMenuItems.length) return [];
+
 		const selectedItems = [
 			dashboardMenuItems[0], // 개요
-			dashboardMenuItems[1], // 클라이언트 관리
-			dashboardMenuItems[3], // OAuth 테스터
-			dashboardMenuItems[4], // 프로필
-			dashboardMenuItems[5] // 설정
-		];
+			...(user?.userType === USER_TYPES.DEVELOPER
+				? [
+						dashboardMenuItems.find((item) => item.id === 'clients'),
+						dashboardMenuItems.find((item) => item.id === 'oauth-tester')
+					].filter(Boolean)
+				: []),
+			dashboardMenuItems.find((item) => item.id === 'connections'),
+			dashboardMenuItems.find((item) => item.id === 'profile'),
+			dashboardMenuItems.find((item) => item.id === 'settings')
+		].filter(Boolean);
 
 		// 모바일용 짧은 라벨 추가
 		return selectedItems.map((item) => ({
-			...item,
-			mobileLabel: getMobileLabel(item.id)
+			...item!,
+			mobileLabel: getMobileLabel(item!.id)
 		}));
 	}
 
@@ -116,57 +123,81 @@
 			dashboard: '홈',
 			clients: '클라이언트',
 			'oauth-tester': '테스터',
+			connections: '연결앱',
 			profile: '프로필',
 			settings: '설정'
 		};
 		return labels[id] || '메뉴';
 	}
 
-	// 대시보드 메뉴 아이템들
-	const dashboardMenuItems = [
-		{
-			id: 'dashboard',
-			label: '개요',
-			icon: 'fas fa-tachometer-alt',
-			href: '/dashboard',
-			description: '전체 현황 보기'
-		},
-		{
-			id: 'clients',
-			label: '클라이언트 관리',
-			icon: 'fas fa-users',
-			href: '/dashboard/clients',
-			description: 'OAuth 클라이언트 관리'
-		},
-		{
-			id: 'tokens',
-			label: '토큰 관리',
-			icon: 'fas fa-key',
-			href: '/dashboard/tokens',
-			description: '액세스 토큰 관리'
-		},
-		{
-			id: 'oauth-tester',
-			label: 'OAuth 테스터',
-			icon: 'fas fa-link',
-			href: '/dashboard/oauth-tester',
-			description: 'OAuth 플로우 테스트'
-		},
-		{
-			id: 'profile',
-			label: '프로필',
-			icon: 'fas fa-user',
-			href: '/dashboard/profile',
-			description: '사용자 프로필 관리'
-		},
-		{
-			id: 'settings',
-			label: '설정',
-			icon: 'fas fa-cog',
-			href: '/dashboard/settings',
-			description: '시스템 설정'
-		}
-	];
+	// 사용자 유형별 대시보드 메뉴 아이템들
+	const dashboardMenuItems = $derived.by(() => {
+		if (!user) return [];
+
+		const isDeveloper = user.userType === USER_TYPES.DEVELOPER;
+
+		const baseItems = [
+			{
+				id: 'dashboard',
+				label: '개요',
+				icon: 'fas fa-tachometer-alt',
+				href: '/dashboard',
+				description: '전체 현황 보기'
+			}
+		];
+
+		const developerItems = [
+			{
+				id: 'clients',
+				label: '클라이언트 관리',
+				icon: 'fas fa-users',
+				href: '/dashboard/clients',
+				description: 'OAuth 클라이언트 관리'
+			},
+			{
+				id: 'tokens',
+				label: '토큰 관리',
+				icon: 'fas fa-key',
+				href: '/dashboard/tokens',
+				description: '액세스 토큰 관리'
+			},
+			{
+				id: 'oauth-tester',
+				label: 'OAuth 테스터',
+				icon: 'fas fa-link',
+				href: '/dashboard/oauth-tester',
+				description: 'OAuth 플로우 테스트'
+			}
+		];
+
+		const commonItems = [
+			{
+				id: 'connections',
+				label: '연결된 앱',
+				icon: 'fas fa-plug',
+				href: '/dashboard/connections',
+				description: '연결된 애플리케이션 관리'
+			},
+			{
+				id: 'profile',
+				label: '프로필',
+				icon: 'fas fa-user',
+				href: '/dashboard/profile',
+				description: '사용자 프로필 관리'
+			},
+			{
+				id: 'settings',
+				label: '설정',
+				icon: 'fas fa-cog',
+				href: '/dashboard/settings',
+				description: '시스템 설정'
+			}
+		];
+
+		return isDeveloper
+			? [...baseItems, ...developerItems, ...commonItems]
+			: [...baseItems, ...commonItems];
+	});
 </script>
 
 <svelte:head>

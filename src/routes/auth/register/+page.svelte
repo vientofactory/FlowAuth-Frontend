@@ -8,6 +8,7 @@
 		validateName
 	} from '$lib/utils/validation.utils';
 	import { goto } from '$app/navigation';
+	import { USER_TYPES } from '$lib/types/user.types';
 
 	let email = $state('');
 	let password = $state('');
@@ -15,6 +16,7 @@
 	let username = $state('');
 	let firstName = $state('');
 	let lastName = $state('');
+	let userType = $state(USER_TYPES.REGULAR); // 기본값: 일반 사용자
 	let isLoading = $state(false);
 	let agreeToTerms = $state(false);
 
@@ -104,7 +106,8 @@
 				password,
 				username,
 				firstName,
-				lastName
+				lastName,
+				userType
 			};
 
 			await apiClient.register(userData);
@@ -139,45 +142,74 @@
 		class="bg-grid-slate-100 absolute inset-0 -z-10 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]"
 	></div>
 
-	<div class="w-full max-w-md">
+	<div class="w-full max-w-md sm:max-w-lg lg:max-w-2xl xl:max-w-3xl">
 		<!-- 로고 및 타이틀 -->
-		<div class="mb-8 text-center">
+		<div class="mb-6 text-center sm:mb-8">
 			<div class="inline-flex items-center">
-				<img src="/logo_1.png" alt="FlowAuth Logo" class="h-16 w-auto rounded-2xl object-contain" />
+				<img
+					src="/logo_1.png"
+					alt="FlowAuth Logo"
+					class="h-12 w-auto rounded-2xl object-contain sm:h-16"
+				/>
 			</div>
-			<p class="text-lg text-gray-600">새 계정 만들기</p>
+			<p class="text-base text-gray-600 sm:text-lg">새 계정 만들기</p>
 		</div>
 
 		<Card class="animate-card-enter border-0 bg-white/80 shadow-2xl backdrop-blur-sm">
-			<div class="mb-8 text-center">
-				<h2 class="mb-2 text-2xl font-bold text-gray-900">회원가입</h2>
-				<p class="text-gray-600">새 계정을 만들어 FlowAuth를 시작하세요</p>
+			<div class="mb-6 text-center sm:mb-8">
+				<h2 class="mb-2 text-xl font-bold text-gray-900 sm:text-2xl">회원가입</h2>
+				<p class="text-sm text-gray-600 sm:text-base">새 계정을 만들어 FlowAuth를 시작하세요</p>
 			</div>
 
-			<form onsubmit={handleRegister} class="space-y-6">
-				<div class="space-y-5">
-					<div class="relative">
-						<label for="username" class="mb-2 block text-sm font-medium text-gray-700">
-							<i class="fas fa-user mr-2 text-blue-500"></i>
-							사용자 이름
-						</label>
-						<Input
-							type="text"
-							placeholder="사용자 이름을 입력하세요"
-							value={username}
-							oninput={(e: Event) => (username = (e.target as HTMLInputElement).value)}
-							required
-							disabled={isLoading}
-							class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-						/>
-						{#if usernameError}
-							<p class="mt-1 text-sm text-red-600">{usernameError}</p>
-						{:else}
-							<p class="mt-1 text-xs text-gray-500">고유한 사용자 이름 (영문, 숫자, 밑줄만 사용)</p>
-						{/if}
+			<form onsubmit={handleRegister} class="space-y-4 sm:space-y-5">
+				<div class="space-y-3 sm:space-y-4">
+					<!-- 사용자 이름과 이메일을 가로로 배치 -->
+					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+						<div class="relative">
+							<label for="username" class="mb-2 block text-sm font-medium text-gray-700">
+								<i class="fas fa-user mr-2 text-blue-500"></i>
+								사용자 이름
+							</label>
+							<Input
+								type="text"
+								placeholder="사용자 이름"
+								value={username}
+								oninput={(e: Event) => (username = (e.target as HTMLInputElement).value)}
+								required
+								disabled={isLoading}
+								class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+							/>
+							{#if usernameError}
+								<p class="mt-1 text-sm text-red-600">{usernameError}</p>
+							{:else}
+								<p class="mt-1 text-xs text-gray-500">영문, 숫자, 밑줄만 사용</p>
+							{/if}
+						</div>
+
+						<div class="relative">
+							<label for="email" class="mb-2 block text-sm font-medium text-gray-700">
+								<i class="fas fa-envelope mr-2 text-blue-500"></i>
+								이메일 주소
+							</label>
+							<Input
+								type="email"
+								placeholder="your@email.com"
+								value={email}
+								oninput={(e: Event) => (email = (e.target as HTMLInputElement).value)}
+								required
+								disabled={isLoading}
+								class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+							/>
+							{#if emailError}
+								<p class="mt-1 text-sm text-red-600">{emailError}</p>
+							{:else}
+								<p class="mt-1 text-xs text-gray-500">계정 복구에 사용됩니다</p>
+							{/if}
+						</div>
 					</div>
 
-					<div class="grid grid-cols-2 gap-4">
+					<!-- 이름과 성을 가로로 배치 -->
+					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 						<div class="relative">
 							<label for="firstName" class="mb-2 block text-sm font-medium text-gray-700">
 								<i class="fas fa-id-card mr-2 text-blue-500"></i>
@@ -217,70 +249,109 @@
 						</div>
 					</div>
 
+					<!-- 사용자 유형 선택 -->
 					<div class="relative">
-						<label for="email" class="mb-2 block text-sm font-medium text-gray-700">
-							<i class="fas fa-envelope mr-2 text-blue-500"></i>
-							이메일 주소
-						</label>
-						<Input
-							type="email"
-							placeholder="your@email.com"
-							value={email}
-							oninput={(e: Event) => (email = (e.target as HTMLInputElement).value)}
-							required
-							disabled={isLoading}
-							class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-						/>
-						{#if emailError}
-							<p class="mt-1 text-sm text-red-600">{emailError}</p>
-						{:else}
-							<p class="mt-1 text-xs text-gray-500">이메일 주소는 계정 복구에 사용됩니다</p>
-						{/if}
+						<fieldset class="mb-2">
+							<legend class="mb-3 block text-sm font-medium text-gray-700">
+								<i class="fas fa-user-tag mr-2 text-blue-500"></i>
+								사용자 유형
+							</legend>
+							<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+								<label
+									class="flex cursor-pointer items-start rounded-lg border border-gray-200 p-3 transition-colors duration-200 hover:border-blue-300 hover:bg-blue-50"
+								>
+									<input
+										type="radio"
+										bind:group={userType}
+										value={USER_TYPES.REGULAR}
+										class="mt-0.5 h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+										disabled={isLoading}
+									/>
+									<div class="ml-3 flex-1">
+										<div class="flex items-center justify-between">
+											<span class="text-sm font-medium text-gray-900">일반 사용자</span>
+											<span
+												class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800"
+											>
+												기본
+											</span>
+										</div>
+										<p class="mt-1 text-xs text-gray-600">OAuth2 인증만 사용</p>
+									</div>
+								</label>
+
+								<label
+									class="flex cursor-pointer items-start rounded-lg border border-gray-200 p-3 transition-colors duration-200 hover:border-green-300 hover:bg-green-50"
+								>
+									<input
+										type="radio"
+										bind:group={userType}
+										value={USER_TYPES.DEVELOPER}
+										class="mt-0.5 h-4 w-4 border-gray-300 text-green-600 focus:ring-green-500"
+										disabled={isLoading}
+									/>
+									<div class="ml-3 flex-1">
+										<div class="flex items-center justify-between">
+											<span class="text-sm font-medium text-gray-900">개발자</span>
+											<span
+												class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800"
+											>
+												고급
+											</span>
+										</div>
+										<p class="mt-1 text-xs text-gray-600">클라이언트 및 토큰 관리 기능 포함</p>
+									</div>
+								</label>
+							</div>
+						</fieldset>
 					</div>
 
-					<div class="relative">
-						<label for="password" class="mb-2 block text-sm font-medium text-gray-700">
-							<i class="fas fa-lock mr-2 text-blue-500"></i>
-							비밀번호
-						</label>
-						<Input
-							type="password"
-							placeholder="비밀번호를 입력하세요"
-							value={password}
-							oninput={(e: Event) => (password = (e.target as HTMLInputElement).value)}
-							required
-							disabled={isLoading}
-							class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-						/>
-						{#if passwordError}
-							<p class="mt-1 text-sm text-red-600">{passwordError}</p>
-						{:else}
-							<p class="mt-1 text-xs text-gray-500">최소 8자 이상, 대소문자 및 숫자 포함 권장</p>
-						{/if}
-					</div>
+					<!-- 비밀번호와 비밀번호 확인을 가로로 배치 -->
+					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+						<div class="relative">
+							<label for="password" class="mb-2 block text-sm font-medium text-gray-700">
+								<i class="fas fa-lock mr-2 text-blue-500"></i>
+								비밀번호
+							</label>
+							<Input
+								type="password"
+								placeholder="비밀번호"
+								value={password}
+								oninput={(e: Event) => (password = (e.target as HTMLInputElement).value)}
+								required
+								disabled={isLoading}
+								class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+							/>
+							{#if passwordError}
+								<p class="mt-1 text-sm text-red-600">{passwordError}</p>
+							{:else}
+								<p class="mt-1 text-xs text-gray-500">8자 이상, 대소문자+숫자</p>
+							{/if}
+						</div>
 
-					<div class="relative">
-						<label for="confirmPassword" class="mb-2 block text-sm font-medium text-gray-700">
-							<i class="fas fa-lock mr-2 text-blue-500"></i>
-							비밀번호 확인
-						</label>
-						<Input
-							type="password"
-							placeholder="비밀번호를 다시 입력하세요"
-							value={confirmPassword}
-							oninput={(e: Event) => (confirmPassword = (e.target as HTMLInputElement).value)}
-							onkeydown={handleKeyPress}
-							required
-							disabled={isLoading}
-							class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-						/>
-						{#if confirmPasswordError}
-							<p class="mt-1 text-sm text-red-600">{confirmPasswordError}</p>
-						{/if}
+						<div class="relative">
+							<label for="confirmPassword" class="mb-2 block text-sm font-medium text-gray-700">
+								<i class="fas fa-lock mr-2 text-blue-500"></i>
+								비밀번호 확인
+							</label>
+							<Input
+								type="password"
+								placeholder="비밀번호 확인"
+								value={confirmPassword}
+								oninput={(e: Event) => (confirmPassword = (e.target as HTMLInputElement).value)}
+								onkeydown={handleKeyPress}
+								required
+								disabled={isLoading}
+								class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+							/>
+							{#if confirmPasswordError}
+								<p class="mt-1 text-sm text-red-600">{confirmPasswordError}</p>
+							{/if}
+						</div>
 					</div>
 				</div>
 
-				<div class="space-y-4">
+				<div class="space-y-3">
 					<label class="flex items-start">
 						<input
 							type="checkbox"
@@ -308,7 +379,7 @@
 					variant="primary"
 					type="submit"
 					disabled={isLoading || !agreeToTerms}
-					class="w-full transform py-3 text-lg font-semibold shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl"
+					class="w-full transform py-2.5 text-base font-semibold shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl"
 				>
 					{#if isLoading}
 						<div class="flex items-center justify-center">

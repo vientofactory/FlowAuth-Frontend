@@ -40,12 +40,12 @@
 		} catch (error) {
 			console.warn('Failed to load logo:', error);
 			src = fallbackSrc;
-			hasError = true;
+			_hasError = true;
 		}
 	}
 
 	function handleError() {
-		hasError = true;
+		_hasError = true;
 		if (src !== fallbackSrc) {
 			src = fallbackSrc;
 		}
