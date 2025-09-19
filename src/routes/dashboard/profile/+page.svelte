@@ -1,12 +1,26 @@
 <script lang="ts">
-	import { DashboardLayout, Card, Button, Badge, apiClient } from '$lib';
+	import { DashboardLayout, Card, Button, Badge, apiClient, twoFactorStore } from '$lib';
 	import { authState, useToast } from '$lib';
 	import { PermissionUtils } from '$lib';
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import type { User } from '$lib';
+	import type { TwoFactorStatus } from '$lib/types/2fa.types';
+	import type { TwoFactorState } from '$lib/stores/2fa';
 
 	let user = $state<User | null>(null);
 	let _isLoading = $state(true);
+
+	// 2FA 스토어 상태
+	let twoFactorState = $state<TwoFactorState>({ status: null, isLoading: false, error: null });
+
+	// 2FA 스토어 구독
+	$effect(() => {
+		const unsubscribe = twoFactorStore.subscribe((state) => {
+			twoFactorState = state;
+		});
+		return unsubscribe;
+	});
 
 	// 프로필 편집 상태
 	let isEditing = $state(false);
@@ -29,22 +43,33 @@
 	let isUpdating = $state(false);
 	let isChangingPassword = $state(false);
 
-	// Username 중복 체크 상태
-	let usernameCheckTimeout = $state<NodeJS.Timeout | null>(null);
-	let usernameStatus = $state<{
-		isChecking: boolean;
-		isAvailable: boolean | null;
-		message: string;
-	}>({
+	// 2FA 비활성화
+	let showDisableTwoFactorDialog = $state(false);
+	let disableTwoFactorForm = $state({
+		currentPassword: ''
+	});
+	let isDisablingTwoFactor = $state(false);
+
+	// 사용자명 검증 상태
+	let usernameStatus = $state({
 		isChecking: false,
-		isAvailable: null,
+		isAvailable: null as boolean | null,
 		message: ''
 	});
+	let usernameCheckTimeout: number | null = $state(null);
 
 	const toast = useToast();
 
-	onMount(async () => {
-		await loadProfile();
+	function resetUsernameStatus() {
+		usernameStatus = {
+			isChecking: false,
+			isAvailable: null,
+			message: ''
+		};
+	}
+
+	onMount(() => {
+		loadProfile();
 
 		// authState 변경 감지를 위한 구독 (업데이트 후 동기화용)
 		const unsubscribe = authState.subscribe((state) => {
@@ -69,12 +94,17 @@
 			_isLoading = true;
 			user = await apiClient.getProfile();
 			resetEditForm();
+			await loadTwoFactorStatus();
 		} catch (error) {
 			console.error('Failed to load profile:', error);
 			toast.error('프로필 정보를 불러오는데 실패했습니다.');
 		} finally {
 			_isLoading = false;
 		}
+	}
+
+	async function loadTwoFactorStatus() {
+		await twoFactorStore.loadStatus();
 	}
 
 	function resetEditForm() {
@@ -87,12 +117,39 @@
 		}
 	}
 
-	function resetUsernameStatus() {
-		usernameStatus = {
-			isChecking: false,
-			isAvailable: null,
-			message: ''
-		};
+	function goToTwoFactorSetup() {
+		goto('/auth/2fa/setup');
+	}
+
+	async function disableTwoFactor() {
+		if (!disableTwoFactorForm.currentPassword.trim()) {
+			toast.error('현재 비밀번호를 입력해주세요.');
+			return;
+		}
+
+		try {
+			isDisablingTwoFactor = true;
+			await twoFactorStore.disableTwoFactor(disableTwoFactorForm.currentPassword);
+			toast.success('2FA가 성공적으로 비활성화되었습니다.');
+			showDisableTwoFactorDialog = false;
+			disableTwoFactorForm.currentPassword = '';
+			await loadTwoFactorStatus(); // 상태 새로고침
+		} catch (error) {
+			console.error('Failed to disable 2FA:', error);
+			toast.error('2FA 비활성화에 실패했습니다.');
+		} finally {
+			isDisablingTwoFactor = false;
+		}
+	}
+
+	function openDisableTwoFactorDialog() {
+		showDisableTwoFactorDialog = true;
+		disableTwoFactorForm.currentPassword = '';
+	}
+
+	function closeDisableTwoFactorDialog() {
+		showDisableTwoFactorDialog = false;
+		disableTwoFactorForm.currentPassword = '';
 	}
 
 	async function checkUsernameAvailability(username: string) {
@@ -211,7 +268,7 @@
 				firstName: editForm.firstName.trim(),
 				lastName: editForm.lastName.trim(),
 				username: editForm.username.trim()
-			});
+			}) as User;
 
 			// 로컬 상태 업데이트
 			user = updatedUser;
@@ -545,7 +602,42 @@
 						</div>
 						<div class="flex items-center justify-between">
 							<span class="text-sm text-gray-600">2FA</span>
-							<Badge variant="secondary" size="sm">비활성</Badge>
+							{#if twoFactorState.isLoading}
+								<div class="flex items-center space-x-2">
+									<i class="fas fa-spinner fa-spin text-gray-400"></i>
+									<span class="text-sm text-gray-500">확인 중...</span>
+								</div>
+							{:else if twoFactorState.status?.enabled}
+								<div class="flex items-center space-x-3">
+									<div class="flex items-center space-x-2">
+										<Badge variant="success" size="sm">활성</Badge>
+										{#if twoFactorState.status.hasBackupCodes}
+											<span class="text-xs text-green-600">백업 코드 있음</span>
+										{:else}
+											<span class="text-xs text-yellow-600">백업 코드 필요</span>
+										{/if}
+									</div>
+									<Button
+										variant="outline"
+										size="xs"
+										onclick={openDisableTwoFactorDialog}
+										class="text-red-600 hover:text-red-700 hover:bg-red-50"
+									>
+										비활성화
+									</Button>
+								</div>
+							{:else}
+								<div class="flex items-center space-x-2">
+									<Badge variant="secondary" size="sm">비활성</Badge>
+									<Button
+										variant="outline"
+										size="xs"
+										onclick={goToTwoFactorSetup}
+									>
+										설정
+									</Button>
+								</div>
+							{/if}
 						</div>
 					</div>
 				</Card>
@@ -587,9 +679,13 @@
 				<Card>
 					<h3 class="mb-4 text-lg font-medium text-gray-900">보안 설정</h3>
 					<div class="space-y-3">
-						<Button variant="outline" class="w-full justify-start">
+						<Button variant="outline" class="w-full justify-start" onclick={goToTwoFactorSetup}>
 							<i class="fas fa-mobile-alt mr-2"></i>
-							2단계 인증 설정
+							{#if twoFactorState.status?.enabled}
+								2단계 인증 관리
+							{:else}
+								2단계 인증 설정
+							{/if}
 						</Button>
 						<Button variant="outline" class="w-full justify-start">
 							<i class="fas fa-history mr-2"></i>
@@ -626,3 +722,125 @@
 		</div>
 	{/if}
 </DashboardLayout>
+
+<style>
+	/* 2FA 비활성화 모달 스타일 */
+	:global(.modal-backdrop) {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0, 0, 0, 0.6);
+		backdrop-filter: blur(4px);
+		-webkit-backdrop-filter: blur(4px);
+		z-index: 50;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 1rem;
+	}
+
+	:global(.modal-content) {
+		background: white;
+		border-radius: 12px;
+		box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		max-width: 28rem;
+		width: 100%;
+		max-height: 90vh;
+		overflow-y: auto;
+		transform: scale(1);
+		transition: transform 0.3s ease-out;
+	}
+
+	/* 입력 필드 포커스 스타일 개선 */
+	:global(.modal-input) {
+		width: 100%;
+		padding: 0.5rem 0.75rem;
+		border: 1px solid #d1d5db;
+		border-radius: 6px;
+		box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+		transition: all 0.2s ease-in-out;
+		font-size: 0.875rem;
+		line-height: 1.25rem;
+	}
+
+	:global(.modal-input:focus) {
+		border-color: #ef4444;
+		box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+		outline: none;
+	}
+
+	:global(.modal-input:disabled) {
+		background-color: #f9fafb;
+		cursor: not-allowed;
+		opacity: 0.7;
+	}
+
+	/* 반응형 디자인 */
+	@media (max-width: 640px) {
+		:global(.modal-backdrop) {
+			padding: 0.5rem;
+		}
+
+		:global(.modal-content) {
+			max-width: calc(100vw - 1rem);
+			margin: 0 auto;
+		}
+	}
+</style>
+
+	<!-- 2FA 비활성화 확인 대화상자 -->
+	{#if showDisableTwoFactorDialog}
+		<div class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
+			<div class="modal-content transform transition-all duration-300 scale-100">
+				<div class="p-6">
+					<div class="mb-4">
+						<h3 class="text-lg font-medium text-gray-900">2FA 비활성화</h3>
+						<p class="mt-2 text-sm text-gray-600">
+							2단계 인증을 비활성화하시겠습니까? 비활성화 후 계정 보안이 약해질 수 있습니다.
+						</p>
+					</div>
+
+					<div class="mb-4">
+						<label for="currentPassword" class="block text-sm font-medium text-gray-700 mb-2">
+							현재 비밀번호
+						</label>
+						<input
+							id="currentPassword"
+							type="password"
+							bind:value={disableTwoFactorForm.currentPassword}
+							class="modal-input w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors duration-200"
+							placeholder="현재 비밀번호를 입력하세요"
+							disabled={isDisablingTwoFactor}
+						/>
+					</div>
+
+					<div class="flex justify-end space-x-3">
+						<Button
+							variant="outline"
+							onclick={closeDisableTwoFactorDialog}
+							disabled={isDisablingTwoFactor}
+							class="px-4 py-2"
+						>
+							취소
+						</Button>
+						<Button
+							variant="danger"
+							onclick={disableTwoFactor}
+							disabled={isDisablingTwoFactor || !disableTwoFactorForm.currentPassword.trim()}
+							class="px-4 py-2"
+						>
+							{#if isDisablingTwoFactor}
+								<i class="fas fa-spinner fa-spin mr-2"></i>
+								비활성화 중...
+							{:else}
+								비활성화
+							{/if}
+						</Button>
+					</div>
+				</div>
+			</div>
+		</div>
+	{/if}

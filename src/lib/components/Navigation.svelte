@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { authStore, authState, Button } from '$lib';
+	import { authState, authStore, Button } from '$lib';
 	import { onMount, onDestroy } from 'svelte';
 	import type { User } from '$lib';
 
@@ -67,10 +67,17 @@
 		}
 	});
 
-	function handleLogout() {
+	async function handleLogout() {
 		profileDropdownOpen = false;
-		authStore.logout();
-		window.location.href = '/';
+		try {
+			await authStore.logout();
+			// 로그아웃 성공 후 리다이렉션은 authStore에서 처리됨
+		} catch (error) {
+			console.error('Logout failed:', error);
+			// 로그아웃 실패 시에도 클라이언트 측 정리
+			authState.set({ user: null, isAuthenticated: false, isLoading: false, isInitialized: true });
+			window.location.href = '/';
+		}
 	}
 </script>
 

@@ -1,6 +1,16 @@
 import type { User, LoginData, CreateUserDto } from '$lib';
 import { APP_CONSTANTS, API_ENDPOINTS, ROUTES, MESSAGES } from '$lib/constants/app.constants';
 import { env } from '$lib/config/env';
+import type {
+	TwoFactorSetup,
+	TwoFactorStatus,
+	TwoFactorEnableRequest,
+	TwoFactorVerifyRequest,
+	TwoFactorBackupCodeRequest,
+	TwoFactorDisableRequest,
+	TwoFactorResponse,
+	TwoFactorVerifyResponse
+} from '$lib/types/2fa.types';
 
 export interface ApiError {
 	message: string;
@@ -66,12 +76,13 @@ class ApiClient {
 					window.location.href = ROUTES.LOGIN;
 				}
 
-				// 로그인 시도인 경우 더 적절한 에러 메시지 제공
-				const errorMessage = skipAuthRedirect
-					? MESSAGES.VALIDATION.LOGIN_FAILED
-					: MESSAGES.VALIDATION.AUTHENTICATION_REQUIRED;
-
-				throw new Error(errorMessage);
+				// 로그인 시도인 경우 원래 에러 메시지를 유지 (2FA_REQUIRED 등)
+				if (skipAuthRedirect) {
+					const errorData = await this.parseErrorResponse(response);
+					throw this.createErrorFromResponse(errorData, response.status);
+				} else {
+					throw new Error(MESSAGES.VALIDATION.AUTHENTICATION_REQUIRED);
+				}
 			}
 
 			if (!response.ok) {
@@ -224,14 +235,59 @@ class ApiClient {
 	}
 
 	async login(data: LoginData): Promise<{ user: User; accessToken: string }> {
+		try {
+			const result = await this.request<{ user: User; accessToken: string }>(
+				API_ENDPOINTS.AUTH.LOGIN,
+				{
+					method: 'POST',
+					body: JSON.stringify(data)
+				},
+				0, // retryCount
+				true // skipAuthRedirect - 로그인 시에는 401 에러 시 자동 리다이렉트하지 않음
+			);
+
+			this.setToken(result.accessToken);
+			return result;
+		} catch (error) {
+			// 2FA가 필요한 경우 특별 처리
+			if (error instanceof Error && error.message.includes('2FA_REQUIRED')) {
+				console.log('API Client: 2FA_REQUIRED error detected:', error.message);
+				throw new Error('2FA_REQUIRED');
+			}
+			throw error;
+		}
+	}
+
+	async verifyTwoFactorLogin(
+		email: string,
+		token: string
+	): Promise<{ user: User; accessToken: string }> {
 		const result = await this.request<{ user: User; accessToken: string }>(
-			API_ENDPOINTS.AUTH.LOGIN,
+			'/auth/verify-2fa',
 			{
 				method: 'POST',
-				body: JSON.stringify(data)
+				body: JSON.stringify({ email, token })
 			},
 			0, // retryCount
-			true // skipAuthRedirect - 로그인 시에는 401 에러 시 자동 리다이렉트하지 않음
+			true // skipAuthRedirect
+		);
+
+		this.setToken(result.accessToken);
+		return result;
+	}
+
+	async verifyBackupCodeLogin(
+		email: string,
+		backupCode: string
+	): Promise<{ user: User; accessToken: string }> {
+		const result = await this.request<{ user: User; accessToken: string }>(
+			'/auth/verify-backup-code',
+			{
+				method: 'POST',
+				body: JSON.stringify({ email, backupCode })
+			},
+			0, // retryCount
+			true // skipAuthRedirect
 		);
 
 		this.setToken(result.accessToken);
@@ -264,8 +320,10 @@ class ApiClient {
 		});
 	}
 
-	logout(): void {
-		this.removeToken();
+	logout(): Promise<{ message: string }> {
+		return this.request('/auth/logout', {
+			method: 'POST'
+		});
 	}
 
 	// 대시보드 통계 API
@@ -700,6 +758,47 @@ class ApiClient {
 			method: 'POST',
 			body: JSON.stringify(data)
 		});
+	}
+
+	// 2FA 관련 API
+	async setupTwoFactor(): Promise<TwoFactorSetup> {
+		return this.request<TwoFactorSetup>('/auth/2fa/setup', {
+			method: 'POST'
+		});
+	}
+
+	async enableTwoFactor(data: TwoFactorEnableRequest): Promise<TwoFactorResponse> {
+		return this.request<TwoFactorResponse>('/auth/2fa/enable', {
+			method: 'POST',
+			body: JSON.stringify(data)
+		});
+	}
+
+	async verifyTwoFactor(data: TwoFactorVerifyRequest): Promise<TwoFactorVerifyResponse> {
+		return this.request<TwoFactorVerifyResponse>('/auth/2fa/verify', {
+			method: 'POST',
+			body: JSON.stringify(data)
+		});
+	}
+
+	async verifyTwoFactorBackupCode(
+		data: TwoFactorBackupCodeRequest
+	): Promise<TwoFactorVerifyResponse> {
+		return this.request<TwoFactorVerifyResponse>('/auth/2fa/verify-backup', {
+			method: 'POST',
+			body: JSON.stringify(data)
+		});
+	}
+
+	async disableTwoFactor(data: TwoFactorDisableRequest): Promise<TwoFactorResponse> {
+		return this.request<TwoFactorResponse>('/auth/2fa/disable', {
+			method: 'DELETE',
+			body: JSON.stringify(data)
+		});
+	}
+
+	async getTwoFactorStatus(): Promise<TwoFactorStatus> {
+		return this.request<TwoFactorStatus>('/auth/2fa/status');
 	}
 }
 

@@ -61,8 +61,9 @@ export interface CreateUserDto {
 }
 
 // Stores
-export { authStore, authState } from './stores/auth';
-export { toast, toastStore } from './stores/toast';
+export { authState, authStore } from './stores/auth';
+export { toast } from './stores/toast';
+export { twoFactorStore } from './stores/2fa';
 
 // Constants
 export {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { authStore, authState, Navigation } from '$lib';
+	import { authState, Navigation } from '$lib';
 	import { onMount, onDestroy } from 'svelte';
 	import { page } from '$app/stores';
 	import Button from '$lib/components/Button.svelte';
@@ -34,8 +34,6 @@
 	let mobileMenuOpen = $state(false);
 
 	onMount(() => {
-		authStore.initialize().catch(console.error);
-
 		unsubscribe = authState.subscribe((state) => {
 			user = state.user;
 			isLoading = state.isLoading;

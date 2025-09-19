@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Card, Button, Input } from '$lib';
-	import { authStore, useToast } from '$lib';
+	import { useToast } from '$lib';
+	import { authStore } from '$lib/stores/auth';
 	import { MESSAGES, ROUTES } from '$lib/constants/app.constants';
 	import { validateEmail, validateRequired } from '$lib/utils/validation.utils';
 	import { onMount } from 'svelte';
@@ -12,9 +13,18 @@
 	let isLoading = $state(false);
 	let returnUrl = $state('');
 
+	// 2FA 관련 상태
+	let requiresTwoFactor = $state(false);
+	let twoFactorToken = $state('');
+	let isTwoFactorLoading = $state(false);
+	let twoFactorMode = $state<'token' | 'backup'>('token'); // 토큰 또는 백업 코드 모드
+	let backupCode = $state('');
+
 	// 폼 검증 상태
 	let emailError = $state('');
 	let passwordError = $state('');
+	let twoFactorError = $state('');
+	let backupCodeError = $state('');
 
 	// 중앙화된 토스트 훅 사용
 	const toast = useToast();
@@ -37,6 +47,22 @@
 	function validatePasswordField() {
 		const result = validateRequired(password, '비밀번호');
 		passwordError = result.isValid ? '' : result.message || '';
+	}
+
+	function validateTwoFactorField() {
+		const result = validateRequired(twoFactorToken, '2FA 토큰');
+		twoFactorError = result.isValid ? '' : result.message || '';
+		if (twoFactorToken && !/^\d{6}$/.test(twoFactorToken)) {
+			twoFactorError = '6자리 숫자를 입력해주세요.';
+		}
+	}
+
+	function validateBackupCodeField() {
+		const result = validateRequired(backupCode, '백업 코드');
+		backupCodeError = result.isValid ? '' : result.message || '';
+		if (backupCode && !/^[A-Z0-9]{8,12}$/.test(backupCode.replace(/-/g, ''))) {
+			backupCodeError = '올바른 백업 코드를 입력해주세요.';
+		}
 	}
 
 	async function handleSubmit(event: SubmitEvent) {
@@ -67,18 +93,112 @@
 				goto(ROUTES.DASHBOARD);
 			}
 		} catch (err) {
-			const errorMessage = err instanceof Error ? err.message : MESSAGES.VALIDATION.LOGIN_FAILED;
-			toast.error(errorMessage);
+			console.log('Login error:', err);
+			console.log('Error message:', err instanceof Error ? err.message : 'Unknown error');
+			console.log('Error details:', err);
+
+			// 2FA가 필요한 경우 처리
+			if (err instanceof Error && err.message.includes('2FA')) {
+				console.log('2FA required detected, showing 2FA UI');
+				requiresTwoFactor = true;
+				toast.info('2단계 인증이 필요합니다. 인증 앱에서 토큰을 확인해주세요.');
+			} else {
+				const errorMessage = err instanceof Error ? err.message : MESSAGES.VALIDATION.LOGIN_FAILED;
+				console.log('Showing error message:', errorMessage);
+				toast.error(errorMessage);
+			}
 		} finally {
 			isLoading = false;
 		}
 	}
 
-	function handleKeyPress(event: KeyboardEvent) {
-		if (event.key === 'Enter' && !isLoading) {
-			// Enter 키는 폼의 기본 submit을 트리거하므로 특별한 처리 불필요
-			// 폼의 onsubmit 이벤트가 처리함
+	async function handleTwoFactorSubmit(event: SubmitEvent) {
+		event.preventDefault();
+
+		if (twoFactorMode === 'token') {
+			// 토큰 검증
+			validateTwoFactorField();
+
+			if (twoFactorError) {
+				toast.warning('2FA 토큰을 확인해주세요.');
+				return;
+			}
+		} else {
+			// 백업 코드 검증
+			validateBackupCodeField();
+
+			if (backupCodeError) {
+				toast.warning('백업 코드를 확인해주세요.');
+				return;
+			}
 		}
+
+		if (isTwoFactorLoading) return; // 중복 실행 방지
+
+		isTwoFactorLoading = true;
+
+		try {
+			let result;
+			if (twoFactorMode === 'token') {
+				// 2FA 토큰 검증 API 호출
+				result = await authStore.verifyTwoFactorLogin(email, twoFactorToken);
+			} else {
+				// 백업 코드 검증 API 호출
+				result = await authStore.verifyBackupCodeLogin(email, backupCode);
+			}
+
+			// 성공 시 리다이렉트
+			if (returnUrl) {
+				window.location.href = returnUrl;
+			} else {
+				goto(ROUTES.DASHBOARD);
+			}
+		} catch (err) {
+			const errorMessage = err instanceof Error ? err.message : 
+				(twoFactorMode === 'token' ? '2FA 토큰이 잘못되었습니다.' : '백업 코드가 잘못되었거나 이미 사용되었습니다.');
+			toast.error(errorMessage);
+		} finally {
+			isTwoFactorLoading = false;
+		}
+	}
+
+	function handleBackToLogin() {
+		requiresTwoFactor = false;
+		twoFactorToken = '';
+		backupCode = '';
+		twoFactorError = '';
+		backupCodeError = '';
+		twoFactorMode = 'token';
+	}
+
+	function handleTwoFactorInput(event: Event) {
+		const target = event.target as HTMLInputElement;
+		const value = target.value.replace(/\D/g, ''); // 숫자만 추출
+		twoFactorToken = value;
+		validateTwoFactorField();
+	}
+
+	function handleBackupCodeInput(event: Event) {
+		const target = event.target as HTMLInputElement;
+		let value = target.value.toUpperCase().replace(/[^A-Z0-9-]/g, ''); // 대문자, 숫자, 하이픈만 허용
+		
+		// 하이픈 자동 추가 (4자리마다)
+		if (value.length > 4 && value[4] !== '-') {
+			value = value.slice(0, 4) + '-' + value.slice(4);
+		}
+		if (value.length > 9 && value[9] !== '-') {
+			value = value.slice(0, 9) + '-' + value.slice(9);
+		}
+		
+		backupCode = value;
+		validateBackupCodeField();
+	}
+
+	function switchTwoFactorMode(mode: 'token' | 'backup') {
+		twoFactorMode = mode;
+		// 모드 변경 시 에러 초기화
+		twoFactorError = '';
+		backupCodeError = '';
 	}
 </script>
 
@@ -105,12 +225,141 @@
 
 		<Card class="animate-card-enter border-0 bg-white/80 shadow-2xl backdrop-blur-sm">
 			<div class="mb-8 text-center">
-				<h2 class="mb-2 text-2xl font-bold text-gray-900">로그인</h2>
-				<p class="text-gray-600">계정에 로그인하여 서비스를 이용하세요</p>
+				<h2 class="mb-2 text-2xl font-bold text-gray-900">
+					{#if requiresTwoFactor}
+						2단계 인증
+					{:else}
+						로그인
+					{/if}
+				</h2>
+				<p class="text-gray-600">
+					{#if requiresTwoFactor}
+						{#if twoFactorMode === 'token'}
+							인증 앱에서 생성된 6자리 토큰을 입력하세요
+						{:else}
+							백업 코드를 입력하세요
+						{/if}
+					{:else}
+						계정에 로그인하여 서비스를 이용하세요
+					{/if}
+				</p>
 			</div>
 
-			<!-- SvelteKit 권장 방식의 폼 구조 -->
-			<form method="POST" onsubmit={handleSubmit} class="space-y-6">
+			{#if requiresTwoFactor}
+				<!-- 2FA 모드 선택 탭 -->
+				<div class="mb-6">
+					<div class="flex rounded-lg bg-gray-100 p-1">
+						<button
+							type="button"
+							onclick={() => switchTwoFactorMode('token')}
+							class="flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 {twoFactorMode === 'token'
+								? 'bg-white text-blue-600 shadow-sm'
+								: 'text-gray-500 hover:text-gray-700'}"
+						>
+							<i class="fas fa-mobile-alt mr-2"></i>
+							토큰
+						</button>
+						<button
+							type="button"
+							onclick={() => switchTwoFactorMode('backup')}
+							class="flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 {twoFactorMode === 'backup'
+								? 'bg-white text-blue-600 shadow-sm'
+								: 'text-gray-500 hover:text-gray-700'}"
+						>
+							<i class="fas fa-key mr-2"></i>
+							백업 코드
+						</button>
+					</div>
+				</div>
+
+				<!-- 2FA 입력 폼 -->
+				<form onsubmit={handleTwoFactorSubmit} class="space-y-6">
+					{#if twoFactorMode === 'token'}
+						<!-- 토큰 입력 -->
+						<div class="relative">
+							<label for="twoFactorToken" class="mb-2 block text-sm font-medium text-gray-700">
+								<i class="fas fa-mobile-alt mr-2 text-blue-500"></i>
+								2FA 토큰
+							</label>
+							<Input
+								type="text"
+								id="twoFactorToken"
+								name="twoFactorToken"
+								placeholder="000000"
+								value={twoFactorToken}
+								oninput={handleTwoFactorInput}
+								disabled={isTwoFactorLoading}
+								class="text-center font-mono text-lg tracking-wider transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {twoFactorError
+									? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+									: ''}"
+							/>
+							{#if twoFactorError}
+								<p class="mt-1 text-sm text-red-600">
+									<i class="fas fa-exclamation-circle mr-1"></i>
+									{twoFactorError}
+								</p>
+							{/if}
+						</div>
+					{:else}
+						<!-- 백업 코드 입력 -->
+						<div class="relative">
+							<label for="backupCode" class="mb-2 block text-sm font-medium text-gray-700">
+								<i class="fas fa-key mr-2 text-blue-500"></i>
+								백업 코드
+							</label>
+							<Input
+								type="text"
+								id="backupCode"
+								name="backupCode"
+								placeholder="ABCD-1234-EFGH"
+								value={backupCode}
+								oninput={handleBackupCodeInput}
+								disabled={isTwoFactorLoading}
+								class="text-center font-mono text-lg tracking-wider transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {backupCodeError
+									? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+									: ''}"
+							/>
+							{#if backupCodeError}
+								<p class="mt-1 text-sm text-red-600">
+									<i class="fas fa-exclamation-circle mr-1"></i>
+									{backupCodeError}
+								</p>
+							{/if}
+							<p class="mt-2 text-xs text-gray-500">
+								백업 코드는 한 번만 사용할 수 있습니다.
+							</p>
+						</div>
+					{/if}
+
+					<div class="space-y-4">
+						<Button
+							type="submit"
+							disabled={isTwoFactorLoading}
+							class="w-full bg-blue-600 text-white transition-all duration-200 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+						>
+							{#if isTwoFactorLoading}
+								<i class="fas fa-spinner fa-spin mr-2"></i>
+								확인 중...
+							{:else}
+								확인
+							{/if}
+						</Button>
+
+						<Button
+							type="button"
+							variant="outline"
+							onclick={handleBackToLogin}
+							disabled={isTwoFactorLoading}
+							class="w-full"
+						>
+							<i class="fas fa-arrow-left mr-2"></i>
+							로그인으로 돌아가기
+						</Button>
+					</div>
+				</form>
+			{:else}
+				<!-- 일반 로그인 폼 -->
+				<form method="POST" onsubmit={handleSubmit} class="space-y-6">
 				<!-- 이메일 입력 -->
 				<div class="relative">
 					<label for="email" class="mb-2 block text-sm font-medium text-gray-700">
@@ -127,7 +376,6 @@
 							email = (e.target as HTMLInputElement).value;
 							validateEmailField();
 						}}
-						onkeydown={handleKeyPress}
 						disabled={isLoading}
 						class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {emailError
 							? 'border-red-300 focus:border-red-500 focus:ring-red-500'
@@ -157,7 +405,6 @@
 							password = (e.target as HTMLInputElement).value;
 							validatePasswordField();
 						}}
-						onkeydown={handleKeyPress}
 						disabled={isLoading}
 						class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {passwordError
 							? 'border-red-300 focus:border-red-500 focus:ring-red-500'
@@ -210,6 +457,7 @@
 					{/if}
 				</Button>
 			</form>
+			{/if}
 
 			<!-- 소셜 로그인 (추후 확장 가능) -->
 			<!-- <div class="mt-8">
@@ -260,4 +508,9 @@
 
 <style>
 	/* 로그인 페이지 전용 스타일만 유지 */
+
+	/* 배경 패턴 */
+	.bg-grid-slate-100 {
+		background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(148 163 184 / 0.1)'%3e%3cpath d='m0 .5h32m-32 32h32m-32-32v32m32-32v32'/%3e%3c/svg%3e");
+	}
 </style>
