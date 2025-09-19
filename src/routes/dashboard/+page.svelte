@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { DashboardLayout, Card, Button, Badge, Tabs, apiClient } from '$lib';
-	import { authState, useToast } from '$lib';
+	import { DashboardLayout, Card, Button, Badge, Tabs, apiClient, authState, useToast } from '$lib';
 	import { PermissionUtils } from '$lib';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -16,7 +15,81 @@
 		accountCreated: null as string | null
 	});
 
+	let recentActivities = $state<
+		{
+			id: number;
+			type: string;
+			description: string;
+			createdAt: string;
+			resourceId?: number;
+			metadata?: {
+				clientName?: string;
+				clientId?: number;
+				scopes?: string[];
+				reason?: string;
+				activity?: string;
+				location?: string;
+				userId?: number;
+				details?: {
+					scopes?: string[];
+					expiresAt?: string;
+					isActive?: boolean;
+					isConfidential?: boolean;
+					description?: string;
+					createdAt?: string;
+					updatedAt?: string;
+					tokenId?: number;
+				};
+			};
+		}[]
+	>([]);
+
 	const toast = useToast();
+
+	// 활동 타입별 아이콘과 색상
+	function getActivityIcon(type: string): { icon: string; color: string } {
+		switch (type) {
+			case 'login':
+				return { icon: 'fas fa-sign-in-alt', color: 'bg-blue-100 text-blue-600' };
+			case 'account_created':
+				return { icon: 'fas fa-user-plus', color: 'bg-emerald-100 text-emerald-600' };
+			case 'client_created':
+				return { icon: 'fas fa-plus', color: 'bg-purple-100 text-purple-600' };
+			case 'token_created':
+				return { icon: 'fas fa-key', color: 'bg-green-100 text-green-600' };
+			case 'client_updated':
+				return { icon: 'fas fa-edit', color: 'bg-orange-100 text-orange-600' };
+			case 'token_revoked':
+				return { icon: 'fas fa-ban', color: 'bg-red-100 text-red-600' };
+			default:
+				return { icon: 'fas fa-circle', color: 'bg-gray-100 text-gray-600' };
+		}
+	}
+
+	// 상대적 시간 표시
+	function getRelativeTime(dateString: string): string {
+		const now = new Date();
+		const date = new Date(dateString);
+		const diffMs = now.getTime() - date.getTime();
+		const diffMins = Math.floor(diffMs / (1000 * 60));
+		const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+		const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+		if (diffMins < 1) return '방금 전';
+		if (diffMins < 60) return `${diffMins}분 전`;
+		if (diffHours < 24) return `${diffHours}시간 전`;
+		if (diffDays < 7) return `${diffDays}일 전`;
+		return date.toLocaleDateString('ko-KR');
+	}
+
+	// 탭 설정
+	const tabs = [
+		{ id: 'overview', label: '개요', icon: 'fas fa-tachometer-alt' },
+		{ id: 'activity', label: '최근 활동', icon: 'fas fa-clock' },
+		{ id: 'quick-actions', label: '빠른 작업', icon: 'fas fa-bolt' }
+	];
+
+	let activeTab = $state('overview');
 
 	onMount(() => {
 		// store 구독
@@ -38,12 +111,18 @@
 	async function loadDashboardData() {
 		try {
 			// 실제 API 호출로 대시보드 통계 가져오기
-			const stats = await apiClient.getDashboardStats();
+			const [stats, activities] = await Promise.all([
+				apiClient.getDashboardStats(),
+				apiClient.getRecentActivities(5),
+			]);
+
 			dashboardStats = {
 				...stats,
 				// user 객체에서 accountCreated가 없으면 API 응답 사용
 				accountCreated: user?.createdAt || stats.accountCreated
 			};
+
+			recentActivities = activities;
 		} catch (error) {
 			console.error('Failed to load dashboard data:', error);
 			// API 호출 실패 시 user 객체에서 데이터 사용
@@ -77,15 +156,6 @@
 	function navigateToOAuthTester() {
 		goto('/dashboard/oauth-tester');
 	}
-
-	// 탭 설정
-	const tabs = [
-		{ id: 'overview', label: '개요', icon: 'fas fa-tachometer-alt' },
-		{ id: 'activity', label: '최근 활동', icon: 'fas fa-clock' },
-		{ id: 'quick-actions', label: '빠른 작업', icon: 'fas fa-bolt' }
-	];
-
-	let activeTab = $state('overview');
 </script>
 
 <DashboardLayout title="대시보드" description="OAuth2 인증 시스템을 관리하고 모니터링하세요.">
@@ -276,33 +346,78 @@
 					<div class="space-y-4">
 						<h3 class="text-lg font-semibold text-gray-900">최근 활동</h3>
 						<div class="space-y-3">
-							<div class="flex items-center space-x-3 rounded-lg border border-gray-200 p-3">
-								<div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
-									<i class="fas fa-sign-in-alt text-blue-600"></i>
+							{#each recentActivities as activity}
+								{@const { icon, color } = getActivityIcon(activity.type)}
+								<div class="flex items-start space-x-3 rounded-lg border border-gray-200 p-4 transition-all duration-200 hover:border-gray-300 hover:shadow-sm">
+									<div class="flex h-10 w-10 items-center justify-center rounded-full {color} flex-shrink-0">
+										<i class="{icon}"></i>
+									</div>
+									<div class="flex-1 min-w-0">
+										<div class="flex items-start justify-between">
+											<div class="flex-1">
+												<p class="text-sm font-medium text-gray-900 mb-1">{activity.description}</p>
+												{#if activity.metadata?.activity}
+													<p class="text-xs text-gray-600 mb-2">{activity.metadata.activity}</p>
+												{/if}
+
+												<!-- 추가 세부 정보 표시 -->
+												{#if activity.metadata?.details}
+													<div class="space-y-1">
+														{#if activity.metadata.details.scopes && Array.isArray(activity.metadata.details.scopes)}
+															<div class="flex flex-wrap gap-1">
+																{#each activity.metadata.details.scopes as scope}
+																	<Badge variant="secondary" class="text-xs px-2 py-0.5">
+																		{scope}
+																	</Badge>
+																{/each}
+															</div>
+														{/if}
+
+														{#if activity.metadata.details.expiresAt}
+															<p class="text-xs text-gray-500">
+																<i class="fas fa-clock mr-1"></i>
+																만료: {new Date(activity.metadata.details.expiresAt).toLocaleString('ko-KR')}
+															</p>
+														{/if}
+
+														{#if activity.metadata.details.isActive !== undefined}
+															<p class="text-xs text-gray-500">
+																<i class="fas fa-info-circle mr-1"></i>
+																상태: {activity.metadata.details.isActive ? '활성' : '비활성'}
+																{#if activity.metadata.details.isConfidential !== undefined}
+																	• 기밀: {activity.metadata.details.isConfidential ? '예' : '아니오'}
+																{/if}
+															</p>
+														{/if}
+
+														{#if activity.metadata.details.description}
+															<p class="text-xs text-gray-500 mt-1 italic">
+																"{activity.metadata.details.description}"
+															</p>
+														{/if}
+													</div>
+												{/if}
+
+												{#if activity.metadata?.reason}
+													<p class="text-xs text-red-600 mt-1">
+														<i class="fas fa-exclamation-triangle mr-1"></i>
+														사유: {activity.metadata.reason}
+													</p>
+												{/if}
+											</div>
+											<div class="text-right flex-shrink-0 ml-3">
+												<p class="text-xs text-gray-500">{getRelativeTime(activity.createdAt)}</p>
+											</div>
+										</div>
+									</div>
 								</div>
-								<div class="flex-1">
-									<p class="text-sm font-medium text-gray-900">로그인</p>
-									<p class="text-xs text-gray-500">방금 전</p>
+							{/each}
+							{#if recentActivities.length === 0}
+								<div class="text-center py-8 text-gray-500">
+									<i class="fas fa-clock text-3xl mb-2"></i>
+									<p>최근 활동이 없습니다.</p>
 								</div>
-							</div>
-							<div class="flex items-center space-x-3 rounded-lg border border-gray-200 p-3">
-								<div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
-									<i class="fas fa-key text-green-600"></i>
-								</div>
-								<div class="flex-1">
-									<p class="text-sm font-medium text-gray-900">새 토큰 생성</p>
-									<p class="text-xs text-gray-500">2시간 전</p>
-								</div>
-							</div>
-							<div class="flex items-center space-x-3 rounded-lg border border-gray-200 p-3">
-								<div class="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100">
-									<i class="fas fa-plus text-purple-600"></i>
-								</div>
-								<div class="flex-1">
-									<p class="text-sm font-medium text-gray-900">클라이언트 등록</p>
-									<p class="text-xs text-gray-500">1일 전</p>
-								</div>
-							</div>
+							{/if}
 						</div>
 					</div>
 				{:else if activeTab === 'quick-actions'}

@@ -246,16 +246,20 @@ class ApiClient {
 		return this.request<User>(API_ENDPOINTS.AUTH.PROFILE);
 	}
 
-	async updateProfile(data: { firstName?: string; lastName?: string }) {
+	async updateProfile(data: { firstName?: string; lastName?: string; username?: string }) {
 		return this.request('/profile', {
 			method: 'PUT',
 			body: JSON.stringify(data)
 		});
 	}
 
+	async checkUsername(username: string): Promise<{ available: boolean; message: string }> {
+		return this.request(`/profile/check-username/${encodeURIComponent(username)}`);
+	}
+
 	async changePassword(data: { currentPassword: string; newPassword: string }) {
-		return this.request('/auth/profile/password', {
-			method: 'PATCH',
+		return this.request('/profile/password', {
+			method: 'PUT',
 			body: JSON.stringify(data)
 		});
 	}
@@ -502,6 +506,200 @@ class ApiClient {
 			name: scope.name.charAt(0).toUpperCase() + scope.name.slice(1).replace(/[_:]/g, ' '),
 			description: scope.description
 		}));
+	}
+
+	// 설정 관련 API
+	async getGeneralSettings(): Promise<{
+		siteName: string;
+		siteDescription: string;
+		adminEmail: string;
+		defaultTokenExpiry: number;
+		defaultRefreshTokenExpiry: number;
+	}> {
+		return this.request('/settings/general');
+	}
+
+	async updateGeneralSettings(settings: {
+		siteName: string;
+		siteDescription: string;
+		adminEmail: string;
+		defaultTokenExpiry: number;
+		defaultRefreshTokenExpiry: number;
+	}): Promise<{
+		siteName: string;
+		siteDescription: string;
+		adminEmail: string;
+		defaultTokenExpiry: number;
+		defaultRefreshTokenExpiry: number;
+	}> {
+		return this.request('/settings/general', {
+			method: 'PUT',
+			body: JSON.stringify(settings)
+		});
+	}
+
+	async getSecuritySettings(): Promise<{
+		enableTwoFactor: boolean;
+		requireStrongPasswords: boolean;
+		enableLoginNotifications: boolean;
+		sessionTimeout: number;
+		maxLoginAttempts: number;
+		enableAuditLog: boolean;
+	}> {
+		return this.request('/settings/security');
+	}
+
+	async updateSecuritySettings(settings: {
+		enableTwoFactor: boolean;
+		requireStrongPasswords: boolean;
+		enableLoginNotifications: boolean;
+		sessionTimeout: number;
+		maxLoginAttempts: number;
+		enableAuditLog: boolean;
+	}): Promise<{
+		enableTwoFactor: boolean;
+		requireStrongPasswords: boolean;
+		enableLoginNotifications: boolean;
+		sessionTimeout: number;
+		maxLoginAttempts: number;
+		enableAuditLog: boolean;
+	}> {
+		return this.request('/settings/security', {
+			method: 'PUT',
+			body: JSON.stringify(settings)
+		});
+	}
+
+	async getNotificationSettings(): Promise<{
+		emailNotifications: boolean;
+		newClientNotifications: boolean;
+		tokenExpiryNotifications: boolean;
+		securityAlerts: boolean;
+		systemUpdates: boolean;
+	}> {
+		return this.request('/settings/notifications');
+	}
+
+	async updateNotificationSettings(settings: {
+		emailNotifications: boolean;
+		newClientNotifications: boolean;
+		tokenExpiryNotifications: boolean;
+		securityAlerts: boolean;
+		systemUpdates: boolean;
+	}): Promise<{
+		emailNotifications: boolean;
+		newClientNotifications: boolean;
+		tokenExpiryNotifications: boolean;
+		securityAlerts: boolean;
+		systemUpdates: boolean;
+	}> {
+		return this.request('/settings/notifications', {
+			method: 'PUT',
+			body: JSON.stringify(settings)
+		});
+	}
+
+	// 대시보드 관련 API
+	async getRecentActivities(limit: number = 10): Promise<
+		{
+			id: number;
+			type: string;
+			description: string;
+			createdAt: string;
+			resourceId?: number;
+			metadata?: { [key: string]: unknown };
+		}[]
+	> {
+		return this.request(`/dashboard/activities?limit=${limit}`);
+	}
+
+	// 데이터 내보내기/가져오기 API
+	async exportSettings(): Promise<{
+		exportedAt: string;
+		version: string;
+		data: {
+			general: {
+				siteName: string;
+				siteDescription: string;
+				adminEmail: string;
+				defaultTokenExpiry: number;
+				defaultRefreshTokenExpiry: number;
+			};
+			security: {
+				enableTwoFactor: boolean;
+				requireStrongPasswords: boolean;
+				enableLoginNotifications: boolean;
+				sessionTimeout: number;
+				maxLoginAttempts: number;
+				enableAuditLog: boolean;
+			};
+			notification: {
+				emailNotifications: boolean;
+				newClientNotifications: boolean;
+				tokenExpiryNotifications: boolean;
+				securityAlerts: boolean;
+				systemUpdates: boolean;
+			};
+		};
+	}> {
+		return this.request('/settings/export');
+	}
+
+	async importSettings(data: {
+		general: {
+			siteName: string;
+			siteDescription: string;
+			adminEmail: string;
+			defaultTokenExpiry: number;
+			defaultRefreshTokenExpiry: number;
+		};
+		security: {
+			enableTwoFactor: boolean;
+			requireStrongPasswords: boolean;
+			enableLoginNotifications: boolean;
+			sessionTimeout: number;
+			maxLoginAttempts: number;
+			enableAuditLog: boolean;
+		};
+		notification: {
+			emailNotifications: boolean;
+			newClientNotifications: boolean;
+			tokenExpiryNotifications: boolean;
+			securityAlerts: boolean;
+			systemUpdates: boolean;
+		};
+	}): Promise<{
+		importedAt: string;
+		message: string;
+		data: {
+			general: {
+				siteName: string;
+				siteDescription: string;
+				adminEmail: string;
+				defaultTokenExpiry: number;
+				defaultRefreshTokenExpiry: number;
+			};
+			security: {
+				enableTwoFactor: boolean;
+				requireStrongPasswords: boolean;
+				enableLoginNotifications: boolean;
+				sessionTimeout: number;
+				maxLoginAttempts: number;
+				enableAuditLog: boolean;
+			};
+			notification: {
+				emailNotifications: boolean;
+				newClientNotifications: boolean;
+				tokenExpiryNotifications: boolean;
+				securityAlerts: boolean;
+				systemUpdates: boolean;
+			};
+		};
+	}> {
+		return this.request('/settings/import', {
+			method: 'POST',
+			body: JSON.stringify(data)
+		});
 	}
 }
 

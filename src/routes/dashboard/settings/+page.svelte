@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { DashboardLayout, Card, Button } from '$lib';
 	import { useToast } from '$lib';
+	import { onMount } from 'svelte';
+	import { apiClient } from '$lib';
 
 	let generalSettings = $state({
 		siteName: 'FlowAuth',
@@ -29,30 +31,114 @@
 
 	const toast = useToast();
 
-	function saveGeneralSettings() {
-		// TODO: 실제 API 호출
-		toast.success('일반 설정이 저장되었습니다.');
+	onMount(async () => {
+		await loadSettings();
+	});
+
+	async function loadSettings() {
+		try {
+			const [general, security, notifications] = await Promise.all([
+				apiClient.getGeneralSettings(),
+				apiClient.getSecuritySettings(),
+				apiClient.getNotificationSettings(),
+			]);
+
+			generalSettings = general;
+			securitySettings = security;
+			notificationSettings = notifications;
+		} catch (error) {
+			console.error('Failed to load settings:', error);
+			toast.error('설정을 불러오는데 실패했습니다.');
+		}
 	}
 
-	function saveSecuritySettings() {
-		// TODO: 실제 API 호출
-		toast.success('보안 설정이 저장되었습니다.');
+	async function saveGeneralSettings() {
+		try {
+			await apiClient.updateGeneralSettings(generalSettings);
+			toast.success('일반 설정이 저장되었습니다.');
+		} catch (error) {
+			console.error('Failed to save general settings:', error);
+			toast.error('일반 설정 저장에 실패했습니다.');
+		}
 	}
 
-	function saveNotificationSettings() {
-		// TODO: 실제 API 호출
-		toast.success('알림 설정이 저장되었습니다.');
+	async function saveSecuritySettings() {
+		try {
+			await apiClient.updateSecuritySettings(securitySettings);
+			toast.success('보안 설정이 저장되었습니다.');
+		} catch (error) {
+			console.error('Failed to save security settings:', error);
+			toast.error('보안 설정 저장에 실패했습니다.');
+		}
 	}
 
-	function exportData() {
-		toast.info('데이터를 내보내는 중...');
-		// TODO: 실제 내보내기 로직
+	async function saveNotificationSettings() {
+		try {
+			await apiClient.updateNotificationSettings(notificationSettings);
+			toast.success('알림 설정이 저장되었습니다.');
+		} catch (error) {
+			console.error('Failed to save notification settings:', error);
+			toast.error('알림 설정 저장에 실패했습니다.');
+		}
 	}
 
-	function importData() {
-		toast.info('데이터를 가져오는 중...');
-		// TODO: 실제 가져오기 로직
+	// 실제 데이터 내보내기 구현
+	async function exportData() {
+		try {
+			const exportData = await apiClient.exportSettings();
+
+			// JSON 파일로 다운로드
+			const dataStr = JSON.stringify(exportData, null, 2);
+			const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+
+			const exportFileDefaultName = `flowauth-settings-${new Date().toISOString().split('T')[0]}.json`;
+
+			const linkElement = document.createElement('a');
+			linkElement.setAttribute('href', dataUri);
+			linkElement.setAttribute('download', exportFileDefaultName);
+			linkElement.click();
+
+			toast.success('설정이 성공적으로 내보내졌습니다.');
+		} catch (error) {
+			console.error('Failed to export settings:', error);
+			toast.error('설정 내보내기에 실패했습니다.');
+		}
 	}
+
+	// 실제 데이터 가져오기 구현
+	async function importData() {
+		const input = document.createElement('input');
+		input.type = 'file';
+		input.accept = '.json';
+
+		input.onchange = async (event) => {
+			const file = (event.target as HTMLInputElement).files?.[0];
+			if (!file) return;
+
+			try {
+				const text = await file.text();
+				const importData = JSON.parse(text);
+
+				// 데이터 유효성 검증
+				if (!importData.data || !importData.data.general || !importData.data.security || !importData.data.notification) {
+					throw new Error('잘못된 파일 형식입니다.');
+				}
+
+				await apiClient.importSettings(importData.data);
+
+				// 설정 다시 로드
+				await loadSettings();
+
+				toast.success('설정이 성공적으로 가져와졌습니다.');
+			} catch (error) {
+				console.error('Failed to import settings:', error);
+				toast.error('설정 가져오기에 실패했습니다. 파일 형식을 확인해주세요.');
+			}
+		};
+
+		input.click();
+	}
+
 </script>
 
 <DashboardLayout title="설정" description="시스템 설정과 환경을 관리하세요." showBackButton={true}>
