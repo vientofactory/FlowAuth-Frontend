@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { DashboardLayout, Card, Button, Badge, apiClient, twoFactorStore } from '$lib';
-	import { authState, useToast } from '$lib';
-	import { PermissionUtils } from '$lib';
+	import { DashboardLayout, Card, Button, Badge, apiClient, twoFactorStore, authState, useToast, PermissionUtils } from '$lib';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import type { User } from '$lib';
@@ -55,7 +53,7 @@
 		isAvailable: null as boolean | null,
 		message: ''
 	});
-	let usernameCheckTimeout: number | null = $state(null);
+	let usernameCheckTimeout: ReturnType<typeof setTimeout> | null = $state(null);
 
 	const toast = useToast();
 
@@ -583,7 +581,7 @@
 							<span class="text-sm text-gray-600">역할</span>
 							{#if user.permissions !== undefined}
 								<Badge variant="info" size="sm">
-									{PermissionUtils.getRoleName(parseInt(user.permissions, 10))}
+									{PermissionUtils.getRoleName(Number(user.permissions))}
 								</Badge>
 							{:else}
 								<Badge variant="secondary" size="sm">권한 없음</Badge>
@@ -593,7 +591,7 @@
 							<span class="text-sm text-gray-600">세부 권한</span>
 							{#if user.permissions !== undefined}
 								<div class="flex max-w-48 flex-wrap gap-1">
-									{#each PermissionUtils.getPermissionNames(parseInt(user.permissions, 10)) as permission (permission)}
+									{#each PermissionUtils.getPermissionNames(Number(user.permissions)) as permission (permission)}
 										<Badge variant="secondary" size="xs">{permission}</Badge>
 									{/each}
 								</div>

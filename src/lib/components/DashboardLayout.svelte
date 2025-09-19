@@ -81,7 +81,8 @@
 	}
 
 	// 메뉴 활성화 상태 확인 함수
-	function isMenuActive(href: string): boolean {
+	function isMenuActive(href: string | undefined): boolean {
+		if (!href) return false;
 		return currentPath === href || (href !== '/dashboard' && currentPath.startsWith(href));
 	}
 
@@ -111,8 +112,8 @@
 
 		// 모바일용 짧은 라벨 추가
 		return selectedItems.map((item) => ({
-			...item,
-			mobileLabel: getMobileLabel(item.id)
+			...item!,
+			mobileLabel: getMobileLabel(item!.id)
 		}));
 	}
 

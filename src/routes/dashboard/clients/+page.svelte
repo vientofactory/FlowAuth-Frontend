@@ -3,8 +3,9 @@
 	import { useToast } from '$lib';
 	import { onMount } from 'svelte';
 	import type { Client } from '$lib/types/oauth.types';
+	import type { User } from '$lib/types/user.types';
 	import { USER_TYPES } from '$lib/types/user.types';
-	import { authState } from '$lib';
+	import { authState } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
 	import {
 		validateClientName,
@@ -366,7 +367,7 @@
 		console.log('validateEditPolicyUriField - result:', result, 'error:', editPolicyUriError);
 	}
 
-	onMount(async () => {
+	onMount(() => {
 		// 사용자 유형 검증
 		const unsubscribe = authState.subscribe((state) => {
 			user = state.user;
@@ -377,8 +378,12 @@
 			}
 		});
 
-		await loadClients();
-		return unsubscribe;
+		loadClients();
+		
+		// cleanup 함수 반환
+		return () => {
+			unsubscribe();
+		};
 	});
 
 	async function loadClients() {

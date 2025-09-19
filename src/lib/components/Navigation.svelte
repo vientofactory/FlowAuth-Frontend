@@ -4,6 +4,16 @@
 	import type { User } from '$lib';
 	import { USER_TYPES } from '$lib/types/user.types';
 
+	// 프로필 메뉴 아이템 타입 정의
+	type ProfileMenuItem = {
+		label: string;
+		icon: string;
+		href?: string;
+		action?: () => Promise<void>;
+		danger?: boolean;
+		external?: boolean;
+	};
+
 	interface Props {
 		showDashboardButton?: boolean;
 		showProfileBadge?: boolean;
@@ -82,7 +92,7 @@
 	}
 
 	// 사용자 유형별 프로필 메뉴 아이템들
-	const profileMenuItems = $derived.by(() => {
+	const profileMenuItems = $derived.by((): ProfileMenuItem[] => {
 		if (!user) return [];
 
 		const isDeveloper = user.userType === USER_TYPES.DEVELOPER;
@@ -286,7 +296,7 @@
 											{:else if item.action}
 												<button
 													onclick={() => {
-														item.action();
+														item.action?.();
 														profileDropdownOpen = false;
 													}}
 													class="mx-1 flex w-full items-center rounded-md px-4 py-2.5 text-sm transition-colors duration-150 {item.danger

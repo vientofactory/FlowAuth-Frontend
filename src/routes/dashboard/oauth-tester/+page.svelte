@@ -58,7 +58,7 @@
 		showScopeSelector = !showScopeSelector;
 	}
 
-	onMount(async () => {
+	onMount(() => {
 		// 사용자 유형 검증
 		const unsubscribe = authState.subscribe((state) => {
 			user = state.user;
@@ -69,8 +69,12 @@
 			}
 		});
 
-		await Promise.all([loadClients(), loadAvailableScopes()]);
-		return unsubscribe;
+		Promise.all([loadClients(), loadAvailableScopes()]);
+		
+		// cleanup 함수 반환
+		return () => {
+			unsubscribe();
+		};
 	});
 
 	async function loadClients() {

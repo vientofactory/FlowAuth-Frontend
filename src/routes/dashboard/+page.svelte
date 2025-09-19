@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { DashboardLayout, Card, Button, Badge, Tabs, apiClient, authState, useToast } from '$lib';
-	import { PermissionUtils } from '$lib';
+	import { DashboardLayout, Card, Button, Badge, Tabs, apiClient, authState, useToast, PermissionUtils } from '$lib';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import type { User } from '$lib';
@@ -335,7 +334,7 @@
 	<!-- 통계 카드들 -->
 	{#if userTypeConfig}
 		<div class="mb-6 grid gap-4 {getGridColsClass(userTypeConfig.stats.length, 'stats')}">
-			{#each userTypeConfig.stats as stat, index (stat.title || `stat-${index}`)}
+			{#each userTypeConfig.stats as stat, index (stat.label || `stat-${index}`)}
 				<Card
 					class="group relative overflow-hidden bg-gradient-to-br {stat.color} text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
 				>
@@ -401,7 +400,7 @@
 												<span class="font-medium">역할:</span>
 												{#if user.permissions !== undefined}
 													<Badge variant="info" size="sm" class="ml-1">
-														{PermissionUtils.getRoleName(parseInt(user.permissions, 10))}
+														{PermissionUtils.getRoleName(Number(user.permissions))}
 													</Badge>
 												{:else}
 													<Badge variant="secondary" size="sm" class="ml-1">권한 없음</Badge>
@@ -413,7 +412,7 @@
 											<span>
 												<span class="font-medium">유형:</span>
 												<Badge
-													variant={user.userType === USER_TYPES.DEVELOPER ? 'success' : 'primary'}
+													variant={user.userType === USER_TYPES.DEVELOPER ? 'success' : 'info'}
 													size="sm"
 													class="ml-1"
 												>
@@ -615,7 +614,7 @@
 						<div
 							class="grid gap-4 {getGridColsClass(userTypeConfig.quickActions.length, 'actions')}"
 						>
-							{#each userTypeConfig.quickActions as action, actionIndex (action.title || `action-${actionIndex}`)}
+							{#each userTypeConfig.quickActions as action, actionIndex (action.label || `action-${actionIndex}`)}
 								{@const colorClass = COLOR_CLASSES[action.color as keyof typeof COLOR_CLASSES]}
 								<Button
 									variant="outline"

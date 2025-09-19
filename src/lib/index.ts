@@ -34,18 +34,8 @@ export {
 	PERMISSION_NAMES
 } from './utils/permissions';
 
-// Types
-export interface User {
-	id: number;
-	username: string;
-	email: string;
-	firstName: string;
-	lastName: string;
-	isEmailVerified: number;
-	permissions: string;
-	createdAt: string;
-	updatedAt: string;
-}
+// Types - re-export from specific type files
+export type { User, USER_TYPES } from './types/user.types';
 
 export interface LoginData {
 	email: string;

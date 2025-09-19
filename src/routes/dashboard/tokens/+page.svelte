@@ -12,14 +12,18 @@
 
 	const toast = useToast();
 
-	onMount(async () => {
+	onMount(() => {
 		// 사용자 정보 구독
 		const unsubscribe = authState.subscribe((state) => {
 			_user = state.user;
 		});
 
-		await loadTokens();
-		return unsubscribe;
+		loadTokens();
+		
+		// cleanup 함수 반환
+		return () => {
+			unsubscribe();
+		};
 	});
 
 	async function loadTokens() {
