@@ -98,12 +98,15 @@
 
 		const selectedItems = [
 			dashboardMenuItems[0], // 개요
-			...(user?.userType === USER_TYPES.DEVELOPER ? [
-				dashboardMenuItems.find(item => item.id === 'clients'),
-				dashboardMenuItems.find(item => item.id === 'oauth-tester')
-			].filter(Boolean) : []),
-			dashboardMenuItems.find(item => item.id === 'profile'),
-			dashboardMenuItems.find(item => item.id === 'settings')
+			...(user?.userType === USER_TYPES.DEVELOPER
+				? [
+						dashboardMenuItems.find((item) => item.id === 'clients'),
+						dashboardMenuItems.find((item) => item.id === 'oauth-tester')
+					].filter(Boolean)
+				: []),
+			dashboardMenuItems.find((item) => item.id === 'connections'),
+			dashboardMenuItems.find((item) => item.id === 'profile'),
+			dashboardMenuItems.find((item) => item.id === 'settings')
 		].filter(Boolean);
 
 		// 모바일용 짧은 라벨 추가
@@ -119,6 +122,7 @@
 			dashboard: '홈',
 			clients: '클라이언트',
 			'oauth-tester': '테스터',
+			connections: '연결앱',
 			profile: '프로필',
 			settings: '설정'
 		};
@@ -166,6 +170,13 @@
 		];
 
 		const commonItems = [
+			{
+				id: 'connections',
+				label: '연결된 앱',
+				icon: 'fas fa-plug',
+				href: '/dashboard/connections',
+				description: '연결된 애플리케이션 관리'
+			},
 			{
 				id: 'profile',
 				label: '프로필',

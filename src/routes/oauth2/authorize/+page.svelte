@@ -9,7 +9,7 @@
 	import { ErrorType } from '$lib/types/authorization.types';
 	import type { PageData } from './$types';
 	import { env } from '$lib/config/env';
-	import { getScopeInfo, groupScopesByCategory, SCOPE_CATEGORIES } from '$lib/utils/scope.utils';
+	import { getScopeInfo } from '$lib/utils/scope.utils';
 
 	let { data }: { data: PageData } = $props();
 
@@ -46,7 +46,7 @@
 			gray: 'bg-gray-100 text-gray-600',
 			cyan: 'bg-cyan-100 text-cyan-600'
 		};
-		
+
 		return colorMap[color as keyof typeof colorMap] || colorMap.gray;
 	}
 
@@ -96,27 +96,27 @@
 	function getTruncatedDescription(description?: string): string {
 		if (!description) return '';
 		if (description.length <= DESCRIPTION_MAX_LENGTH) return description;
-		
+
 		// 단어 경계에서 자르기 위해 공백을 찾음
 		const truncated = description.substring(0, DESCRIPTION_PREVIEW_LENGTH);
 		const lastSpace = truncated.lastIndexOf(' ');
-		
+
 		// 마지막 공백이 너무 앞쪽에 있으면 그냥 문자 기준으로 자름
 		if (lastSpace < DESCRIPTION_PREVIEW_LENGTH * 0.8) {
 			return truncated + '...';
 		}
-		
+
 		return description.substring(0, lastSpace) + '...';
 	}
 
 	// Function to get display description based on expanded state
 	function getDisplayDescription(description?: string): string {
 		if (!description) return '';
-		
+
 		if (!needsTruncation(description) || isDescriptionExpanded) {
 			return description;
 		}
-		
+
 		return getTruncatedDescription(description);
 	}
 
@@ -217,13 +217,13 @@
 							</h1>
 							{#if currentState.client?.description}
 								<div class="mb-1 flex flex-col items-center space-y-1">
-									<p class="text-sm text-gray-700 leading-relaxed">
+									<p class="text-sm leading-relaxed text-gray-700">
 										{getDisplayDescription(currentState.client.description)}
 									</p>
 									{#if needsTruncation(currentState.client.description)}
 										<button
 											onclick={toggleDescription}
-											class="text-xs text-blue-600 hover:text-blue-800 transition-colors focus:outline-none"
+											class="text-xs text-blue-600 transition-colors hover:text-blue-800 focus:outline-none"
 										>
 											{isDescriptionExpanded ? '간략히 보기' : '더 보기'}
 										</button>
@@ -247,7 +247,9 @@
 								{@const scopeInfo = getScopeInfo(scope)}
 								<div class="flex items-center space-x-3 rounded-lg bg-gray-50 p-3">
 									<div
-										class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full {getScopeColorClasses(scopeInfo.color)}"
+										class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full {getScopeColorClasses(
+											scopeInfo.color
+										)}"
 									>
 										<i class="fas {scopeInfo.icon} text-sm"></i>
 									</div>
@@ -263,18 +265,14 @@
 							{/each}
 						</div>
 					{:else}
-						<div class="text-center py-4">
-							<div class="flex justify-center items-center mb-3">
+						<div class="py-4 text-center">
+							<div class="mb-3 flex items-center justify-center">
 								<div class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
 									<i class="fas fa-info text-gray-400"></i>
 								</div>
 							</div>
-							<p class="text-sm text-gray-500">
-								이 앱은 특별한 권한을 요청하지 않습니다
-							</p>
-							<p class="text-xs text-gray-400 mt-1">
-								기본적인 인증 정보만 사용됩니다
-							</p>
+							<p class="text-sm text-gray-500">이 앱은 특별한 권한을 요청하지 않습니다</p>
+							<p class="mt-1 text-xs text-gray-400">기본적인 인증 정보만 사용됩니다</p>
 						</div>
 					{/if}
 

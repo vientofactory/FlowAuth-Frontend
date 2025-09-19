@@ -1,13 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
 	import { apiClient } from '$lib/utils/api';
 	import { useToast } from '$lib/composables/useToast';
 	import Card from '$lib/components/Card.svelte';
 	import Button from '$lib/components/Button.svelte';
-	import Input from '$lib/components/Input.svelte';
-	import Loading from '$lib/components/Loading.svelte';
 	import QRCode from '$lib/components/QRCode.svelte';
 	import type { TwoFactorSetup } from '$lib/types/2fa.types';
 
@@ -65,7 +62,7 @@
 			await updateLoadingStep(2, remainingTime * 0.4); // 백업 코드 생성
 
 			loadingStep = 3; // 완료
-			await new Promise(resolve => setTimeout(resolve, 500)); // 완료 애니메이션
+			await new Promise((resolve) => setTimeout(resolve, 500)); // 완료 애니메이션
 
 			step = 1;
 		} catch (error) {
@@ -108,7 +105,7 @@
 			await apiClient.enableTwoFactor({
 				token: token.trim(),
 				secret: setupData.secret,
-				backupCodes: setupData.backupCodes,
+				backupCodes: setupData.backupCodes
 			});
 
 			step = 3; // 백업코드 표시 단계로 이동
@@ -203,17 +200,23 @@
 								{/if}
 							</p>
 							<div class="loading-steps">
-								{#each loadingSteps as step, index}
-									<div class="loading-step" class:active={step.active} class:completed={loadingStep > index}>
+								{#each loadingSteps as step, index (index)}
+									<div
+										class="loading-step"
+										class:active={step.active}
+										class:completed={loadingStep > index}
+									>
 										<div class="step-icon">{step.icon}</div>
-										<span>{step.text}</span>
-										{#if step.active && loadingStep === index + 1}
-											<div class="step-progress">
-												<div class="progress-bar"></div>
-											</div>
-										{:else if loadingStep > index}
-											<div class="step-check">✓</div>
-										{/if}
+										<div class="step-text">
+											<span>{step.text}</span>
+											{#if step.active && loadingStep === index + 1}
+												<div class="step-progress">
+													<div class="progress-bar"></div>
+												</div>
+											{:else if loadingStep > index}
+												<div class="step-check">✓</div>
+											{/if}
+										</div>
 									</div>
 								{/each}
 							</div>
@@ -223,136 +226,126 @@
 			</Card>
 		{:else if setupData}
 			<!-- 단계별 진행 표시 -->
-			<div class="step-indicator">
-				<div class="step" class:active={step >= 1}>
-					<div class="step-number">1</div>
-					<span>QR 코드</span>
+			<div class="setup-layout">
+				<div class="step-indicator">
+					<div class="step" class:active={step >= 1}>
+						<div class="step-number">1</div>
+						<span>QR 코드</span>
+					</div>
+					<div class="step-line" class:active={step >= 2}></div>
+					<div class="step" class:active={step >= 2}>
+						<div class="step-number">2</div>
+						<span>토큰 확인</span>
+					</div>
+					<div class="step-line" class:active={step >= 3}></div>
+					<div class="step" class:active={step >= 3}>
+						<div class="step-number">3</div>
+						<span>백업 코드</span>
+					</div>
 				</div>
-				<div class="step-line" class:active={step >= 2}></div>
-				<div class="step" class:active={step >= 2}>
-					<div class="step-number">2</div>
-					<span>토큰 확인</span>
-				</div>
-				<div class="step-line" class:active={step >= 3}></div>
-				<div class="step" class:active={step >= 3}>
-					<div class="step-number">3</div>
-					<span>백업 코드</span>
+
+				<!-- 단계별 콘텐츠 -->
+				<div class="content-area">
+					{#if step === 1}
+						<Card>
+							<div class="step-content">
+								<h2>1단계: 인증 앱 설정</h2>
+								<p>Google Authenticator, Authy 등의 인증 앱을 사용하여 QR 코드를 스캔하세요.</p>
+
+								<div class="qr-section">
+									<QRCode qrCodeUrl={setupData.qrCodeUrl} secret={setupData.secret} size={250} />
+								</div>
+
+								<div class="instructions">
+									<h3>설정 방법:</h3>
+									<ol>
+										<li>인증 앱을 실행하세요</li>
+										<li>QR 코드를 스캔하거나 시크릿 키를 수동으로 입력하세요</li>
+										<li>생성된 6자리 토큰을 아래에 입력하세요</li>
+									</ol>
+								</div>
+
+								<div class="actions">
+									<Button variant="secondary" onclick={goBack}>취소</Button>
+									<Button onclick={() => (step = 2)}>다음</Button>
+								</div>
+							</div>
+						</Card>
+					{:else if step === 2}
+						<Card>
+							<div class="step-content">
+								<h2>2단계: 토큰 확인</h2>
+								<p>인증 앱에서 생성된 6자리 토큰을 입력하세요.</p>
+
+								<form onsubmit={handleSubmit} class="token-form">
+									<div class="form-group">
+										<label for="token">6자리 토큰</label>
+										<input
+											id="token"
+											type="text"
+											placeholder="000000"
+											bind:value={token}
+											maxlength="6"
+											inputmode="numeric"
+											class="token-input"
+											class:error={token && !isValidToken(token)}
+											oninput={handleTokenInput}
+										/>
+										{#if token && !isValidToken(token)}
+											<p class="error-message">6자리 숫자를 입력해주세요.</p>
+										{/if}
+									</div>
+
+									<div class="actions">
+										<Button variant="secondary" onclick={() => (step = 1)}>이전</Button>
+										<Button type="submit" disabled={isLoading}>
+											{#if isLoading}
+												확인 중...
+											{:else}
+												확인
+											{/if}
+										</Button>
+									</div>
+								</form>
+							</div>
+						</Card>
+					{:else if step === 3}
+						<Card>
+							<div class="step-content">
+								<h2>3단계: 백업 코드 저장</h2>
+								<p>2FA 앱에 접근할 수 없는 경우를 대비하여 백업 코드를 안전하게 저장하세요.</p>
+
+								<div class="backup-codes">
+									<div class="codes-grid">
+										{#each setupData.backupCodes as code, index (index)}
+											<div class="code-item">
+												<span class="code-number">{index + 1}.</span>
+												<code>{code}</code>
+											</div>
+										{/each}
+									</div>
+								</div>
+
+								<div class="warning">
+									⚠️ <strong>중요:</strong> 백업 코드는 한 번만 사용할 수 있습니다. 모든 코드를 사용하면
+									2FA를 재설정해야 합니다.
+								</div>
+
+								<div class="actions">
+									<Button variant="secondary" onclick={copyBackupCodes}>복사</Button>
+									<Button variant="secondary" onclick={downloadBackupCodes}>다운로드</Button>
+									<Button onclick={completeSetup}>완료</Button>
+								</div>
+							</div>
+						</Card>
+					{/if}
 				</div>
 			</div>
-
-			<!-- 단계별 콘텐츠 -->
-			{#if step === 1}
-				<Card>
-					<div class="step-content">
-						<h2>1단계: 인증 앱 설정</h2>
-						<p>Google Authenticator, Authy 등의 인증 앱을 사용하여 QR 코드를 스캔하세요.</p>
-
-						<div class="qr-section">
-							<QRCode qrCodeUrl={setupData.qrCodeUrl} secret={setupData.secret} size={250} />
-						</div>
-
-						<div class="instructions">
-							<h3>설정 방법:</h3>
-							<ol>
-								<li>인증 앱을 실행하세요</li>
-								<li>QR 코드를 스캔하거나 시크릿 키를 수동으로 입력하세요</li>
-								<li>생성된 6자리 토큰을 아래에 입력하세요</li>
-							</ol>
-						</div>
-
-						<div class="actions">
-							<Button variant="secondary" onclick={goBack}>
-								취소
-							</Button>
-							<Button onclick={() => step = 2}>
-								다음
-							</Button>
-						</div>
-					</div>
-				</Card>
-			{:else if step === 2}
-				<Card>
-					<div class="step-content">
-						<h2>2단계: 토큰 확인</h2>
-						<p>인증 앱에서 생성된 6자리 토큰을 입력하세요.</p>
-
-						<form onsubmit={handleSubmit} class="token-form">
-							<div class="form-group">
-								<label for="token">6자리 토큰</label>
-								<input
-									id="token"
-									type="text"
-									placeholder="000000"
-									bind:value={token}
-									maxlength="6"
-									inputmode="numeric"
-									class="token-input"
-									class:error={token && !isValidToken(token)}
-									oninput={handleTokenInput}
-								/>
-								{#if token && !isValidToken(token)}
-									<p class="error-message">6자리 숫자를 입력해주세요.</p>
-								{/if}
-							</div>
-
-							<div class="actions">
-								<Button variant="secondary" onclick={() => step = 1}>
-									이전
-								</Button>
-								<Button type="submit" disabled={isLoading}>
-									{#if isLoading}
-										확인 중...
-									{:else}
-										확인
-									{/if}
-								</Button>
-							</div>
-						</form>
-					</div>
-				</Card>
-			{:else if step === 3}
-				<Card>
-					<div class="step-content">
-						<h2>3단계: 백업 코드 저장</h2>
-						<p>2FA 앱에 접근할 수 없는 경우를 대비하여 백업 코드를 안전하게 저장하세요.</p>
-
-						<div class="backup-codes">
-							<div class="codes-grid">
-								{#each setupData.backupCodes as code, index}
-									<div class="code-item">
-										<span class="code-number">{index + 1}.</span>
-										<code>{code}</code>
-									</div>
-								{/each}
-							</div>
-						</div>
-
-						<div class="warning">
-							⚠️ <strong>중요:</strong> 백업 코드는 한 번만 사용할 수 있습니다.
-							모든 코드를 사용하면 2FA를 재설정해야 합니다.
-						</div>
-
-						<div class="actions">
-							<Button variant="secondary" onclick={copyBackupCodes}>
-								복사
-							</Button>
-							<Button variant="secondary" onclick={downloadBackupCodes}>
-								다운로드
-							</Button>
-							<Button onclick={completeSetup}>
-								완료
-							</Button>
-						</div>
-					</div>
-				</Card>
-			{/if}
 		{:else if hasError}
 			<Card>
 				<div class="error-section">
 					<p>2FA 설정을 시작할 수 없습니다.</p>
-					<Button onclick={retrySetup}>
-						다시 시도
-					</Button>
+					<Button onclick={retrySetup}>다시 시도</Button>
 				</div>
 			</Card>
 		{/if}
@@ -367,8 +360,15 @@
 	}
 
 	.container {
-		max-width: 600px;
+		max-width: 800px;
 		margin: 0 auto;
+	}
+
+	/* 넓은 화면에서 더 큰 컨테이너 */
+	@media (min-width: 1024px) {
+		.container {
+			max-width: 1200px;
+		}
 	}
 
 	.header {
@@ -388,12 +388,49 @@
 		font-size: 1rem;
 	}
 
+	/* 메인 설정 레이아웃 */
+	.setup-layout {
+		display: flex;
+		gap: 2rem;
+		align-items: flex-start;
+	}
+
+	/* 모바일에서는 세로 배치 */
+	@media (max-width: 768px) {
+		.setup-layout {
+			flex-direction: column;
+			gap: 1.5rem;
+		}
+	}
+
 	.step-indicator {
 		display: flex;
+		flex-direction: column;
 		align-items: center;
-		justify-content: center;
-		margin-bottom: 2rem;
-		padding: 0 1rem;
+		min-width: 200px;
+		padding: 1rem;
+		background: white;
+		border-radius: 12px;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	}
+
+	/* 넓은 화면에서는 더 큰 단계 표시 */
+	@media (min-width: 1024px) {
+		.step-indicator {
+			min-width: 250px;
+			padding: 1.5rem;
+		}
+	}
+
+	/* 모바일에서는 가로 배치 */
+	@media (max-width: 768px) {
+		.step-indicator {
+			flex-direction: row;
+			justify-content: center;
+			min-width: auto;
+			padding: 1rem;
+			gap: 1rem;
+		}
 	}
 
 	.step {
@@ -429,15 +466,30 @@
 	}
 
 	.step-line {
-		width: 60px;
-		height: 2px;
+		width: 2px;
+		height: 40px;
 		background: #e5e7eb;
-		margin: 0 1rem;
+		margin: 0.5rem 0;
 		transition: background-color 0.3s;
 	}
 
 	.step-line.active {
 		background: #3b82f6;
+	}
+
+	/* 모바일에서는 가로 선 */
+	@media (max-width: 768px) {
+		.step-line {
+			width: 60px;
+			height: 2px;
+			margin: 0 1rem;
+		}
+	}
+
+	/* 콘텐츠 영역 */
+	.content-area {
+		flex: 1;
+		min-width: 0;
 	}
 
 	.step-content {
@@ -585,16 +637,16 @@
 		padding: 1rem 0.5rem;
 	}
 
-		.step-indicator {
-			flex-direction: column;
-			gap: 1rem;
-		}
+	.step-indicator {
+		flex-direction: column;
+		gap: 1rem;
+	}
 
-		.step-line {
-			width: 2px;
-			height: 40px;
-			margin: 0;
-		}
+	.step-line {
+		width: 2px;
+		height: 40px;
+		margin: 0;
+	}
 
 	.step-content {
 		padding: 1.5rem;
@@ -613,7 +665,7 @@
 		margin-bottom: 0;
 	}
 
-/* Loading UI Styles */
+	/* Loading UI Styles */
 	.loading-section {
 		display: flex;
 		justify-content: center;
@@ -631,10 +683,29 @@
 		width: 100%;
 	}
 
+	/* 넓은 화면에서 로딩 컨테이너 가로 배치 */
+	@media (min-width: 1024px) {
+		.loading-container {
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+			max-width: 800px;
+			gap: 3rem;
+		}
+	}
+
 	.loading-spinner {
 		position: relative;
 		width: 80px;
 		height: 80px;
+	}
+
+	/* 넓은 화면에서 스피너 크기 조정 */
+	@media (min-width: 1024px) {
+		.loading-spinner {
+			width: 100px;
+			height: 100px;
+		}
 	}
 
 	.spinner-ring {
@@ -663,12 +734,24 @@
 	}
 
 	@keyframes spin {
-		0% { transform: rotate(0deg); }
-		100% { transform: rotate(360deg); }
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
 	}
 
 	.loading-content {
 		text-align: center;
+		flex: 1;
+	}
+
+	/* 넓은 화면에서 로딩 콘텐츠 정렬 */
+	@media (min-width: 1024px) {
+		.loading-content {
+			text-align: left;
+		}
 	}
 
 	.loading-title {
@@ -691,6 +774,17 @@
 		width: 100%;
 	}
 
+	/* 넓은 화면에서 로딩 단계 가로 배치 */
+	@media (min-width: 1024px) {
+		.loading-steps {
+			flex-direction: row;
+			justify-content: space-between;
+			gap: 2rem;
+			width: auto;
+			margin-right: 2rem;
+		}
+	}
+
 	.loading-step {
 		display: flex;
 		align-items: center;
@@ -702,6 +796,19 @@
 		transition: all 0.3s ease;
 		opacity: 0.6;
 		transform: translateY(10px);
+	}
+
+	/* 넓은 화면에서 로딩 단계 스타일 조정 */
+	@media (min-width: 1024px) {
+		.loading-step {
+			flex-direction: column;
+			align-items: center;
+			text-align: center;
+			gap: 0.75rem;
+			padding: 1.5rem 1rem;
+			min-width: 120px;
+			transform: translateY(0);
+		}
 	}
 
 	.loading-step.active {
@@ -733,6 +840,15 @@
 		overflow: hidden;
 	}
 
+	/* 넓은 화면에서 진행 바 스타일 조정 */
+	@media (min-width: 1024px) {
+		.step-progress {
+			margin-left: 0;
+			margin-top: 0.5rem;
+			width: 80px;
+		}
+	}
+
 	.progress-bar {
 		height: 100%;
 		background: #3b82f6;
@@ -741,9 +857,15 @@
 	}
 
 	@keyframes progress {
-		0% { width: 0%; }
-		50% { width: 70%; }
-		100% { width: 100%; }
+		0% {
+			width: 0%;
+		}
+		50% {
+			width: 70%;
+		}
+		100% {
+			width: 100%;
+		}
 	}
 
 	.step-check {
@@ -753,10 +875,31 @@
 		font-weight: bold;
 	}
 
+	/* 넓은 화면에서 체크 표시 위치 조정 */
+	@media (min-width: 1024px) {
+		.step-check {
+			margin-left: 0;
+			margin-top: 0.5rem;
+		}
+	}
+
 	/* 반응형 디자인 */
 	@media (max-width: 640px) {
+		.two-factor-setup {
+			padding: 1rem 0.5rem;
+		}
+
+		.container {
+			max-width: 100%;
+		}
+
+		.header h1 {
+			font-size: 1.5rem;
+		}
+
 		.loading-container {
 			gap: 1.5rem;
+			padding: 1rem;
 		}
 
 		.loading-steps {
@@ -771,6 +914,108 @@
 		.step-icon {
 			font-size: 1.125rem;
 			min-width: 25px;
+		}
+
+		.setup-layout {
+			gap: 1rem;
+		}
+
+		.step-indicator {
+			min-width: auto;
+			padding: 0.75rem;
+		}
+
+		.step-content {
+			padding: 1rem;
+		}
+
+		.actions {
+			flex-direction: column;
+			align-items: stretch;
+		}
+
+		.actions :global(button) {
+			width: 100%;
+		}
+	}
+
+	/* 태블릿 반응형 */
+	@media (min-width: 641px) and (max-width: 1023px) {
+		.container {
+			max-width: 700px;
+		}
+
+		.setup-layout {
+			gap: 1.5rem;
+		}
+
+		.step-indicator {
+			min-width: 180px;
+			padding: 1rem;
+		}
+
+		.loading-container {
+			max-width: 600px;
+			gap: 2.5rem;
+		}
+	}
+
+	/* 데스크톱 반응형 */
+	@media (min-width: 1024px) {
+		.two-factor-setup {
+			padding: 3rem 1rem;
+		}
+
+		.container {
+			max-width: 1200px;
+		}
+
+		.header {
+			margin-bottom: 3rem;
+		}
+
+		.header h1 {
+			font-size: 2.5rem;
+		}
+
+		.setup-layout {
+			gap: 3rem;
+			align-items: flex-start;
+		}
+
+		.step-indicator {
+			min-width: 280px;
+			padding: 2rem;
+			position: sticky;
+			top: 2rem;
+		}
+
+		.content-area {
+			max-width: 600px;
+		}
+
+		.step-content {
+			padding: 2.5rem;
+		}
+
+		.loading-container {
+			max-width: 1000px;
+			padding: 3rem;
+			gap: 4rem;
+		}
+
+		.loading-spinner {
+			width: 120px;
+			height: 120px;
+		}
+
+		.loading-steps {
+			margin-right: 3rem;
+		}
+
+		.loading-step {
+			min-width: 140px;
+			padding: 2rem 1.5rem;
 		}
 	}
 </style>

@@ -15,7 +15,6 @@
 		clientNameError: string;
 		redirectUrisError: string;
 		scopesError: string;
-		logoUriError: string;
 		termsOfServiceUriError: string;
 		policyUriError: string;
 		selectedLogoFile: File | null;
@@ -38,7 +37,6 @@
 		clientNameError,
 		redirectUrisError,
 		scopesError,
-		logoUriError: logoUriError,
 		termsOfServiceUriError,
 		policyUriError,
 		selectedLogoFile = $bindable(),

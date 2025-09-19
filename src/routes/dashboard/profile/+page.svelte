@@ -5,7 +5,6 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import type { User } from '$lib';
-	import type { TwoFactorStatus } from '$lib/types/2fa.types';
 	import type { TwoFactorState } from '$lib/stores/2fa';
 
 	let user = $state<User | null>(null);
@@ -264,11 +263,11 @@
 		isUpdating = true;
 		try {
 			// API 호출
-			const updatedUser = await apiClient.updateProfile({
+			const updatedUser = (await apiClient.updateProfile({
 				firstName: editForm.firstName.trim(),
 				lastName: editForm.lastName.trim(),
 				username: editForm.username.trim()
-			}) as User;
+			})) as User;
 
 			// 로컬 상태 업데이트
 			user = updatedUser;
@@ -404,32 +403,34 @@
 											required
 											minlength="3"
 											pattern="^[a-zA-Z0-9_-]+$"
-											class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pr-10"
+											class="mt-1 block w-full rounded-md border-gray-300 pr-10 shadow-sm focus:border-blue-500 focus:ring-blue-500"
 											class:border-green-500={usernameStatus.isAvailable === true}
 											class:border-red-500={usernameStatus.isAvailable === false}
 										/>
 										{#if usernameStatus.isChecking}
-											<div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+											<div class="absolute inset-y-0 right-0 flex items-center pr-3">
 												<i class="fas fa-spinner fa-spin text-gray-400"></i>
 											</div>
 										{:else if usernameStatus.isAvailable === true}
-											<div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+											<div class="absolute inset-y-0 right-0 flex items-center pr-3">
 												<i class="fas fa-check text-green-500"></i>
 											</div>
 										{:else if usernameStatus.isAvailable === false}
-											<div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+											<div class="absolute inset-y-0 right-0 flex items-center pr-3">
 												<i class="fas fa-times text-red-500"></i>
 											</div>
 										{/if}
 									</div>
 									{#if usernameStatus.message}
-										<p class={`mt-1 text-xs ${
-											usernameStatus.isAvailable === true
-												? 'text-green-600'
-												: usernameStatus.isAvailable === false
-												? 'text-red-600'
-												: 'text-gray-500'
-										}`}>
+										<p
+											class={`mt-1 text-xs ${
+												usernameStatus.isAvailable === true
+													? 'text-green-600'
+													: usernameStatus.isAvailable === false
+														? 'text-red-600'
+														: 'text-gray-500'
+											}`}
+										>
 											{usernameStatus.message}
 										</p>
 									{:else}
@@ -621,7 +622,7 @@
 										variant="outline"
 										size="xs"
 										onclick={openDisableTwoFactorDialog}
-										class="text-red-600 hover:text-red-700 hover:bg-red-50"
+										class="text-red-600 hover:bg-red-50 hover:text-red-700"
 									>
 										비활성화
 									</Button>
@@ -629,13 +630,7 @@
 							{:else}
 								<div class="flex items-center space-x-2">
 									<Badge variant="secondary" size="sm">비활성</Badge>
-									<Button
-										variant="outline"
-										size="xs"
-										onclick={goToTwoFactorSetup}
-									>
-										설정
-									</Button>
+									<Button variant="outline" size="xs" onclick={goToTwoFactorSetup}>설정</Button>
 								</div>
 							{/if}
 						</div>
@@ -723,6 +718,60 @@
 	{/if}
 </DashboardLayout>
 
+<!-- 2FA 비활성화 확인 대화상자 -->
+{#if showDisableTwoFactorDialog}
+	<div class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center">
+		<div class="modal-content scale-100 transform transition-all duration-300">
+			<div class="p-6">
+				<div class="mb-4">
+					<h3 class="text-lg font-medium text-gray-900">2FA 비활성화</h3>
+					<p class="mt-2 text-sm text-gray-600">
+						2단계 인증을 비활성화하시겠습니까? 비활성화 후 계정 보안이 약해질 수 있습니다.
+					</p>
+				</div>
+
+				<div class="mb-4">
+					<label for="currentPassword" class="mb-2 block text-sm font-medium text-gray-700">
+						현재 비밀번호
+					</label>
+					<input
+						id="currentPassword"
+						type="password"
+						bind:value={disableTwoFactorForm.currentPassword}
+						class="modal-input w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm transition-colors duration-200 focus:border-red-500 focus:ring-2 focus:ring-red-500"
+						placeholder="현재 비밀번호를 입력하세요"
+						disabled={isDisablingTwoFactor}
+					/>
+				</div>
+
+				<div class="flex justify-end space-x-3">
+					<Button
+						variant="outline"
+						onclick={closeDisableTwoFactorDialog}
+						disabled={isDisablingTwoFactor}
+						class="px-4 py-2"
+					>
+						취소
+					</Button>
+					<Button
+						variant="danger"
+						onclick={disableTwoFactor}
+						disabled={isDisablingTwoFactor || !disableTwoFactorForm.currentPassword.trim()}
+						class="px-4 py-2"
+					>
+						{#if isDisablingTwoFactor}
+							<i class="fas fa-spinner fa-spin mr-2"></i>
+							비활성화 중...
+						{:else}
+							비활성화
+						{/if}
+					</Button>
+				</div>
+			</div>
+		</div>
+	</div>
+{/if}
+
 <style>
 	/* 2FA 비활성화 모달 스타일 */
 	:global(.modal-backdrop) {
@@ -790,57 +839,3 @@
 		}
 	}
 </style>
-
-	<!-- 2FA 비활성화 확인 대화상자 -->
-	{#if showDisableTwoFactorDialog}
-		<div class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
-			<div class="modal-content transform transition-all duration-300 scale-100">
-				<div class="p-6">
-					<div class="mb-4">
-						<h3 class="text-lg font-medium text-gray-900">2FA 비활성화</h3>
-						<p class="mt-2 text-sm text-gray-600">
-							2단계 인증을 비활성화하시겠습니까? 비활성화 후 계정 보안이 약해질 수 있습니다.
-						</p>
-					</div>
-
-					<div class="mb-4">
-						<label for="currentPassword" class="block text-sm font-medium text-gray-700 mb-2">
-							현재 비밀번호
-						</label>
-						<input
-							id="currentPassword"
-							type="password"
-							bind:value={disableTwoFactorForm.currentPassword}
-							class="modal-input w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors duration-200"
-							placeholder="현재 비밀번호를 입력하세요"
-							disabled={isDisablingTwoFactor}
-						/>
-					</div>
-
-					<div class="flex justify-end space-x-3">
-						<Button
-							variant="outline"
-							onclick={closeDisableTwoFactorDialog}
-							disabled={isDisablingTwoFactor}
-							class="px-4 py-2"
-						>
-							취소
-						</Button>
-						<Button
-							variant="danger"
-							onclick={disableTwoFactor}
-							disabled={isDisablingTwoFactor || !disableTwoFactorForm.currentPassword.trim()}
-							class="px-4 py-2"
-						>
-							{#if isDisablingTwoFactor}
-								<i class="fas fa-spinner fa-spin mr-2"></i>
-								비활성화 중...
-							{:else}
-								비활성화
-							{/if}
-						</Button>
-					</div>
-				</div>
-			</div>
-		</div>
-	{/if}

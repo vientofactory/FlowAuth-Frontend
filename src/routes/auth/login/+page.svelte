@@ -138,13 +138,12 @@
 		isTwoFactorLoading = true;
 
 		try {
-			let result;
 			if (twoFactorMode === 'token') {
 				// 2FA 토큰 검증 API 호출
-				result = await authStore.verifyTwoFactorLogin(email, twoFactorToken);
+				await authStore.verifyTwoFactorLogin(email, twoFactorToken);
 			} else {
 				// 백업 코드 검증 API 호출
-				result = await authStore.verifyBackupCodeLogin(email, backupCode);
+				await authStore.verifyBackupCodeLogin(email, backupCode);
 			}
 
 			// 성공 시 리다이렉트
@@ -154,8 +153,12 @@
 				goto(ROUTES.DASHBOARD);
 			}
 		} catch (err) {
-			const errorMessage = err instanceof Error ? err.message : 
-				(twoFactorMode === 'token' ? '2FA 토큰이 잘못되었습니다.' : '백업 코드가 잘못되었거나 이미 사용되었습니다.');
+			const errorMessage =
+				err instanceof Error
+					? err.message
+					: twoFactorMode === 'token'
+						? '2FA 토큰이 잘못되었습니다.'
+						: '백업 코드가 잘못되었거나 이미 사용되었습니다.';
 			toast.error(errorMessage);
 		} finally {
 			isTwoFactorLoading = false;
@@ -181,7 +184,7 @@
 	function handleBackupCodeInput(event: Event) {
 		const target = event.target as HTMLInputElement;
 		let value = target.value.toUpperCase().replace(/[^A-Z0-9-]/g, ''); // 대문자, 숫자, 하이픈만 허용
-		
+
 		// 하이픈 자동 추가 (4자리마다)
 		if (value.length > 4 && value[4] !== '-') {
 			value = value.slice(0, 4) + '-' + value.slice(4);
@@ -189,7 +192,7 @@
 		if (value.length > 9 && value[9] !== '-') {
 			value = value.slice(0, 9) + '-' + value.slice(9);
 		}
-		
+
 		backupCode = value;
 		validateBackupCodeField();
 	}
@@ -252,7 +255,8 @@
 						<button
 							type="button"
 							onclick={() => switchTwoFactorMode('token')}
-							class="flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 {twoFactorMode === 'token'
+							class="flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 {twoFactorMode ===
+							'token'
 								? 'bg-white text-blue-600 shadow-sm'
 								: 'text-gray-500 hover:text-gray-700'}"
 						>
@@ -262,7 +266,8 @@
 						<button
 							type="button"
 							onclick={() => switchTwoFactorMode('backup')}
-							class="flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 {twoFactorMode === 'backup'
+							class="flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 {twoFactorMode ===
+							'backup'
 								? 'bg-white text-blue-600 shadow-sm'
 								: 'text-gray-500 hover:text-gray-700'}"
 						>
@@ -325,9 +330,7 @@
 									{backupCodeError}
 								</p>
 							{/if}
-							<p class="mt-2 text-xs text-gray-500">
-								백업 코드는 한 번만 사용할 수 있습니다.
-							</p>
+							<p class="mt-2 text-xs text-gray-500">백업 코드는 한 번만 사용할 수 있습니다.</p>
 						</div>
 					{/if}
 
@@ -360,103 +363,103 @@
 			{:else}
 				<!-- 일반 로그인 폼 -->
 				<form method="POST" onsubmit={handleSubmit} class="space-y-6">
-				<!-- 이메일 입력 -->
-				<div class="relative">
-					<label for="email" class="mb-2 block text-sm font-medium text-gray-700">
-						<i class="fas fa-envelope mr-2 text-blue-500"></i>
-						이메일 주소
-					</label>
-					<Input
-						type="email"
-						id="email"
-						name="email"
-						placeholder="your@email.com"
-						value={email}
-						oninput={(e: Event) => {
-							email = (e.target as HTMLInputElement).value;
-							validateEmailField();
-						}}
-						disabled={isLoading}
-						class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {emailError
-							? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-							: ''}"
-					/>
-					{#if emailError}
-						<p class="mt-1 text-sm text-red-600">
-							<i class="fas fa-exclamation-circle mr-1"></i>
-							{emailError}
-						</p>
-					{/if}
-				</div>
-
-				<!-- 비밀번호 입력 -->
-				<div class="relative">
-					<label for="password" class="mb-2 block text-sm font-medium text-gray-700">
-						<i class="fas fa-lock mr-2 text-blue-500"></i>
-						비밀번호
-					</label>
-					<Input
-						type="password"
-						id="password"
-						name="password"
-						placeholder="비밀번호를 입력하세요"
-						value={password}
-						oninput={(e: Event) => {
-							password = (e.target as HTMLInputElement).value;
-							validatePasswordField();
-						}}
-						disabled={isLoading}
-						class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {passwordError
-							? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-							: ''}"
-					/>
-					{#if passwordError}
-						<p class="mt-1 text-sm text-red-600">
-							<i class="fas fa-exclamation-circle mr-1"></i>
-							{passwordError}
-						</p>
-					{/if}
-				</div>
-
-				<!-- 추가 옵션 -->
-				<div class="flex items-center justify-between">
-					<label class="flex items-center">
-						<input
-							type="checkbox"
-							name="remember"
-							class="focus:ring-opacity-50 rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200"
+					<!-- 이메일 입력 -->
+					<div class="relative">
+						<label for="email" class="mb-2 block text-sm font-medium text-gray-700">
+							<i class="fas fa-envelope mr-2 text-blue-500"></i>
+							이메일 주소
+						</label>
+						<Input
+							type="email"
+							id="email"
+							name="email"
+							placeholder="your@email.com"
+							value={email}
+							oninput={(e: Event) => {
+								email = (e.target as HTMLInputElement).value;
+								validateEmailField();
+							}}
+							disabled={isLoading}
+							class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {emailError
+								? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+								: ''}"
 						/>
-						<span class="ml-2 text-sm text-gray-600">로그인 상태 유지</span>
-					</label>
-					<a
-						href={ROUTES.FORGOT_PASSWORD}
-						data-sveltekit-preload-data
-						class="text-sm font-medium text-blue-600 transition-colors duration-200 hover:text-blue-500"
-					>
-						비밀번호 찾기
-					</a>
-				</div>
+						{#if emailError}
+							<p class="mt-1 text-sm text-red-600">
+								<i class="fas fa-exclamation-circle mr-1"></i>
+								{emailError}
+							</p>
+						{/if}
+					</div>
 
-				<!-- 로그인 버튼 -->
-				<Button
-					variant="primary"
-					type="submit"
-					disabled={isLoading}
-					class="w-full transform py-3 text-lg font-semibold shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl"
-				>
-					{#if isLoading}
-						<div class="flex items-center justify-center">
-							<i class="fas fa-spinner fa-spin mr-2"></i>
-							로그인 중...
-						</div>
-					{:else}
-						<div class="flex items-center justify-center">
-							<i class="fas fa-sign-in-alt mr-2"></i>
-							로그인
-						</div>
-					{/if}
-				</Button>
-			</form>
+					<!-- 비밀번호 입력 -->
+					<div class="relative">
+						<label for="password" class="mb-2 block text-sm font-medium text-gray-700">
+							<i class="fas fa-lock mr-2 text-blue-500"></i>
+							비밀번호
+						</label>
+						<Input
+							type="password"
+							id="password"
+							name="password"
+							placeholder="비밀번호를 입력하세요"
+							value={password}
+							oninput={(e: Event) => {
+								password = (e.target as HTMLInputElement).value;
+								validatePasswordField();
+							}}
+							disabled={isLoading}
+							class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {passwordError
+								? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+								: ''}"
+						/>
+						{#if passwordError}
+							<p class="mt-1 text-sm text-red-600">
+								<i class="fas fa-exclamation-circle mr-1"></i>
+								{passwordError}
+							</p>
+						{/if}
+					</div>
+
+					<!-- 추가 옵션 -->
+					<div class="flex items-center justify-between">
+						<label class="flex items-center">
+							<input
+								type="checkbox"
+								name="remember"
+								class="focus:ring-opacity-50 rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200"
+							/>
+							<span class="ml-2 text-sm text-gray-600">로그인 상태 유지</span>
+						</label>
+						<a
+							href={ROUTES.FORGOT_PASSWORD}
+							data-sveltekit-preload-data
+							class="text-sm font-medium text-blue-600 transition-colors duration-200 hover:text-blue-500"
+						>
+							비밀번호 찾기
+						</a>
+					</div>
+
+					<!-- 로그인 버튼 -->
+					<Button
+						variant="primary"
+						type="submit"
+						disabled={isLoading}
+						class="w-full transform py-3 text-lg font-semibold shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl"
+					>
+						{#if isLoading}
+							<div class="flex items-center justify-center">
+								<i class="fas fa-spinner fa-spin mr-2"></i>
+								로그인 중...
+							</div>
+						{:else}
+							<div class="flex items-center justify-center">
+								<i class="fas fa-sign-in-alt mr-2"></i>
+								로그인
+							</div>
+						{/if}
+					</Button>
+				</form>
 			{/if}
 
 			<!-- 소셜 로그인 (추후 확장 가능) -->

@@ -40,7 +40,7 @@
 			const [general, security, notifications] = await Promise.all([
 				apiClient.getGeneralSettings(),
 				apiClient.getSecuritySettings(),
-				apiClient.getNotificationSettings(),
+				apiClient.getNotificationSettings()
 			]);
 
 			generalSettings = general;
@@ -89,7 +89,7 @@
 
 			// JSON 파일로 다운로드
 			const dataStr = JSON.stringify(exportData, null, 2);
-			const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+			const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
 
 			const exportFileDefaultName = `flowauth-settings-${new Date().toISOString().split('T')[0]}.json`;
 
@@ -120,7 +120,12 @@
 				const importData = JSON.parse(text);
 
 				// 데이터 유효성 검증
-				if (!importData.data || !importData.data.general || !importData.data.security || !importData.data.notification) {
+				if (
+					!importData.data ||
+					!importData.data.general ||
+					!importData.data.security ||
+					!importData.data.notification
+				) {
 					throw new Error('잘못된 파일 형식입니다.');
 				}
 
@@ -138,7 +143,6 @@
 
 		input.click();
 	}
-
 </script>
 
 <DashboardLayout title="설정" description="시스템 설정과 환경을 관리하세요." showBackButton={true}>

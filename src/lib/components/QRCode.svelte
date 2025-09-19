@@ -1,7 +1,11 @@
 <script lang="ts">
-	import { onMount, tick } from 'svelte';
+	import { onMount } from 'svelte';
 
-	let { qrCodeUrl, secret, size = 200 }: {
+	let {
+		qrCodeUrl,
+		secret,
+		size = 200
+	}: {
 		qrCodeUrl: string;
 		secret: string;
 		size?: number;
@@ -115,13 +119,7 @@
 	<div class="secret-section">
 		<label for="secret-input" class="secret-label">시크릿 키:</label>
 		<div class="secret-input-wrapper">
-			<input
-				id="secret-input"
-				type="text"
-				value={secret}
-				readonly
-				class="secret-input"
-			/>
+			<input id="secret-input" type="text" value={secret} readonly class="secret-input" />
 			<button
 				type="button"
 				onclick={copySecret}
@@ -129,14 +127,22 @@
 				title="시크릿 키 복사"
 				aria-label="시크릿 키 복사"
 			>
-				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<svg
+					width="16"
+					height="16"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+				>
 					<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
 					<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
 				</svg>
 			</button>
 		</div>
 		<p class="secret-hint">
-			이 시크릿 키를 안전한 곳에 백업해두세요. QR 코드 스캔이 불가능한 경우 수동으로 입력할 수 있습니다.
+			이 시크릿 키를 안전한 곳에 백업해두세요. QR 코드 스캔이 불가능한 경우 수동으로 입력할 수
+			있습니다.
 		</p>
 	</div>
 </div>
@@ -184,8 +190,12 @@
 	}
 
 	@keyframes spin {
-		0% { transform: rotate(0deg); }
-		100% { transform: rotate(360deg); }
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
 	}
 
 	.error-message {

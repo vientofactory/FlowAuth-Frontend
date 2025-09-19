@@ -10,7 +10,7 @@
 	onMount(async () => {
 		// 인증 상태 초기화 (세션 복원)
 		await authStore.initialize();
-		
+
 		// 네트워크 모니터링 시작
 		apiClient.startNetworkMonitoring();
 	});

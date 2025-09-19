@@ -96,7 +96,7 @@
 			console.error('Failed to load available scopes:', error);
 			scopesError = '스코프 목록을 불러오는데 실패했습니다.';
 			toast.error('스코프 목록을 불러오는데 실패했습니다.');
-			
+
 			// 오류 시 기본 스코프들로 폴백
 			availableScopes = [
 				{ id: 'openid', name: 'OpenID', description: 'OpenID Connect 인증' },
@@ -199,11 +199,11 @@
 		selectedClient = null;
 		// 기본 스코프로 재설정 (서버에서 받아온 스코프들 중에서)
 		const defaultScopeIds = ['openid', 'profile', 'email'];
-		const validDefaultScopes = defaultScopeIds.filter(id => 
-			availableScopes.some(scope => scope.id === id)
+		const validDefaultScopes = defaultScopeIds.filter((id) =>
+			availableScopes.some((scope) => scope.id === id)
 		);
 		selectedScopes = new Set(validDefaultScopes.length > 0 ? validDefaultScopes : []);
-		
+
 		responseType = 'code';
 		usePKCE = true;
 		generatedUrl = '';
@@ -379,12 +379,7 @@
 								<div class="py-8 text-center">
 									<i class="fas fa-exclamation-triangle mb-2 text-2xl text-red-400"></i>
 									<p class="text-sm text-red-600">{scopesError}</p>
-									<Button
-										variant="outline"
-										size="sm"
-										onclick={loadAvailableScopes}
-										class="mt-2"
-									>
+									<Button variant="outline" size="sm" onclick={loadAvailableScopes} class="mt-2">
 										다시 시도
 									</Button>
 								</div>
@@ -408,7 +403,9 @@
 											<div class="flex-1">
 												<div class="flex items-center">
 													<span class="text-sm font-medium text-gray-900">{scope.name}</span>
-													<code class="ml-2 rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">
+													<code
+														class="ml-2 rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500"
+													>
 														{scope.id}
 													</code>
 												</div>

@@ -97,13 +97,42 @@
 
 		const developerItems = [
 			{
-				label: '설정',
-				icon: 'fas fa-cog',
-				href: '/dashboard/settings'
+				label: '내 애플리케이션',
+				icon: 'fas fa-cubes',
+				href: '/dashboard/clients'
+			},
+			{
+				label: 'OAuth2 테스터',
+				icon: 'fas fa-flask',
+				href: '/dashboard/oauth-tester'
+			},
+			{
+				label: 'API 문서',
+				icon: 'fas fa-book',
+				href: '/docs',
+				external: true
+			}
+		];
+
+		const regularUserItems = [
+			{
+				label: '연결된 앱',
+				icon: 'fas fa-link',
+				href: '/dashboard/connections'
+			},
+			{
+				label: '활동 로그',
+				icon: 'fas fa-history',
+				href: '/dashboard/activity'
 			}
 		];
 
 		const commonItems = [
+			{
+				label: '설정',
+				icon: 'fas fa-cog',
+				href: '/dashboard/settings'
+			},
 			{
 				label: '로그아웃',
 				icon: 'fas fa-sign-out-alt',
@@ -112,9 +141,9 @@
 			}
 		];
 
-		return isDeveloper
-			? [...baseItems, ...developerItems, ...commonItems]
-			: [...baseItems, ...commonItems];
+		const userTypeItems = isDeveloper ? developerItems : regularUserItems;
+
+		return [...baseItems, ...userTypeItems, ...commonItems];
 	});
 </script>
 
@@ -154,7 +183,46 @@
 						></div>
 					</div>
 				{:else if isAuthenticated}
-					<!-- 로그인 상태: 대시보드 버튼 -->
+					<!-- 사용자 유형별 빠른 액세스 메뉴 -->
+					{#if user?.userType === USER_TYPES.DEVELOPER}
+						<!-- 개발자용 퀵 액션 메뉴 -->
+						<div class="flex items-center space-x-2">
+							<Button
+								variant="outline"
+								size="sm"
+								onclick={() => (window.location.href = '/dashboard/clients')}
+								class="border-gray-300 text-gray-700 hover:bg-gray-50"
+								title="내 애플리케이션"
+							>
+								<i class="fas fa-cubes mr-2"></i>
+								<span class="hidden lg:inline">앱</span>
+							</Button>
+							<Button
+								variant="outline"
+								size="sm"
+								onclick={() => (window.location.href = '/dashboard/oauth-tester')}
+								class="border-gray-300 text-gray-700 hover:bg-gray-50"
+								title="OAuth2 테스터"
+							>
+								<i class="fas fa-flask mr-2"></i>
+								<span class="hidden lg:inline">테스터</span>
+							</Button>
+						</div>
+					{:else}
+						<!-- 일반 사용자용 퀵 액션 메뉴 -->
+						<Button
+							variant="outline"
+							size="sm"
+							onclick={() => (window.location.href = '/dashboard/profile')}
+							class="border-gray-300 text-gray-700 hover:bg-gray-50"
+							title="프로필 설정"
+						>
+							<i class="fas fa-user mr-2"></i>
+							<span class="hidden lg:inline">프로필</span>
+						</Button>
+					{/if}
+
+					<!-- 대시보드 버튼 -->
 					{#if showDashboardButton}
 						<Button
 							variant="outline"
@@ -196,14 +264,16 @@
 										<p class="mt-0.5 text-xs text-gray-500">{user?.email}</p>
 										{#if user?.userType}
 											<div class="mt-1">
-												<span class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
+												<span
+													class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800"
+												>
 													{user.userType === USER_TYPES.DEVELOPER ? '개발자' : '일반 사용자'}
 												</span>
 											</div>
 										{/if}
 									</div>
 									<div class="space-y-1">
-										{#each profileMenuItems as item}
+										{#each profileMenuItems as item (item.label)}
 											{#if item.href}
 												<a
 													href={item.href}
@@ -219,9 +289,15 @@
 														item.action();
 														profileDropdownOpen = false;
 													}}
-													class="mx-1 flex w-full items-center rounded-md px-4 py-2.5 text-sm transition-colors duration-150 {item.danger ? 'text-red-600 hover:bg-red-50 hover:text-red-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}"
+													class="mx-1 flex w-full items-center rounded-md px-4 py-2.5 text-sm transition-colors duration-150 {item.danger
+														? 'text-red-600 hover:bg-red-50 hover:text-red-700'
+														: 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}"
 												>
-													<i class="{item.icon} mr-3 w-4 text-center {item.danger ? '' : 'text-gray-400'}"></i>
+													<i
+														class="{item.icon} mr-3 w-4 text-center {item.danger
+															? ''
+															: 'text-gray-400'}"
+													></i>
 													{item.label}
 												</button>
 											{/if}
@@ -296,6 +372,36 @@
 										<i class="fas fa-user mr-3 w-4 text-center text-gray-400"></i>
 										프로필
 									</a>
+
+									<!-- 모바일 프로필 드롭다운에서도 사용자 유형별 메뉴 -->
+									{#if user?.userType === USER_TYPES.DEVELOPER}
+										<a
+											href="/dashboard/clients"
+											class="mx-1 flex items-center rounded-md px-4 py-2.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
+											onclick={() => (profileDropdownOpen = false)}
+										>
+											<i class="fas fa-cubes mr-3 w-4 text-center text-gray-400"></i>
+											내 애플리케이션
+										</a>
+										<a
+											href="/dashboard/oauth-tester"
+											class="mx-1 flex items-center rounded-md px-4 py-2.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
+											onclick={() => (profileDropdownOpen = false)}
+										>
+											<i class="fas fa-flask mr-3 w-4 text-center text-gray-400"></i>
+											OAuth2 테스터
+										</a>
+									{:else}
+										<a
+											href="/dashboard/connections"
+											class="mx-1 flex items-center rounded-md px-4 py-2.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
+											onclick={() => (profileDropdownOpen = false)}
+										>
+											<i class="fas fa-link mr-3 w-4 text-center text-gray-400"></i>
+											연결된 앱
+										</a>
+									{/if}
+
 									<a
 										href="/dashboard/settings"
 										class="mx-1 flex items-center rounded-md px-4 py-2.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
@@ -379,6 +485,38 @@
 							<i class="fas fa-tachometer-alt mr-3 w-5 text-center"></i>
 							대시보드
 						</a>
+
+						<!-- 사용자 유형별 모바일 메뉴 아이템 -->
+						{#if user?.userType === USER_TYPES.DEVELOPER}
+							<!-- 개발자용 메뉴 -->
+							<a
+								href="/dashboard/clients"
+								class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+								onclick={() => (mobileMenuOpen = false)}
+							>
+								<i class="fas fa-cubes mr-3 w-5 text-center"></i>
+								내 애플리케이션
+							</a>
+							<a
+								href="/dashboard/oauth-tester"
+								class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+								onclick={() => (mobileMenuOpen = false)}
+							>
+								<i class="fas fa-flask mr-3 w-5 text-center"></i>
+								OAuth2 테스터
+							</a>
+						{:else}
+							<!-- 일반 사용자용 메뉴 -->
+							<a
+								href="/dashboard/profile"
+								class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+								onclick={() => (mobileMenuOpen = false)}
+							>
+								<i class="fas fa-user mr-3 w-5 text-center"></i>
+								프로필
+							</a>
+						{/if}
+
 						<a
 							href="/dashboard/profile"
 							class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
