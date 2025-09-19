@@ -2,6 +2,7 @@
 	import { authState, authStore, Button } from '$lib';
 	import { onMount, onDestroy } from 'svelte';
 	import type { User } from '$lib';
+	import { USER_TYPES } from '$lib/types/user.types';
 
 	interface Props {
 		showDashboardButton?: boolean;
@@ -79,6 +80,42 @@
 			window.location.href = '/';
 		}
 	}
+
+	// 사용자 유형별 프로필 메뉴 아이템들
+	const profileMenuItems = $derived.by(() => {
+		if (!user) return [];
+
+		const isDeveloper = user.userType === USER_TYPES.DEVELOPER;
+
+		const baseItems = [
+			{
+				label: '프로필',
+				icon: 'fas fa-user',
+				href: '/dashboard/profile'
+			}
+		];
+
+		const developerItems = [
+			{
+				label: '설정',
+				icon: 'fas fa-cog',
+				href: '/dashboard/settings'
+			}
+		];
+
+		const commonItems = [
+			{
+				label: '로그아웃',
+				icon: 'fas fa-sign-out-alt',
+				action: handleLogout,
+				danger: true
+			}
+		];
+
+		return isDeveloper
+			? [...baseItems, ...developerItems, ...commonItems]
+			: [...baseItems, ...commonItems];
+	});
 </script>
 
 <!-- 네비게이션 바 -->
@@ -157,35 +194,38 @@
 											{user?.lastName}
 										</p>
 										<p class="mt-0.5 text-xs text-gray-500">{user?.email}</p>
+										{#if user?.userType}
+											<div class="mt-1">
+												<span class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
+													{user.userType === USER_TYPES.DEVELOPER ? '개발자' : '일반 사용자'}
+												</span>
+											</div>
+										{/if}
 									</div>
 									<div class="space-y-1">
-										<a
-											href="/dashboard/profile"
-											class="mx-1 flex items-center rounded-md px-4 py-2.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
-											onclick={() => (profileDropdownOpen = false)}
-										>
-											<i class="fas fa-user mr-3 w-4 text-center text-gray-400"></i>
-											프로필
-										</a>
-										<a
-											href="/dashboard/settings"
-											class="mx-1 flex items-center rounded-md px-4 py-2.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
-											onclick={() => (profileDropdownOpen = false)}
-										>
-											<i class="fas fa-cog mr-3 w-4 text-center text-gray-400"></i>
-											설정
-										</a>
-										<div class="my-1 border-t border-gray-100"></div>
-										<button
-											onclick={() => {
-												handleLogout();
-												profileDropdownOpen = false;
-											}}
-											class="mx-1 flex w-full items-center rounded-md px-4 py-2.5 text-sm text-red-600 transition-colors duration-150 hover:bg-red-50 hover:text-red-700"
-										>
-											<i class="fas fa-sign-out-alt mr-3 w-4 text-center"></i>
-											로그아웃
-										</button>
+										{#each profileMenuItems as item}
+											{#if item.href}
+												<a
+													href={item.href}
+													class="mx-1 flex items-center rounded-md px-4 py-2.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
+													onclick={() => (profileDropdownOpen = false)}
+												>
+													<i class="{item.icon} mr-3 w-4 text-center text-gray-400"></i>
+													{item.label}
+												</a>
+											{:else if item.action}
+												<button
+													onclick={() => {
+														item.action();
+														profileDropdownOpen = false;
+													}}
+													class="mx-1 flex w-full items-center rounded-md px-4 py-2.5 text-sm transition-colors duration-150 {item.danger ? 'text-red-600 hover:bg-red-50 hover:text-red-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}"
+												>
+													<i class="{item.icon} mr-3 w-4 text-center {item.danger ? '' : 'text-gray-400'}"></i>
+													{item.label}
+												</button>
+											{/if}
+										{/each}
 									</div>
 								</div>
 							{/if}

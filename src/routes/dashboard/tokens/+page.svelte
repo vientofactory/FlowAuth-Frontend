@@ -3,14 +3,24 @@
 	import { useToast } from '$lib';
 	import { onMount } from 'svelte';
 	import type { Token } from '$lib/types/oauth.types';
+	import { USER_TYPES } from '$lib/types/user.types';
+	import { authState } from '$lib';
+	import type { User } from '$lib';
 
+	let user = $state<User | null>(null);
 	let tokens = $state<Token[]>([]);
 	let isLoading = $state(true);
 
 	const toast = useToast();
 
 	onMount(async () => {
+		// 사용자 정보 구독
+		const unsubscribe = authState.subscribe((state) => {
+			user = state.user;
+		});
+
 		await loadTokens();
+		return unsubscribe;
 	});
 
 	async function loadTokens() {

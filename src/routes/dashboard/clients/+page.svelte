@@ -3,6 +3,9 @@
 	import { useToast } from '$lib';
 	import { onMount } from 'svelte';
 	import type { Client } from '$lib/types/oauth.types';
+	import { USER_TYPES } from '$lib/types/user.types';
+	import { authState } from '$lib';
+	import { goto } from '$app/navigation';
 	import {
 		validateClientName,
 		validateRedirectUri,
@@ -19,6 +22,7 @@
 	import ClientEditModal from '$lib/components/clients/ClientEditModal.svelte';
 	import ClientStatusModal from '$lib/components/clients/ClientStatusModal.svelte';
 
+	let user = $state<User | null>(null);
 	let clients = $state<Client[]>([]);
 	let isLoading = $state(true);
 
@@ -350,7 +354,18 @@
 	}
 
 	onMount(async () => {
+		// 사용자 유형 검증
+		const unsubscribe = authState.subscribe((state) => {
+			user = state.user;
+			if (user && user.userType !== USER_TYPES.DEVELOPER) {
+				// 일반 사용자는 접근 불가
+				goto('/dashboard');
+				return;
+			}
+		});
+
 		await loadClients();
+		return unsubscribe;
 	});
 
 	async function loadClients() {

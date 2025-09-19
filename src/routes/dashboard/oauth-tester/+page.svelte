@@ -6,8 +6,12 @@
 	import { createApiUrl } from '$lib/config/env';
 	import { CryptoUtils } from '$lib/utils/crypto.util';
 	import type { Client } from '$lib/types/oauth.types';
+	import { USER_TYPES } from '$lib/types/user.types';
+	import { authState } from '$lib';
+	import type { User } from '$lib';
 
 	// 상태 변수들
+	let user = $state<User | null>(null);
 	let clients = $state<Client[]>([]);
 	let isLoading = $state(true);
 	let selectedClient = $state<Client | null>(null);
@@ -55,7 +59,18 @@
 	}
 
 	onMount(async () => {
+		// 사용자 유형 검증
+		const unsubscribe = authState.subscribe((state) => {
+			user = state.user;
+			if (user && user.userType !== USER_TYPES.DEVELOPER) {
+				// 일반 사용자는 접근 불가
+				goto('/dashboard');
+				return;
+			}
+		});
+
 		await Promise.all([loadClients(), loadAvailableScopes()]);
+		return unsubscribe;
 	});
 
 	async function loadClients() {
