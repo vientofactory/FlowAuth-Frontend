@@ -7,10 +7,7 @@
 		onComplete: () => void;
 	}
 
-	let {
-		backupCodes,
-		onComplete
-	}: Props = $props();
+	let { backupCodes, onComplete }: Props = $props();
 
 	let downloaded = $state(false);
 
@@ -37,7 +34,7 @@
 		a.click();
 		document.body.removeChild(a);
 		URL.revokeObjectURL(url);
-		
+
 		downloaded = true;
 	}
 
@@ -55,13 +52,13 @@
 <Card>
 	<div class="p-6">
 		<div class="text-center">
-			<div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100">
+			<div
+				class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100"
+			>
 				<i class="fas fa-shield-alt text-xl text-yellow-600"></i>
 			</div>
 			<h2 class="mb-2 text-xl font-bold text-gray-900">3단계: 백업 코드 저장</h2>
-			<p class="mb-6 text-gray-600">
-				인증 앱을 사용할 수 없을 때를 위한 백업 코드입니다.
-			</p>
+			<p class="mb-6 text-gray-600">인증 앱을 사용할 수 없을 때를 위한 백업 코드입니다.</p>
 		</div>
 
 		<!-- 경고 메시지 -->
@@ -111,9 +108,7 @@
 					bind:checked={downloaded}
 					class="mr-3 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 				/>
-				<span class="text-sm text-gray-700">
-					백업 코드를 안전한 곳에 저장했습니다.
-				</span>
+				<span class="text-sm text-gray-700"> 백업 코드를 안전한 곳에 저장했습니다. </span>
 			</label>
 		</div>
 

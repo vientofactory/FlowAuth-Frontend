@@ -10,11 +10,7 @@
 		onCancel: () => void;
 	}
 
-	let {
-		setupData,
-		onNext,
-		onCancel
-	}: Props = $props();
+	let { setupData, onNext, onCancel }: Props = $props();
 </script>
 
 <Card>
@@ -37,15 +33,24 @@
 			<h3 class="mb-3 font-semibold text-gray-900">설정 방법:</h3>
 			<ol class="space-y-2 text-sm text-gray-700">
 				<li class="flex items-start">
-					<span class="mr-2 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-600">1</span>
+					<span
+						class="mr-2 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-600"
+						>1</span
+					>
 					인증 앱을 실행하세요
 				</li>
 				<li class="flex items-start">
-					<span class="mr-2 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-600">2</span>
+					<span
+						class="mr-2 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-600"
+						>2</span
+					>
 					QR 코드를 스캔하거나 시크릿 키를 수동으로 입력하세요
 				</li>
 				<li class="flex items-start">
-					<span class="mr-2 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-600">3</span>
+					<span
+						class="mr-2 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-600"
+						>3</span
+					>
 					생성된 6자리 토큰을 다음 단계에서 입력하세요
 				</li>
 			</ol>

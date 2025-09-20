@@ -97,12 +97,7 @@
 			// 설정이 로드되지 않은 경우 기본값 사용
 			const defaultMaxSize = 5 * 1024 * 1024; // 5MB
 			const defaultMaxSizeMB = 5;
-			const defaultAllowedMimes = [
-				'image/jpeg',
-				'image/jpg',
-				'image/png',
-				'image/webp'
-			];
+			const defaultAllowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
 			// 파일 타입 검증
 			const allowedMimes = uploadConfig?.allowedMimes || defaultAllowedMimes;

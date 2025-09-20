@@ -20,23 +20,31 @@
 	let revokingApp: ConnectedAppDto | null = null;
 	let revoking = false;
 
-	onMount(async () => {
+	onMount(() => {
 		// 사용자 정보 구독
 		const unsubscribe = authState.subscribe((state) => {
 			user = state.user;
 		});
 
-		try {
-			const response = await apiClient.request<ConnectedAppsResponse>('/dashboard/connected-apps', {
-				method: 'GET'
-			});
-			apps = response.apps;
-		} catch (err) {
-			console.error('연결된 앱 목록 조회 실패:', err);
-			error = '연결된 앱 목록을 불러오는데 실패했습니다.';
-		} finally {
-			loading = false;
+		// 앱 목록 로드를 별도의 async 함수로 처리
+		async function loadApps() {
+			try {
+				const response = await apiClient.request<ConnectedAppsResponse>(
+					'/dashboard/connected-apps',
+					{
+						method: 'GET'
+					}
+				);
+				apps = response.apps;
+			} catch (err) {
+				console.error('연결된 앱 목록 조회 실패:', err);
+				error = '연결된 앱 목록을 불러오는데 실패했습니다.';
+			} finally {
+				loading = false;
+			}
 		}
+
+		loadApps();
 
 		return unsubscribe;
 	});

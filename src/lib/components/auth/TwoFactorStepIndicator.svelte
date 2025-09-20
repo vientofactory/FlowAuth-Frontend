@@ -4,10 +4,7 @@
 		steps: Array<{ number: number; label: string }>;
 	}
 
-	let {
-		currentStep,
-		steps
-	}: Props = $props();
+	let { currentStep, steps }: Props = $props();
 </script>
 
 <div class="mb-8 flex items-center justify-center">
@@ -51,6 +48,6 @@
 <!-- 모바일용 단계 라벨 -->
 <div class="mb-4 text-center sm:hidden">
 	<span class="text-sm font-medium text-blue-600">
-		{steps.find(s => s.number === currentStep)?.label || ''}
+		{steps.find((s) => s.number === currentStep)?.label || ''}
 	</span>
 </div>

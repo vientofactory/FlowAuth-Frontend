@@ -38,6 +38,7 @@
 		clientNameError,
 		redirectUrisError,
 		scopesError,
+		logoUriError: _logoUriError,
 		termsOfServiceUriError,
 		policyUriError,
 		selectedLogoFile = $bindable(),

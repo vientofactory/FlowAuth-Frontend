@@ -69,7 +69,7 @@
 		{onkeydown}
 		{onblur}
 		{onfocus}
-		class="w-full rounded-md border px-3 py-2 text-base shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 resize-vertical
+		class="resize-vertical w-full rounded-md border px-3 py-2 text-base shadow-sm transition-all duration-200 focus:ring-2 focus:outline-none
 		       {hasError
 			? 'border-red-300 focus:border-red-500 focus:ring-red-500'
 			: 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'}

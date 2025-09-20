@@ -58,7 +58,7 @@
 			<div class="ml-auto pl-3">
 				<button
 					type="button"
-					class="inline-flex rounded-md p-1.5 {config.textColor} hover:bg-opacity-20 focus:outline-none focus:ring-2 focus:ring-offset-2"
+					class="inline-flex rounded-md p-1.5 {config.textColor} hover:bg-opacity-20 focus:ring-2 focus:ring-offset-2 focus:outline-none"
 					onclick={onDismiss}
 					aria-label="닫기"
 				>

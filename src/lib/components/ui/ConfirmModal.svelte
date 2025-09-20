@@ -30,11 +30,11 @@
 
 <Modal {open} {title} onClose={onCancel} size="sm">
 	<div class="p-4">
-		<p class="text-sm text-gray-600 leading-relaxed">{message}</p>
+		<p class="text-sm leading-relaxed text-gray-600">{message}</p>
 	</div>
 
 	{#snippet footer()}
-		<div class="flex justify-end space-x-3 px-6 py-4 bg-gray-50">
+		<div class="flex justify-end space-x-3 bg-gray-50 px-6 py-4">
 			<Button variant="outline" onclick={onCancel} disabled={loading}>
 				{cancelText}
 			</Button>

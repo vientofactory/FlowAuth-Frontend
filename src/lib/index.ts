@@ -44,6 +44,9 @@ export {
 	validators
 } from './composables/useFormValidation.svelte';
 
+// Utils
+export { inputHandlers, formatters } from './utils/input.utils';
+
 // API
 export { apiClient } from './utils/api';
 export type { CreateClientData } from './utils/api';

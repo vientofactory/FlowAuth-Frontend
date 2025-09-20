@@ -12,7 +12,7 @@
 		icon?: string;
 		maxlength?: number;
 		minlength?: number;
-		autocomplete?: string;
+		autocomplete?: HTMLInputElement['autocomplete'];
 		inputmode?: 'text' | 'email' | 'numeric' | 'tel' | 'url';
 		class?: string;
 		oninput?: (event: Event) => void;
@@ -46,6 +46,19 @@
 	const inputId = `field-${name}`;
 	const hasError = $derived(!!error);
 	const showHint = $derived(hint && !hasError);
+
+	const inputClasses = $derived(() => {
+		const baseClasses =
+			'w-full rounded-md border px-3 py-2 text-base shadow-sm transition-all duration-200 focus:outline-none focus:ring-2';
+
+		const errorClasses = hasError
+			? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+			: 'border-gray-300 focus:border-blue-500 focus:ring-blue-500';
+
+		const disabledClasses = disabled ? 'cursor-not-allowed bg-gray-50 opacity-50' : 'bg-white';
+
+		return `${baseClasses} ${errorClasses} ${disabledClasses} ${className}`;
+	});
 </script>
 
 <div class="form-field">
@@ -75,12 +88,7 @@
 		{onkeydown}
 		{onblur}
 		{onfocus}
-		class="w-full rounded-md border px-3 py-2 text-base shadow-sm transition-all duration-200 focus:outline-none focus:ring-2
-		       {hasError
-			? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-			: 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'}
-		       {disabled ? 'cursor-not-allowed bg-gray-50 opacity-50' : 'bg-white'}
-		       {className}"
+		class={inputClasses}
 	/>
 
 	{#if hasError}

@@ -11,8 +11,9 @@ export interface FieldValidation {
 	value: string;
 	error: string;
 	isValid: boolean;
-	validate: () => boolean;
+	validate: (immediate?: boolean) => boolean;
 	clear: () => void;
+	triggerValidation: () => void;
 }
 
 export interface FormValidation {
@@ -26,8 +27,13 @@ export interface FormValidation {
 export function useFieldValidation(
 	initialValue: string = '',
 	validator?: (value: string) => { isValid: boolean; message?: string },
-	debounceMs: number = 300
+	options: {
+		debounceMs?: number;
+		autoValidate?: boolean;
+		validateOnEmpty?: boolean;
+	} = {}
 ): FieldValidation {
+	const { debounceMs = 300, autoValidate = true, validateOnEmpty = false } = options;
 	let value = $state(initialValue);
 	let error = $state('');
 	let validationTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -80,11 +86,14 @@ export function useFieldValidation(
 		},
 		set value(newValue: string) {
 			value = newValue;
-			// Trigger debounced validation on value change
-			if (newValue.trim() !== '') {
-				validate(false);
-			} else {
-				clear();
+			// Only trigger validation if auto-validation is enabled
+			if (autoValidate) {
+				const shouldValidate = validateOnEmpty || newValue.trim() !== '';
+				if (shouldValidate) {
+					validate(false); // Use debounced validation
+				} else {
+					clear();
+				}
 			}
 		},
 		get error() {
@@ -94,8 +103,32 @@ export function useFieldValidation(
 			return !error;
 		},
 		validate: (immediate = true) => validate(immediate),
+		triggerValidation: () => validate(false), // Trigger debounced validation manually
 		clear
 	};
+}
+
+// Convenience functions for common validation scenarios
+export function useRealtimeValidation(
+	initialValue: string = '',
+	validator?: (value: string) => { isValid: boolean; message?: string },
+	debounceMs: number = 300
+): FieldValidation {
+	return useFieldValidation(initialValue, validator, {
+		debounceMs,
+		autoValidate: true,
+		validateOnEmpty: false
+	});
+}
+
+export function useManualValidation(
+	initialValue: string = '',
+	validator?: (value: string) => { isValid: boolean; message?: string }
+): FieldValidation {
+	return useFieldValidation(initialValue, validator, {
+		autoValidate: false,
+		validateOnEmpty: true
+	});
 }
 
 export function useFormValidation(fields: Record<string, FieldValidation>): FormValidation {
@@ -147,10 +180,15 @@ export const validators = {
 			validateUrl(value, fieldName),
 
 	// 커스텀 검증자들
-	confirmPassword: (originalPassword: string) => (value: string) => {
+	confirmPassword: (getOriginalPassword: string | (() => string)) => (value: string) => {
 		if (!value) {
 			return { isValid: false, message: '비밀번호 확인을 입력해주세요.' };
 		}
+
+		// Support both string and function for backward compatibility
+		const originalPassword =
+			typeof getOriginalPassword === 'function' ? getOriginalPassword() : getOriginalPassword;
+
 		if (value !== originalPassword) {
 			return { isValid: false, message: '비밀번호가 일치하지 않습니다.' };
 		}

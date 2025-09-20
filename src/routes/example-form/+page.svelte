@@ -4,7 +4,6 @@
 		FormField,
 		TextareaField,
 		LoadingButton,
-		ErrorMessage,
 		ErrorBoundary,
 		ConfirmModal,
 		useFieldValidation,
@@ -15,8 +14,8 @@
 	// 폼 검증 필드들
 	const emailField = useFieldValidation('', validators.email);
 	const passwordField = useFieldValidation('', validators.password);
-	const confirmPasswordField = useFieldValidation('', 
-		(value: string) => validators.confirmPassword(passwordField.value)(value)
+	const confirmPasswordField = useFieldValidation('', (value: string) =>
+		validators.confirmPassword(passwordField.value)(value)
 	);
 	const descriptionField = useFieldValidation('');
 
@@ -35,7 +34,7 @@
 		event.preventDefault();
 		if (form.validateAll()) {
 			isLoading = true;
-			
+
 			// 모의 API 호출
 			setTimeout(() => {
 				isLoading = false;
@@ -58,8 +57,8 @@
 	}
 </script>
 
-<div class="p-8 max-w-2xl mx-auto">
-	<h1 class="text-2xl font-bold mb-6">새로운 컴포넌트 사용 예시</h1>
+<div class="mx-auto max-w-2xl p-8">
+	<h1 class="mb-6 text-2xl font-bold">새로운 컴포넌트 사용 예시</h1>
 
 	<ErrorBoundary {isLoading} {error} loadingMessage="폼을 처리하고 있습니다...">
 		<form onsubmit={handleSubmit} class="space-y-6">
@@ -116,11 +115,7 @@
 
 			<!-- 버튼들 -->
 			<div class="flex justify-between">
-				<LoadingButton
-					variant="danger"
-					onclick={handleDelete}
-					icon="fas fa-trash"
-				>
+				<LoadingButton variant="danger" onclick={handleDelete} icon="fas fa-trash">
 					삭제
 				</LoadingButton>
 
@@ -146,6 +141,6 @@
 		cancelText="취소"
 		confirmVariant="danger"
 		onConfirm={confirmDelete}
-		onCancel={() => showConfirmModal = false}
+		onCancel={() => (showConfirmModal = false)}
 	/>
 </div>

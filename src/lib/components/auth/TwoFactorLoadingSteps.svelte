@@ -13,11 +13,7 @@
 		title?: string;
 	}
 
-	let {
-		currentStep,
-		steps,
-		title = '보안 설정을 준비하고 있습니다...'
-	}: Props = $props();
+	let { currentStep, steps, title = '보안 설정을 준비하고 있습니다...' }: Props = $props();
 </script>
 
 <div class="flex flex-col items-center justify-center space-y-6 p-8">
@@ -33,8 +29,8 @@
 		{#each steps as step, index (index)}
 			<div
 				class="flex items-center space-x-3 rounded-lg p-3 transition-all duration-300
-				       {step.active ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50'}
-				       {currentStep > index ? 'bg-green-50 border border-green-200' : ''}"
+				       {step.active ? 'border border-blue-200 bg-blue-50' : 'bg-gray-50'}
+				       {currentStep > index ? 'border border-green-200 bg-green-50' : ''}"
 			>
 				<div class="flex-shrink-0">
 					{#if currentStep > index}

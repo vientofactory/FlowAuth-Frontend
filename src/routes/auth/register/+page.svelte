@@ -8,9 +8,10 @@
 	// 폼 검증 필드들
 	const emailField = useFieldValidation('', validators.email);
 	const passwordField = useFieldValidation('', validators.password);
-	const confirmPasswordField = useFieldValidation('', 
-		(value: string) => validators.confirmPassword(passwordField.value)(value)
-	);
+	const confirmPasswordField = useFieldValidation('', (value: string) => {
+		// Access the current password value during validation, not at initialization
+		return validators.confirmPassword(() => passwordField.value)(value);
+	});
 	const usernameField = useFieldValidation('', validators.username);
 	const firstNameField = useFieldValidation('', validators.firstName);
 	const lastNameField = useFieldValidation('', validators.lastName);
@@ -30,11 +31,6 @@
 
 	// 중앙화된 토스트 훅 사용
 	const toast = useToast();
-
-	// 비밀번호 확인 필드의 검증 함수를 업데이트하는 헬퍼
-	function updateConfirmPasswordValidation() {
-		confirmPasswordField.validate();
-	}
 
 	async function handleRegister() {
 		// 모든 필드 검증 수행
@@ -116,58 +112,62 @@
 				<div class="space-y-3 sm:space-y-4">
 					<!-- 사용자 이름과 이메일을 가로로 배치 -->
 					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-						<FormField 
+						<FormField
 							name="username"
 							label="사용자 이름"
 							placeholder="사용자 이름"
-							type="text" 
+							type="text"
 							required
 							disabled={isLoading}
 							hint="영문, 숫자, 밑줄만 사용"
 							icon="fas fa-user"
 							bind:value={usernameField.value}
 							error={usernameField.error}
-							oninput={() => usernameField.validate()} />
+							oninput={() => usernameField.validate()}
+						/>
 
-						<FormField 
+						<FormField
 							name="email"
 							label="이메일 주소"
 							placeholder="your@email.com"
-							type="email" 
+							type="email"
 							required
 							disabled={isLoading}
 							hint="계정 복구에 사용됩니다"
 							icon="fas fa-envelope"
 							bind:value={emailField.value}
 							error={emailField.error}
-							oninput={() => emailField.validate()} />
+							oninput={() => emailField.validate()}
+						/>
 					</div>
 
 					<!-- 이름과 성을 가로로 배치 -->
 					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-						<FormField 
+						<FormField
 							name="firstName"
 							label="이름"
 							placeholder="이름"
-							type="text" 
+							type="text"
 							required
 							disabled={isLoading}
 							icon="fas fa-id-card"
 							bind:value={firstNameField.value}
 							error={firstNameField.error}
-							oninput={() => firstNameField.validate()} />
+							oninput={() => firstNameField.validate()}
+						/>
 
-						<FormField 
+						<FormField
 							name="lastName"
 							label="성"
 							placeholder="성"
-							type="text" 
+							type="text"
 							required
 							disabled={isLoading}
 							icon="fas fa-id-card"
 							bind:value={lastNameField.value}
 							error={lastNameField.error}
-							oninput={() => lastNameField.validate()} />
+							oninput={() => lastNameField.validate()}
+						/>
 					</div>
 
 					<!-- 사용자 유형 선택 -->
@@ -228,34 +228,33 @@
 					</div>
 
 					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-						<FormField 
+						<FormField
 							name="password"
 							label="비밀번호"
 							placeholder="비밀번호"
-							type="password" 
+							type="password"
 							required
 							disabled={isLoading}
 							hint="8자 이상, 대소문자+숫자"
 							icon="fas fa-lock"
 							bind:value={passwordField.value}
 							error={passwordField.error}
-							oninput={() => {
-								passwordField.validate();
-								updateConfirmPasswordValidation();
-							}} />
+							oninput={() => passwordField.validate()}
+						/>
 
-						<FormField 
+						<FormField
 							name="confirmPassword"
 							label="비밀번호 확인"
 							placeholder="비밀번호 확인"
-							type="password" 
+							type="password"
 							required
 							disabled={isLoading}
 							icon="fas fa-lock"
 							bind:value={confirmPasswordField.value}
 							error={confirmPasswordField.error}
 							oninput={() => confirmPasswordField.validate()}
-							onkeydown={handleKeyPress} />
+							onkeydown={handleKeyPress}
+						/>
 					</div>
 				</div>
 

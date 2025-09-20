@@ -4,6 +4,7 @@
 	import FormField from '$lib/components/form/FormField.svelte';
 	import LoadingButton from '$lib/components/ui/LoadingButton.svelte';
 	import { useFieldValidation, validators } from '$lib/composables/useFormValidation.svelte';
+	import { inputHandlers } from '$lib/utils/input.utils';
 
 	interface Props {
 		loading?: boolean;
@@ -11,27 +12,20 @@
 		onBack: () => void;
 	}
 
-	let {
-		loading = false,
-		onVerify,
-		onBack
-	}: Props = $props();
+	let { loading = false, onVerify, onBack }: Props = $props();
 
 	const tokenField = useFieldValidation('', validators.twoFactorToken);
 
 	function handleSubmit(event: Event) {
 		event.preventDefault();
-		
+
 		if (tokenField.validate()) {
 			onVerify(tokenField.value);
 		}
 	}
 
 	function handleTokenInput(event: Event) {
-		const target = event.target as HTMLInputElement;
-		const value = target.value.replace(/\D/g, '').slice(0, 6); // 숫자만 6자리까지
-		tokenField.value = value;
-		tokenField.clear(); // 입력 중에는 에러 메시지 제거
+		inputHandlers.twoFactorToken(tokenField)(event);
 	}
 </script>
 
@@ -42,9 +36,7 @@
 				<i class="fas fa-key text-xl text-green-600"></i>
 			</div>
 			<h2 class="mb-2 text-xl font-bold text-gray-900">2단계: 토큰 확인</h2>
-			<p class="mb-6 text-gray-600">
-				인증 앱에서 생성된 6자리 토큰을 입력하세요.
-			</p>
+			<p class="mb-6 text-gray-600">인증 앱에서 생성된 6자리 토큰을 입력하세요.</p>
 		</div>
 
 		<form onsubmit={handleSubmit} class="space-y-6">
@@ -59,7 +51,7 @@
 						error={tokenField.error}
 						maxlength={6}
 						inputmode="numeric"
-						class="text-center text-2xl font-mono tracking-widest"
+						class="text-center font-mono text-2xl tracking-widest"
 						oninput={handleTokenInput}
 						disabled={loading}
 						required
@@ -72,8 +64,7 @@
 					<i class="fas fa-info-circle mt-0.5 text-blue-500"></i>
 					<div class="ml-3">
 						<p class="text-sm text-blue-700">
-							<strong>참고:</strong> 토큰은 30초마다 새로 생성됩니다. 
-							시간이 지나면 새로운 토큰을 입력해주세요.
+							<strong>참고:</strong> 토큰은 30초마다 새로 생성됩니다. 시간이 지나면 새로운 토큰을 입력해주세요.
 						</p>
 					</div>
 				</div>

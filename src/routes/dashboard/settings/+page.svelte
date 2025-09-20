@@ -188,7 +188,9 @@
 					label="기본 토큰 만료 시간 (초)"
 					type="text"
 					value={String(generalSettings.defaultTokenExpiry)}
-					oninput={(e) => generalSettings.defaultTokenExpiry = parseInt((e.target as HTMLInputElement).value) || 60}
+					oninput={(e) =>
+						(generalSettings.defaultTokenExpiry =
+							parseInt((e.target as HTMLInputElement).value) || 60)}
 					inputmode="numeric"
 					class="h-10 sm:h-11"
 				/>
@@ -198,7 +200,9 @@
 					label="리프레시 토큰 만료 시간 (초)"
 					type="text"
 					value={String(generalSettings.defaultRefreshTokenExpiry)}
-					oninput={(e) => generalSettings.defaultRefreshTokenExpiry = parseInt((e.target as HTMLInputElement).value) || 3600}
+					oninput={(e) =>
+						(generalSettings.defaultRefreshTokenExpiry =
+							parseInt((e.target as HTMLInputElement).value) || 3600)}
 					inputmode="numeric"
 					class="h-10 sm:h-11"
 				/>

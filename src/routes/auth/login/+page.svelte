@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { Card, Button, FormField, LoadingButton, ErrorBoundary } from '$lib';
+	import { Card, Button, FormField, LoadingButton } from '$lib';
 	import { useToast, useFieldValidation, useFormValidation, validators } from '$lib';
+	import { inputHandlers } from '$lib/utils/input.utils';
 	import { authStore } from '$lib/stores/auth';
 	import { MESSAGES, ROUTES } from '$lib/constants/app.constants';
 	import { onMount } from 'svelte';
@@ -39,20 +40,10 @@
 	});
 
 	// 토큰 입력 핸들러 - 숫자만 허용
-	function handleTokenInput(event: Event) {
-		const target = event.target as HTMLInputElement;
-		const value = target.value.replace(/\D/g, '').slice(0, 6); // 숫자만 6자리까지
-		twoFactorTokenField.value = value;
-		twoFactorTokenField.clear(); // 입력 중에는 에러 메시지 제거
-	}
+	const handleTokenInput = inputHandlers.twoFactorToken(twoFactorTokenField);
 
 	// 백업 코드 입력 핸들러
-	function handleBackupCodeInput(event: Event) {
-		const target = event.target as HTMLInputElement;
-		const value = target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
-		backupCodeField.value = value;
-		backupCodeField.clear();
-	}
+	const handleBackupCodeInput = inputHandlers.backupCode(backupCodeField);
 
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();

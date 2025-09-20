@@ -6,12 +6,7 @@
 		speed?: 'slow' | 'normal' | 'fast';
 	}
 
-	let {
-		size = 'md',
-		class: className = '',
-		color = 'blue',
-		speed = 'normal'
-	}: Props = $props();
+	let { size = 'md', class: className = '', color = 'blue', speed = 'normal' }: Props = $props();
 
 	const sizeClasses = {
 		sm: 'h-4 w-4',
@@ -33,7 +28,9 @@
 </script>
 
 <div
-	class="inline-block rounded-full border-2 border-solid border-r-transparent {sizeClasses[size]} {colorClasses[color]} {speedClasses[speed]} {className}"
+	class="inline-block rounded-full border-2 border-solid border-r-transparent {sizeClasses[
+		size
+	]} {colorClasses[color]} {speedClasses[speed]} {className}"
 	role="status"
 	aria-label="로딩 중"
 >
