@@ -240,6 +240,7 @@
 							inputmode="numeric"
 							icon="fas fa-mobile-alt"
 							class="text-center font-mono text-lg tracking-wider"
+							autocomplete="off"
 							oninput={handleTokenInput}
 							disabled={isTwoFactorLoading}
 							required
@@ -256,6 +257,7 @@
 							icon="fas fa-key"
 							class="text-center font-mono text-lg tracking-wider"
 							hint="백업 코드는 한 번만 사용할 수 있습니다."
+							autocomplete="off"
 							oninput={handleBackupCodeInput}
 							disabled={isTwoFactorLoading}
 							required
