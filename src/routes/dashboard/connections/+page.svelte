@@ -1,16 +1,19 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { apiClient } from '$lib/utils/api';
-	import { DashboardLayout, Modal } from '$lib';
+	import { DashboardLayout, Modal, authState } from '$lib';
+	import { USER_TYPES } from '$lib/types/user.types';
 	import type {
 		ConnectedAppDto,
 		ConnectedAppsResponse,
 		RevokeConnectionResponse
 	} from '$lib/types/dashboard';
+	import type { User } from '$lib';
 
 	let apps: ConnectedAppDto[] = [];
 	let loading = true;
 	let error = '';
+	let user: User | null = null;
 
 	// 모달 관련 상태
 	let showRevokeModal = false;
@@ -18,6 +21,11 @@
 	let revoking = false;
 
 	onMount(async () => {
+		// 사용자 정보 구독
+		const unsubscribe = authState.subscribe((state) => {
+			user = state.user;
+		});
+
 		try {
 			const response = await apiClient.request<ConnectedAppsResponse>('/dashboard/connected-apps', {
 				method: 'GET'
@@ -29,6 +37,8 @@
 		} finally {
 			loading = false;
 		}
+
+		return unsubscribe;
 	});
 
 	function openRevokeModal(app: ConnectedAppDto) {
@@ -131,13 +141,15 @@
 					아직 어떤 앱에도 연결되지 않았습니다.<br />
 					OAuth2 애플리케이션을 사용하면 여기에 표시됩니다.
 				</p>
-				<a
-					href="/dashboard/oauth-tester"
-					class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-				>
-					<i class="fas fa-flask mr-2"></i>
-					OAuth2 테스터로 이동
-				</a>
+				{#if user?.userType === USER_TYPES.DEVELOPER}
+					<a
+						href="/dashboard/oauth-tester"
+						class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+					>
+						<i class="fas fa-flask mr-2"></i>
+						OAuth2 테스터로 이동
+					</a>
+				{/if}
 			</div>
 		{:else}
 			<!-- 앱 목록 -->

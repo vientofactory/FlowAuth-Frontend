@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { DashboardLayout, Card, Button } from '$lib';
+	import { DashboardLayout, Card, Button, FormField, TextareaField } from '$lib';
 	import { useToast } from '$lib';
 	import { onMount } from 'svelte';
 	import { apiClient } from '$lib';
@@ -158,70 +158,50 @@
 			</div>
 
 			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-				<div>
-					<label for="site-name" class="mb-1 block text-sm font-medium text-gray-700"
-						>사이트 이름</label
-					>
-					<input
-						id="site-name"
-						type="text"
-						bind:value={generalSettings.siteName}
-						class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-11"
-					/>
-				</div>
+				<FormField
+					name="siteName"
+					label="사이트 이름"
+					type="text"
+					bind:value={generalSettings.siteName}
+					class="h-10 sm:h-11"
+				/>
 
-				<div>
-					<label for="admin-email" class="mb-1 block text-sm font-medium text-gray-700"
-						>관리자 이메일</label
-					>
-					<input
-						id="admin-email"
-						type="email"
-						bind:value={generalSettings.adminEmail}
-						class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-11"
-					/>
-				</div>
+				<FormField
+					name="adminEmail"
+					label="관리자 이메일"
+					type="email"
+					bind:value={generalSettings.adminEmail}
+					class="h-10 sm:h-11"
+				/>
 
 				<div class="sm:col-span-2">
-					<label for="site-description" class="mb-1 block text-sm font-medium text-gray-700"
-						>사이트 설명</label
-					>
-					<textarea
-						id="site-description"
+					<TextareaField
+						name="siteDescription"
+						label="사이트 설명"
 						bind:value={generalSettings.siteDescription}
-						rows="3"
-						class="w-full rounded-md border-gray-300 px-3 py-2 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500"
-					></textarea>
-				</div>
-
-				<div>
-					<label for="default-token-expiry" class="mb-1 block text-sm font-medium text-gray-700">
-						기본 토큰 만료 시간 (초)
-					</label>
-					<input
-						id="default-token-expiry"
-						type="number"
-						bind:value={generalSettings.defaultTokenExpiry}
-						min="60"
-						class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-11"
+						rows={3}
 					/>
 				</div>
 
-				<div>
-					<label
-						for="default-refresh-token-expiry"
-						class="mb-1 block text-sm font-medium text-gray-700"
-					>
-						리프레시 토큰 만료 시간 (초)
-					</label>
-					<input
-						id="default-refresh-token-expiry"
-						type="number"
-						bind:value={generalSettings.defaultRefreshTokenExpiry}
-						min="3600"
-						class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-11"
-					/>
-				</div>
+				<FormField
+					name="defaultTokenExpiry"
+					label="기본 토큰 만료 시간 (초)"
+					type="text"
+					value={String(generalSettings.defaultTokenExpiry)}
+					oninput={(e) => generalSettings.defaultTokenExpiry = parseInt((e.target as HTMLInputElement).value) || 60}
+					inputmode="numeric"
+					class="h-10 sm:h-11"
+				/>
+
+				<FormField
+					name="defaultRefreshTokenExpiry"
+					label="리프레시 토큰 만료 시간 (초)"
+					type="text"
+					value={String(generalSettings.defaultRefreshTokenExpiry)}
+					oninput={(e) => generalSettings.defaultRefreshTokenExpiry = parseInt((e.target as HTMLInputElement).value) || 3600}
+					inputmode="numeric"
+					class="h-10 sm:h-11"
+				/>
 			</div>
 		</Card>
 
