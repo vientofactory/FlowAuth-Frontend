@@ -49,11 +49,11 @@
 
 	const inputClasses = $derived(() => {
 		const baseClasses =
-			'w-full rounded-md border px-3 py-2 text-base shadow-sm transition-all duration-200 focus:outline-none focus:ring-2';
+			'!w-full min-w-0 box-border rounded-md border px-4 py-3 text-sm shadow-sm transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-opacity-30';
 
 		const errorClasses = hasError
-			? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-			: 'border-gray-300 focus:border-blue-500 focus:ring-blue-500';
+			? 'border-red-300 focus:border-red-400 focus:ring-red-300'
+			: 'border-gray-300 focus:border-blue-400 focus:ring-blue-300';
 
 		const disabledClasses = disabled ? 'cursor-not-allowed bg-gray-50 opacity-50' : 'bg-white';
 
@@ -61,7 +61,7 @@
 	});
 </script>
 
-<div class="form-field">
+<div class="form-field w-full">
 	<label for={inputId} class="mb-2 block text-sm font-medium text-gray-700">
 		{#if icon}
 			<i class="{icon} mr-2 text-blue-500"></i>
@@ -88,6 +88,7 @@
 		{onkeydown}
 		{onblur}
 		{onfocus}
+		style="width: 100%"
 		class={inputClasses}
 	/>
 

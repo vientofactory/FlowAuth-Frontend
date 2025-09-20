@@ -17,14 +17,6 @@
 	let token = '';
 	let step = 1; // 1: QR코드 표시, 2: 토큰 입력, 3: 백업코드 표시, 4: 완료
 
-	// 로딩 단계별 상태 관리
-	let loadingStep = 0; // 0: 시작, 1: 키 생성, 2: QR 준비, 3: 백업코드 생성, 4: 완료
-	let loadingSteps = [
-		{ icon: '🔐', text: '보안 키 생성', active: false },
-		{ icon: '📱', text: 'QR 코드 준비', active: false },
-		{ icon: '🛡️', text: '백업 코드 생성', active: false }
-	];
-
 	// 토큰 유효성 검사 함수
 	function isValidToken(value: string): boolean {
 		return /^\d{6}$/.test(value);
@@ -52,26 +44,10 @@
 
 	async function setupTwoFactor() {
 		isLoading = true;
-		loadingStep = 0;
 
 		try {
-			// 단계별 진행 표시
-			await updateLoadingStep(0, 300); // 보안 키 생성 시작
-
-			// 실제 API 호출 (시간 측정)
-			const startTime = Date.now();
+			// 간단한 API 호출
 			setupData = await apiClient.setupTwoFactor();
-			const apiTime = Date.now() - startTime;
-
-			// API 호출이 빠르면 최소 시간을 확보
-			const remainingTime = Math.max(0, 1500 - apiTime);
-
-			await updateLoadingStep(1, remainingTime * 0.6); // QR 코드 준비
-			await updateLoadingStep(2, remainingTime * 0.4); // 백업 코드 생성
-
-			loadingStep = 3; // 완료
-			await new Promise((resolve) => setTimeout(resolve, 500)); // 완료 애니메이션
-
 			step = 1;
 		} catch (error) {
 			console.error('2FA 설정 실패:', error);
@@ -80,21 +56,6 @@
 		} finally {
 			isLoading = false;
 		}
-	}
-
-	// 로딩 단계 업데이트 함수
-	async function updateLoadingStep(stepIndex: number, delay: number): Promise<void> {
-		return new Promise((resolve) => {
-			setTimeout(() => {
-				loadingStep = stepIndex + 1;
-				// 로딩 단계 배열 업데이트
-				loadingSteps = loadingSteps.map((step, index) => ({
-					...step,
-					active: index <= stepIndex
-				}));
-				resolve();
-			}, delay);
-		});
 	}
 
 	async function verifyAndEnable() {
@@ -159,7 +120,7 @@
 	}
 
 	function goBack() {
-		goto('/profile');
+		goto('/dashboard/profile');
 	}
 
 	function retrySetup() {
@@ -186,48 +147,13 @@
 		{#if isLoading && !setupData}
 			<Card>
 				<div class="loading-section">
-					<!-- 로딩 애니메이션 -->
 					<div class="loading-container">
 						<div class="loading-spinner">
-							<div class="spinner-ring"></div>
-							<div class="spinner-ring"></div>
-							<div class="spinner-ring"></div>
 							<div class="spinner-ring"></div>
 						</div>
 						<div class="loading-content">
 							<h3 class="loading-title">2FA 설정 준비 중</h3>
-							<p class="loading-description">
-								{#if loadingStep === 0}
-									보안 키를 생성하고 있습니다...
-								{:else if loadingStep === 1}
-									QR 코드를 준비하고 있습니다...
-								{:else if loadingStep === 2}
-									백업 코드를 생성하고 있습니다...
-								{:else}
-									거의 완료되었습니다...
-								{/if}
-							</p>
-							<div class="loading-steps">
-								{#each loadingSteps as step, index (index)}
-									<div
-										class="loading-step"
-										class:active={step.active}
-										class:completed={loadingStep > index}
-									>
-										<div class="step-icon">{step.icon}</div>
-										<div class="step-text">
-											<span>{step.text}</span>
-											{#if step.active && loadingStep === index + 1}
-												<div class="step-progress">
-													<div class="progress-bar"></div>
-												</div>
-											{:else if loadingStep > index}
-												<div class="step-check">✓</div>
-											{/if}
-										</div>
-									</div>
-								{/each}
-							</div>
+							<p class="loading-description">잠시만 기다려주세요...</p>
 						</div>
 					</div>
 				</div>
@@ -361,53 +287,216 @@
 </div>
 
 <style>
+	/* 반응형 디자인 시스템 */
 	.two-factor-setup {
 		min-height: 100vh;
 		background: #f8fafc;
-		padding: 2rem 1rem;
+		padding: 1rem 0.5rem;
 	}
 
 	.container {
-		max-width: 800px;
+		max-width: 320px;
 		margin: 0 auto;
+		padding: 0 0.5rem;
 	}
 
-	/* 넓은 화면에서 더 큰 컨테이너 */
+	/* 작은 모바일 (320px - 479px) */
+	@media (min-width: 320px) {
+		.two-factor-setup {
+			padding: 1rem 0.75rem;
+		}
+
+		.container {
+			max-width: 320px;
+			padding: 0 0.75rem;
+		}
+	}
+
+	/* 중간 모바일 (480px - 639px) */
+	@media (min-width: 480px) {
+		.two-factor-setup {
+			padding: 1.5rem 1rem;
+		}
+
+		.container {
+			max-width: 480px;
+			padding: 0 1rem;
+		}
+	}
+
+	/* 큰 모바일/작은 태블릿 (640px - 767px) */
+	@media (min-width: 640px) {
+		.two-factor-setup {
+			padding: 2rem 1rem;
+		}
+
+		.container {
+			max-width: 640px;
+			padding: 0 1rem;
+		}
+	}
+
+	/* 태블릿 (768px - 1023px) */
+	@media (min-width: 768px) {
+		.two-factor-setup {
+			padding: 2rem 1.5rem;
+		}
+
+		.container {
+			max-width: 768px;
+			padding: 0 1.5rem;
+		}
+	}
+
+	/* 작은 데스크톱 (1024px - 1199px) */
 	@media (min-width: 1024px) {
+		.two-factor-setup {
+			padding: 2.5rem 2rem;
+		}
+
+		.container {
+			max-width: 1024px;
+			padding: 0 2rem;
+		}
+	}
+
+	/* 큰 데스크톱 (1200px - 1439px) */
+	@media (min-width: 1200px) {
+		.two-factor-setup {
+			padding: 3rem 2rem;
+		}
+
 		.container {
 			max-width: 1200px;
+			padding: 0 2rem;
+		}
+	}
+
+	/* 초대형 화면 (1440px+) */
+	@media (min-width: 1440px) {
+		.two-factor-setup {
+			padding: 3rem 3rem;
+		}
+
+		.container {
+			max-width: 1400px;
+			padding: 0 3rem;
 		}
 	}
 
 	.header {
 		text-align: center;
-		margin-bottom: 2rem;
+		margin-bottom: 1.5rem;
 	}
 
 	.header h1 {
-		font-size: 2rem;
+		font-size: 1.5rem;
 		font-weight: 700;
 		color: #1f2937;
 		margin-bottom: 0.5rem;
+		line-height: 1.2;
 	}
 
 	.header p {
 		color: #6b7280;
-		font-size: 1rem;
+		font-size: 0.875rem;
+		line-height: 1.5;
+	}
+
+	/* 작은 모바일 */
+	@media (min-width: 320px) {
+		.header h1 {
+			font-size: 1.625rem;
+		}
+
+		.header p {
+			font-size: 0.9rem;
+		}
+	}
+
+	/* 중간 모바일 */
+	@media (min-width: 480px) {
+		.header {
+			margin-bottom: 2rem;
+		}
+
+		.header h1 {
+			font-size: 1.75rem;
+		}
+
+		.header p {
+			font-size: 0.95rem;
+		}
+	}
+
+	/* 큰 모바일 */
+	@media (min-width: 640px) {
+		.header h1 {
+			font-size: 1.875rem;
+		}
+
+		.header p {
+			font-size: 1rem;
+		}
+	}
+
+	/* 태블릿 */
+	@media (min-width: 768px) {
+		.header {
+			margin-bottom: 2.5rem;
+		}
+
+		.header h1 {
+			font-size: 2rem;
+		}
+	}
+
+	/* 데스크톱 */
+	@media (min-width: 1024px) {
+		.header {
+			margin-bottom: 3rem;
+		}
+
+		.header h1 {
+			font-size: 2.25rem;
+		}
+	}
+
+	/* 큰 데스크톱 */
+	@media (min-width: 1200px) {
+		.header h1 {
+			font-size: 2.5rem;
+		}
 	}
 
 	/* 메인 설정 레이아웃 */
 	.setup-layout {
 		display: flex;
-		gap: 2rem;
-		align-items: flex-start;
+		flex-direction: column;
+		gap: 1.5rem;
+		align-items: stretch;
 	}
 
-	/* 모바일에서는 세로 배치 */
-	@media (max-width: 768px) {
+	/* 태블릿 이상에서 가로 배치 */
+	@media (min-width: 768px) {
 		.setup-layout {
-			flex-direction: column;
-			gap: 1.5rem;
+			flex-direction: row;
+			gap: 2rem;
+			align-items: flex-start;
+		}
+	}
+
+	/* 데스크톱에서 더 큰 간격 */
+	@media (min-width: 1024px) {
+		.setup-layout {
+			gap: 2.5rem;
+		}
+	}
+
+	/* 큰 데스크톱에서 최대 간격 */
+	@media (min-width: 1200px) {
+		.setup-layout {
+			gap: 3rem;
 		}
 	}
 
@@ -415,29 +504,46 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		min-width: 200px;
 		padding: 1rem;
 		background: white;
 		border-radius: 12px;
 		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		min-height: fit-content;
 	}
 
-	/* 넓은 화면에서는 더 큰 단계 표시 */
+	/* 모바일에서 가로 배치 */
+	@media (max-width: 767px) {
+		.step-indicator {
+			flex-direction: row;
+			justify-content: center;
+			padding: 0.75rem;
+			gap: 0.75rem;
+		}
+	}
+
+	/* 태블릿 */
+	@media (min-width: 768px) {
+		.step-indicator {
+			min-width: 200px;
+			padding: 1.25rem;
+		}
+	}
+
+	/* 데스크톱 */
 	@media (min-width: 1024px) {
 		.step-indicator {
-			min-width: 250px;
+			min-width: 240px;
 			padding: 1.5rem;
 		}
 	}
 
-	/* 모바일에서는 가로 배치 */
-	@media (max-width: 768px) {
+	/* 큰 데스크톱 */
+	@media (min-width: 1200px) {
 		.step-indicator {
-			flex-direction: row;
-			justify-content: center;
-			min-width: auto;
-			padding: 1rem;
-			gap: 1rem;
+			min-width: 280px;
+			padding: 2rem;
+			position: sticky;
+			top: 2rem;
 		}
 	}
 
@@ -455,8 +561,8 @@
 	}
 
 	.step-number {
-		width: 40px;
-		height: 40px;
+		width: 36px;
+		height: 36px;
 		border-radius: 50%;
 		background: #e5e7eb;
 		color: #6b7280;
@@ -464,8 +570,26 @@
 		align-items: center;
 		justify-content: center;
 		font-weight: 600;
-		font-size: 1.125rem;
+		font-size: 0.875rem;
 		transition: all 0.3s;
+	}
+
+	/* 작은 모바일 */
+	@media (min-width: 320px) {
+		.step-number {
+			width: 40px;
+			height: 40px;
+			font-size: 1rem;
+		}
+	}
+
+	/* 중간 모바일 이상 */
+	@media (min-width: 480px) {
+		.step-number {
+			width: 44px;
+			height: 44px;
+			font-size: 1.125rem;
+		}
 	}
 
 	.step.active .step-number {
@@ -473,25 +597,54 @@
 		color: white;
 	}
 
+	.step span {
+		font-size: 0.75rem;
+		font-weight: 500;
+		color: #6b7280;
+		text-align: center;
+		line-height: 1.2;
+	}
+
+	/* 모바일에서 더 작은 폰트 */
+	@media (max-width: 479px) {
+		.step span {
+			font-size: 0.7rem;
+		}
+	}
+
+	/* 태블릿 이상에서 더 큰 폰트 */
+	@media (min-width: 768px) {
+		.step span {
+			font-size: 0.875rem;
+		}
+	}
+
 	.step-line {
 		width: 2px;
-		height: 40px;
+		height: 32px;
 		background: #e5e7eb;
-		margin: 0.5rem 0;
+		margin: 0.25rem 0;
 		transition: background-color 0.3s;
+	}
+
+	/* 모바일에서 가로 선 */
+	@media (max-width: 767px) {
+		.step-line {
+			width: 40px;
+			height: 2px;
+			margin: 0 0.5rem;
+		}
+	}
+
+	/* 태블릿 이상에서 더 긴 선 */
+	@media (min-width: 768px) {
+		.step-line {
+			height: 40px;
+		}
 	}
 
 	.step-line.active {
 		background: #3b82f6;
-	}
-
-	/* 모바일에서는 가로 선 */
-	@media (max-width: 768px) {
-		.step-line {
-			width: 60px;
-			height: 2px;
-			margin: 0 1rem;
-		}
 	}
 
 	/* 콘텐츠 영역 */
@@ -500,27 +653,121 @@
 		min-width: 0;
 	}
 
+	/* 데스크톱에서 최대 너비 제한 */
+	@media (min-width: 1024px) {
+		.content-area {
+			max-width: 600px;
+		}
+	}
+
+	/* 큰 데스크톱에서 더 큰 최대 너비 */
+	@media (min-width: 1200px) {
+		.content-area {
+			max-width: 700px;
+		}
+	}
+
 	.step-content {
-		padding: 2rem;
+		padding: 1.25rem;
+	}
+
+	/* 작은 모바일 */
+	@media (min-width: 320px) {
+		.step-content {
+			padding: 1.5rem;
+		}
+	}
+
+	/* 중간 모바일 */
+	@media (min-width: 480px) {
+		.step-content {
+			padding: 1.75rem;
+		}
+	}
+
+	/* 큰 모바일 */
+	@media (min-width: 640px) {
+		.step-content {
+			padding: 2rem;
+		}
+	}
+
+	/* 태블릿 */
+	@media (min-width: 768px) {
+		.step-content {
+			padding: 2rem;
+		}
+	}
+
+	/* 데스크톱 */
+	@media (min-width: 1024px) {
+		.step-content {
+			padding: 2.25rem;
+		}
+	}
+
+	/* 큰 데스크톱 */
+	@media (min-width: 1200px) {
+		.step-content {
+			padding: 2.5rem;
+		}
 	}
 
 	.step-content h2 {
-		font-size: 1.5rem;
+		font-size: 1.25rem;
 		font-weight: 600;
 		color: #1f2937;
-		margin-bottom: 1rem;
+		margin-bottom: 0.75rem;
+		line-height: 1.3;
+	}
+
+	/* 작은 모바일 */
+	@media (min-width: 320px) {
+		.step-content h2 {
+			font-size: 1.375rem;
+		}
+	}
+
+	/* 중간 모바일 */
+	@media (min-width: 480px) {
+		.step-content h2 {
+			font-size: 1.5rem;
+		}
+	}
+
+	/* 태블릿 이상 */
+	@media (min-width: 768px) {
+		.step-content h2 {
+			margin-bottom: 1rem;
+		}
 	}
 
 	.step-content p {
 		color: #6b7280;
-		margin-bottom: 1.5rem;
+		margin-bottom: 1.25rem;
 		line-height: 1.6;
+		font-size: 0.875rem;
+	}
+
+	/* 태블릿 이상에서 더 큰 폰트 */
+	@media (min-width: 768px) {
+		.step-content p {
+			font-size: 0.95rem;
+			margin-bottom: 1.5rem;
+		}
 	}
 
 	.qr-section {
 		display: flex;
 		justify-content: center;
-		margin: 2rem 0;
+		margin: 1.5rem 0;
+	}
+
+	/* 태블릿 이상에서 더 큰 마진 */
+	@media (min-width: 768px) {
+		.qr-section {
+			margin: 2rem 0;
+		}
 	}
 
 	.instructions {
@@ -550,20 +797,55 @@
 	}
 
 	.token-form {
-		max-width: 300px;
+		max-width: 280px;
 		margin: 0 auto;
 	}
 
+	/* 작은 모바일 */
+	@media (min-width: 320px) {
+		.token-form {
+			max-width: 300px;
+		}
+	}
+
+	/* 중간 모바일 */
+	@media (min-width: 480px) {
+		.token-form {
+			max-width: 320px;
+		}
+	}
+
+	/* 태블릿 이상 */
+	@media (min-width: 768px) {
+		.token-form {
+			max-width: 350px;
+		}
+	}
+
 	.form-group {
-		margin-bottom: 2rem;
+		margin-bottom: 1.5rem;
+	}
+
+	/* 태블릿 이상에서 더 큰 마진 */
+	@media (min-width: 768px) {
+		.form-group {
+			margin-bottom: 2rem;
+		}
 	}
 
 	.form-group label {
 		display: block;
-		font-size: 0.875rem;
+		font-size: 0.8rem;
 		font-weight: 500;
 		color: #374151;
 		margin-bottom: 0.5rem;
+	}
+
+	/* 태블릿 이상에서 더 큰 폰트 */
+	@media (min-width: 768px) {
+		.form-group label {
+			font-size: 0.875rem;
+		}
 	}
 
 	.backup-codes {
@@ -612,9 +894,31 @@
 
 	.actions {
 		display: flex;
-		gap: 0.75rem;
+		gap: 0.5rem;
 		justify-content: center;
 		flex-wrap: wrap;
+		margin-top: 1.5rem;
+	}
+
+	/* 작은 모바일 */
+	@media (min-width: 320px) {
+		.actions {
+			gap: 0.75rem;
+		}
+	}
+
+	/* 중간 모바일 */
+	@media (min-width: 480px) {
+		.actions {
+			margin-top: 2rem;
+		}
+	}
+
+	/* 터치 디바이스에서 더 큰 버튼 간격 */
+	@media (hover: none) and (pointer: coarse) {
+		.actions {
+			gap: 1rem;
+		}
 	}
 
 	.loading-section,
@@ -625,7 +929,7 @@
 
 	.token-input {
 		width: 100%;
-		padding: 0.75rem;
+		padding: 0.625rem;
 		border: 1px solid #d1d5db;
 		border-radius: 6px;
 		font-size: 1rem;
@@ -633,31 +937,28 @@
 		font-family: monospace;
 		font-weight: 600;
 		letter-spacing: 0.5rem;
+		transition: all 0.2s;
+	}
+
+	/* 터치 디바이스에서 더 큰 패딩 */
+	@media (hover: none) and (pointer: coarse) {
+		.token-input {
+			padding: 0.75rem;
+			font-size: 1.125rem;
+		}
+	}
+
+	/* 작은 모바일 */
+	@media (min-width: 320px) {
+		.token-input {
+			padding: 0.75rem;
+		}
 	}
 
 	.token-input:focus {
 		outline: none;
 		border-color: #3b82f6;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-	}
-
-	.two-factor-setup {
-		padding: 1rem 0.5rem;
-	}
-
-	.step-indicator {
-		flex-direction: column;
-		gap: 1rem;
-	}
-
-	.step-line {
-		width: 2px;
-		height: 40px;
-		margin: 0;
-	}
-
-	.step-content {
-		padding: 1.5rem;
 	}
 
 	/* Error styles */
@@ -668,9 +969,16 @@
 
 	.error-message {
 		color: #ef4444;
-		font-size: 0.875rem;
+		font-size: 0.75rem;
 		margin-top: 0.5rem;
 		margin-bottom: 0;
+	}
+
+	/* 태블릿 이상에서 더 큰 에러 메시지 */
+	@media (min-width: 768px) {
+		.error-message {
+			font-size: 0.8rem;
+		}
 	}
 
 	/* Loading UI Styles */
@@ -678,67 +986,34 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		min-height: 400px;
-		padding: 2rem;
+		min-height: 300px;
+		padding: 2rem 1rem;
+		text-align: center;
 	}
 
 	.loading-container {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 2rem;
-		max-width: 500px;
+		gap: 1.5rem;
+		max-width: 400px;
 		width: 100%;
-	}
-
-	/* 넓은 화면에서 로딩 컨테이너 가로 배치 */
-	@media (min-width: 1024px) {
-		.loading-container {
-			flex-direction: row;
-			justify-content: space-between;
-			align-items: center;
-			max-width: 800px;
-			gap: 3rem;
-		}
 	}
 
 	.loading-spinner {
 		position: relative;
-		width: 80px;
-		height: 80px;
-	}
-
-	/* 넓은 화면에서 스피너 크기 조정 */
-	@media (min-width: 1024px) {
-		.loading-spinner {
-			width: 100px;
-			height: 100px;
-		}
+		width: 60px;
+		height: 60px;
 	}
 
 	.spinner-ring {
 		position: absolute;
 		width: 100%;
 		height: 100%;
-		border: 4px solid #e5e7eb;
-		border-top: 4px solid #3b82f6;
+		border: 3px solid #e5e7eb;
+		border-top: 3px solid #3b82f6;
 		border-radius: 50%;
-		animation: spin 1.5s linear infinite;
-	}
-
-	.spinner-ring:nth-child(2) {
-		animation-delay: 0.2s;
-		opacity: 0.8;
-	}
-
-	.spinner-ring:nth-child(3) {
-		animation-delay: 0.4s;
-		opacity: 0.6;
-	}
-
-	.spinner-ring:nth-child(4) {
-		animation-delay: 0.6s;
-		opacity: 0.4;
+		animation: spin 1s linear infinite;
 	}
 
 	@keyframes spin {
@@ -755,275 +1030,53 @@
 		flex: 1;
 	}
 
-	/* 넓은 화면에서 로딩 콘텐츠 정렬 */
-	@media (min-width: 1024px) {
-		.loading-content {
-			text-align: left;
-		}
-	}
-
 	.loading-title {
 		font-size: 1.25rem;
 		font-weight: 600;
 		color: #1f2937;
 		margin-bottom: 0.5rem;
+		line-height: 1.3;
 	}
 
 	.loading-description {
 		color: #6b7280;
-		margin-bottom: 2rem;
+		margin-bottom: 0;
 		font-size: 0.875rem;
+		line-height: 1.5;
 	}
 
-	.loading-steps {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-		width: 100%;
-	}
 
-	/* 넓은 화면에서 로딩 단계 가로 배치 */
-	@media (min-width: 1024px) {
-		.loading-steps {
-			flex-direction: row;
-			justify-content: space-between;
-			gap: 2rem;
-			width: auto;
-			margin-right: 2rem;
-		}
-	}
 
-	.loading-step {
-		display: flex;
-		align-items: center;
-		gap: 1rem;
-		padding: 1rem;
-		background: #f9fafb;
-		border-radius: 8px;
-		border: 2px solid #e5e7eb;
-		transition: all 0.3s ease;
-		opacity: 0.6;
-		transform: translateY(10px);
-	}
 
-	/* 넓은 화면에서 로딩 단계 스타일 조정 */
-	@media (min-width: 1024px) {
-		.loading-step {
-			flex-direction: column;
-			align-items: center;
-			text-align: center;
-			gap: 0.75rem;
-			padding: 1.5rem 1rem;
-			min-width: 120px;
-			transform: translateY(0);
-		}
-	}
 
-	.loading-step.active {
-		opacity: 1;
-		transform: translateY(0);
-		border-color: #3b82f6;
-		background: #eff6ff;
-	}
-
-	.loading-step.completed {
-		opacity: 1;
-		transform: translateY(0);
-		border-color: #10b981;
-		background: #ecfdf5;
-	}
-
-	.step-icon {
-		font-size: 1.25rem;
-		min-width: 30px;
-		text-align: center;
-	}
-
-	.step-progress {
-		margin-left: auto;
-		width: 60px;
-		height: 4px;
-		background: #e5e7eb;
-		border-radius: 2px;
-		overflow: hidden;
-	}
-
-	/* 넓은 화면에서 진행 바 스타일 조정 */
-	@media (min-width: 1024px) {
-		.step-progress {
-			margin-left: 0;
-			margin-top: 0.5rem;
-			width: 80px;
-		}
-	}
-
-	.progress-bar {
-		height: 100%;
-		background: #3b82f6;
-		border-radius: 2px;
-		animation: progress 2s ease-in-out infinite;
-	}
-
-	@keyframes progress {
-		0% {
-			width: 0%;
-		}
-		50% {
-			width: 70%;
-		}
-		100% {
-			width: 100%;
-		}
-	}
-
-	.step-check {
-		margin-left: auto;
-		color: #10b981;
-		font-size: 1.25rem;
-		font-weight: bold;
-	}
-
-	/* 넓은 화면에서 체크 표시 위치 조정 */
-	@media (min-width: 1024px) {
-		.step-check {
-			margin-left: 0;
-			margin-top: 0.5rem;
-		}
-	}
-
-	/* 반응형 디자인 */
-	@media (max-width: 640px) {
-		.two-factor-setup {
-			padding: 1rem 0.5rem;
+	/* 터치 디바이스 최적화 */
+	@media (hover: none) and (pointer: coarse) {
+		/* 터치 영역 최소 크기 보장 */
+		.step-number {
+			min-width: 48px;
+			min-height: 48px;
 		}
 
-		.container {
-			max-width: 100%;
-		}
-
-		.header h1 {
-			font-size: 1.5rem;
-		}
-
-		.loading-container {
-			gap: 1.5rem;
-			padding: 1rem;
-		}
-
-		.loading-steps {
-			gap: 0.75rem;
-		}
-
-		.loading-step {
-			padding: 0.75rem;
-			gap: 0.75rem;
-		}
-
-		.step-icon {
-			font-size: 1.125rem;
-			min-width: 25px;
-		}
-
-		.setup-layout {
-			gap: 1rem;
-		}
-
-		.step-indicator {
-			min-width: auto;
-			padding: 0.75rem;
-		}
-
-		.step-content {
-			padding: 1rem;
-		}
-
-		.actions {
-			flex-direction: column;
-			align-items: stretch;
+		.token-input {
+			min-height: 48px;
 		}
 
 		.actions :global(button) {
-			width: 100%;
-		}
-	}
-
-	/* 태블릿 반응형 */
-	@media (min-width: 641px) and (max-width: 1023px) {
-		.container {
-			max-width: 700px;
+			min-height: 48px;
+			padding: 0.75rem 1.5rem;
 		}
 
-		.setup-layout {
-			gap: 1.5rem;
+		/* 터치 시 하이라이트 효과 */
+		.step-number,
+		.token-input,
+		.actions :global(button) {
+			-webkit-tap-highlight-color: rgba(59, 130, 246, 0.1);
 		}
 
-		.step-indicator {
-			min-width: 180px;
-			padding: 1rem;
-		}
-
-		.loading-container {
-			max-width: 600px;
-			gap: 2.5rem;
-		}
-	}
-
-	/* 데스크톱 반응형 */
-	@media (min-width: 1024px) {
-		.two-factor-setup {
-			padding: 3rem 1rem;
-		}
-
-		.container {
-			max-width: 1200px;
-		}
-
-		.header {
-			margin-bottom: 3rem;
-		}
-
-		.header h1 {
-			font-size: 2.5rem;
-		}
-
-		.setup-layout {
-			gap: 3rem;
-			align-items: flex-start;
-		}
-
-		.step-indicator {
-			min-width: 280px;
-			padding: 2rem;
-			position: sticky;
-			top: 2rem;
-		}
-
-		.content-area {
-			max-width: 600px;
-		}
-
-		.step-content {
-			padding: 2.5rem;
-		}
-
-		.loading-container {
-			max-width: 1000px;
-			padding: 3rem;
-			gap: 4rem;
-		}
-
-		.loading-spinner {
-			width: 120px;
-			height: 120px;
-		}
-
-		.loading-steps {
-			margin-right: 3rem;
-		}
-
-		.loading-step {
-			min-width: 140px;
-			padding: 2rem 1.5rem;
+		/* 더 큰 클릭 영역 */
+		.code-item {
+			min-height: 48px;
+			padding: 0.75rem;
 		}
 	}
 </style>
