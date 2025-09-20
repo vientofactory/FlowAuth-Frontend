@@ -1,5 +1,6 @@
 <script lang="ts">
 	// Footer 컴포넌트 - 모든 페이지에서 일관된 푸터 표시
+	import { env } from '$lib/config/env';
 </script>
 
 <!-- 푸터 -->
@@ -96,6 +97,31 @@
 				&copy; 2025 FlowAuth<br />
 				MIT 라이선스 · 자유롭게 사용/기여할 수 있습니다.
 			</p>
+
+			<!-- Google reCAPTCHA 약관 표시 -->
+			{#if env.RECAPTCHA_SITE_KEY}
+				<p class="mt-4 text-xs text-gray-500">
+					This site is protected by reCAPTCHA and the Google
+					<a
+						href="https://policies.google.com/privacy"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="text-blue-600 hover:text-blue-800 underline"
+					>
+						Privacy Policy
+					</a>
+					and
+					<a
+						href="https://policies.google.com/terms"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="text-blue-600 hover:text-blue-800 underline"
+					>
+						Terms of Service
+					</a>
+					apply.
+				</p>
+			{/if}
 		</div>
 	</div>
 </footer>
