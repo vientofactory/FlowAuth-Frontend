@@ -18,8 +18,34 @@ export { default as PageHeader } from './components/PageHeader.svelte';
 export { default as Navigation } from './components/Navigation.svelte';
 export { default as LogoUpload } from './components/LogoUpload.svelte';
 
+// Form Components
+export { default as FormField } from './components/form/FormField.svelte';
+export { default as TextareaField } from './components/form/TextareaField.svelte';
+
+// UI Components
+export { default as LoadingSpinner } from './components/ui/LoadingSpinner.svelte';
+export { default as LoadingButton } from './components/ui/LoadingButton.svelte';
+export { default as ErrorMessage } from './components/ui/ErrorMessage.svelte';
+export { default as ErrorBoundary } from './components/ui/ErrorBoundary.svelte';
+export { default as ConfirmModal } from './components/ui/ConfirmModal.svelte';
+
+// Auth Components
+export { default as TwoFactorLoadingSteps } from './components/auth/TwoFactorLoadingSteps.svelte';
+export { default as TwoFactorStepIndicator } from './components/auth/TwoFactorStepIndicator.svelte';
+export { default as TwoFactorQRStep } from './components/auth/TwoFactorQRStep.svelte';
+export { default as TwoFactorTokenStep } from './components/auth/TwoFactorTokenStep.svelte';
+export { default as TwoFactorBackupStep } from './components/auth/TwoFactorBackupStep.svelte';
+
 // Composables
 export { useToast } from './composables/useToast';
+export {
+	useFieldValidation,
+	useFormValidation,
+	validators
+} from './composables/useFormValidation.svelte';
+
+// Utils
+export { inputHandlers, formatters } from './utils/input.utils';
 
 // API
 export { apiClient } from './utils/api';

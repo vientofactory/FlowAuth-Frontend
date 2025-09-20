@@ -1,5 +1,15 @@
 <script lang="ts">
-	import { DashboardLayout, Card, Button, Badge, apiClient, twoFactorStore, authState, useToast, PermissionUtils } from '$lib';
+	import {
+		DashboardLayout,
+		Card,
+		Button,
+		Badge,
+		apiClient,
+		twoFactorStore,
+		authState,
+		useToast,
+		PermissionUtils
+	} from '$lib';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import type { User } from '$lib';

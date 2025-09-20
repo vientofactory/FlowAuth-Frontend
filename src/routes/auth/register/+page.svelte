@@ -1,83 +1,43 @@
 <script lang="ts">
-	import { Card, Button, Input, useToast, apiClient } from '$lib';
+	import { Card, FormField, LoadingButton, useToast, apiClient } from '$lib';
+	import { useFieldValidation, useFormValidation, validators } from '$lib';
 	import type { CreateUserDto } from '$lib';
-	import {
-		validateEmail,
-		validatePassword,
-		validateUsername,
-		validateName
-	} from '$lib/utils/validation.utils';
 	import { goto } from '$app/navigation';
 	import { USER_TYPES } from '$lib/types/user.types';
 
-	let email = $state('');
-	let password = $state('');
-	let confirmPassword = $state('');
-	let username = $state('');
-	let firstName = $state('');
-	let lastName = $state('');
+	// 폼 검증 필드들
+	const emailField = useFieldValidation('', validators.email);
+	const passwordField = useFieldValidation('', validators.password);
+	const confirmPasswordField = useFieldValidation('', (value: string) => {
+		// Access the current password value during validation, not at initialization
+		return validators.confirmPassword(() => passwordField.value)(value);
+	});
+	const usernameField = useFieldValidation('', validators.username);
+	const firstNameField = useFieldValidation('', validators.firstName);
+	const lastNameField = useFieldValidation('', validators.lastName);
+
+	const form = useFormValidation({
+		email: emailField,
+		password: passwordField,
+		confirmPassword: confirmPasswordField,
+		username: usernameField,
+		firstName: firstNameField,
+		lastName: lastNameField
+	});
+
 	let userType = $state(USER_TYPES.REGULAR); // 기본값: 일반 사용자
 	let isLoading = $state(false);
 	let agreeToTerms = $state(false);
 
-	// 폼 검증 상태
-	let emailError = $state('');
-	let passwordError = $state('');
-	let confirmPasswordError = $state('');
-	let usernameError = $state('');
-	let firstNameError = $state('');
-	let lastNameError = $state('');
-
 	// 중앙화된 토스트 훅 사용
 	const toast = useToast();
 
-	// 실시간 검증 함수들
-	function validateEmailField() {
-		const result = validateEmail(email);
-		emailError = result.isValid ? '' : result.message || '';
-	}
-
-	function validatePasswordField() {
-		const result = validatePassword(password);
-		passwordError = result.isValid ? '' : result.message || '';
-		validateConfirmPasswordField(); // 비밀번호 변경 시 확인 비밀번호도 재검증
-	}
-
-	function validateConfirmPasswordField() {
-		if (!confirmPassword) {
-			confirmPasswordError = '비밀번호 확인을 입력해주세요.';
-			return;
-		}
-		if (password !== confirmPassword) {
-			confirmPasswordError = '비밀번호가 일치하지 않습니다.';
-		} else {
-			confirmPasswordError = '';
-		}
-	}
-
-	function validateUsernameField() {
-		const result = validateUsername(username);
-		usernameError = result.isValid ? '' : result.message || '';
-	}
-
-	function validateFirstNameField() {
-		const result = validateName(firstName, '이름');
-		firstNameError = result.isValid ? '' : result.message || '';
-	}
-
-	function validateLastNameField() {
-		const result = validateName(lastName, '성');
-		lastNameError = result.isValid ? '' : result.message || '';
-	}
-
 	async function handleRegister() {
 		// 모든 필드 검증 수행
-		validateEmailField();
-		validatePasswordField();
-		validateConfirmPasswordField();
-		validateUsernameField();
-		validateFirstNameField();
-		validateLastNameField();
+		if (!form.validateAll()) {
+			toast.warning('입력 정보를 확인해주세요.');
+			return;
+		}
 
 		// 이용약관 동의 확인
 		if (!agreeToTerms) {
@@ -85,28 +45,15 @@
 			return;
 		}
 
-		// 검증 실패 시 중단
-		if (
-			emailError ||
-			passwordError ||
-			confirmPasswordError ||
-			usernameError ||
-			firstNameError ||
-			lastNameError
-		) {
-			toast.warning('입력 정보를 확인해주세요.');
-			return;
-		}
-
 		isLoading = true;
 
 		try {
 			const userData: CreateUserDto = {
-				email,
-				password,
-				username,
-				firstName,
-				lastName,
+				email: emailField.value,
+				password: passwordField.value,
+				username: usernameField.value,
+				firstName: firstNameField.value,
+				lastName: lastNameField.value,
 				userType
 			};
 
@@ -165,88 +112,62 @@
 				<div class="space-y-3 sm:space-y-4">
 					<!-- 사용자 이름과 이메일을 가로로 배치 -->
 					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-						<div class="relative">
-							<label for="username" class="mb-2 block text-sm font-medium text-gray-700">
-								<i class="fas fa-user mr-2 text-blue-500"></i>
-								사용자 이름
-							</label>
-							<Input
-								type="text"
-								placeholder="사용자 이름"
-								value={username}
-								oninput={(e: Event) => (username = (e.target as HTMLInputElement).value)}
-								required
-								disabled={isLoading}
-								class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-							/>
-							{#if usernameError}
-								<p class="mt-1 text-sm text-red-600">{usernameError}</p>
-							{:else}
-								<p class="mt-1 text-xs text-gray-500">영문, 숫자, 밑줄만 사용</p>
-							{/if}
-						</div>
+						<FormField
+							name="username"
+							label="사용자 이름"
+							placeholder="사용자 이름"
+							type="text"
+							required
+							disabled={isLoading}
+							hint="영문, 숫자, 밑줄만 사용"
+							icon="fas fa-user"
+							bind:value={usernameField.value}
+							error={usernameField.error}
+							oninput={() => usernameField.validate()}
+						/>
 
-						<div class="relative">
-							<label for="email" class="mb-2 block text-sm font-medium text-gray-700">
-								<i class="fas fa-envelope mr-2 text-blue-500"></i>
-								이메일 주소
-							</label>
-							<Input
-								type="email"
-								placeholder="your@email.com"
-								value={email}
-								oninput={(e: Event) => (email = (e.target as HTMLInputElement).value)}
-								required
-								disabled={isLoading}
-								class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-							/>
-							{#if emailError}
-								<p class="mt-1 text-sm text-red-600">{emailError}</p>
-							{:else}
-								<p class="mt-1 text-xs text-gray-500">계정 복구에 사용됩니다</p>
-							{/if}
-						</div>
+						<FormField
+							name="email"
+							label="이메일 주소"
+							placeholder="your@email.com"
+							type="email"
+							required
+							disabled={isLoading}
+							hint="계정 복구에 사용됩니다"
+							icon="fas fa-envelope"
+							bind:value={emailField.value}
+							error={emailField.error}
+							oninput={() => emailField.validate()}
+						/>
 					</div>
 
 					<!-- 이름과 성을 가로로 배치 -->
 					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-						<div class="relative">
-							<label for="firstName" class="mb-2 block text-sm font-medium text-gray-700">
-								<i class="fas fa-id-card mr-2 text-blue-500"></i>
-								이름
-							</label>
-							<Input
-								type="text"
-								placeholder="이름"
-								value={firstName}
-								oninput={(e: Event) => (firstName = (e.target as HTMLInputElement).value)}
-								required
-								disabled={isLoading}
-								class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-							/>
-							{#if firstNameError}
-								<p class="mt-1 text-sm text-red-600">{firstNameError}</p>
-							{/if}
-						</div>
+						<FormField
+							name="firstName"
+							label="이름"
+							placeholder="이름"
+							type="text"
+							required
+							disabled={isLoading}
+							icon="fas fa-id-card"
+							bind:value={firstNameField.value}
+							error={firstNameField.error}
+							oninput={() => firstNameField.validate()}
+						/>
 
-						<div class="relative">
-							<label for="lastName" class="mb-2 block text-sm font-medium text-gray-700">
-								<i class="fas fa-id-card mr-2 text-blue-500"></i>
-								성
-							</label>
-							<Input
-								type="text"
-								placeholder="성"
-								value={lastName}
-								oninput={(e: Event) => (lastName = (e.target as HTMLInputElement).value)}
-								required
-								disabled={isLoading}
-								class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-							/>
-							{#if lastNameError}
-								<p class="mt-1 text-sm text-red-600">{lastNameError}</p>
-							{/if}
-						</div>
+						<FormField
+							name="lastName"
+							label="성"
+							placeholder="성"
+							type="text"
+							required
+							disabled={isLoading}
+							icon="fas fa-id-card"
+							bind:value={lastNameField.value}
+							error={lastNameField.error}
+							oninput={() => lastNameField.validate()}
+						/>
 					</div>
 
 					<!-- 사용자 유형 선택 -->
@@ -306,48 +227,34 @@
 						</fieldset>
 					</div>
 
-					<!-- 비밀번호와 비밀번호 확인을 가로로 배치 -->
 					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-						<div class="relative">
-							<label for="password" class="mb-2 block text-sm font-medium text-gray-700">
-								<i class="fas fa-lock mr-2 text-blue-500"></i>
-								비밀번호
-							</label>
-							<Input
-								type="password"
-								placeholder="비밀번호"
-								value={password}
-								oninput={(e: Event) => (password = (e.target as HTMLInputElement).value)}
-								required
-								disabled={isLoading}
-								class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-							/>
-							{#if passwordError}
-								<p class="mt-1 text-sm text-red-600">{passwordError}</p>
-							{:else}
-								<p class="mt-1 text-xs text-gray-500">8자 이상, 대소문자+숫자</p>
-							{/if}
-						</div>
+						<FormField
+							name="password"
+							label="비밀번호"
+							placeholder="비밀번호"
+							type="password"
+							required
+							disabled={isLoading}
+							hint="8자 이상, 대소문자+숫자"
+							icon="fas fa-lock"
+							bind:value={passwordField.value}
+							error={passwordField.error}
+							oninput={() => passwordField.validate()}
+						/>
 
-						<div class="relative">
-							<label for="confirmPassword" class="mb-2 block text-sm font-medium text-gray-700">
-								<i class="fas fa-lock mr-2 text-blue-500"></i>
-								비밀번호 확인
-							</label>
-							<Input
-								type="password"
-								placeholder="비밀번호 확인"
-								value={confirmPassword}
-								oninput={(e: Event) => (confirmPassword = (e.target as HTMLInputElement).value)}
-								onkeydown={handleKeyPress}
-								required
-								disabled={isLoading}
-								class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-							/>
-							{#if confirmPasswordError}
-								<p class="mt-1 text-sm text-red-600">{confirmPasswordError}</p>
-							{/if}
-						</div>
+						<FormField
+							name="confirmPassword"
+							label="비밀번호 확인"
+							placeholder="비밀번호 확인"
+							type="password"
+							required
+							disabled={isLoading}
+							icon="fas fa-lock"
+							bind:value={confirmPasswordField.value}
+							error={confirmPasswordField.error}
+							oninput={() => confirmPasswordField.validate()}
+							onkeydown={handleKeyPress}
+						/>
 					</div>
 				</div>
 
@@ -375,24 +282,17 @@
 					</label>
 				</div>
 
-				<Button
+				<LoadingButton
 					variant="primary"
 					type="submit"
-					disabled={isLoading || !agreeToTerms}
+					loading={isLoading}
+					loadingText="회원가입 중..."
+					disabled={!agreeToTerms}
+					icon="fas fa-user-plus"
 					class="w-full transform py-2.5 text-base font-semibold shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl"
 				>
-					{#if isLoading}
-						<div class="flex items-center justify-center">
-							<i class="fas fa-spinner fa-spin mr-2"></i>
-							회원가입 중...
-						</div>
-					{:else}
-						<div class="flex items-center justify-center">
-							<i class="fas fa-user-plus mr-2"></i>
-							회원가입
-						</div>
-					{/if}
-				</Button>
+					회원가입
+				</LoadingButton>
 			</form>
 
 			<!-- 소셜 회원가입 (추후 확장 가능) -->

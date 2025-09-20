@@ -3,6 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { apiClient } from '$lib/utils/api';
 	import { useToast } from '$lib/composables/useToast';
+	import { createNumericInputHandler } from '$lib/utils/input.utils';
 	import Card from '$lib/components/Card.svelte';
 	import Button from '$lib/components/Button.svelte';
 	import QRCode from '$lib/components/QRCode.svelte';
@@ -29,12 +30,19 @@
 		return /^\d{6}$/.test(value);
 	}
 
+	// Create a mock field object for the input handler
+	const tokenField = {
+		get value() {
+			return token;
+		},
+		set value(val: string) {
+			token = val;
+		},
+		clear: () => {} // No validation in this simple case
+	};
+
 	// 토큰 입력 핸들러 - 숫자만 허용
-	function handleTokenInput(event: Event) {
-		const target = event.target as HTMLInputElement;
-		const value = target.value.replace(/\D/g, ''); // 숫자만 추출
-		token = value;
-	}
+	const handleTokenInput = createNumericInputHandler(tokenField);
 
 	// 폼 제출 핸들러
 	function handleSubmit(event: Event) {

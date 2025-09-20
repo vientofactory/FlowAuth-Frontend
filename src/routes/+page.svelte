@@ -398,95 +398,187 @@
 					</div>
 
 					<div class="grid gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3">
-						<Card
-							class="group transform border-0 bg-white/80 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
-						>
-							<div class="text-center">
-								<div
-									class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 transition-transform duration-300 group-hover:scale-110 sm:mb-6 sm:h-14 sm:w-14 lg:h-16 lg:w-16"
-								>
-									<i class="fas fa-cubes text-lg text-white sm:text-xl lg:text-2xl"></i>
-								</div>
-								<h4 class="mb-2 text-lg font-bold text-gray-900 sm:text-xl lg:text-xl">
-									<i class="fas fa-cubes mr-1.5 text-purple-600 sm:mr-2"></i>
-									내 애플리케이션
-								</h4>
-								<p class="text-sm leading-relaxed text-gray-600 sm:text-base">
-									OAuth2 클라이언트를 생성하고<br class="hidden sm:block" />
-									관리하며 통계를 확인하세요
-								</p>
-								<div class="mt-4">
-									<Button
-										variant="outline"
-										size="sm"
-										onclick={() => goto('/dashboard/clients')}
-										class="w-full"
+						{#if user?.userType === USER_TYPES.DEVELOPER}
+							<Card
+								class="group transform border-0 bg-white/80 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
+							>
+								<div class="text-center">
+									<div
+										class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 transition-transform duration-300 group-hover:scale-110 sm:mb-6 sm:h-14 sm:w-14 lg:h-16 lg:w-16"
 									>
-										관리하기
-									</Button>
+										<i class="fas fa-cubes text-lg text-white sm:text-xl lg:text-2xl"></i>
+									</div>
+									<h4 class="mb-2 text-lg font-bold text-gray-900 sm:text-xl lg:text-xl">
+										<i class="fas fa-cubes mr-1.5 text-purple-600 sm:mr-2"></i>
+										내 애플리케이션
+									</h4>
+									<p class="text-sm leading-relaxed text-gray-600 sm:text-base">
+										OAuth2 클라이언트를 생성하고<br class="hidden sm:block" />
+										관리하며 통계를 확인하세요
+									</p>
+									<div class="mt-4">
+										<Button
+											variant="outline"
+											size="sm"
+											onclick={() => goto('/dashboard/clients')}
+											class="w-full"
+										>
+											관리하기
+										</Button>
+									</div>
 								</div>
-							</div>
-						</Card>
+							</Card>
 
-						<Card
-							class="group transform border-0 bg-white/80 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
-						>
-							<div class="text-center">
-								<div
-									class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 transition-transform duration-300 group-hover:scale-110 sm:mb-6 sm:h-14 sm:w-14 lg:h-16 lg:w-16"
-								>
-									<i class="fas fa-flask text-lg text-white sm:text-xl lg:text-2xl"></i>
-								</div>
-								<h4 class="mb-2 text-lg font-bold text-gray-900 sm:text-xl lg:text-xl">
-									<i class="fas fa-flask mr-1.5 text-blue-600 sm:mr-2"></i>
-									OAuth2 테스터
-								</h4>
-								<p class="text-sm leading-relaxed text-gray-600 sm:text-base">
-									실시간으로 OAuth2 플로우를 테스트하고<br class="hidden sm:block" />
-									디버깅하며 개발하세요
-								</p>
-								<div class="mt-4">
-									<Button
-										variant="outline"
-										size="sm"
-										onclick={() => goto('/dashboard/oauth-tester')}
-										class="w-full"
+							<Card
+								class="group transform border-0 bg-white/80 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
+							>
+								<div class="text-center">
+									<div
+										class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 transition-transform duration-300 group-hover:scale-110 sm:mb-6 sm:h-14 sm:w-14 lg:h-16 lg:w-16"
 									>
-										테스트하기
-									</Button>
+										<i class="fas fa-flask text-lg text-white sm:text-xl lg:text-2xl"></i>
+									</div>
+									<h4 class="mb-2 text-lg font-bold text-gray-900 sm:text-xl lg:text-xl">
+										<i class="fas fa-flask mr-1.5 text-blue-600 sm:mr-2"></i>
+										OAuth2 테스터
+									</h4>
+									<p class="text-sm leading-relaxed text-gray-600 sm:text-base">
+										실시간으로 OAuth2 플로우를 테스트하고<br class="hidden sm:block" />
+										디버깅하며 개발하세요
+									</p>
+									<div class="mt-4">
+										<Button
+											variant="outline"
+											size="sm"
+											onclick={() => goto('/dashboard/oauth-tester')}
+											class="w-full"
+										>
+											테스트하기
+										</Button>
+									</div>
 								</div>
-							</div>
-						</Card>
+							</Card>
 
-						<Card
-							class="group transform border-0 bg-white/80 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
-						>
-							<div class="text-center">
-								<div
-									class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-green-500 to-green-600 transition-transform duration-300 group-hover:scale-110 sm:mb-6 sm:h-14 sm:w-14 lg:h-16 lg:w-16"
-								>
-									<i class="fas fa-book text-lg text-white sm:text-xl lg:text-2xl"></i>
-								</div>
-								<h4 class="mb-2 text-lg font-bold text-gray-900 sm:text-xl lg:text-xl">
-									<i class="fas fa-book mr-1.5 text-green-600 sm:mr-2"></i>
-									API 문서
-								</h4>
-								<p class="text-sm leading-relaxed text-gray-600 sm:text-base">
-									포괄적인 API 문서와<br class="hidden sm:block" />
-									샘플 코드로 빠른 개발을 시작하세요
-								</p>
-								<div class="mt-4">
-									<Button
-										variant="outline"
-										size="sm"
-										onclick={() => (window.location.href = '/docs')}
-										class="w-full"
+							<Card
+								class="group transform border-0 bg-white/80 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
+							>
+								<div class="text-center">
+									<div
+										class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-green-500 to-green-600 transition-transform duration-300 group-hover:scale-110 sm:mb-6 sm:h-14 sm:w-14 lg:h-16 lg:w-16"
 									>
-										문서 보기
-									</Button>
+										<i class="fas fa-book text-lg text-white sm:text-xl lg:text-2xl"></i>
+									</div>
+									<h4 class="mb-2 text-lg font-bold text-gray-900 sm:text-xl lg:text-xl">
+										<i class="fas fa-book mr-1.5 text-green-600 sm:mr-2"></i>
+										API 문서
+									</h4>
+									<p class="text-sm leading-relaxed text-gray-600 sm:text-base">
+										포괄적인 API 문서와<br class="hidden sm:block" />
+										샘플 코드로 빠른 개발을 시작하세요
+									</p>
+									<div class="mt-4">
+										<Button
+											variant="outline"
+											size="sm"
+											onclick={() => (window.location.href = '/docs')}
+											class="w-full"
+										>
+											문서 보기
+										</Button>
+									</div>
 								</div>
-							</div>
-						</Card>
+							</Card>
+						{:else}
+							<Card
+								class="group transform border-0 bg-white/80 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
+							>
+								<div class="text-center">
+									<div
+										class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 transition-transform duration-300 group-hover:scale-110 sm:mb-6 sm:h-14 sm:w-14 lg:h-16 lg:w-16"
+									>
+										<i class="fas fa-link text-lg text-white sm:text-xl lg:text-2xl"></i>
+									</div>
+									<h4 class="mb-2 text-lg font-bold text-gray-900 sm:text-xl lg:text-xl">
+										<i class="fas fa-link mr-1.5 text-indigo-600 sm:mr-2"></i>
+										연결된 앱
+									</h4>
+									<p class="text-sm leading-relaxed text-gray-600 sm:text-base">
+										연결된 애플리케이션을<br class="hidden sm:block" />
+										관리하고 권한을 제어하세요
+									</p>
+									<div class="mt-4">
+										<Button
+											variant="outline"
+											size="sm"
+											onclick={() => goto('/dashboard/connections')}
+											class="w-full"
+										>
+											관리하기
+										</Button>
+									</div>
+								</div>
+							</Card>
+
+							<Card
+								class="group transform border-0 bg-white/80 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
+							>
+								<div class="text-center">
+									<div
+										class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-teal-500 to-teal-600 transition-transform duration-300 group-hover:scale-110 sm:mb-6 sm:h-14 sm:w-14 lg:h-16 lg:w-16"
+									>
+										<i class="fas fa-user text-lg text-white sm:text-xl lg:text-2xl"></i>
+									</div>
+									<h4 class="mb-2 text-lg font-bold text-gray-900 sm:text-xl lg:text-xl">
+										<i class="fas fa-user mr-1.5 text-teal-600 sm:mr-2"></i>
+										프로필 관리
+									</h4>
+									<p class="text-sm leading-relaxed text-gray-600 sm:text-base">
+										개인 정보와 보안 설정을<br class="hidden sm:block" />
+										관리하고 업데이트하세요
+									</p>
+									<div class="mt-4">
+										<Button
+											variant="outline"
+											size="sm"
+											onclick={() => goto('/dashboard/profile')}
+											class="w-full"
+										>
+											관리하기
+										</Button>
+									</div>
+								</div>
+							</Card>
+
+							<Card
+								class="group transform border-0 bg-white/80 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
+							>
+								<div class="text-center">
+									<div
+										class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 transition-transform duration-300 group-hover:scale-110 sm:mb-6 sm:h-14 sm:w-14 lg:h-16 lg:w-16"
+									>
+										<i class="fas fa-cog text-lg text-white sm:text-xl lg:text-2xl"></i>
+									</div>
+									<h4 class="mb-2 text-lg font-bold text-gray-900 sm:text-xl lg:text-xl">
+										<i class="fas fa-cog mr-1.5 text-amber-600 sm:mr-2"></i>
+										설정
+									</h4>
+									<p class="text-sm leading-relaxed text-gray-600 sm:text-base">
+										시스템 설정과 개인화 옵션을<br class="hidden sm:block" />
+										구성하고 관리하세요
+									</p>
+									<div class="mt-4">
+										<Button
+											variant="outline"
+											size="sm"
+											onclick={() => goto('/dashboard/settings')}
+											class="w-full"
+										>
+											설정하기
+										</Button>
+									</div>
+								</div>
+							</Card>
+						{/if}
 					</div>
 				{/if}
 			</div>
@@ -789,117 +881,6 @@
 								<span class="text-sm font-medium text-gray-900">테스터</span>
 							</button>
 						{/if}
-					</div>
-				</div>
-			{/if}
-
-			<!-- 진행 상태 표시기 -->
-			{#if isAuthenticated}
-				<div class="mb-12 sm:mb-16 lg:mb-20">
-					<div
-						class="rounded-2xl border-0 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 p-6 shadow-lg backdrop-blur-sm sm:p-8 lg:p-10"
-					>
-						<div class="mb-6 text-center sm:mb-8">
-							<h3 class="mb-2 text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">
-								온보딩 진행 상태
-							</h3>
-							<p class="text-sm text-gray-600 sm:text-base">
-								귀하의 FlowAuth 설정 완료도를 확인하세요
-							</p>
-						</div>
-
-						<div class="space-y-4">
-							<!-- 프로필 완성도 -->
-							<div class="flex items-center space-x-4">
-								<div class="flex-1">
-									<div class="mb-1 flex items-center justify-between">
-										<span class="text-sm font-medium text-gray-700">프로필 설정</span>
-										<span class="text-sm text-gray-500">완료</span>
-									</div>
-									<div class="h-2 w-full rounded-full bg-gray-200">
-										<div
-											class="h-2 rounded-full bg-gradient-to-r from-green-500 to-green-600"
-											style="width: 100%"
-										></div>
-									</div>
-								</div>
-								<div class="flex-shrink-0">
-									<i class="fas fa-check-circle text-lg text-green-500"></i>
-								</div>
-							</div>
-
-							<!-- 보안 설정 -->
-							<div class="flex items-center space-x-4">
-								<div class="flex-1">
-									<div class="mb-1 flex items-center justify-between">
-										<span class="text-sm font-medium text-gray-700">보안 강화</span>
-										<span class="text-sm text-gray-500">75%</span>
-									</div>
-									<div class="h-2 w-full rounded-full bg-gray-200">
-										<div
-											class="h-2 rounded-full bg-gradient-to-r from-blue-500 to-blue-600"
-											style="width: 75%"
-										></div>
-									</div>
-								</div>
-								<div class="flex-shrink-0">
-									<i class="fas fa-shield-alt text-lg text-blue-500"></i>
-								</div>
-							</div>
-
-							<!-- 애플리케이션 연결 -->
-							<div class="flex items-center space-x-4">
-								<div class="flex-1">
-									<div class="mb-1 flex items-center justify-between">
-										<span class="text-sm font-medium text-gray-700">앱 연결</span>
-										<span class="text-sm text-gray-500">50%</span>
-									</div>
-									<div class="h-2 w-full rounded-full bg-gray-200">
-										<div
-											class="h-2 rounded-full bg-gradient-to-r from-purple-500 to-purple-600"
-											style="width: 50%"
-										></div>
-									</div>
-								</div>
-								<div class="flex-shrink-0">
-									<i class="fas fa-plug text-lg text-purple-500"></i>
-								</div>
-							</div>
-
-							<!-- 개발자 전용 진행 상태 -->
-							{#if isDeveloper}
-								<div class="flex items-center space-x-4">
-									<div class="flex-1">
-										<div class="mb-1 flex items-center justify-between">
-											<span class="text-sm font-medium text-gray-700">개발 환경</span>
-											<span class="text-sm text-gray-500">25%</span>
-										</div>
-										<div class="h-2 w-full rounded-full bg-gray-200">
-											<div
-												class="h-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600"
-												style="width: 25%"
-											></div>
-										</div>
-									</div>
-									<div class="flex-shrink-0">
-										<i class="fas fa-code text-lg text-orange-500"></i>
-									</div>
-								</div>
-							{/if}
-						</div>
-
-						<div class="mt-6 text-center sm:mt-8">
-							<p class="mb-4 text-sm text-gray-600">더 많은 기능을 설정하여 보안을 강화하세요</p>
-							<Button
-								variant="outline"
-								size="sm"
-								onclick={() => goto('/dashboard/settings')}
-								class="inline-flex items-center space-x-2"
-							>
-								<i class="fas fa-cog"></i>
-								<span>설정 완료하기</span>
-							</Button>
-						</div>
 					</div>
 				</div>
 			{/if}

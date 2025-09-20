@@ -1,30 +1,31 @@
 <script lang="ts">
-	import { Card, Button, Input } from '$lib';
-	import { useToast } from '$lib';
+	import { Card, Button, FormField, LoadingButton } from '$lib';
+	import { useToast, useFieldValidation, useFormValidation, validators } from '$lib';
+	import { inputHandlers } from '$lib/utils/input.utils';
 	import { authStore } from '$lib/stores/auth';
 	import { MESSAGES, ROUTES } from '$lib/constants/app.constants';
-	import { validateEmail, validateRequired } from '$lib/utils/validation.utils';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
-	let email = $state('');
-	let password = $state('');
+	// 폼 검증 필드들
+	const emailField = useFieldValidation('', validators.email);
+	const passwordField = useFieldValidation('', validators.required('비밀번호'));
+	const twoFactorTokenField = useFieldValidation('', validators.twoFactorToken);
+	const backupCodeField = useFieldValidation('', validators.backupCode);
+
+	const form = useFormValidation({
+		email: emailField,
+		password: passwordField
+	});
+
 	let isLoading = $state(false);
 	let returnUrl = $state('');
 
 	// 2FA 관련 상태
 	let requiresTwoFactor = $state(false);
-	let twoFactorToken = $state('');
 	let isTwoFactorLoading = $state(false);
 	let twoFactorMode = $state<'token' | 'backup'>('token'); // 토큰 또는 백업 코드 모드
-	let backupCode = $state('');
-
-	// 폼 검증 상태
-	let emailError = $state('');
-	let passwordError = $state('');
-	let twoFactorError = $state('');
-	let backupCodeError = $state('');
 
 	// 중앙화된 토스트 훅 사용
 	const toast = useToast();
@@ -38,51 +39,27 @@
 		return unsubscribe;
 	});
 
-	// 실시간 검증
-	function validateEmailField() {
-		const result = validateEmail(email);
-		emailError = result.isValid ? '' : result.message || '';
-	}
+	// 토큰 입력 핸들러 - 숫자만 허용
+	const handleTokenInput = inputHandlers.twoFactorToken(twoFactorTokenField);
 
-	function validatePasswordField() {
-		const result = validateRequired(password, '비밀번호');
-		passwordError = result.isValid ? '' : result.message || '';
-	}
-
-	function validateTwoFactorField() {
-		const result = validateRequired(twoFactorToken, '2FA 토큰');
-		twoFactorError = result.isValid ? '' : result.message || '';
-		if (twoFactorToken && !/^\d{6}$/.test(twoFactorToken)) {
-			twoFactorError = '6자리 숫자를 입력해주세요.';
-		}
-	}
-
-	function validateBackupCodeField() {
-		const result = validateRequired(backupCode, '백업 코드');
-		backupCodeError = result.isValid ? '' : result.message || '';
-		if (backupCode && !/^[A-Z0-9]{8,12}$/.test(backupCode.replace(/-/g, ''))) {
-			backupCodeError = '올바른 백업 코드를 입력해주세요.';
-		}
-	}
+	// 백업 코드 입력 핸들러
+	const handleBackupCodeInput = inputHandlers.backupCode(backupCodeField);
 
 	async function handleSubmit(event: SubmitEvent) {
-		event.preventDefault(); // 폼 기본 동작 방지
+		event.preventDefault();
 
-		// 최종 검증
-		validateEmailField();
-		validatePasswordField();
-
-		if (emailError || passwordError) {
+		// 폼 검증
+		if (!form.validateAll()) {
 			toast.warning('입력 정보를 확인해주세요.');
 			return;
 		}
 
-		if (isLoading) return; // 중복 실행 방지
+		if (isLoading) return;
 
 		isLoading = true;
 
 		try {
-			await authStore.login(email, password);
+			await authStore.login(emailField.value, passwordField.value);
 
 			// 리다이렉트 처리 - returnUrl이 있으면 해당 URL로, 없으면 대시보드로
 			if (returnUrl) {
@@ -117,33 +94,27 @@
 
 		if (twoFactorMode === 'token') {
 			// 토큰 검증
-			validateTwoFactorField();
-
-			if (twoFactorError) {
+			if (!twoFactorTokenField.validate()) {
 				toast.warning('2FA 토큰을 확인해주세요.');
 				return;
 			}
 		} else {
 			// 백업 코드 검증
-			validateBackupCodeField();
-
-			if (backupCodeError) {
+			if (!backupCodeField.validate()) {
 				toast.warning('백업 코드를 확인해주세요.');
 				return;
 			}
 		}
 
-		if (isTwoFactorLoading) return; // 중복 실행 방지
+		if (isTwoFactorLoading) return;
 
 		isTwoFactorLoading = true;
 
 		try {
 			if (twoFactorMode === 'token') {
-				// 2FA 토큰 검증 API 호출
-				await authStore.verifyTwoFactorLogin(email, twoFactorToken);
+				await authStore.verifyTwoFactorLogin(emailField.value, twoFactorTokenField.value);
 			} else {
-				// 백업 코드 검증 API 호출
-				await authStore.verifyBackupCodeLogin(email, backupCode);
+				await authStore.verifyBackupCodeLogin(emailField.value, backupCodeField.value);
 			}
 
 			// 성공 시 리다이렉트
@@ -167,41 +138,18 @@
 
 	function handleBackToLogin() {
 		requiresTwoFactor = false;
-		twoFactorToken = '';
-		backupCode = '';
-		twoFactorError = '';
-		backupCodeError = '';
+		twoFactorTokenField.value = '';
+		backupCodeField.value = '';
+		twoFactorTokenField.clear();
+		backupCodeField.clear();
 		twoFactorMode = 'token';
-	}
-
-	function handleTwoFactorInput(event: Event) {
-		const target = event.target as HTMLInputElement;
-		const value = target.value.replace(/\D/g, ''); // 숫자만 추출
-		twoFactorToken = value;
-		validateTwoFactorField();
-	}
-
-	function handleBackupCodeInput(event: Event) {
-		const target = event.target as HTMLInputElement;
-		let value = target.value.toUpperCase().replace(/[^A-Z0-9-]/g, ''); // 대문자, 숫자, 하이픈만 허용
-
-		// 하이픈 자동 추가 (4자리마다)
-		if (value.length > 4 && value[4] !== '-') {
-			value = value.slice(0, 4) + '-' + value.slice(4);
-		}
-		if (value.length > 9 && value[9] !== '-') {
-			value = value.slice(0, 9) + '-' + value.slice(9);
-		}
-
-		backupCode = value;
-		validateBackupCodeField();
 	}
 
 	function switchTwoFactorMode(mode: 'token' | 'backup') {
 		twoFactorMode = mode;
 		// 모드 변경 시 에러 초기화
-		twoFactorError = '';
-		backupCodeError = '';
+		twoFactorTokenField.clear();
+		backupCodeField.clear();
 	}
 </script>
 
@@ -280,73 +228,51 @@
 				<!-- 2FA 입력 폼 -->
 				<form onsubmit={handleTwoFactorSubmit} class="space-y-6">
 					{#if twoFactorMode === 'token'}
-						<!-- 토큰 입력 -->
-						<div class="relative">
-							<label for="twoFactorToken" class="mb-2 block text-sm font-medium text-gray-700">
-								<i class="fas fa-mobile-alt mr-2 text-blue-500"></i>
-								2FA 토큰
-							</label>
-							<Input
-								type="text"
-								id="twoFactorToken"
-								name="twoFactorToken"
-								placeholder="000000"
-								value={twoFactorToken}
-								oninput={handleTwoFactorInput}
-								disabled={isTwoFactorLoading}
-								class="text-center font-mono text-lg tracking-wider transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {twoFactorError
-									? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-									: ''}"
-							/>
-							{#if twoFactorError}
-								<p class="mt-1 text-sm text-red-600">
-									<i class="fas fa-exclamation-circle mr-1"></i>
-									{twoFactorError}
-								</p>
-							{/if}
-						</div>
+						<!-- 2FA 토큰 입력 -->
+						<FormField
+							label="2FA 토큰"
+							name="twoFactorToken"
+							type="text"
+							placeholder="000000"
+							bind:value={twoFactorTokenField.value}
+							error={twoFactorTokenField.error}
+							maxlength={6}
+							inputmode="numeric"
+							icon="fas fa-mobile-alt"
+							class="text-center font-mono text-lg tracking-wider"
+							autocomplete="off"
+							oninput={handleTokenInput}
+							disabled={isTwoFactorLoading}
+							required
+						/>
 					{:else}
 						<!-- 백업 코드 입력 -->
-						<div class="relative">
-							<label for="backupCode" class="mb-2 block text-sm font-medium text-gray-700">
-								<i class="fas fa-key mr-2 text-blue-500"></i>
-								백업 코드
-							</label>
-							<Input
-								type="text"
-								id="backupCode"
-								name="backupCode"
-								placeholder="ABCD-1234-EFGH"
-								value={backupCode}
-								oninput={handleBackupCodeInput}
-								disabled={isTwoFactorLoading}
-								class="text-center font-mono text-lg tracking-wider transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {backupCodeError
-									? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-									: ''}"
-							/>
-							{#if backupCodeError}
-								<p class="mt-1 text-sm text-red-600">
-									<i class="fas fa-exclamation-circle mr-1"></i>
-									{backupCodeError}
-								</p>
-							{/if}
-							<p class="mt-2 text-xs text-gray-500">백업 코드는 한 번만 사용할 수 있습니다.</p>
-						</div>
+						<FormField
+							label="백업 코드"
+							name="backupCode"
+							type="text"
+							placeholder="ABCD-1234-EFGH"
+							bind:value={backupCodeField.value}
+							error={backupCodeField.error}
+							icon="fas fa-key"
+							class="text-center font-mono text-lg tracking-wider"
+							hint="백업 코드는 한 번만 사용할 수 있습니다."
+							autocomplete="off"
+							oninput={handleBackupCodeInput}
+							disabled={isTwoFactorLoading}
+							required
+						/>
 					{/if}
 
 					<div class="space-y-4">
-						<Button
+						<LoadingButton
 							type="submit"
-							disabled={isTwoFactorLoading}
-							class="w-full bg-blue-600 text-white transition-all duration-200 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+							loading={isTwoFactorLoading}
+							loadingText="확인 중..."
+							class="w-full"
 						>
-							{#if isTwoFactorLoading}
-								<i class="fas fa-spinner fa-spin mr-2"></i>
-								확인 중...
-							{:else}
-								확인
-							{/if}
-						</Button>
+							확인
+						</LoadingButton>
 
 						<Button
 							type="button"
@@ -362,64 +288,34 @@
 				</form>
 			{:else}
 				<!-- 일반 로그인 폼 -->
-				<form method="POST" onsubmit={handleSubmit} class="space-y-6">
+				<form onsubmit={handleSubmit} class="space-y-6">
 					<!-- 이메일 입력 -->
-					<div class="relative">
-						<label for="email" class="mb-2 block text-sm font-medium text-gray-700">
-							<i class="fas fa-envelope mr-2 text-blue-500"></i>
-							이메일 주소
-						</label>
-						<Input
-							type="email"
-							id="email"
-							name="email"
-							placeholder="your@email.com"
-							value={email}
-							oninput={(e: Event) => {
-								email = (e.target as HTMLInputElement).value;
-								validateEmailField();
-							}}
-							disabled={isLoading}
-							class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {emailError
-								? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-								: ''}"
-						/>
-						{#if emailError}
-							<p class="mt-1 text-sm text-red-600">
-								<i class="fas fa-exclamation-circle mr-1"></i>
-								{emailError}
-							</p>
-						{/if}
-					</div>
+					<FormField
+						label="이메일 주소"
+						name="email"
+						type="email"
+						placeholder="your@email.com"
+						bind:value={emailField.value}
+						error={emailField.error}
+						icon="fas fa-envelope"
+						oninput={() => emailField.validate()}
+						disabled={isLoading}
+						required
+					/>
 
 					<!-- 비밀번호 입력 -->
-					<div class="relative">
-						<label for="password" class="mb-2 block text-sm font-medium text-gray-700">
-							<i class="fas fa-lock mr-2 text-blue-500"></i>
-							비밀번호
-						</label>
-						<Input
-							type="password"
-							id="password"
-							name="password"
-							placeholder="비밀번호를 입력하세요"
-							value={password}
-							oninput={(e: Event) => {
-								password = (e.target as HTMLInputElement).value;
-								validatePasswordField();
-							}}
-							disabled={isLoading}
-							class="transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {passwordError
-								? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-								: ''}"
-						/>
-						{#if passwordError}
-							<p class="mt-1 text-sm text-red-600">
-								<i class="fas fa-exclamation-circle mr-1"></i>
-								{passwordError}
-							</p>
-						{/if}
-					</div>
+					<FormField
+						label="비밀번호"
+						name="password"
+						type="password"
+						placeholder="비밀번호를 입력하세요"
+						bind:value={passwordField.value}
+						error={passwordField.error}
+						icon="fas fa-lock"
+						oninput={() => passwordField.validate()}
+						disabled={isLoading}
+						required
+					/>
 
 					<!-- 추가 옵션 -->
 					<div class="flex items-center justify-between">
@@ -441,24 +337,16 @@
 					</div>
 
 					<!-- 로그인 버튼 -->
-					<Button
+					<LoadingButton
 						variant="primary"
 						type="submit"
-						disabled={isLoading}
+						loading={isLoading}
+						loadingText="로그인 중..."
+						icon="fas fa-sign-in-alt"
 						class="w-full transform py-3 text-lg font-semibold shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl"
 					>
-						{#if isLoading}
-							<div class="flex items-center justify-center">
-								<i class="fas fa-spinner fa-spin mr-2"></i>
-								로그인 중...
-							</div>
-						{:else}
-							<div class="flex items-center justify-center">
-								<i class="fas fa-sign-in-alt mr-2"></i>
-								로그인
-							</div>
-						{/if}
-					</Button>
+						로그인
+					</LoadingButton>
 				</form>
 			{/if}
 
