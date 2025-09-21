@@ -106,7 +106,7 @@
 						href="https://policies.google.com/privacy"
 						target="_blank"
 						rel="noopener noreferrer"
-						class="text-blue-600 hover:text-blue-800 underline"
+						class="text-blue-600 underline hover:text-blue-800"
 					>
 						Privacy Policy
 					</a>
@@ -115,7 +115,7 @@
 						href="https://policies.google.com/terms"
 						target="_blank"
 						rel="noopener noreferrer"
-						class="text-blue-600 hover:text-blue-800 underline"
+						class="text-blue-600 underline hover:text-blue-800"
 					>
 						Terms of Service
 					</a>

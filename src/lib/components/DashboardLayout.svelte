@@ -189,15 +189,17 @@
 
 		// 시스템 관리 권한이 있는 경우에만 설정 메뉴 추가
 		const hasSystemManagePermission = (user.permissions & PERMISSIONS.MANAGE_SYSTEM) !== 0;
-		const systemItems = hasSystemManagePermission ? [
-			{
-				id: 'settings',
-				label: '설정',
-				icon: 'fas fa-cog',
-				href: '/dashboard/settings',
-				description: '시스템 설정'
-			}
-		] : [];
+		const systemItems = hasSystemManagePermission
+			? [
+					{
+						id: 'settings',
+						label: '설정',
+						icon: 'fas fa-cog',
+						href: '/dashboard/settings',
+						description: '시스템 설정'
+					}
+				]
+			: [];
 
 		return isDeveloper
 			? [...baseItems, ...developerItems, ...commonItems, ...systemItems]

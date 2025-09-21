@@ -1045,10 +1045,6 @@
 		line-height: 1.5;
 	}
 
-
-
-
-
 	/* 터치 디바이스 최적화 */
 	@media (hover: none) and (pointer: coarse) {
 		/* 터치 영역 최소 크기 보장 */

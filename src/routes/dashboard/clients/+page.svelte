@@ -432,7 +432,7 @@
 			description: '',
 			redirectUris: '',
 			grants: ['authorization_code'],
-		scopes: 'read:user profile',
+			scopes: 'read:user profile',
 			logoUri: '',
 			termsOfServiceUri: '',
 			policyUri: ''

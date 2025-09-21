@@ -42,11 +42,13 @@
 
 		// reCAPTCHA 초기화
 		if (env.RECAPTCHA_SITE_KEY) {
-			load(env.RECAPTCHA_SITE_KEY).then((instance) => {
-				recaptchaInstance = instance;
-			}).catch((error) => {
-				console.error('reCAPTCHA 초기화 실패:', error);
-			});
+			load(env.RECAPTCHA_SITE_KEY)
+				.then((instance) => {
+					recaptchaInstance = instance;
+				})
+				.catch((error) => {
+					console.error('reCAPTCHA 초기화 실패:', error);
+				});
 		}
 
 		return unsubscribe;
@@ -178,7 +180,6 @@
 
 <svelte:head>
 	<title>로그인 - FlowAuth</title>
-
 </svelte:head>
 
 <div
