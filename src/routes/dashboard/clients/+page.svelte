@@ -36,7 +36,7 @@
 		description: '',
 		redirectUris: '',
 		grants: ['authorization_code'],
-		scopes: 'read write',
+		scopes: 'read:user read:profile email basic',
 		logoUri: '',
 		termsOfServiceUri: '',
 		policyUri: ''
