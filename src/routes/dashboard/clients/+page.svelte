@@ -36,7 +36,7 @@
 		description: '',
 		redirectUris: '',
 		grants: ['authorization_code'],
-		scopes: 'read:user read:profile email basic',
+		scopes: 'read:user profile',
 		logoUri: '',
 		termsOfServiceUri: '',
 		policyUri: ''
@@ -123,7 +123,7 @@
 
 	$effect(() => {
 		if (newClient.scopes !== undefined) {
-			scopesValue = newClient.scopes || 'read write';
+			scopesValue = newClient.scopes || 'read:user profile';
 		}
 	});
 
@@ -162,7 +162,7 @@
 		clientNameValue = '';
 		clientDescriptionValue = '';
 		redirectUrisValue = '';
-		scopesValue = 'read write';
+		scopesValue = 'read:user profile';
 		logoUriValue = '';
 		termsOfServiceUriValue = '';
 		policyUriValue = '';
@@ -415,7 +415,7 @@
 		clientNameValue = '';
 		clientDescriptionValue = '';
 		redirectUrisValue = '';
-		scopesValue = 'read write';
+		scopesValue = 'read:user profile';
 		logoUriValue = '';
 		termsOfServiceUriValue = '';
 		policyUriValue = '';
@@ -432,7 +432,7 @@
 			description: '',
 			redirectUris: '',
 			grants: ['authorization_code'],
-			scopes: 'read write',
+		scopes: 'read:user profile',
 			logoUri: '',
 			termsOfServiceUri: '',
 			policyUri: ''
