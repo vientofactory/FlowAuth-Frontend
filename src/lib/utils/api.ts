@@ -663,7 +663,7 @@ class ApiClient {
 			id: number;
 			type: string;
 			description: string;
-			createdAt: string;
+			createdAt: string | Date;
 			resourceId?: number;
 			metadata?: { [key: string]: unknown };
 		}[]
