@@ -2,7 +2,7 @@
 	import { authState, authStore, Button } from '$lib';
 	import { onMount, onDestroy } from 'svelte';
 	import type { User } from '$lib';
-	import { USER_TYPES } from '$lib/types/user.types';
+	import { USER_TYPES, PERMISSIONS } from '$lib/types/user.types';
 
 	// 프로필 메뉴 아이템 타입 정의
 	type ProfileMenuItem = {
@@ -139,11 +139,6 @@
 
 		const commonItems = [
 			{
-				label: '설정',
-				icon: 'fas fa-cog',
-				href: '/dashboard/settings'
-			},
-			{
 				label: '로그아웃',
 				icon: 'fas fa-sign-out-alt',
 				action: handleLogout,
@@ -151,9 +146,19 @@
 			}
 		];
 
+		// 시스템 관리 권한이 있는 경우에만 설정 메뉴 추가
+		const hasSystemManagePermission = (user.permissions & PERMISSIONS.MANAGE_SYSTEM) !== 0;
+		const systemItems = hasSystemManagePermission ? [
+			{
+				label: '설정',
+				icon: 'fas fa-cog',
+				href: '/dashboard/settings'
+			}
+		] : [];
+
 		const userTypeItems = isDeveloper ? developerItems : regularUserItems;
 
-		return [...baseItems, ...userTypeItems, ...commonItems];
+		return [...baseItems, ...userTypeItems, ...systemItems, ...commonItems];
 	});
 </script>
 

@@ -5,7 +5,7 @@
 	import Button from '$lib/components/Button.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import type { User } from '$lib';
-	import { USER_TYPES } from '$lib/types/user.types';
+	import { USER_TYPES, PERMISSIONS } from '$lib/types/user.types';
 
 	interface Props {
 		children: import('svelte').Snippet;
@@ -184,7 +184,12 @@
 				icon: 'fas fa-user',
 				href: '/dashboard/profile',
 				description: '사용자 프로필 관리'
-			},
+			}
+		];
+
+		// 시스템 관리 권한이 있는 경우에만 설정 메뉴 추가
+		const hasSystemManagePermission = (user.permissions & PERMISSIONS.MANAGE_SYSTEM) !== 0;
+		const systemItems = hasSystemManagePermission ? [
 			{
 				id: 'settings',
 				label: '설정',
@@ -192,11 +197,11 @@
 				href: '/dashboard/settings',
 				description: '시스템 설정'
 			}
-		];
+		] : [];
 
 		return isDeveloper
-			? [...baseItems, ...developerItems, ...commonItems]
-			: [...baseItems, ...commonItems];
+			? [...baseItems, ...developerItems, ...commonItems, ...systemItems]
+			: [...baseItems, ...commonItems, ...systemItems];
 	});
 </script>
 
