@@ -40,10 +40,9 @@ RUN npm ci --only=production && npm cache clean --force
 RUN chown -R sveltekit:nodejs /app
 USER sveltekit
 
-EXPOSE 4173
+EXPOSE 3000
 
-ENV PORT 4173
-ENV HOST 0.0.0.0
+ENV PORT 3000
 
 # Start the server
-CMD ["npm", "run", "preview"]
+CMD ["node", "build/index.js"]
