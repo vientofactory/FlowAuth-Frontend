@@ -32,6 +32,7 @@ RUN adduser --system --uid 1001 sveltekit
 # Copy the built application
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/.env ./
 
 # Install production dependencies only
 RUN npm ci --only=production && npm cache clean --force
