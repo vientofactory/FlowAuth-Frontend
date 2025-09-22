@@ -1,5 +1,12 @@
 import type { Client } from '$lib/types/oauth.types';
 
+export const TOKEN_TYPES = {
+	LOGIN: 'login',
+	OAUTH2: 'oauth2'
+} as const;
+
+export type TokenType = (typeof TOKEN_TYPES)[keyof typeof TOKEN_TYPES];
+
 export interface ScopeInfo {
 	icon: string;
 	description: string;

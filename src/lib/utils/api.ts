@@ -1,6 +1,8 @@
 import type { User, LoginData, CreateUserDto } from '$lib';
 import { APP_CONSTANTS, API_ENDPOINTS, ROUTES, MESSAGES } from '$lib/constants/app.constants';
+import { TOKEN_STORAGE_KEYS } from '$lib/constants/app.constants';
 import { env } from '$lib/config/env';
+import type { TokenType } from '$lib/types/authorization.types';
 import type {
 	TwoFactorSetup,
 	TwoFactorStatus,
@@ -33,6 +35,7 @@ class ApiClient {
 	private baseURL: string;
 	private maxRetries = APP_CONSTANTS.DEFAULT_RETRY_COUNT;
 	private retryDelay = APP_CONSTANTS.DEFAULT_RETRY_DELAY;
+	private currentTokenType: TokenType = 'login'; // 기본값은 login
 
 	constructor(baseURL: string = env.API_BASE_URL) {
 		this.baseURL = baseURL;
@@ -152,7 +155,21 @@ class ApiClient {
 
 	private getToken(): string | null {
 		if (typeof window !== 'undefined') {
-			const token = localStorage.getItem(APP_CONSTANTS.TOKEN_STORAGE_KEY);
+			// 현재 토큰 타입 우선, 없으면 다른 타입 확인
+			let storageKey =
+				this.currentTokenType === 'login' ? TOKEN_STORAGE_KEYS.LOGIN : TOKEN_STORAGE_KEYS.OAUTH2;
+			let token = localStorage.getItem(storageKey);
+
+			if (!token) {
+				// 다른 타입 확인
+				storageKey =
+					this.currentTokenType === 'login' ? TOKEN_STORAGE_KEYS.OAUTH2 : TOKEN_STORAGE_KEYS.LOGIN;
+				token = localStorage.getItem(storageKey);
+				if (token) {
+					console.log('ApiClient: Found token in alternative storage key:', storageKey);
+				}
+			}
+
 			console.log('ApiClient: Getting token from localStorage:', !!token);
 			return token;
 		}
@@ -160,10 +177,12 @@ class ApiClient {
 		return null;
 	}
 
-	private setToken(token: string): void {
+	private setToken(token: string, tokenType?: TokenType): void {
 		if (typeof window !== 'undefined') {
-			console.log('ApiClient: Setting token to localStorage');
-			localStorage.setItem(APP_CONSTANTS.TOKEN_STORAGE_KEY, token);
+			const type = tokenType || this.currentTokenType;
+			const storageKey = type === 'login' ? TOKEN_STORAGE_KEYS.LOGIN : TOKEN_STORAGE_KEYS.OAUTH2;
+			console.log('ApiClient: Setting token to localStorage for type:', type);
+			localStorage.setItem(storageKey, token);
 			// OAuth2 플로우를 위해 쿠키에도 저장 (HttpOnly가 아닌 클라이언트 사이드 쿠키)
 			// SameSite=Lax로 설정하여 크로스사이트 요청에서도 작동하도록 함
 			document.cookie = `token=${token}; path=/; max-age=86400; samesite=lax`;
@@ -192,11 +211,12 @@ class ApiClient {
 
 	private removeToken(): void {
 		if (typeof window !== 'undefined') {
-			console.log('ApiClient: Removing token from localStorage');
-			localStorage.removeItem(APP_CONSTANTS.TOKEN_STORAGE_KEY);
+			console.log('ApiClient: Removing tokens from localStorage');
+			localStorage.removeItem(TOKEN_STORAGE_KEYS.LOGIN);
+			localStorage.removeItem(TOKEN_STORAGE_KEYS.OAUTH2);
 			// 쿠키도 제거
 			document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-			console.log('ApiClient: Token removed successfully');
+			console.log('ApiClient: Tokens removed successfully');
 		}
 	}
 
@@ -310,7 +330,7 @@ class ApiClient {
 				true // skipAuthRedirect - 로그인 시에는 401 에러 시 자동 리다이렉트하지 않음
 			);
 
-			this.setToken(result.accessToken);
+			this.setToken(result.accessToken, 'login');
 			if (result.refreshToken) {
 				this.setRefreshToken(result.refreshToken);
 			}
@@ -420,6 +440,12 @@ class ApiClient {
 
 	async revokeAllTokens() {
 		return this.request('/auth/tokens', {
+			method: 'DELETE'
+		});
+	}
+
+	async revokeAllTokensForType(tokenType: TokenType) {
+		return this.request(`/auth/tokens/type/${tokenType}`, {
 			method: 'DELETE'
 		});
 	}
