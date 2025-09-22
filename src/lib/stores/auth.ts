@@ -128,12 +128,12 @@ class AuthStore {
 	}
 
 	// 로그인
-	async login(email: string, password: string) {
+	async login(email: string, password: string, recaptchaToken?: string) {
 		console.log('AuthStore: Login attempt for:', email);
 		authState.update((state) => ({ ...state, isLoading: true }));
 
 		try {
-			const result = await apiClient.login({ email, password });
+			const result = await apiClient.login({ email, password, recaptchaToken });
 			console.log('AuthStore: Login successful, token received:', !!result.accessToken);
 
 			// 토큰이 제대로 저장되었는지 확인

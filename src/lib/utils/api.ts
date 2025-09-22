@@ -171,6 +171,25 @@ class ApiClient {
 		}
 	}
 
+	private getRefreshToken(): string | null {
+		if (typeof window !== 'undefined') {
+			return localStorage.getItem(APP_CONSTANTS.REFRESH_TOKEN_STORAGE_KEY);
+		}
+		return null;
+	}
+
+	private setRefreshToken(refreshToken: string): void {
+		if (typeof window !== 'undefined') {
+			localStorage.setItem(APP_CONSTANTS.REFRESH_TOKEN_STORAGE_KEY, refreshToken);
+		}
+	}
+
+	private removeRefreshToken(): void {
+		if (typeof window !== 'undefined') {
+			localStorage.removeItem(APP_CONSTANTS.REFRESH_TOKEN_STORAGE_KEY);
+		}
+	}
+
 	private removeToken(): void {
 		if (typeof window !== 'undefined') {
 			console.log('ApiClient: Removing token from localStorage');
@@ -213,14 +232,57 @@ class ApiClient {
 
 	clearAllTokens(): void {
 		this.removeToken();
+		this.removeRefreshToken();
 	}
 
-	// 토큰 재생성 (현재 사용자 정보로 새로운 토큰 발급)
-	async refreshToken(): Promise<void> {
+	// 계정 정보 새로고침 (프로필 정보 및 인증 상태 확인)
+	async refreshAccount(): Promise<User> {
 		try {
-			await this.getProfile();
-			// Token is valid, no refresh needed
-		} catch {
+			const user = await this.getProfile();
+			return user;
+		} catch (error) {
+			console.error('Account refresh failed:', error);
+			// 프로필 조회 실패 시 JWT 토큰 리프래시 시도
+			try {
+				await this.refreshJwtToken();
+				// 리프래시 성공 후 다시 프로필 조회
+				return await this.getProfile();
+			} catch (refreshError) {
+				console.error('JWT token refresh also failed:', refreshError);
+				this.clearAllTokens();
+				throw new Error('Session expired. Please login again.');
+			}
+		}
+	}
+
+	// JWT 토큰 리프래시 (일반 로그인용)
+	async refreshJwtToken(): Promise<{ user: User; accessToken: string; refreshToken?: string }> {
+		const refreshToken = this.getRefreshToken();
+		if (!refreshToken) {
+			this.clearAllTokens();
+			throw new Error('No refresh token available. Please login again.');
+		}
+
+		try {
+			const response = await this.request<{
+				user: User;
+				accessToken: string;
+				refreshToken?: string;
+			}>(API_ENDPOINTS.AUTH.REFRESH, {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${this.getToken()}`
+				}
+			});
+
+			// 새로운 토큰 저장
+			this.setToken(response.accessToken);
+			if (response.refreshToken) {
+				this.setRefreshToken(response.refreshToken);
+			}
+			return response;
+		} catch (error) {
+			console.error('JWT token refresh failed:', error);
 			this.clearAllTokens();
 			throw new Error('Token refresh failed. Please login again.');
 		}
@@ -234,9 +296,11 @@ class ApiClient {
 		});
 	}
 
-	async login(data: LoginData): Promise<{ user: User; accessToken: string }> {
+	async login(
+		data: LoginData
+	): Promise<{ user: User; accessToken: string; refreshToken?: string }> {
 		try {
-			const result = await this.request<{ user: User; accessToken: string }>(
+			const result = await this.request<{ user: User; accessToken: string; refreshToken?: string }>(
 				API_ENDPOINTS.AUTH.LOGIN,
 				{
 					method: 'POST',
@@ -247,6 +311,9 @@ class ApiClient {
 			);
 
 			this.setToken(result.accessToken);
+			if (result.refreshToken) {
+				this.setRefreshToken(result.refreshToken);
+			}
 			return result;
 		} catch (error) {
 			// 2FA가 필요한 경우 특별 처리
@@ -261,8 +328,8 @@ class ApiClient {
 	async verifyTwoFactorLogin(
 		email: string,
 		token: string
-	): Promise<{ user: User; accessToken: string }> {
-		const result = await this.request<{ user: User; accessToken: string }>(
+	): Promise<{ user: User; accessToken: string; refreshToken?: string }> {
+		const result = await this.request<{ user: User; accessToken: string; refreshToken?: string }>(
 			'/auth/verify-2fa',
 			{
 				method: 'POST',
@@ -273,14 +340,17 @@ class ApiClient {
 		);
 
 		this.setToken(result.accessToken);
+		if (result.refreshToken) {
+			this.setRefreshToken(result.refreshToken);
+		}
 		return result;
 	}
 
 	async verifyBackupCodeLogin(
 		email: string,
 		backupCode: string
-	): Promise<{ user: User; accessToken: string }> {
-		const result = await this.request<{ user: User; accessToken: string }>(
+	): Promise<{ user: User; accessToken: string; refreshToken?: string }> {
+		const result = await this.request<{ user: User; accessToken: string; refreshToken?: string }>(
 			'/auth/verify-backup-code',
 			{
 				method: 'POST',
@@ -291,6 +361,9 @@ class ApiClient {
 		);
 
 		this.setToken(result.accessToken);
+		if (result.refreshToken) {
+			this.setRefreshToken(result.refreshToken);
+		}
 		return result;
 	}
 
@@ -663,7 +736,7 @@ class ApiClient {
 			id: number;
 			type: string;
 			description: string;
-			createdAt: string;
+			createdAt: string | Date;
 			resourceId?: number;
 			metadata?: { [key: string]: unknown };
 		}[]

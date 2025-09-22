@@ -36,7 +36,7 @@
 		description: '',
 		redirectUris: '',
 		grants: ['authorization_code'],
-		scopes: 'read write',
+		scopes: 'read:user profile',
 		logoUri: '',
 		termsOfServiceUri: '',
 		policyUri: ''
@@ -123,7 +123,7 @@
 
 	$effect(() => {
 		if (newClient.scopes !== undefined) {
-			scopesValue = newClient.scopes || 'read write';
+			scopesValue = newClient.scopes || 'read:user profile';
 		}
 	});
 
@@ -162,7 +162,7 @@
 		clientNameValue = '';
 		clientDescriptionValue = '';
 		redirectUrisValue = '';
-		scopesValue = 'read write';
+		scopesValue = 'read:user profile';
 		logoUriValue = '';
 		termsOfServiceUriValue = '';
 		policyUriValue = '';
@@ -415,7 +415,7 @@
 		clientNameValue = '';
 		clientDescriptionValue = '';
 		redirectUrisValue = '';
-		scopesValue = 'read write';
+		scopesValue = 'read:user profile';
 		logoUriValue = '';
 		termsOfServiceUriValue = '';
 		policyUriValue = '';
@@ -432,7 +432,7 @@
 			description: '',
 			redirectUris: '',
 			grants: ['authorization_code'],
-			scopes: 'read write',
+			scopes: 'read:user profile',
 			logoUri: '',
 			termsOfServiceUri: '',
 			policyUri: ''
@@ -782,12 +782,12 @@
 		toast.success('모든 토큰이 제거되었습니다. 다시 로그인해주세요.');
 	}
 
-	async function refreshToken() {
+	async function refreshAccount() {
 		try {
-			await apiClient.refreshToken();
-			toast.success('토큰이 확인되었습니다.');
+			await apiClient.refreshAccount();
+			toast.success('계정 정보가 새로고침되었습니다.');
 		} catch {
-			toast.error('토큰 새로고침에 실패했습니다. 다시 로그인해주세요.');
+			toast.error('계정 정보 새로고침에 실패했습니다. 다시 로그인해주세요.');
 		}
 	}
 
@@ -841,9 +841,9 @@
 					<i class="fas fa-bug mr-2"></i>
 					토큰 디버그
 				</Button>
-				<Button variant="outline" onclick={refreshToken}>
+				<Button variant="outline" onclick={refreshAccount}>
 					<i class="fas fa-sync mr-2"></i>
-					토큰 확인
+					계정 확인
 				</Button>
 				<Button variant="outline" onclick={clearTokens}>
 					<i class="fas fa-trash mr-2"></i>

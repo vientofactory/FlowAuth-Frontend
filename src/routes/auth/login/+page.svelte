@@ -7,6 +7,8 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { env } from '$lib/config/env';
+	import { load } from 'recaptcha-v3';
 
 	// 폼 검증 필드들
 	const emailField = useFieldValidation('', validators.email);
@@ -21,6 +23,8 @@
 
 	let isLoading = $state(false);
 	let returnUrl = $state('');
+	let recaptchaToken = $state('');
+	let recaptchaInstance: any = null;
 
 	// 2FA 관련 상태
 	let requiresTwoFactor = $state(false);
@@ -35,6 +39,17 @@
 		const unsubscribe = page.subscribe(($page) => {
 			returnUrl = $page.url.searchParams.get('returnUrl') || '';
 		});
+
+		// reCAPTCHA 초기화
+		if (env.RECAPTCHA_SITE_KEY) {
+			load(env.RECAPTCHA_SITE_KEY)
+				.then((instance) => {
+					recaptchaInstance = instance;
+				})
+				.catch((error) => {
+					console.error('reCAPTCHA 초기화 실패:', error);
+				});
+		}
 
 		return unsubscribe;
 	});
@@ -56,10 +71,20 @@
 
 		if (isLoading) return;
 
+		// reCAPTCHA 검증
+		if (env.RECAPTCHA_SITE_KEY && recaptchaInstance) {
+			try {
+				recaptchaToken = await recaptchaInstance.execute('login');
+			} catch (error) {
+				toast.error('reCAPTCHA 검증에 실패했습니다. 다시 시도해주세요.');
+				return;
+			}
+		}
+
 		isLoading = true;
 
 		try {
-			await authStore.login(emailField.value, passwordField.value);
+			await authStore.login(emailField.value, passwordField.value, recaptchaToken);
 
 			// 리다이렉트 처리 - returnUrl이 있으면 해당 URL로, 없으면 대시보드로
 			if (returnUrl) {

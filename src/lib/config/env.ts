@@ -2,7 +2,8 @@
 export const env = {
 	API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
 	APP_NAME: import.meta.env.VITE_APP_NAME || 'FlowAuth',
-	APP_VERSION: import.meta.env.VITE_APP_VERSION || '1.0.0'
+	APP_VERSION: import.meta.env.VITE_APP_VERSION || '1.0.0',
+	RECAPTCHA_SITE_KEY: import.meta.env.VITE_RECAPTCHA_SITE_KEY || ''
 } as const;
 
 // API URL 생성 헬퍼 함수

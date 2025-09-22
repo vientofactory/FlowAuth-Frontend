@@ -806,7 +806,7 @@
 						<!-- 대시보드 -->
 						<button
 							onclick={() => goto('/dashboard')}
-							class="group flex flex-col items-center rounded-xl border-0 bg-white/80 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+							class="group flex cursor-pointer flex-col items-center rounded-xl border-0 bg-white/80 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
 						>
 							<div
 								class="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 transition-transform duration-300 group-hover:scale-110"
@@ -819,7 +819,7 @@
 						<!-- 프로필 -->
 						<button
 							onclick={() => goto('/dashboard/profile')}
-							class="group flex flex-col items-center rounded-xl border-0 bg-white/80 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:outline-none"
+							class="group flex cursor-pointer flex-col items-center rounded-xl border-0 bg-white/80 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:outline-none"
 						>
 							<div
 								class="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-r from-green-500 to-green-600 transition-transform duration-300 group-hover:scale-110"
@@ -832,7 +832,7 @@
 						<!-- 설정 -->
 						<button
 							onclick={() => goto('/dashboard/settings')}
-							class="group flex flex-col items-center rounded-xl border-0 bg-white/80 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:outline-none"
+							class="group flex cursor-pointer flex-col items-center rounded-xl border-0 bg-white/80 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:outline-none"
 						>
 							<div
 								class="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 transition-transform duration-300 group-hover:scale-110"
@@ -845,7 +845,7 @@
 						<!-- 연결 관리 -->
 						<button
 							onclick={() => goto('/dashboard/connections')}
-							class="group flex flex-col items-center rounded-xl border-0 bg-white/80 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+							class="group flex cursor-pointer flex-col items-center rounded-xl border-0 bg-white/80 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
 						>
 							<div
 								class="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-r from-indigo-500 to-indigo-600 transition-transform duration-300 group-hover:scale-110"
@@ -859,7 +859,7 @@
 						{#if isDeveloper}
 							<button
 								onclick={() => goto('/dashboard/clients')}
-								class="group flex flex-col items-center rounded-xl border-0 bg-white/80 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:outline-none"
+								class="group flex cursor-pointer flex-col items-center rounded-xl border-0 bg-white/80 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:outline-none"
 							>
 								<div
 									class="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 transition-transform duration-300 group-hover:scale-110"
@@ -871,7 +871,7 @@
 
 							<button
 								onclick={() => goto('/dashboard/oauth-tester')}
-								class="group flex flex-col items-center rounded-xl border-0 bg-white/80 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
+								class="group flex cursor-pointer flex-col items-center rounded-xl border-0 bg-white/80 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
 							>
 								<div
 									class="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-r from-red-500 to-red-600 transition-transform duration-300 group-hover:scale-110"

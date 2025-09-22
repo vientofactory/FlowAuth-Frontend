@@ -66,6 +66,7 @@ export type { User, USER_TYPES } from './types/user.types';
 export interface LoginData {
 	email: string;
 	password: string;
+	recaptchaToken?: string;
 }
 
 export interface CreateUserDto {
@@ -75,6 +76,7 @@ export interface CreateUserDto {
 	firstName: string;
 	lastName: string;
 	userType?: string;
+	recaptchaToken?: string;
 }
 
 // Stores

@@ -3,6 +3,7 @@
 	import { apiClient } from '$lib/utils/api';
 	import { DashboardLayout, Modal, authState } from '$lib';
 	import { USER_TYPES } from '$lib/types/user.types';
+	import { env } from '$lib/config/env';
 	import type {
 		ConnectedAppDto,
 		ConnectedAppsResponse,
@@ -117,6 +118,15 @@
 			minute: '2-digit'
 		});
 	}
+
+	function getLogoUrl(logoUrl: string): string {
+		// 이미 절대 URL인 경우 그대로 반환
+		if (logoUrl.startsWith('http://') || logoUrl.startsWith('https://')) {
+			return logoUrl;
+		}
+		// 상대 경로인 경우 백엔드 URL을 붙여서 절대 URL로 변환
+		return `${env.API_BASE_URL}${logoUrl.startsWith('/') ? '' : '/'}${logoUrl}`;
+	}
 </script>
 
 <DashboardLayout title="연결된 앱" description="귀하의 계정에 연결된 애플리케이션들을 관리하세요">
@@ -172,7 +182,7 @@
 								<div class="flex items-center space-x-3">
 									{#if app.logoUrl}
 										<img
-											src={app.logoUrl}
+											src={getLogoUrl(app.logoUrl)}
 											alt="{app.name} 로고"
 											class="h-10 w-10 rounded-lg object-cover"
 										/>
@@ -274,7 +284,7 @@
 				<div class="flex items-center space-x-3">
 					{#if revokingApp.logoUrl}
 						<img
-							src={revokingApp.logoUrl}
+							src={getLogoUrl(revokingApp.logoUrl)}
 							alt="{revokingApp.name} 로고"
 							class="h-10 w-10 rounded-lg object-cover"
 						/>

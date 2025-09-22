@@ -8,7 +8,8 @@
 		apiClient,
 		authState,
 		useToast,
-		PermissionUtils
+		PermissionUtils,
+		PERMISSIONS
 	} from '$lib';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -30,6 +31,9 @@
 		if (!user) return null;
 
 		const isDeveloper = user.userType === USER_TYPES.DEVELOPER;
+		const hasManageSystemPermission =
+			user.permissions !== undefined &&
+			PermissionUtils.hasPermission(Number(user.permissions), PERMISSIONS.MANAGE_SYSTEM);
 
 		return {
 			title: isDeveloper ? '개발자 대시보드' : '사용자 대시보드',
@@ -71,59 +75,63 @@
 					show: true
 				}
 			].filter((stat) => stat.show),
-			quickActions: isDeveloper
-				? [
-						{
-							label: '클라이언트\n생성',
-							icon: 'fas fa-plus-circle',
-							color: 'blue',
-							action: navigateToClients
-						},
-						{
-							label: '토큰\n관리',
-							icon: 'fas fa-key',
-							color: 'green',
-							action: navigateToTokens
-						},
-						{
-							label: '시스템\n설정',
-							icon: 'fas fa-cog',
-							color: 'purple',
-							action: navigateToSettings
-						},
-						{
-							label: 'OAuth2\n테스터',
-							icon: 'fas fa-link',
-							color: 'orange',
-							action: navigateToOAuthTester
-						}
-					]
-				: [
-						{
-							label: '프로필\n편집',
-							icon: 'fas fa-user-edit',
-							color: 'blue',
-							action: navigateToProfile
-						},
-						{
-							label: '토큰\n관리',
-							icon: 'fas fa-key',
-							color: 'green',
-							action: navigateToTokens
-						},
-						{
-							label: '계정\n설정',
-							icon: 'fas fa-cog',
-							color: 'purple',
-							action: navigateToSettings
-						},
-						{
-							label: '도움말',
-							icon: 'fas fa-question-circle',
-							color: 'orange',
-							action: () => goto('/help')
-						}
-					]
+			quickActions: [
+				// 개발자용 작업들
+				...(isDeveloper
+					? [
+							{
+								label: '클라이언트\n생성',
+								icon: 'fas fa-plus-circle',
+								color: 'blue',
+								action: navigateToClients
+							},
+							{
+								label: '토큰\n관리',
+								icon: 'fas fa-key',
+								color: 'green',
+								action: navigateToTokens
+							},
+							{
+								label: 'OAuth2\n테스터',
+								icon: 'fas fa-link',
+								color: 'orange',
+								action: navigateToOAuthTester
+							}
+						]
+					: [
+							// 일반 사용자용 작업들
+							{
+								label: '프로필\n편집',
+								icon: 'fas fa-user-edit',
+								color: 'blue',
+								action: navigateToProfile
+							},
+							{
+								label: '토큰\n관리',
+								icon: 'fas fa-key',
+								color: 'green',
+								action: navigateToTokens
+							}
+						]),
+				// 시스템 관리 권한이 있는 경우 시스템 설정 버튼 추가
+				...(hasManageSystemPermission
+					? [
+							{
+								label: '시스템\n설정',
+								icon: 'fas fa-cog',
+								color: 'purple',
+								action: navigateToSettings
+							}
+						]
+					: []),
+				// 도움말 버튼 (항상 표시)
+				{
+					label: '도움말',
+					icon: 'fas fa-question-circle',
+					color: 'orange',
+					action: () => goto('/help')
+				}
+			]
 		};
 	});
 
@@ -132,7 +140,7 @@
 			id: number;
 			type: string;
 			description: string;
-			createdAt: string;
+			createdAt: string | Date;
 			resourceId?: number;
 			metadata?: {
 				clientName?: string;

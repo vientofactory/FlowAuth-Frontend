@@ -3,6 +3,8 @@
  * 백엔드 DTO의 검증 규칙과 일치하도록 구현
  */
 
+import { OAUTH2_SCOPES } from './scope.utils';
+
 export interface ValidationResult {
 	isValid: boolean;
 	message?: string;
@@ -170,7 +172,7 @@ export function validateScopes(scopes: string[]): ValidationResult {
 		return { isValid: false, message: '최소 하나의 권한 범위를 선택해주세요.' };
 	}
 
-	const validScopes = ['read', 'write', 'profile', 'email', 'openid'];
+	const validScopes = Object.values(OAUTH2_SCOPES) as string[];
 	const invalidScopes = scopes.filter((scope) => !validScopes.includes(scope));
 
 	if (invalidScopes.length > 0) {

@@ -4,6 +4,9 @@
 	import type { CreateUserDto } from '$lib';
 	import { goto } from '$app/navigation';
 	import { USER_TYPES } from '$lib/types/user.types';
+	import { env } from '$lib/config/env';
+	import { onMount } from 'svelte';
+	import { load } from 'recaptcha-v3';
 
 	// 폼 검증 필드들
 	const emailField = useFieldValidation('', validators.email);
@@ -28,9 +31,21 @@
 	let userType = $state(USER_TYPES.REGULAR); // 기본값: 일반 사용자
 	let isLoading = $state(false);
 	let agreeToTerms = $state(false);
+	let recaptchaToken = $state('');
+	let recaptchaInstance: any = null;
 
 	// 중앙화된 토스트 훅 사용
 	const toast = useToast();
+
+	onMount(async () => {
+		if (env.RECAPTCHA_SITE_KEY) {
+			try {
+				recaptchaInstance = await load(env.RECAPTCHA_SITE_KEY);
+			} catch (error) {
+				console.error('reCAPTCHA 초기화 실패:', error);
+			}
+		}
+	});
 
 	async function handleRegister() {
 		// 모든 필드 검증 수행
@@ -45,6 +60,16 @@
 			return;
 		}
 
+		// reCAPTCHA 검증
+		if (env.RECAPTCHA_SITE_KEY && recaptchaInstance) {
+			try {
+				recaptchaToken = await recaptchaInstance.execute('register');
+			} catch (error) {
+				toast.error('reCAPTCHA 검증에 실패했습니다. 다시 시도해주세요.');
+				return;
+			}
+		}
+
 		isLoading = true;
 
 		try {
@@ -54,7 +79,8 @@
 				username: usernameField.value,
 				firstName: firstNameField.value,
 				lastName: lastNameField.value,
-				userType
+				userType,
+				recaptchaToken: recaptchaToken || undefined
 			};
 
 			await apiClient.register(userData);
