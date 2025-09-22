@@ -240,19 +240,30 @@ export class ApiClient {
 
 ## 🚀 배포
 
-### 정적 사이트 배포
+### Node.js 서버 배포
+
+이 프로젝트는 `@sveltejs/adapter-node`를 사용하여 Node.js 서버로 배포됩니다.
 
 ```bash
+# 빌드
 npm run build
-# dist 폴더의 파일들을 웹 서버에 업로드
+
+# 서버 시작 (프로덕션)
+node build/index.js
+
+# 또는 PM2를 사용한 프로덕션 배포
+npm install -g pm2
+pm2 start build/index.js --name flowauth-frontend
 ```
 
 ### 지원되는 플랫폼
 
-- Vercel
-- Netlify
-- GitHub Pages
-- 일반 웹 서버
+- **Vercel**: `vercel --prod`
+- **Railway**: Node.js 애플리케이션으로 배포
+- **Render**: Node.js 웹 서비스로 배포
+- **Heroku**: Node.js 앱으로 배포
+- **DigitalOcean App Platform**: Node.js 앱으로 배포
+- **PM2**: 프로세스 매니저를 통한 배포
 
 ## 🔧 개발 환경 설정
 
