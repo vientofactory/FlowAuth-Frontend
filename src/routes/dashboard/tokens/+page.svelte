@@ -21,13 +21,13 @@
 	let showRevokeAllModal = $state(false);
 	let selectedToken = $state<Token | null>(null);
 	let selectedTokenType = $state<TokenType | null>(null);
-	let isRevoking = $state(false);
+	let _isRevoking = $state(false);
 
 	const toast = useToast();
 
 	// 토큰 타입별 필터링
-	let loginTokens = $derived(tokens.filter(token => token.tokenType === TOKEN_TYPES.LOGIN));
-	let oauth2Tokens = $derived(tokens.filter(token => token.tokenType === TOKEN_TYPES.OAUTH2));
+	let loginTokens = $derived(tokens.filter((token) => token.tokenType === TOKEN_TYPES.LOGIN));
+	let oauth2Tokens = $derived(tokens.filter((token) => token.tokenType === TOKEN_TYPES.OAUTH2));
 	let currentTokens = $derived(activeTab === TOKEN_TYPES.LOGIN ? loginTokens : oauth2Tokens);
 
 	function handleTabChange(tabId: string) {
@@ -93,7 +93,7 @@
 		}
 	}
 
-	async function revokeToken(tokenId: number) {
+	async function _revokeToken(tokenId: number) {
 		try {
 			await apiClient.revokeToken(tokenId);
 			toast.success('토큰이 취소되었습니다.');
@@ -104,7 +104,7 @@
 		}
 	}
 
-	async function revokeAllTokensForType(tokenType: TokenType) {
+	async function _revokeAllTokensForType(tokenType: TokenType) {
 		const tokenTypeName = tokenType === TOKEN_TYPES.LOGIN ? '로그인' : 'OAuth2';
 
 		try {
@@ -125,15 +125,15 @@
 		try {
 			await apiClient.revokeToken(selectedToken.id);
 			toast.success('토큰이 취소되었습니다.');
-			
+
 			await loadTokens(); // 목록 새로고침
-			
+
 			// 로그인 토큰을 취소했고, 더 이상 로그인 토큰이 없으면 로그아웃
 			if (selectedToken.tokenType === TOKEN_TYPES.LOGIN && loginTokens.length === 0) {
 				await authStore.logout();
 				return;
 			}
-			
+
 			closeRevokeModal();
 		} catch (error) {
 			console.error('Failed to revoke token:', error);
@@ -151,16 +151,16 @@
 
 		try {
 			await apiClient.revokeAllTokensForType(selectedTokenType);
-			
+
 			toast.success(`모든 ${tokenTypeName} 토큰이 취소되었습니다.`);
-			
+
 			// 로그인 토큰을 취소한 경우 로그아웃 처리
 			if (selectedTokenType === TOKEN_TYPES.LOGIN) {
 				await authStore.logout();
 				// 페이지 리다이렉트는 authStore.logout()에서 처리됨
 				return;
 			}
-			
+
 			await loadTokens(); // 목록 새로고침
 			closeRevokeAllModal();
 		} catch (error) {
@@ -211,7 +211,6 @@
 	description="발급된 액세스 토큰과 리프레시 토큰을 관리하세요."
 	showBackButton={true}
 >
-
 	<!-- 통계 카드 -->
 	<div class="mb-4 grid grid-cols-2 gap-3 sm:mb-6 sm:grid-cols-2 lg:grid-cols-4">
 		<Card class="p-3 sm:p-4">
@@ -278,7 +277,7 @@
 				<div class="ml-2 flex-1 sm:ml-3">
 					<p class="text-xs font-medium text-gray-500 sm:text-sm">클라이언트 수</p>
 					<p class="text-lg font-bold text-gray-900 sm:text-xl">
-						{new Set(currentTokens.map(t => t.clientId).filter(Boolean)).size}
+						{new Set(currentTokens.map((t) => t.clientId).filter(Boolean)).size}
 					</p>
 				</div>
 			</div>
@@ -302,16 +301,24 @@
 		</div>
 
 		<!-- 토큰 타입 탭 -->
-		<Tabs 
+		<Tabs
 			tabs={[
-				{ id: TOKEN_TYPES.LOGIN, label: `로그인 토큰 (${loginTokens.length})`, icon: 'fas fa-user' },
-				{ id: TOKEN_TYPES.OAUTH2, label: `OAuth2 토큰 (${oauth2Tokens.length})`, icon: 'fas fa-code-branch' }
-			]} 
-			activeTab={activeTab} 
-			onTabChange={handleTabChange} 
+				{
+					id: TOKEN_TYPES.LOGIN,
+					label: `로그인 토큰 (${loginTokens.length})`,
+					icon: 'fas fa-user'
+				},
+				{
+					id: TOKEN_TYPES.OAUTH2,
+					label: `OAuth2 토큰 (${oauth2Tokens.length})`,
+					icon: 'fas fa-code-branch'
+				}
+			]}
+			{activeTab}
+			onTabChange={handleTabChange}
 			class="mb-6"
 		>
-			{#snippet children({ activeTab: currentActiveTab })}
+			{#snippet children({ activeTab: _currentActiveTab })}
 				{#if isLoading}
 					<div class="py-8 text-center">
 						<i class="fas fa-spinner fa-spin mb-4 text-2xl text-gray-400"></i>
@@ -321,7 +328,9 @@
 					<div class="py-8 text-center">
 						<i class="fas fa-key mb-4 text-4xl text-gray-400"></i>
 						<p class="mb-4 text-gray-500">
-							{activeTab === TOKEN_TYPES.LOGIN ? '발급된 로그인 토큰이 없습니다.' : '발급된 OAuth2 토큰이 없습니다.'}
+							{activeTab === TOKEN_TYPES.LOGIN
+								? '발급된 로그인 토큰이 없습니다.'
+								: '발급된 OAuth2 토큰이 없습니다.'}
 						</p>
 					</div>
 				{:else}
@@ -340,7 +349,7 @@
 											<h4 class="text-base font-medium text-gray-900 sm:text-lg">
 												{token.tokenType === TOKEN_TYPES.LOGIN
 													? 'Login Session'
-													: (token.client?.name || `Client ${token.clientId || 'Unknown'}`)}
+													: token.client?.name || `Client ${token.clientId || 'Unknown'}`}
 											</h4>
 											<div class="flex flex-wrap gap-2">
 												<Badge variant="info" size="sm">
@@ -350,9 +359,7 @@
 													{getTokenStatus(token).label}
 												</Badge>
 												{#if isCurrentSessionToken(token)}
-													<Badge variant="success" size="sm">
-														현재 세션
-													</Badge>
+													<Badge variant="success" size="sm">현재 세션</Badge>
 												{/if}
 											</div>
 										</div>
@@ -436,7 +443,7 @@
 		<h3 class="mb-4 text-base font-medium text-gray-900 sm:text-lg">
 			{activeTab === TOKEN_TYPES.LOGIN ? '로그인 토큰' : 'OAuth2 토큰'} 관리 안내
 		</h3>
-		
+
 		{#if activeTab === TOKEN_TYPES.LOGIN}
 			<div class="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
 				<div class="rounded-lg border border-blue-200 bg-blue-50 p-3 sm:p-4">
@@ -517,17 +524,19 @@
 				다음 토큰을 취소하시겠습니까? 이 작업은 되돌릴 수 없습니다.
 			</p>
 			{#if isCurrentSessionToken(selectedToken)}
-				<div class="rounded-lg bg-yellow-50 p-4 border border-yellow-200">
+				<div class="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
 					<div class="flex">
 						<div class="flex-shrink-0">
 							<svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-								<path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+								<path
+									fill-rule="evenodd"
+									d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+									clip-rule="evenodd"
+								/>
 							</svg>
 						</div>
 						<div class="ml-3">
-							<h3 class="text-sm font-medium text-yellow-800">
-								현재 로그인 세션 토큰입니다
-							</h3>
+							<h3 class="text-sm font-medium text-yellow-800">현재 로그인 세션 토큰입니다</h3>
 							<div class="mt-2 text-sm text-yellow-700">
 								<p>이 토큰을 취소하면 현재 로그인 세션이 종료됩니다. 계속하시겠습니까?</p>
 							</div>
@@ -543,13 +552,14 @@
 					</div>
 					<div>
 						<span class="font-medium text-gray-700">토큰 타입:</span>
-						<Badge variant={selectedToken.tokenType === TOKEN_TYPES.LOGIN ? 'success' : 'info'} class="ml-2">
+						<Badge
+							variant={selectedToken.tokenType === TOKEN_TYPES.LOGIN ? 'success' : 'info'}
+							class="ml-2"
+						>
 							{selectedToken.tokenType === TOKEN_TYPES.LOGIN ? '로그인 토큰' : 'OAuth2 토큰'}
 						</Badge>
 						{#if isCurrentSessionToken(selectedToken)}
-							<Badge variant="success" class="ml-2">
-								현재 세션
-							</Badge>
+							<Badge variant="success" class="ml-2">현재 세션</Badge>
 						{/if}
 					</div>
 					{#if selectedToken.client}
@@ -560,7 +570,9 @@
 					{/if}
 					<div>
 						<span class="font-medium text-gray-700">만료일:</span>
-						<span class="ml-2 text-gray-900">{new Date(selectedToken.expiresAt).toLocaleString()}</span>
+						<span class="ml-2 text-gray-900"
+							>{new Date(selectedToken.expiresAt).toLocaleString()}</span
+						>
 					</div>
 				</div>
 			</div>
@@ -582,14 +594,16 @@
 	{#if selectedTokenType}
 		<div class="space-y-4">
 			<p class="text-sm text-gray-600">
-				{selectedTokenType === TOKEN_TYPES.LOGIN ? '모든 로그인 토큰' : '모든 OAuth2 토큰'}을 취소하시겠습니까?
-				이 작업은 되돌릴 수 없습니다.
+				{selectedTokenType === TOKEN_TYPES.LOGIN ? '모든 로그인 토큰' : '모든 OAuth2 토큰'}을
+				취소하시겠습니까? 이 작업은 되돌릴 수 없습니다.
 			</p>
 			<div class="rounded-lg bg-red-50 p-4">
 				<div class="flex items-center">
 					<i class="fas fa-exclamation-triangle mr-2 text-red-600"></i>
 					<div class="text-sm text-red-800">
-						<strong>경고:</strong> 이 작업은 {selectedTokenType === TOKEN_TYPES.LOGIN ? '모든 로그인 세션을 종료' : '모든 OAuth2 권한을 제거'}합니다.
+						<strong>경고:</strong> 이 작업은 {selectedTokenType === TOKEN_TYPES.LOGIN
+							? '모든 로그인 세션을 종료'
+							: '모든 OAuth2 권한을 제거'}합니다.
 					</div>
 				</div>
 			</div>

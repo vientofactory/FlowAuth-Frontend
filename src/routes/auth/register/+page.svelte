@@ -32,7 +32,7 @@
 	let isLoading = $state(false);
 	let agreeToTerms = $state(false);
 	let recaptchaToken = $state('');
-	let recaptchaInstance: any = null;
+	let recaptchaInstance: unknown = null;
 
 	// 중앙화된 토스트 훅 사용
 	const toast = useToast();
@@ -64,7 +64,7 @@
 		if (env.RECAPTCHA_SITE_KEY && recaptchaInstance) {
 			try {
 				recaptchaToken = await recaptchaInstance.execute('register');
-			} catch (error) {
+			} catch {
 				toast.error('reCAPTCHA 검증에 실패했습니다. 다시 시도해주세요.');
 				return;
 			}
