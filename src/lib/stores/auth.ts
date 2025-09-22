@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
 import { apiClient } from '$lib/utils/api';
+import { TOKEN_STORAGE_KEYS } from '$lib/constants/app.constants';
 import type { User } from '$lib';
 
 interface AuthState {
@@ -206,6 +207,34 @@ class AuthStore {
 		}
 	}
 
+	// OAuth2 토큰 저장
+	async setOAuth2Token(accessToken: string, refreshToken?: string) {
+		console.log('AuthStore: Setting OAuth2 token');
+		if (typeof window !== 'undefined') {
+			localStorage.setItem(TOKEN_STORAGE_KEYS.OAUTH2, accessToken);
+			if (refreshToken) {
+				localStorage.setItem(TOKEN_STORAGE_KEYS.REFRESH_OAUTH2, refreshToken);
+			}
+			// 쿠키에도 저장
+			document.cookie = `token=${accessToken}; path=/; max-age=86400; samesite=lax`;
+		}
+
+		// 사용자 정보 가져오기
+		try {
+			const user = await apiClient.getProfile();
+			authState.update((state) => ({
+				...state,
+				user,
+				isAuthenticated: true,
+				isLoading: false
+			}));
+			console.log('AuthStore: OAuth2 token set and user loaded successfully');
+		} catch (error) {
+			console.log('AuthStore: Failed to load user profile after OAuth2 token set:', error);
+			throw error;
+		}
+	}
+
 	// 로그아웃
 	async logout() {
 		console.log('AuthStore: Logout initiated');
@@ -221,11 +250,12 @@ class AuthStore {
 
 		// 클라이언트 측 토큰 제거
 		if (typeof window !== 'undefined') {
-			console.log('AuthStore: Removing token from localStorage');
-			localStorage.removeItem('auth_token');
+			console.log('AuthStore: Removing tokens from localStorage');
+			localStorage.removeItem(TOKEN_STORAGE_KEYS.LOGIN);
+			localStorage.removeItem(TOKEN_STORAGE_KEYS.OAUTH2);
 			// 쿠키도 제거
 			document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-			console.log('AuthStore: Token removed successfully');
+			console.log('AuthStore: Tokens removed successfully');
 		}
 
 		// 상태 업데이트
@@ -273,15 +303,30 @@ class AuthStore {
 	// 토큰 가져오기 (private 메소드)
 	private getToken(): string | null {
 		if (typeof window !== 'undefined') {
-			return localStorage.getItem('auth_token');
+			// 우선 login 토큰 확인, 없으면 oauth2 확인
+			let token = localStorage.getItem(TOKEN_STORAGE_KEYS.LOGIN);
+			if (!token) {
+				token = localStorage.getItem(TOKEN_STORAGE_KEYS.OAUTH2);
+			}
+			return token;
 		}
 		return null;
 	}
 
-	// 세션 상태 확인
-	isSessionValid(): boolean {
+	// 현재 세션 토큰의 JTI 가져오기
+	getCurrentSessionTokenId(): string | null {
 		const token = this.getToken();
-		return !!(token && token.trim() !== '');
+		if (!token) return null;
+
+		try {
+			// JWT 디코딩 (간단한 base64 디코딩)
+			const payload = token.split('.')[1];
+			const decodedPayload = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+			return decodedPayload.jti || null;
+		} catch (error) {
+			console.error('Failed to decode JWT token:', error);
+			return null;
+		}
 	}
 
 	// 세션 정보 가져오기 (디버깅용)

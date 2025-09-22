@@ -9,6 +9,14 @@ export const APP_CONSTANTS = {
 	REDIRECT_DELAY: 1000 // 1 second
 } as const;
 
+// 토큰 타입별 스토리지 키
+export const TOKEN_STORAGE_KEYS = {
+	LOGIN: 'auth_token_login',
+	OAUTH2: 'auth_token_oauth2',
+	REFRESH_LOGIN: 'refresh_token_login',
+	REFRESH_OAUTH2: 'refresh_token_oauth2'
+} as const;
+
 // 라우트 상수들
 export const ROUTES = {
 	HOME: '/',

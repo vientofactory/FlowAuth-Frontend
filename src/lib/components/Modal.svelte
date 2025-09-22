@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { Button } from '$lib';
 
 	interface ModalProps {
 		open?: boolean;
@@ -9,6 +10,12 @@
 		children?: Snippet;
 		footer?: Snippet;
 		onClose?: () => void;
+		onConfirm?: () => void;
+		onCancel?: () => void;
+		confirmText?: string;
+		cancelText?: string;
+		confirmVariant?: 'primary' | 'secondary' | 'danger' | 'outline';
+		showFooter?: boolean;
 		class?: string;
 	}
 
@@ -20,6 +27,12 @@
 		children,
 		footer,
 		onClose,
+		onConfirm,
+		onCancel,
+		confirmText = '확인',
+		cancelText = '취소',
+		confirmVariant = 'primary',
+		showFooter = true,
 		class: className = ''
 	}: ModalProps = $props();
 
@@ -110,6 +123,21 @@
 						class="flex flex-col gap-3 border-t border-gray-200 px-4 py-4 sm:flex-row sm:justify-end sm:space-x-3 sm:px-6 sm:py-4"
 					>
 						{@render footer()}
+					</div>
+				{:else if showFooter}
+					<div
+						class="flex flex-col gap-3 border-t border-gray-200 px-4 py-4 sm:flex-row sm:justify-end sm:space-x-3 sm:px-6 sm:py-4"
+					>
+						{#if onCancel}
+							<Button variant="outline" onclick={onCancel}>
+								{cancelText}
+							</Button>
+						{/if}
+						{#if onConfirm}
+							<Button variant={confirmVariant} onclick={onConfirm}>
+								{confirmText}
+							</Button>
+						{/if}
 					</div>
 				{/if}
 			</div>

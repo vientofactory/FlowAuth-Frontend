@@ -24,7 +24,7 @@
 	let isLoading = $state(false);
 	let returnUrl = $state('');
 	let recaptchaToken = $state('');
-	let recaptchaInstance: any = null;
+	let recaptchaInstance: unknown = null;
 
 	// 2FA 관련 상태
 	let requiresTwoFactor = $state(false);
@@ -75,7 +75,7 @@
 		if (env.RECAPTCHA_SITE_KEY && recaptchaInstance) {
 			try {
 				recaptchaToken = await recaptchaInstance.execute('login');
-			} catch (error) {
+			} catch {
 				toast.error('reCAPTCHA 검증에 실패했습니다. 다시 시도해주세요.');
 				return;
 			}
