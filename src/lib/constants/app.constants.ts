@@ -5,6 +5,7 @@ export const APP_CONSTANTS = {
 	DEFAULT_RETRY_COUNT: 3,
 	DEFAULT_RETRY_DELAY: 1000, // 1 second
 	TOKEN_STORAGE_KEY: 'auth_token',
+	REFRESH_TOKEN_STORAGE_KEY: 'refresh_token',
 	REDIRECT_DELAY: 1000 // 1 second
 } as const;
 
@@ -24,7 +25,12 @@ export const API_ENDPOINTS = {
 		REGISTER: '/auth/register',
 		PROFILE: '/profile',
 		CLIENTS: '/auth/clients',
-		LOGOUT: '/auth/logout'
+		LOGOUT: '/auth/logout',
+		REFRESH: '/auth/refresh'
+	},
+	OAUTH2: {
+		TOKEN: '/oauth2/token',
+		AUTHORIZE: '/oauth2/authorize'
 	}
 } as const;
 
