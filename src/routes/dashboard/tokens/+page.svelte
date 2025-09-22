@@ -16,12 +16,11 @@
 	// 현재 세션 토큰 ID
 	let currentSessionTokenId = $state<string | null>(null);
 
-	// 모달 상태
 	let showRevokeModal = $state(false);
 	let showRevokeAllModal = $state(false);
 	let selectedToken = $state<Token | null>(null);
 	let selectedTokenType = $state<TokenType | null>(null);
-	let _isRevoking = $state(false);
+	let isRevoking = $state(false);
 
 	const toast = useToast();
 
