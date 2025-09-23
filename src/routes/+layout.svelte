@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '../app.css';
-	import favicon from '$lib/assets/favicon.svg';
+	import favicon from '$lib/assets/favicon.ico';
 	import { ToastContainer, apiClient } from '$lib';
 	import { authStore } from '$lib/stores/auth';
 	import { onMount, onDestroy } from 'svelte';
