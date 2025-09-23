@@ -24,18 +24,6 @@ export const SCOPE_DESCRIPTIONS: Record<string, ScopeInfo> = {
 		description: '귀하의 이메일 주소에 접근할 수 있습니다',
 		category: '연락처',
 		risk: 'medium'
-	},
-	openid: {
-		icon: 'fas fa-shield-alt',
-		description: 'OpenID Connect 표준을 통한 안전한 인증을 제공합니다',
-		category: '인증',
-		risk: 'low'
-	},
-	offline_access: {
-		icon: 'fas fa-clock',
-		description: '로그인 상태를 유지하여 재인증 없이 사용할 수 있습니다',
-		category: '접근성',
-		risk: 'medium'
 	}
 };
 

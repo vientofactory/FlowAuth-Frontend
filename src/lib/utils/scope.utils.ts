@@ -2,12 +2,9 @@
 export const OAUTH2_SCOPES = {
 	// 사용자 관련
 	READ_USER: 'read:user',
-	WRITE_USER: 'write:user',
-	DELETE_USER: 'delete:user',
 
 	// 프로필 관련
 	READ_PROFILE: 'read:profile',
-	WRITE_PROFILE: 'write:profile',
 
 	// 파일 관련
 	UPLOAD_FILE: 'upload:file',
@@ -19,20 +16,11 @@ export const OAUTH2_SCOPES = {
 	WRITE_CLIENT: 'write:client',
 	DELETE_CLIENT: 'delete:client',
 
-	// 관리자 권한
-	ADMIN: 'admin',
-
 	// 기본 권한
 	BASIC: 'basic',
 
-	// OpenID Connect 표준 스코프 (레거시 호환성)
-	OPENID: 'openid',
-	PROFILE: 'profile',
-	EMAIL: 'email',
-
-	// 레거시 스코프
-	READ: 'read',
-	WRITE: 'write'
+	// 이메일 주소 스코프
+	EMAIL: 'email'
 } as const;
 
 // 스코프 카테고리
@@ -41,9 +29,7 @@ export const SCOPE_CATEGORIES = {
 	PROFILE: 'profile',
 	FILE: 'file',
 	CLIENT: 'client',
-	ADMIN: 'admin',
-	OPENID: 'openid',
-	LEGACY: 'legacy'
+	ADMIN: 'admin'
 } as const;
 
 // 타입 정의
@@ -72,43 +58,16 @@ export const SCOPE_MAPPINGS: Record<string, ScopeInfo> = {
 		category: SCOPE_CATEGORIES.USER,
 		sensitive: false
 	},
-	[OAUTH2_SCOPES.WRITE_USER]: {
-		name: '사용자 정보 수정',
-		description: '앱이 귀하의 사용자 정보를 수정할 수 있습니다',
-		icon: 'fa-user-edit',
-		color: 'orange',
-		risk: 'medium',
-		category: SCOPE_CATEGORIES.USER,
-		sensitive: true
-	},
-	[OAUTH2_SCOPES.DELETE_USER]: {
-		name: '사용자 삭제',
-		description: '앱이 귀하의 계정을 삭제할 수 있습니다',
-		icon: 'fa-user-times',
-		color: 'red',
-		risk: 'high',
-		category: SCOPE_CATEGORIES.USER,
-		sensitive: true
-	},
 
 	// 프로필 관련
 	[OAUTH2_SCOPES.READ_PROFILE]: {
-		name: '프로필 정보 읽기',
+		name: '사용자 프로필 읽기',
 		description: '앱이 귀하의 상세 프로필 정보를 읽을 수 있습니다',
 		icon: 'fa-id-card',
 		color: 'green',
 		risk: 'low',
 		category: SCOPE_CATEGORIES.PROFILE,
 		sensitive: false
-	},
-	[OAUTH2_SCOPES.WRITE_PROFILE]: {
-		name: '프로필 정보 수정',
-		description: '앱이 귀하의 프로필 정보를 수정할 수 있습니다',
-		icon: 'fa-edit',
-		color: 'orange',
-		risk: 'medium',
-		category: SCOPE_CATEGORIES.PROFILE,
-		sensitive: true
 	},
 
 	// 파일 관련
@@ -151,7 +110,7 @@ export const SCOPE_MAPPINGS: Record<string, ScopeInfo> = {
 		sensitive: false
 	},
 	[OAUTH2_SCOPES.WRITE_CLIENT]: {
-		name: '클라이언트 생성/수정',
+		name: '클라이언트 정보 수정',
 		description: '앱이 새로운 OAuth2 클라이언트를 생성하거나 기존 클라이언트를 수정할 수 있습니다',
 		icon: 'fa-plus-circle',
 		color: 'orange',
@@ -169,20 +128,9 @@ export const SCOPE_MAPPINGS: Record<string, ScopeInfo> = {
 		sensitive: true
 	},
 
-	// 관리자 권한
-	[OAUTH2_SCOPES.ADMIN]: {
-		name: '시스템 관리자 권한',
-		description: '앱이 시스템 전체에 대한 관리자 권한을 가집니다',
-		icon: 'fa-crown',
-		color: 'red',
-		risk: 'critical',
-		category: SCOPE_CATEGORIES.ADMIN,
-		sensitive: true
-	},
-
 	// 기본 권한
 	[OAUTH2_SCOPES.BASIC]: {
-		name: '기본 권한',
+		name: '기본 접근 권한',
 		description: '앱이 기본적인 기능에 접근할 수 있습니다',
 		icon: 'fa-key',
 		color: 'gray',
@@ -191,53 +139,15 @@ export const SCOPE_MAPPINGS: Record<string, ScopeInfo> = {
 		sensitive: false
 	},
 
-	// OpenID Connect 표준 스코프
-	[OAUTH2_SCOPES.OPENID]: {
-		name: 'OpenID 인증',
-		description: 'OpenID Connect를 통한 인증이 가능합니다',
-		icon: 'fa-id-badge',
-		color: 'blue',
-		risk: 'low',
-		category: SCOPE_CATEGORIES.OPENID,
-		sensitive: false
-	},
-	[OAUTH2_SCOPES.PROFILE]: {
-		name: '기본 프로필',
-		description: '앱이 귀하의 기본 프로필 정보에 접근할 수 있습니다',
-		icon: 'fa-user',
-		color: 'green',
-		risk: 'low',
-		category: SCOPE_CATEGORIES.PROFILE,
-		sensitive: false
-	},
+	// 이메일 주소 스코프
 	[OAUTH2_SCOPES.EMAIL]: {
-		name: '이메일 주소',
+		name: '사용자 이메일 주소 읽기',
 		description: '앱이 귀하의 이메일 주소를 읽을 수 있습니다',
 		icon: 'fa-envelope',
-		color: 'blue',
-		risk: 'low',
+		color: 'red',
+		risk: 'high',
 		category: SCOPE_CATEGORIES.PROFILE,
 		sensitive: false
-	},
-
-	// 레거시 스코프
-	[OAUTH2_SCOPES.READ]: {
-		name: '읽기 권한 (레거시)',
-		description: '앱이 일반적인 읽기 권한을 가집니다 (레거시 스코프)',
-		icon: 'fa-book-open',
-		color: 'gray',
-		risk: 'low',
-		category: SCOPE_CATEGORIES.LEGACY,
-		sensitive: false
-	},
-	[OAUTH2_SCOPES.WRITE]: {
-		name: '쓰기 권한 (레거시)',
-		description: '앱이 일반적인 쓰기 권한을 가집니다 (레거시 스코프)',
-		icon: 'fa-pen',
-		color: 'orange',
-		risk: 'medium',
-		category: SCOPE_CATEGORIES.LEGACY,
-		sensitive: true
 	}
 };
 
@@ -370,12 +280,6 @@ export function normalizeScopeFormat(scope: string): string {
 
 	// 레거시 형식 변환
 	const legacyMappings: Record<string, string> = {
-		read: OAUTH2_SCOPES.READ,
-		write: OAUTH2_SCOPES.WRITE,
-		profile: OAUTH2_SCOPES.PROFILE,
-		email: OAUTH2_SCOPES.EMAIL,
-		openid: OAUTH2_SCOPES.OPENID,
-		admin: OAUTH2_SCOPES.ADMIN,
 		basic: OAUTH2_SCOPES.BASIC
 	};
 

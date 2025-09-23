@@ -36,7 +36,7 @@
 		description: '',
 		redirectUris: '',
 		grants: ['authorization_code'],
-		scopes: 'read:user profile',
+		scopes: 'read:user',
 		logoUri: '',
 		termsOfServiceUri: '',
 		policyUri: ''
@@ -81,6 +81,9 @@
 	let termsOfServiceUriValue = $state('');
 	let policyUriValue = $state('');
 
+	let selectedScopes = $state<string[]>([]);
+	let editSelectedScopes = $state<string[]>([]);
+
 	// 로고 업로드 관련
 	let selectedLogoFile = $state<File | null>(null);
 	let logoPreviewUrl = $state<string | null>(null);
@@ -123,7 +126,7 @@
 
 	$effect(() => {
 		if (newClient.scopes !== undefined) {
-			scopesValue = newClient.scopes || 'read:user profile';
+			scopesValue = newClient.scopes || 'read:user';
 		}
 	});
 
@@ -162,7 +165,8 @@
 		clientNameValue = '';
 		clientDescriptionValue = '';
 		redirectUrisValue = '';
-		scopesValue = 'read:user profile';
+		scopesValue = 'read:user read:profile';
+		selectedScopes = ['read:user', 'read:profile'];
 		logoUriValue = '';
 		termsOfServiceUriValue = '';
 		policyUriValue = '';
@@ -415,7 +419,8 @@
 		clientNameValue = '';
 		clientDescriptionValue = '';
 		redirectUrisValue = '';
-		scopesValue = 'read:user profile';
+		scopesValue = 'read:user read:profile';
+		selectedScopes = ['read:user', 'read:profile'];
 		logoUriValue = '';
 		termsOfServiceUriValue = '';
 		policyUriValue = '';
@@ -432,7 +437,7 @@
 			description: '',
 			redirectUris: '',
 			grants: ['authorization_code'],
-			scopes: 'read:user profile',
+			scopes: 'read:user',
 			logoUri: '',
 			termsOfServiceUri: '',
 			policyUri: ''
@@ -535,7 +540,8 @@
 		editClientName = client.name;
 		editClientDescription = client.description || '';
 		editRedirectUris = client.redirectUris.join('\n');
-		editScopes = client.scopes ? client.scopes.join(' ') : 'read write';
+		editScopes = client.scopes ? client.scopes.join(' ') : 'read:user read:profile';
+		editSelectedScopes = client.scopes || ['read:user', 'read:profile'];
 
 		// 로고 URI가 유효한 경우만 설정, 그렇지 않으면 빈 문자열
 		const originalLogoUri = client.logoUri;
@@ -820,6 +826,27 @@
 		clientToResetSecret = null;
 		newResetSecret = '';
 	}
+
+	// 스코프 토글 함수들
+	function handleScopeToggle(scope: string) {
+		if (selectedScopes.includes(scope)) {
+			selectedScopes = selectedScopes.filter(s => s !== scope);
+		} else {
+			selectedScopes = [...selectedScopes, scope];
+		}
+		// scopesValue도 동기화
+		scopesValue = selectedScopes.join(' ');
+	}
+
+	function handleEditScopeToggle(scope: string) {
+		if (editSelectedScopes.includes(scope)) {
+			editSelectedScopes = editSelectedScopes.filter(s => s !== scope);
+		} else {
+			editSelectedScopes = [...editSelectedScopes, scope];
+		}
+		// editScopes도 동기화
+		editScopes = editSelectedScopes.join(' ');
+	}
 </script>
 
 <DashboardLayout
@@ -866,6 +893,7 @@
 		bind:clientDescriptionValue
 		bind:redirectUrisValue
 		bind:scopesValue
+		bind:selectedScopes
 		bind:logoUriValue
 		bind:termsOfServiceUriValue
 		bind:policyUriValue
@@ -880,6 +908,7 @@
 		cacheBuster={logoCacheBuster}
 		onToggleCreateForm={toggleCreateForm}
 		onCreateClient={createClient}
+		onScopeToggle={handleScopeToggle}
 	/>
 
 	<ClientList
@@ -930,30 +959,32 @@
 	onClose={closeStatusModal}
 />
 
-<ClientEditModal
-	{showEditModal}
-	{clientToEdit}
-	bind:editClientName
-	bind:editClientDescription
-	bind:editRedirectUris
-	bind:editScopes
-	bind:editLogoUri
-	bind:editTermsOfServiceUri
-	bind:editPolicyUri
-	{editClientNameError}
-	{editRedirectUrisError}
-	{editScopesError}
-	{editLogoUriError}
-	{editTermsOfServiceUriError}
-	{editPolicyUriError}
-	bind:selectedLogoFile
-	bind:logoPreviewUrl
-	{isUpdating}
-	{logoCacheBuster}
-	onClose={() => {
-		showEditModal = false;
-		clientToEdit = null;
-	}}
-	onUpdateClient={updateClient}
-	onRemoveClientLogo={removeClientLogo}
-/>
+	<ClientEditModal
+		{showEditModal}
+		{clientToEdit}
+		bind:editClientName
+		bind:editClientDescription
+		bind:editRedirectUris
+		bind:editScopes
+		bind:selectedScopes={editSelectedScopes}
+		bind:editLogoUri
+		bind:editTermsOfServiceUri
+		bind:editPolicyUri
+		{editClientNameError}
+		{editRedirectUrisError}
+		{editScopesError}
+		{editLogoUriError}
+		{editTermsOfServiceUriError}
+		{editPolicyUriError}
+		bind:selectedLogoFile
+		bind:logoPreviewUrl
+		{isUpdating}
+		{logoCacheBuster}
+		onClose={() => {
+			showEditModal = false;
+			clientToEdit = null;
+		}}
+		onUpdateClient={updateClient}
+		onRemoveClientLogo={removeClientLogo}
+		onScopeToggle={handleEditScopeToggle}
+	/>
