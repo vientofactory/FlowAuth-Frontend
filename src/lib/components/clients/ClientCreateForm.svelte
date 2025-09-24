@@ -2,6 +2,9 @@
 	import { Card, Button, Loading, LogoUpload } from '$lib';
 	import ScopeSelector from '$lib/components/ScopeSelector.svelte';
 	import { useToast } from '$lib';
+	import { onMount } from 'svelte';
+	import { env } from '$lib/config/env';
+	import { load } from 'recaptcha-v3';
 
 	interface Props {
 		showCreateForm: boolean;
@@ -23,6 +26,7 @@
 		selectedLogoFile: File | null;
 		logoPreviewUrl: string | null;
 		cacheBuster?: string;
+		recaptchaToken?: string;
 		onToggleCreateForm: () => void;
 		onCreateClient: () => void;
 		onScopeToggle: (scope: string) => void;
@@ -48,12 +52,28 @@
 		selectedLogoFile = $bindable(),
 		logoPreviewUrl = $bindable(),
 		cacheBuster = '',
+		recaptchaToken = $bindable(''),
 		onToggleCreateForm,
 		onCreateClient,
 		onScopeToggle
 	}: Props = $props();
 
 	const { success: _success } = useToast();
+
+	let recaptchaInstance: unknown = null;
+
+	onMount(() => {
+		// reCAPTCHA 초기화
+		if (env.RECAPTCHA_SITE_KEY) {
+			load(env.RECAPTCHA_SITE_KEY)
+				.then((instance) => {
+					recaptchaInstance = instance;
+				})
+				.catch((error) => {
+					console.error('reCAPTCHA 초기화 실패:', error);
+				});
+		}
+	});
 
 	function handleLogoFileSelect(file: File | null) {
 		selectedLogoFile = file;

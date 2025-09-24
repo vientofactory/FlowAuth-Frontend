@@ -7,6 +7,8 @@
 	import { USER_TYPES } from '$lib/types/user.types';
 	import { authState } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
+	import { env } from '$lib/config/env';
+	import { load } from 'recaptcha-v3';
 	import {
 		validateClientName,
 		validateRedirectUri,
@@ -88,6 +90,10 @@
 	let selectedLogoFile = $state<File | null>(null);
 	let logoPreviewUrl = $state<string | null>(null);
 	let logoCacheBuster = $state('');
+
+	// reCAPTCHA 관련
+	let recaptchaToken = $state('');
+	let recaptchaInstance: unknown = null;
 
 	// 폼 검증 상태 (등록 폼)
 	let clientNameError = $state('');
@@ -384,6 +390,17 @@
 
 		loadClients();
 
+		// reCAPTCHA 초기화
+		if (env.RECAPTCHA_SITE_KEY) {
+			load(env.RECAPTCHA_SITE_KEY)
+				.then((instance) => {
+					recaptchaInstance = instance;
+				})
+				.catch((error) => {
+					console.error('reCAPTCHA 초기화 실패:', error);
+				});
+		}
+
 		// cleanup 함수 반환
 		return () => {
 			unsubscribe();
@@ -469,10 +486,29 @@
 		isCreating = true;
 
 		try {
+			// reCAPTCHA 검증 (필수)
+			if (!env.RECAPTCHA_SITE_KEY) {
+				toast.error('reCAPTCHA가 설정되지 않았습니다. 관리자에게 문의해주세요.');
+				isCreating = false;
+				return;
+			}
+			if (!recaptchaInstance) {
+				toast.error('reCAPTCHA가 초기화되지 않았습니다. 페이지를 새로고침해주세요.');
+				isCreating = false;
+				return;
+			}
+			try {
+				recaptchaToken = await recaptchaInstance.execute('createClient');
+			} catch {
+				toast.error('reCAPTCHA 검증에 실패했습니다. 다시 시도해주세요.');
+				isCreating = false;
+				return;
+			}
+
 			// 로고 파일이 선택된 경우 먼저 업로드
 			if (selectedLogoFile) {
 				try {
-					const uploadResult = await apiClient.uploadLogo(selectedLogoFile);
+					const uploadResult = await apiClient.uploadLogo(selectedLogoFile, recaptchaToken);
 					if (uploadResult.success) {
 						logoUriValue = uploadResult.data.url;
 						toast.success('로고가 업로드되었습니다.');
@@ -505,7 +541,8 @@
 				scopes,
 				logoUri: logoUriValue || undefined,
 				termsOfServiceUri: termsOfServiceUriValue || undefined,
-				policyUri: policyUriValue || undefined
+				policyUri: policyUriValue || undefined,
+				recaptchaToken: recaptchaToken || undefined
 			})) as { clientSecret: string };
 
 			createdClientSecret = response.clientSecret;
@@ -906,6 +943,7 @@
 		bind:selectedLogoFile
 		bind:logoPreviewUrl
 		cacheBuster={logoCacheBuster}
+		bind:recaptchaToken
 		onToggleCreateForm={toggleCreateForm}
 		onCreateClient={createClient}
 		onScopeToggle={handleScopeToggle}
