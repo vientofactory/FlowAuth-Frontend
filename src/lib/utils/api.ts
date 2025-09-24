@@ -500,19 +500,13 @@ class ApiClient {
 	}
 
 	// 로고 업로드 API
-	async uploadLogo(
-		file: File,
-		recaptchaToken: string
-	): Promise<{
+	async uploadLogo(file: File): Promise<{
 		success: boolean;
 		message: string;
 		data: { filename: string; url: string; originalName: string; size: number; mimetype: string };
 	}> {
 		const formData = new FormData();
 		formData.append('logo', file);
-		if (recaptchaToken) {
-			formData.append('recaptchaToken', recaptchaToken);
-		}
 
 		const config: RequestInit = {
 			method: 'POST',

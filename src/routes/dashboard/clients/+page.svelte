@@ -508,7 +508,7 @@
 			// 로고 파일이 선택된 경우 먼저 업로드
 			if (selectedLogoFile) {
 				try {
-					const uploadResult = await apiClient.uploadLogo(selectedLogoFile, recaptchaToken);
+					const uploadResult = await apiClient.uploadLogo(selectedLogoFile);
 					if (uploadResult.success) {
 						logoUriValue = uploadResult.data.url;
 						toast.success('로고가 업로드되었습니다.');
