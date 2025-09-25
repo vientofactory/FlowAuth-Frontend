@@ -407,6 +407,57 @@ class ApiClient {
 		return this.request(`/profile/check-username/${encodeURIComponent(username)}`);
 	}
 
+	async uploadAvatar(formData: FormData): Promise<{ avatarUrl: string; message: string }> {
+		const config: RequestInit = {
+			method: 'POST',
+			body: formData,
+			credentials: 'include'
+		};
+
+		// JWT 토큰이 있으면 헤더에 추가 (FormData 사용 시 별도 처리)
+		const token = this.getToken();
+		if (token) {
+			config.headers = {
+				Authorization: `Bearer ${token}`
+			};
+		}
+
+		const url = `${this.baseURL}/profile/avatar`;
+
+		try {
+			const response = await fetch(url, config);
+
+			if (response.status === 401) {
+				this.removeToken();
+				if (typeof window !== 'undefined') {
+					window.location.href = ROUTES.LOGIN;
+				}
+				throw new Error(MESSAGES.VALIDATION.AUTHENTICATION_REQUIRED);
+			}
+
+			if (!response.ok) {
+				const errorData = await this.parseErrorResponse(response);
+				throw this.createErrorFromResponse(errorData, response.status);
+			}
+
+			return await response.json();
+		} catch (error) {
+			if (
+				error instanceof TypeError ||
+				(error as Error & { name?: string }).name === 'NetworkError'
+			) {
+				throw new Error('서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.');
+			}
+			throw error;
+		}
+	}
+
+	async removeAvatar(): Promise<{ message: string }> {
+		return this.request('/profile/avatar', {
+			method: 'DELETE'
+		});
+	}
+
 	async changePassword(data: { currentPassword: string; newPassword: string }) {
 		return this.request('/profile/password', {
 			method: 'PUT',

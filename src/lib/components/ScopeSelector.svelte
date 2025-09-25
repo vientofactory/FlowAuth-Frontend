@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getScopeInfo, groupScopesByCategory, SCOPE_CATEGORIES, type ScopeInfo } from '$lib/utils/scope.utils';
+	import { getScopeInfo, groupScopesByCategory, SCOPE_CATEGORIES } from '$lib/utils/scope.utils';
 
 	interface Props {
 		selectedScopes: string[];
@@ -12,10 +12,16 @@
 
 	// 모든 스코프 목록
 	const allScopes = [
-		'read:user', 'read:profile',
-		'upload:file', 'read:file', 'delete:file',
-		'read:client', 'write:client', 'delete:client',
-		'basic', 'email'
+		'read:user',
+		'read:profile',
+		'upload:file',
+		'read:file',
+		'delete:file',
+		'read:client',
+		'write:client',
+		'delete:client',
+		'basic',
+		'email'
 	];
 
 	// 스코프를 카테고리별로 그룹화
@@ -65,24 +71,24 @@
 </script>
 
 <div class="space-y-4">
-	<label for="scope-selector" class="block text-sm font-medium text-gray-700">
-		권한 범위 *
-	</label>
+	<label for="scope-selector" class="block text-sm font-medium text-gray-700"> 권한 범위 * </label>
 
 	<!-- 선택된 스코프 표시 -->
 	{#if selectedScopes.length > 0}
 		<div class="mb-3">
-			<p class="text-xs text-gray-500 mb-2">선택된 권한 ({selectedScopes.length})</p>
+			<p class="mb-2 text-xs text-gray-500">선택된 권한 ({selectedScopes.length})</p>
 			<div class="flex flex-wrap gap-2">
 				{#each selectedScopes as scope (scope)}
 					{@const scopeInfo = getScopeInfo(scope)}
-					<span class="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
+					<span
+						class="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700"
+					>
 						<i class="fas {scopeInfo.icon} text-xs"></i>
 						{scopeInfo.name}
 						<button
 							type="button"
 							onclick={() => handleScopeToggle(scope)}
-							disabled={disabled}
+							{disabled}
 							class="ml-1 text-blue-500 hover:text-blue-700"
 							aria-label="{scopeInfo.name} 제거"
 						>
@@ -95,7 +101,7 @@
 	{/if}
 
 	<!-- 스코프 선택 영역 -->
-	<div id="scope-selector" class="max-h-64 overflow-y-auto border border-gray-200 rounded-md">
+	<div id="scope-selector" class="max-h-64 overflow-y-auto rounded-md border border-gray-200">
 		{#each Object.entries(groupedScopes) as [category, scopes] (category)}
 			<div class="border-b border-gray-100 last:border-b-0">
 				<div class="bg-gray-50 px-3 py-2">
@@ -109,25 +115,29 @@
 							<button
 								type="button"
 								onclick={() => handleScopeToggle(scope)}
-								disabled={disabled}
-								class="flex items-center space-x-3 rounded-lg border p-3 text-left transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 {isSelected ? 'border-blue-300 bg-blue-50' : 'border-gray-200'}"
+								{disabled}
+								class="flex items-center space-x-3 rounded-lg border p-3 text-left transition-all hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none {isSelected
+									? 'border-blue-300 bg-blue-50'
+									: 'border-gray-200'}"
 							>
 								<div class="flex-shrink-0">
 									<div
-										class="flex h-8 w-8 items-center justify-center rounded-full {getScopeColorClasses(scopeInfo.color)}"
+										class="flex h-8 w-8 items-center justify-center rounded-full {getScopeColorClasses(
+											scopeInfo.color
+										)}"
 									>
 										<i class="fas {scopeInfo.icon} text-sm"></i>
 									</div>
 								</div>
-								<div class="flex-1 min-w-0">
-									<p class="text-sm font-medium text-gray-900 truncate">
+								<div class="min-w-0 flex-1">
+									<p class="truncate text-sm font-medium text-gray-900">
 										{scopeInfo.name}
 									</p>
-									<p class="text-xs text-gray-600 truncate">
+									<p class="truncate text-xs text-gray-600">
 										{scopeInfo.description}
 									</p>
 									{#if scopeInfo.sensitive}
-										<span class="inline-flex items-center text-xs text-red-600 mt-1">
+										<span class="mt-1 inline-flex items-center text-xs text-red-600">
 											<i class="fas fa-exclamation-triangle mr-1"></i>
 											민감한 권한
 										</span>

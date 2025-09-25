@@ -60,14 +60,14 @@
 
 	const { success: _success } = useToast();
 
-	let recaptchaInstance: unknown = null;
+	let _recaptchaInstance: unknown = null;
 
 	onMount(() => {
 		// reCAPTCHA 초기화
 		if (env.RECAPTCHA_SITE_KEY) {
 			load(env.RECAPTCHA_SITE_KEY)
 				.then((instance) => {
-					recaptchaInstance = instance;
+					_recaptchaInstance = instance;
 				})
 				.catch((error) => {
 					console.error('reCAPTCHA 초기화 실패:', error);
@@ -146,7 +146,7 @@
 					<div class="sm:col-span-2">
 						<ScopeSelector
 							bind:selectedScopes
-							onScopeToggle={onScopeToggle}
+							{onScopeToggle}
 							error={scopesError}
 							disabled={isCreating}
 						/>

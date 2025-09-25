@@ -867,7 +867,7 @@
 	// 스코프 토글 함수들
 	function handleScopeToggle(scope: string) {
 		if (selectedScopes.includes(scope)) {
-			selectedScopes = selectedScopes.filter(s => s !== scope);
+			selectedScopes = selectedScopes.filter((s) => s !== scope);
 		} else {
 			selectedScopes = [...selectedScopes, scope];
 		}
@@ -877,7 +877,7 @@
 
 	function handleEditScopeToggle(scope: string) {
 		if (editSelectedScopes.includes(scope)) {
-			editSelectedScopes = editSelectedScopes.filter(s => s !== scope);
+			editSelectedScopes = editSelectedScopes.filter((s) => s !== scope);
 		} else {
 			editSelectedScopes = [...editSelectedScopes, scope];
 		}
@@ -997,32 +997,32 @@
 	onClose={closeStatusModal}
 />
 
-	<ClientEditModal
-		{showEditModal}
-		{clientToEdit}
-		bind:editClientName
-		bind:editClientDescription
-		bind:editRedirectUris
-		bind:editScopes
-		bind:selectedScopes={editSelectedScopes}
-		bind:editLogoUri
-		bind:editTermsOfServiceUri
-		bind:editPolicyUri
-		{editClientNameError}
-		{editRedirectUrisError}
-		{editScopesError}
-		{editLogoUriError}
-		{editTermsOfServiceUriError}
-		{editPolicyUriError}
-		bind:selectedLogoFile
-		bind:logoPreviewUrl
-		{isUpdating}
-		{logoCacheBuster}
-		onClose={() => {
-			showEditModal = false;
-			clientToEdit = null;
-		}}
-		onUpdateClient={updateClient}
-		onRemoveClientLogo={removeClientLogo}
-		onScopeToggle={handleEditScopeToggle}
-	/>
+<ClientEditModal
+	{showEditModal}
+	{clientToEdit}
+	bind:editClientName
+	bind:editClientDescription
+	bind:editRedirectUris
+	bind:editScopes
+	bind:selectedScopes={editSelectedScopes}
+	bind:editLogoUri
+	bind:editTermsOfServiceUri
+	bind:editPolicyUri
+	{editClientNameError}
+	{editRedirectUrisError}
+	{editScopesError}
+	{editLogoUriError}
+	{editTermsOfServiceUriError}
+	{editPolicyUriError}
+	bind:selectedLogoFile
+	bind:logoPreviewUrl
+	{isUpdating}
+	{logoCacheBuster}
+	onClose={() => {
+		showEditModal = false;
+		clientToEdit = null;
+	}}
+	onUpdateClient={updateClient}
+	onRemoveClientLogo={removeClientLogo}
+	onScopeToggle={handleEditScopeToggle}
+/>

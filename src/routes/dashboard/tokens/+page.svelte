@@ -20,7 +20,7 @@
 	let showRevokeAllModal = $state(false);
 	let selectedToken = $state<Token | null>(null);
 	let selectedTokenType = $state<TokenType | null>(null);
-	let isRevoking = $state(false);
+	let _isRevoking = $state(false);
 
 	const toast = useToast();
 
@@ -120,7 +120,7 @@
 	async function confirmRevokeToken() {
 		if (!selectedToken) return;
 
-		isRevoking = true;
+		_isRevoking = true;
 		try {
 			await apiClient.revokeToken(selectedToken.id);
 			toast.success('토큰이 취소되었습니다.');
@@ -138,7 +138,7 @@
 			console.error('Failed to revoke token:', error);
 			toast.error('토큰 취소에 실패했습니다.');
 		} finally {
-			isRevoking = false;
+			_isRevoking = false;
 		}
 	}
 
@@ -146,7 +146,7 @@
 		if (!selectedTokenType) return;
 
 		const tokenTypeName = selectedTokenType === TOKEN_TYPES.LOGIN ? '로그인' : 'OAuth2';
-		isRevoking = true;
+		_isRevoking = true;
 
 		try {
 			await apiClient.revokeAllTokensForType(selectedTokenType);
@@ -166,7 +166,7 @@
 			console.error('Failed to revoke tokens:', error);
 			toast.error(`${tokenTypeName} 토큰 취소에 실패했습니다.`);
 		} finally {
-			isRevoking = false;
+			_isRevoking = false;
 		}
 	}
 

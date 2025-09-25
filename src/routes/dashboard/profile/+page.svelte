@@ -14,6 +14,7 @@
 	import { goto } from '$app/navigation';
 	import type { User } from '$lib';
 	import type { TwoFactorState } from '$lib/stores/2fa';
+	import { env } from '$lib/config/env';
 
 	let user = $state<User | null>(null);
 	let _isLoading = $state(true);
@@ -50,6 +51,15 @@
 	let isUpdating = $state(false);
 	let isChangingPassword = $state(false);
 
+	// 아바타 업로드
+	let selectedAvatarFile = $state<File | null>(null);
+	let avatarPreview = $state<string | null>(null);
+	let isUploadingAvatar = $state(false);
+	let isRemovingAvatar = $state(false);
+
+	// 아바타 제거 확인 모달
+	let showRemoveAvatarDialog = $state(false);
+
 	// 2FA 비활성화
 	let showDisableTwoFactorDialog = $state(false);
 	let disableTwoFactorForm = $state({
@@ -85,6 +95,13 @@
 				user = state.user;
 				resetEditForm();
 			}
+
+			// 디버깅: 프로필 페이지 사용자 정보 로깅
+			console.log('Profile: authState updated', {
+				user: state.user,
+				avatar: state.user?.avatar,
+				isAuthenticated: state.isAuthenticated
+			});
 		});
 
 		return () => {
@@ -189,6 +206,112 @@
 				message: '사용자명 확인에 실패했습니다.'
 			};
 		}
+	}
+
+	function handleAvatarFileSelect(event: Event) {
+		const target = event.target as HTMLInputElement;
+		const file = target.files?.[0];
+
+		if (file) {
+			// 파일 유효성 검사
+			if (!file.type.startsWith('image/')) {
+				toast.error('이미지 파일만 업로드할 수 있습니다.');
+				return;
+			}
+
+			if (file.size > 1 * 1024 * 1024) {
+				// 1MB
+				toast.error('파일 크기는 1MB 이하여야 합니다.');
+				return;
+			}
+
+			selectedAvatarFile = file;
+
+			// 미리보기 생성
+			const reader = new FileReader();
+			reader.onload = (e) => {
+				avatarPreview = e.target?.result as string;
+			};
+			reader.readAsDataURL(file);
+		}
+	}
+
+	async function uploadAvatar() {
+		if (!selectedAvatarFile) {
+			toast.error('업로드할 파일을 선택해주세요.');
+			return;
+		}
+
+		try {
+			isUploadingAvatar = true;
+
+			const formData = new FormData();
+			formData.append('avatar', selectedAvatarFile);
+
+			const response = await apiClient.uploadAvatar(formData);
+
+			// 사용자 정보 업데이트
+			if (user) {
+				user.avatar = response.avatarUrl;
+			}
+
+			toast.success('아바타가 성공적으로 업로드되었습니다.');
+
+			// 폼 초기화
+			selectedAvatarFile = null;
+			avatarPreview = null;
+			const fileInput = document.getElementById('avatar-input') as HTMLInputElement;
+			if (fileInput) {
+				fileInput.value = '';
+			}
+
+			// 프로필 다시 로드하여 캐시 업데이트
+			await loadProfile();
+		} catch (error) {
+			console.error('Avatar upload failed:', error);
+			toast.error('아바타 업로드에 실패했습니다.');
+		} finally {
+			isUploadingAvatar = false;
+		}
+	}
+
+	function cancelAvatarUpload() {
+		selectedAvatarFile = null;
+		avatarPreview = null;
+		const fileInput = document.getElementById('avatar-input') as HTMLInputElement;
+		if (fileInput) {
+			fileInput.value = '';
+		}
+	}
+
+	async function confirmRemoveAvatar() {
+		isRemovingAvatar = true;
+		try {
+			await apiClient.removeAvatar();
+
+			// 로컬 상태 업데이트
+			user.avatar = undefined;
+			authState.update((state) => ({
+				...state,
+				user: user ? { ...user, avatar: undefined } : null
+			}));
+
+			toast.success('아바타가 성공적으로 제거되었습니다.');
+			closeRemoveAvatarDialog();
+		} catch (error) {
+			console.error('Avatar removal failed:', error);
+			toast.error('아바타 제거에 실패했습니다.');
+		} finally {
+			isRemovingAvatar = false;
+		}
+	}
+
+	function openRemoveAvatarDialog() {
+		showRemoveAvatarDialog = true;
+	}
+
+	function closeRemoveAvatarDialog() {
+		showRemoveAvatarDialog = false;
 	}
 
 	function handleUsernameInput() {
@@ -361,6 +484,106 @@
 							<i class="fas fa-edit mr-2"></i>
 							{isEditing ? '취소' : '편집'}
 						</Button>
+					</div>
+
+					<!-- 아바타 섹션 -->
+					<div class="mb-6">
+						<h4 class="mb-3 block text-sm font-medium text-gray-700">프로필 사진</h4>
+						<div class="flex items-center space-x-4">
+							<!-- 현재 아바타 표시 -->
+							<div class="relative">
+								{#if avatarPreview}
+									<img
+										src={avatarPreview}
+										alt="아바타 미리보기"
+										class="h-20 w-20 rounded-full border-2 border-gray-200 object-cover"
+									/>
+								{:else if user.avatar}
+									<img
+										src={user.avatar.startsWith('http')
+											? user.avatar
+											: `${env.API_BASE_URL}${user.avatar}`}
+										alt="프로필 사진"
+										class="h-20 w-20 rounded-full border-2 border-gray-200 object-cover"
+									/>
+								{:else}
+									<div
+										class="flex h-20 w-20 items-center justify-center rounded-full border-2 border-gray-200 bg-gray-200"
+									>
+										<i class="fas fa-user text-2xl text-gray-400"></i>
+									</div>
+								{/if}
+							</div>
+
+							<!-- 파일 선택 및 업로드 버튼 -->
+							<div class="flex flex-col space-y-2">
+								<input
+									id="avatar-input"
+									type="file"
+									accept="image/*"
+									onchange={handleAvatarFileSelect}
+									class="hidden"
+								/>
+								<Button
+									variant="outline"
+									onclick={() => document.getElementById('avatar-input')?.click()}
+									disabled={isUploadingAvatar}
+									class="h-10"
+								>
+									<i class="fas fa-camera mr-2"></i>
+									사진 선택
+								</Button>
+
+								{#if user.avatar && !selectedAvatarFile && !avatarPreview}
+									<Button
+										variant="outline"
+										onclick={openRemoveAvatarDialog}
+										disabled={isRemovingAvatar}
+										class="h-10 text-red-600 hover:bg-red-50 hover:text-red-700"
+									>
+										{#if isRemovingAvatar}
+											<i class="fas fa-spinner fa-spin mr-2"></i>
+											제거 중...
+										{:else}
+											<i class="fas fa-trash mr-2"></i>
+											사진 제거
+										{/if}
+									</Button>
+								{/if}
+
+								{#if selectedAvatarFile || avatarPreview}
+									<div class="flex space-x-2">
+										<Button onclick={uploadAvatar} disabled={isUploadingAvatar} class="h-10">
+											{#if isUploadingAvatar}
+												<i class="fas fa-spinner fa-spin mr-2"></i>
+												업로드 중...
+											{:else}
+												<i class="fas fa-upload mr-2"></i>
+												업로드
+											{/if}
+										</Button>
+										<Button
+											variant="outline"
+											onclick={cancelAvatarUpload}
+											disabled={isUploadingAvatar}
+											class="h-10"
+										>
+											취소
+										</Button>
+									</div>
+								{/if}
+							</div>
+						</div>
+
+						{#if selectedAvatarFile}
+							<p class="mt-2 text-sm text-gray-600">
+								선택된 파일: {selectedAvatarFile.name} ({(
+									selectedAvatarFile.size /
+									1024 /
+									1024
+								).toFixed(2)} MB)
+							</p>
+						{/if}
 					</div>
 
 					{#if isEditing}
@@ -772,6 +995,69 @@
 							비활성화 중...
 						{:else}
 							비활성화
+						{/if}
+					</Button>
+				</div>
+			</div>
+		</div>
+	</div>
+{/if}
+
+<!-- 아바타 제거 확인 모달 -->
+{#if showRemoveAvatarDialog}
+	<div class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center">
+		<div class="modal-content scale-100 transform transition-all duration-300">
+			<div class="p-6">
+				<div class="mb-4">
+					<h3 class="text-lg font-medium text-gray-900">프로필 사진 제거</h3>
+					<p class="mt-2 text-sm text-gray-600">
+						정말로 프로필 사진을 제거하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+					</p>
+				</div>
+
+				<div class="mb-4 flex items-center space-x-3">
+					{#if user?.avatar}
+						<img
+							src={user.avatar.startsWith('http')
+								? user.avatar
+								: `${env.API_BASE_URL}${user.avatar}`}
+							alt="현재 프로필 사진"
+							class="h-12 w-12 rounded-full border border-gray-200 object-cover"
+						/>
+					{:else}
+						<div
+							class="flex h-12 w-12 items-center justify-center rounded-full border border-gray-200 bg-gray-200"
+						>
+							<i class="fas fa-user text-gray-400"></i>
+						</div>
+					{/if}
+					<div>
+						<p class="text-sm font-medium text-gray-900">현재 프로필 사진</p>
+						<p class="text-xs text-gray-500">제거 후 기본 아이콘으로 표시됩니다.</p>
+					</div>
+				</div>
+
+				<div class="flex justify-end space-x-3">
+					<Button
+						variant="outline"
+						onclick={closeRemoveAvatarDialog}
+						disabled={isRemovingAvatar}
+						class="px-4 py-2"
+					>
+						취소
+					</Button>
+					<Button
+						variant="danger"
+						onclick={confirmRemoveAvatar}
+						disabled={isRemovingAvatar}
+						class="px-4 py-2"
+					>
+						{#if isRemovingAvatar}
+							<i class="fas fa-spinner fa-spin mr-2"></i>
+							제거 중...
+						{:else}
+							<i class="fas fa-trash mr-2"></i>
+							사진 제거
 						{/if}
 					</Button>
 				</div>

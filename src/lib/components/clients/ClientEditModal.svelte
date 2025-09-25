@@ -126,7 +126,7 @@
 				<div>
 					<ScopeSelector
 						bind:selectedScopes
-						onScopeToggle={onScopeToggle}
+						{onScopeToggle}
 						error={editScopesError}
 						disabled={isUpdating}
 					/>
