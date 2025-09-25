@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { authState, authStore, Button } from '$lib';
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 	import type { User } from '$lib';
 	import { USER_TYPES, PERMISSIONS } from '$lib/types/user.types';
 	import { env } from '$lib/config/env';
-	import { TOKEN_STORAGE_KEYS } from '$lib/constants/app.constants';
 
 	// 프로필 메뉴 아이템 타입 정의
 	type ProfileMenuItem = {
@@ -33,7 +32,6 @@
 	let _isLoading = $state(true); // 초기 상태를 로딩 중으로 설정
 	let mobileMenuOpen = $state(false);
 	let profileDropdownOpen = $state(false);
-	let unsubscribe: (() => void) | null = null;
 	let initialAuthCheckDone = $state(false); // 초기 인증 확인 완료 여부
 
 	// authState를 reactive하게 연결 - Svelte 5 store subscribe 방식
@@ -43,7 +41,7 @@
 			isAuthenticated = state.isAuthenticated;
 			_isLoading = state.isLoading;
 			initialAuthCheckDone = true;
-			
+
 			console.log('Navigation: Auth state changed', {
 				user: state.user,
 				avatar: state.user?.avatar,
@@ -51,7 +49,7 @@
 				isInitialized: state.isInitialized
 			});
 		});
-		
+
 		return () => {
 			unsubscribeEffect();
 		};
@@ -83,10 +81,6 @@
 			document.removeEventListener('click', handleClickOutside);
 			document.removeEventListener('keydown', handleKeyDown);
 		};
-	});
-
-	onDestroy(() => {
-		// $effect에서 unsubscribe가 자동으로 처리됨
 	});
 
 	async function handleLogout() {
@@ -370,12 +364,20 @@
 							</div>
 						{:else}
 							<!-- 인증 상태 초기화 중: 프로필 배지 스켈레톤 -->
-							<div class="flex items-center space-x-2 rounded-full border border-gray-300 bg-white px-3 py-2 shadow-sm">
-								<div class="flex h-8 w-8 animate-pulse items-center justify-center rounded-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200">
+							<div
+								class="flex items-center space-x-2 rounded-full border border-gray-300 bg-white px-3 py-2 shadow-sm"
+							>
+								<div
+									class="flex h-8 w-8 animate-pulse items-center justify-center rounded-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
+								>
 									<div class="h-4 w-4 rounded-full bg-gray-300 opacity-60"></div>
 								</div>
-								<div class="hidden h-4 w-20 animate-pulse rounded bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 lg:block"></div>
-								<div class="h-3 w-3 animate-pulse rounded bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"></div>
+								<div
+									class="hidden h-4 w-20 animate-pulse rounded bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 lg:block"
+								></div>
+								<div
+									class="h-3 w-3 animate-pulse rounded bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
+								></div>
 							</div>
 						{/if}
 					{/if}
