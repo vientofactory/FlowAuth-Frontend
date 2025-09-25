@@ -1,0 +1,9 @@
+/* OAuth2 권한 부여 페이지 전용 스타일 */
+
+/* 모바일 최적화 */
+@media (max-width: 640px) {
+	/* 버튼 터치 타겟 개선 */
+	button {
+		min-height: 44px;
+	}
+}

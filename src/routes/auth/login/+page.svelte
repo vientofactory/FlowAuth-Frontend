@@ -9,6 +9,7 @@
 	import { page } from '$app/stores';
 	import { env } from '$lib/config/env';
 	import { load } from 'recaptcha-v3';
+	import './+page.css';
 
 	// 폼 검증 필드들
 	const emailField = useFieldValidation('', validators.email);
@@ -422,11 +423,4 @@
 	</div>
 </div>
 
-<style>
-	/* 로그인 페이지 전용 스타일만 유지 */
 
-	/* 배경 패턴 */
-	.bg-grid-slate-100 {
-		background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(148 163 184 / 0.1)'%3e%3cpath d='m0 .5h32m-32 32h32m-32-32v32m32-32v32'/%3e%3c/svg%3e");
-	}
-</style>

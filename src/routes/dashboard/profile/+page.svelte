@@ -15,6 +15,7 @@
 	import type { User } from '$lib';
 	import type { TwoFactorState } from '$lib/stores/2fa';
 	import { env } from '$lib/config/env';
+	import './+page.css';
 
 	let user = $state<User | null>(null);
 	let _isLoading = $state(true);
@@ -1066,70 +1067,4 @@
 	</div>
 {/if}
 
-<style>
-	/* 2FA 비활성화 모달 스타일 */
-	:global(.modal-backdrop) {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background-color: rgba(0, 0, 0, 0.6);
-		backdrop-filter: blur(4px);
-		-webkit-backdrop-filter: blur(4px);
-		z-index: 50;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 1rem;
-	}
 
-	:global(.modal-content) {
-		background: white;
-		border-radius: 12px;
-		box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-		border: 1px solid rgba(0, 0, 0, 0.1);
-		max-width: 28rem;
-		width: 100%;
-		max-height: 90vh;
-		overflow-y: auto;
-		transform: scale(1);
-		transition: transform 0.3s ease-out;
-	}
-
-	/* 입력 필드 포커스 스타일 개선 */
-	:global(.modal-input) {
-		width: 100%;
-		padding: 0.5rem 0.75rem;
-		border: 1px solid #d1d5db;
-		border-radius: 6px;
-		box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-		transition: all 0.2s ease-in-out;
-		font-size: 0.875rem;
-		line-height: 1.25rem;
-	}
-
-	:global(.modal-input:focus) {
-		border-color: #ef4444;
-		box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-		outline: none;
-	}
-
-	:global(.modal-input:disabled) {
-		background-color: #f9fafb;
-		cursor: not-allowed;
-		opacity: 0.7;
-	}
-
-	/* 반응형 디자인 */
-	@media (max-width: 640px) {
-		:global(.modal-backdrop) {
-			padding: 0.5rem;
-		}
-
-		:global(.modal-content) {
-			max-width: calc(100vw - 1rem);
-			margin: 0 auto;
-		}
-	}
-</style>

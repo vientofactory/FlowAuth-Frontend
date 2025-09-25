@@ -7,6 +7,7 @@
 	import { onMount } from 'svelte';
 	import { USER_TYPES } from '$lib/types/user.types';
 	import type { User } from '$lib';
+	import './+page.css';
 
 	let user: User | null = null;
 	let isAuthenticated = false;
@@ -108,7 +109,7 @@
 						class="mb-4 text-3xl leading-tight font-bold text-gray-900 sm:mb-6 sm:text-4xl md:text-5xl lg:text-6xl"
 					>
 						안녕하세요, <span
-							class="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent"
+							class="bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent"
 							>{user?.firstName}</span
 						>님!
 					</h2>
@@ -155,7 +156,7 @@
 						class="mb-4 text-3xl leading-tight font-bold text-gray-900 sm:mb-6 sm:text-4xl md:text-5xl lg:text-6xl"
 					>
 						환영합니다, <span
-							class="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent"
+							class="bg-gradient-to-r from-violet-600 to-blue-600 bg-clip-text text-transparent"
 							>{user?.firstName}</span
 						>님!
 					</h2>
@@ -889,99 +890,4 @@
 		<!-- 푸터 -->
 		<Footer />
 	</div>
-
-	<style>
-		/* 홈페이지 전용 스타일만 유지 */
-		.animate-on-scroll {
-			animation: slide-up 0.8s ease-out;
-		}
-
-		/* 그라데이션 텍스트 효과 */
-		.bg-clip-text {
-			-webkit-background-clip: text;
-			background-clip: text;
-			-webkit-text-fill-color: transparent;
-		}
-
-		/* 백드롭 블러 효과 */
-		.backdrop-blur-md {
-			backdrop-filter: blur(12px);
-		}
-
-		.bg-white\/80 {
-			background-color: rgba(255, 255, 255, 0.8);
-		}
-
-		.bg-white\/60 {
-			background-color: rgba(255, 255, 255, 0.6);
-		}
-
-		/* 반응형 개선을 위한 추가 스타일 */
-		@media (max-width: 640px) {
-			/* 모바일에서 텍스트 크기 조정 */
-			.text-3xl {
-				font-size: 1.75rem;
-				line-height: 2rem;
-			}
-
-			/* 모바일에서 카드 간격 조정 */
-			.gap-6 {
-				gap: 1rem;
-			}
-
-			/* 모바일에서 섹션 마진 조정 */
-			.mb-12 {
-				margin-bottom: 2rem;
-			}
-
-			.mb-8 {
-				margin-bottom: 1.5rem;
-			}
-		}
-
-		@media (min-width: 641px) and (max-width: 1023px) {
-			/* 태블릿에서 그리드 조정 */
-			.sm\\:grid-cols-2 {
-				grid-template-columns: repeat(2, minmax(0, 1fr));
-			}
-		}
-
-		@media (min-width: 1024px) {
-			/* 데스크톱에서 더 큰 그리드 */
-			.lg\\:grid-cols-3 {
-				grid-template-columns: repeat(3, minmax(0, 1fr));
-			}
-		}
-
-		@media (min-width: 1280px) {
-			/* 초대형 화면에서 4열 그리드 */
-			.xl\\:grid-cols-4 {
-				grid-template-columns: repeat(4, minmax(0, 1fr));
-			}
-		}
-
-		/* 터치 디바이스 최적화 */
-		@media (hover: none) and (pointer: coarse) {
-			/* 터치 디바이스에서 호버 효과 제거 */
-			.group:hover .group-hover\\:scale-110 {
-				transform: scale(1);
-			}
-
-			.hover\\:-translate-y-1:hover {
-				transform: translateY(0);
-			}
-
-			.hover\\:-translate-y-2:hover {
-				transform: translateY(0);
-			}
-		}
-
-		/* 고해상도 디스플레이 지원 */
-		@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-			/* 고해상도에서 더 부드러운 효과 */
-			.backdrop-blur-md {
-				backdrop-filter: blur(16px);
-			}
-		}
-	</style>
 </div>
