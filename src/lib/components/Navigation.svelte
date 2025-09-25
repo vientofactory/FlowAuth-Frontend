@@ -87,7 +87,7 @@
 		profileDropdownOpen = false;
 		try {
 			await authStore.logout();
-			// 로그아웃 성공 후 리다이렉션은 authStore에서 처리됨
+			location.href = '/';
 		} catch (error) {
 			console.error('Logout failed:', error);
 			// 로그아웃 실패 시에도 클라이언트 측 정리

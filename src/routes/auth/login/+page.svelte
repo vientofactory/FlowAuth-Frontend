@@ -96,13 +96,32 @@
 				goto(ROUTES.DASHBOARD);
 			}
 		} catch (err) {
+			console.log('=== LOGIN ERROR DEBUG ===');
 			console.log('Login error:', err);
-			console.log('Error message:', err instanceof Error ? err.message : 'Unknown error');
-			console.log('Error details:', err);
+			console.log('Error type:', typeof err);
+			console.log('Error instanceof Error:', err instanceof Error);
+			if (err instanceof Error) {
+				console.log('Error message:', err.message);
+				console.log('Error name:', err.name);
+				console.log('Error stack:', err.stack);
+			}
+			console.log('Full error object:', err);
+			console.log('Error has status:', 'status' in err);
+			if ('status' in err) {
+				console.log('Error status:', (err as any).status);
+			}
+			console.log('=== END LOGIN ERROR DEBUG ===');
 
 			// 2FA가 필요한 경우 처리
-			if (err instanceof Error && err.message.includes('2FA')) {
+			if (err instanceof Error && (
+				err.message.includes('2FA') ||
+				err.message.includes('2FA_REQUIRED') ||
+				err.message === '2FA_REQUIRED' ||
+				err.message.toLowerCase().includes('two') && err.message.toLowerCase().includes('factor')
+			)) {
 				console.log('2FA required detected, showing 2FA UI');
+				console.log('2FA error message:', err.message);
+				console.log('Full error object:', err);
 				requiresTwoFactor = true;
 				toast.info('2단계 인증이 필요합니다. 인증 앱에서 토큰을 확인해주세요.');
 			} else {
@@ -118,15 +137,21 @@
 	async function handleTwoFactorSubmit(event: SubmitEvent) {
 		event.preventDefault();
 
+		console.log('2FA submit attempt, mode:', twoFactorMode);
+		console.log('Token value:', twoFactorTokenField.value);
+		console.log('Backup code value:', backupCodeField.value);
+
 		if (twoFactorMode === 'token') {
 			// 토큰 검증
 			if (!twoFactorTokenField.validate()) {
+				console.log('2FA token validation failed');
 				toast.warning('2FA 토큰을 확인해주세요.');
 				return;
 			}
 		} else {
 			// 백업 코드 검증
 			if (!backupCodeField.validate()) {
+				console.log('Backup code validation failed');
 				toast.warning('백업 코드를 확인해주세요.');
 				return;
 			}
@@ -137,19 +162,24 @@
 		isTwoFactorLoading = true;
 
 		try {
+			console.log('Calling 2FA verification API...');
 			if (twoFactorMode === 'token') {
 				await authStore.verifyTwoFactorLogin(emailField.value, twoFactorTokenField.value);
 			} else {
 				await authStore.verifyBackupCodeLogin(emailField.value, backupCodeField.value);
 			}
 
+			console.log('2FA verification successful, redirecting...');
 			// 성공 시 리다이렉트
 			if (returnUrl) {
+				console.log('Redirecting to returnUrl:', returnUrl);
 				window.location.href = returnUrl;
 			} else {
+				console.log('Redirecting to dashboard');
 				goto(ROUTES.DASHBOARD);
 			}
 		} catch (err) {
+			console.log('2FA verification failed:', err);
 			const errorMessage =
 				err instanceof Error
 					? err.message

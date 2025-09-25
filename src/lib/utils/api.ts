@@ -15,9 +15,13 @@ import type {
 } from '$lib/types/2fa.types';
 
 export interface ApiError {
-	message: string;
+	message?: string;
 	status?: number;
 	code?: string;
+	error?: string;
+	error_description?: string;
+	timestamp?: string;
+	path?: string;
 }
 
 export interface CreateClientData {
@@ -73,6 +77,34 @@ class ApiClient {
 
 			// Handle token expiration
 			if (response.status === 401) {
+				console.log('API Client: 401 error detected');
+				console.log('API Client: skipAuthRedirect =', skipAuthRedirect);
+
+				// 로그인 시도인 경우 2FA가 필요한지 먼저 확인
+				if (skipAuthRedirect) {
+					try {
+						const clonedResponse = response.clone();
+						const errorData = await this.parseErrorResponse(clonedResponse);
+						console.log('API Client: Parsed error data:', errorData);
+						console.log('API Client: Error message:', errorData.message);
+						console.log('API Client: Error status:', errorData.status);
+
+						// 2FA가 필요한 경우 특별 처리
+						if (errorData.error_description === '2FA_REQUIRED') {
+							console.log('API Client: 2FA_REQUIRED detected in response');
+							// 2FA_REQUIRED 에러는 catch 밖으로 던져서 login 페이지에서 처리하도록 함
+							throw new Error('2FA_REQUIRED');
+						}
+					} catch (parseError) {
+						// 파싱 실패 시 일반적인 401 에러 처리로 진행
+						if (parseError instanceof Error && parseError.message === '2FA_REQUIRED') {
+							// 2FA_REQUIRED 에러는 다시 던짐
+							throw parseError;
+						}
+						console.log('API Client: Failed to parse error response for 2FA check:', parseError);
+					}
+				}
+
 				this.removeToken();
 
 				// 로그인 엔드포인트에서는 자동 리다이렉트하지 않음
@@ -80,15 +112,16 @@ class ApiClient {
 					window.location.href = ROUTES.LOGIN;
 				}
 
-				// 로그인 시도인 경우 원래 에러 메시지를 유지 (2FA_REQUIRED 등)
+				// 로그인 시도인 경우 원래 에러 메시지를 유지
 				if (skipAuthRedirect) {
 					const errorData = await this.parseErrorResponse(response);
-					throw this.createErrorFromResponse(errorData, response.status);
+					const error = this.createErrorFromResponse(errorData, response.status);
+					console.log('API Client: Created error:', error.message);
+					throw error;
 				} else {
 					throw new Error(MESSAGES.VALIDATION.AUTHENTICATION_REQUIRED);
 				}
 			}
-
 			if (!response.ok) {
 				const errorData = await this.parseErrorResponse(response);
 
@@ -142,7 +175,8 @@ class ApiClient {
 	}
 
 	private createErrorFromResponse(errorData: ApiError, status: number): Error {
-		const message = errorData.message || `HTTP ${status}`;
+		// 서버에서 보내는 실제 메시지를 우선 사용
+		const message = errorData.message || errorData.error_description || `HTTP ${status}`;
 
 		const error = new Error(message);
 		(error as Error & { status?: number; code?: string }).status = status;
@@ -337,6 +371,15 @@ class ApiClient {
 			}
 			return result;
 		} catch (error) {
+			console.log('API Client: Login error caught:', error);
+			console.log('API Client: Error type:', typeof error);
+			console.log('API Client: Error instanceof Error:', error instanceof Error);
+			if (error instanceof Error) {
+				console.log('API Client: Error message:', error.message);
+				console.log('API Client: Error name:', error.name);
+			}
+			console.log('API Client: Full error object:', error);
+
 			// 2FA가 필요한 경우 특별 처리
 			if (error instanceof Error && error.message.includes('2FA_REQUIRED')) {
 				console.log('API Client: 2FA_REQUIRED error detected:', error.message);

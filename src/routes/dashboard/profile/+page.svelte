@@ -952,8 +952,8 @@
 
 <!-- 2FA 비활성화 확인 대화상자 -->
 {#if showDisableTwoFactorDialog}
-	<div class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center">
-		<div class="modal-content scale-100 transform transition-all duration-300">
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
+		<div class="bg-white rounded-lg shadow-xl border border-gray-200 max-w-md w-full max-h-[90vh] overflow-y-auto transform scale-100 transition-all duration-300">
 			<div class="p-6">
 				<div class="mb-4">
 					<h3 class="text-lg font-medium text-gray-900">2FA 비활성화</h3>
@@ -970,7 +970,7 @@
 						id="currentPassword"
 						type="password"
 						bind:value={disableTwoFactorForm.currentPassword}
-						class="modal-input w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm transition-colors duration-200 focus:border-red-500 focus:ring-2 focus:ring-red-500"
+						class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm transition-colors duration-200 focus:border-red-500 focus:ring-2 focus:ring-red-500"
 						placeholder="현재 비밀번호를 입력하세요"
 						disabled={isDisablingTwoFactor}
 					/>
@@ -1006,8 +1006,8 @@
 
 <!-- 아바타 제거 확인 모달 -->
 {#if showRemoveAvatarDialog}
-	<div class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center">
-		<div class="modal-content scale-100 transform transition-all duration-300">
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
+		<div class="bg-white rounded-lg shadow-xl border border-gray-200 max-w-md w-full max-h-[90vh] overflow-y-auto transform scale-100 transition-all duration-300">
 			<div class="p-6">
 				<div class="mb-4">
 					<h3 class="text-lg font-medium text-gray-900">프로필 사진 제거</h3>
