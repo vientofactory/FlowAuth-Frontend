@@ -23,7 +23,7 @@ export interface Token {
 	refreshExpiresAt?: string;
 	scopes?: string | string[];
 	userId: number;
-	clientId: number;
+	clientId?: number;
 	client?: {
 		name: string;
 		clientId: string;
