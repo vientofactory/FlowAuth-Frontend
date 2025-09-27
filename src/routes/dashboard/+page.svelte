@@ -11,6 +11,7 @@
 		PermissionUtils,
 		PERMISSIONS
 	} from '$lib';
+	import Chart from '$lib/components/Chart.svelte';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import type { User } from '$lib';
@@ -22,8 +23,30 @@
 	let dashboardStats = $state({
 		totalClients: 0,
 		activeTokens: 0,
+		totalTokensIssued: 0,
+		expiredTokens: 0,
+		revokedTokens: 0,
 		lastLoginDate: null as string | null,
-		accountCreated: null as string | null
+		accountCreated: null as string | null,
+		tokenIssuanceByHour: [] as Array<{ hour: string; count: number }>,
+		tokenIssuanceByDay: [] as Array<{ date: string; count: number }>,
+		clientUsageStats: [] as Array<{
+			clientName: string;
+			tokenCount: number;
+			percentage: number;
+		}>,
+		scopeUsageStats: [] as Array<{
+			scope: string;
+			count: number;
+			percentage: number;
+		}>,
+		tokenExpirationRate: 0,
+		averageTokenLifetime: 0,
+		insights: {
+			trends: '',
+			recommendations: '',
+			alerts: ''
+		}
 	});
 
 	// 사용자 유형별 대시보드 설정
@@ -205,6 +228,7 @@
 	// 탭 설정
 	const tabs = [
 		{ id: 'overview', label: '개요', icon: 'fas fa-tachometer-alt' },
+		{ id: 'analytics', label: '분석', icon: 'fas fa-chart-line' },
 		{ id: 'activity', label: '최근 활동', icon: 'fas fa-clock' },
 		{ id: 'quick-actions', label: '빠른 작업', icon: 'fas fa-bolt' }
 	];
@@ -449,92 +473,615 @@
 							</div>
 						</Card>
 					{/if}
+				</div>
+			{:else if activeTab === 'analytics'}
+				<!-- 분석 탭 -->
+				<div class="space-y-6">
+					<!-- 로딩 상태 -->
+					{#if !dashboardStats.totalClients && !dashboardStats.activeTokens}
+						<div class="flex items-center justify-center py-12">
+							<div class="text-center">
+								<div
+									class="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"
+								></div>
+								<p class="text-gray-600">통계 데이터를 불러오는 중...</p>
+							</div>
+						</div>
+					{:else}
+						<!-- 인사이트 카드 -->
+						<Card class="border-l-4 border-l-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50">
+							<div class="flex items-start space-x-4">
+								<div class="flex-shrink-0">
+									<div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+										<i class="fas fa-lightbulb text-xl text-blue-600"></i>
+									</div>
+								</div>
+								<div class="flex-1">
+									<h3 class="mb-3 text-lg font-semibold text-gray-900">인사이트 분석</h3>
+									<div class="grid gap-4 md:grid-cols-3">
+										{#if dashboardStats.insights.trends}
+											<div
+												class="flex items-start space-x-3 rounded-lg border border-blue-200 bg-white p-3"
+											>
+												<div
+													class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100"
+												>
+													<i class="fas fa-chart-line text-blue-600"></i>
+												</div>
+												<div class="min-w-0">
+													<p class="text-sm font-medium text-gray-900">트렌드 분석</p>
+													<p class="mt-1 text-sm text-gray-600">{dashboardStats.insights.trends}</p>
+												</div>
+											</div>
+										{/if}
+										{#if dashboardStats.insights.recommendations}
+											<div
+												class="flex items-start space-x-3 rounded-lg border border-green-200 bg-white p-3"
+											>
+												<div
+													class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-100"
+												>
+													<i class="fas fa-check-circle text-green-600"></i>
+												</div>
+												<div class="min-w-0">
+													<p class="text-sm font-medium text-gray-900">권장사항</p>
+													<p class="mt-1 text-sm text-gray-600">
+														{dashboardStats.insights.recommendations}
+													</p>
+												</div>
+											</div>
+										{/if}
+										{#if dashboardStats.insights.alerts}
+											<div
+												class="flex items-start space-x-3 rounded-lg border border-red-200 bg-white p-3"
+											>
+												<div
+													class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-red-100"
+												>
+													<i class="fas fa-exclamation-triangle text-red-600"></i>
+												</div>
+												<div class="min-w-0">
+													<p class="text-sm font-medium text-gray-900">주의사항</p>
+													<p class="mt-1 text-sm text-gray-600">{dashboardStats.insights.alerts}</p>
+												</div>
+											</div>
+										{/if}
+									</div>
+									{#if !dashboardStats.insights.trends && !dashboardStats.insights.recommendations && !dashboardStats.insights.alerts}
+										<div class="py-8 text-center text-gray-500">
+											<i class="fas fa-info-circle mb-2 text-3xl"></i>
+											<p>분석할 데이터가 충분하지 않습니다.</p>
+											<p class="mt-1 text-sm">더 많은 활동 후 다시 확인해주세요.</p>
+										</div>
+									{/if}
+								</div>
+							</div>
+						</Card>
 
-					<!-- 시스템 상태 -->
-					<Card>
-						<h3 class="mb-4 text-lg font-semibold text-gray-900">시스템 상태</h3>
-						{#if user?.userType === USER_TYPES.DEVELOPER}
-							<!-- 개발자용 상세 시스템 상태 -->
-							<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-								<div class="flex items-center space-x-3">
-									<div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
-										<i class="fas fa-check text-green-600"></i>
-									</div>
-									<div>
-										<p class="font-medium text-gray-900">API 서버</p>
-										<p class="text-sm text-gray-600">정상 작동 중</p>
-									</div>
+						<!-- 메인 차트 그리드 -->
+						<div class="grid gap-6 lg:grid-cols-2">
+							<!-- 시간별 토큰 발급 차트 -->
+							<Card class="transition-shadow duration-300 hover:shadow-lg">
+								<div class="mb-4 flex items-center justify-between">
+									<h3 class="text-lg font-semibold text-gray-900">
+										<i class="fas fa-clock mr-2 text-blue-600"></i>
+										24시간 토큰 발급 추이
+									</h3>
+									<Badge variant="info" size="sm">실시간</Badge>
 								</div>
-								<div class="flex items-center space-x-3">
-									<div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
-										<i class="fas fa-check text-green-600"></i>
+								{#if dashboardStats.tokenIssuanceByHour.some((h) => h.count > 0)}
+									<div class="h-80">
+										<Chart
+											type="line"
+											data={{
+												labels: dashboardStats.tokenIssuanceByHour.map((h) => h.hour),
+												datasets: [
+													{
+														label: '토큰 발급 수',
+														data: dashboardStats.tokenIssuanceByHour.map((h) => h.count),
+														borderColor: 'rgb(59, 130, 246)',
+														backgroundColor: 'rgba(59, 130, 246, 0.1)',
+														tension: 0.4,
+														fill: true,
+														pointBackgroundColor: 'rgb(59, 130, 246)',
+														pointBorderColor: '#ffffff',
+														pointBorderWidth: 2,
+														pointRadius: 4,
+														pointHoverRadius: 6
+													}
+												]
+											}}
+											options={{
+												responsive: true,
+												maintainAspectRatio: false,
+												scales: {
+													y: {
+														beginAtZero: true,
+														ticks: {
+															stepSize: 1,
+															font: {
+																size: 12
+															}
+														},
+														grid: {
+															color: 'rgba(0, 0, 0, 0.1)'
+														}
+													},
+													x: {
+														ticks: {
+															font: {
+																size: 11
+															}
+														},
+														grid: {
+															display: false
+														}
+													}
+												},
+												plugins: {
+													legend: {
+														display: false
+													},
+													tooltip: {
+														backgroundColor: 'rgba(0, 0, 0, 0.8)',
+														titleColor: '#ffffff',
+														bodyColor: '#ffffff',
+														cornerRadius: 8,
+														displayColors: false
+													}
+												},
+												interaction: {
+													intersect: false,
+													mode: 'index'
+												},
+												animation: {
+													duration: 1000,
+													easing: 'easeInOutQuart'
+												}
+											}}
+										/>
 									</div>
-									<div>
-										<p class="font-medium text-gray-900">데이터베이스</p>
-										<p class="text-sm text-gray-600">연결됨</p>
+								{:else}
+									<div
+										class="flex h-80 items-center justify-center rounded-lg bg-gray-50 text-gray-500"
+									>
+										<div class="text-center">
+											<i class="fas fa-chart-line mb-3 text-4xl opacity-50"></i>
+											<p class="font-medium">최근 24시간 동안</p>
+											<p class="text-sm">토큰 발급 기록이 없습니다</p>
+										</div>
 									</div>
+								{/if}
+							</Card>
+
+							<!-- 일별 토큰 발급 차트 -->
+							<Card class="transition-shadow duration-300 hover:shadow-lg">
+								<div class="mb-4 flex items-center justify-between">
+									<h3 class="text-lg font-semibold text-gray-900">
+										<i class="fas fa-calendar mr-2 text-green-600"></i>
+										30일 토큰 발급 추이
+									</h3>
+									<Badge variant="success" size="sm">
+										{dashboardStats.tokenIssuanceByDay.filter((d) => d.count > 0).length}일 활동
+									</Badge>
 								</div>
-								<div class="flex items-center space-x-3">
-									<div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
-										<i class="fas fa-check text-green-600"></i>
+								{#if dashboardStats.tokenIssuanceByDay.some((d) => d.count > 0)}
+									<div class="h-80">
+										<Chart
+											type="bar"
+											data={{
+												labels: dashboardStats.tokenIssuanceByDay.map((d) => {
+													const date = new Date(d.date);
+													return date.toLocaleDateString('ko-KR', {
+														month: 'short',
+														day: 'numeric'
+													});
+												}),
+												datasets: [
+													{
+														label: '토큰 발급 수',
+														data: dashboardStats.tokenIssuanceByDay.map((d) => d.count),
+														backgroundColor: dashboardStats.tokenIssuanceByDay.map((d) =>
+															d.count > 0 ? 'rgba(34, 197, 94, 0.8)' : 'rgba(156, 163, 175, 0.3)'
+														),
+														borderColor: dashboardStats.tokenIssuanceByDay.map((d) =>
+															d.count > 0 ? 'rgb(34, 197, 94)' : 'rgb(156, 163, 175)'
+														),
+														borderWidth: 1,
+														borderRadius: 4,
+														borderSkipped: false
+													}
+												]
+											}}
+											options={{
+												responsive: true,
+												maintainAspectRatio: false,
+												scales: {
+													y: {
+														beginAtZero: true,
+														ticks: {
+															stepSize: 1,
+															font: {
+																size: 12
+															}
+														},
+														grid: {
+															color: 'rgba(0, 0, 0, 0.1)'
+														}
+													},
+													x: {
+														ticks: {
+															font: {
+																size: 10
+															},
+															maxRotation: 45
+														},
+														grid: {
+															display: false
+														}
+													}
+												},
+												plugins: {
+													legend: {
+														display: false
+													},
+													tooltip: {
+														backgroundColor: 'rgba(0, 0, 0, 0.8)',
+														titleColor: '#ffffff',
+														bodyColor: '#ffffff',
+														cornerRadius: 8,
+														displayColors: false,
+														callbacks: {
+															title: function (context) {
+																const date = new Date(
+																	dashboardStats.tokenIssuanceByDay[context[0].dataIndex].date
+																);
+																return date.toLocaleDateString('ko-KR', {
+																	year: 'numeric',
+																	month: 'long',
+																	day: 'numeric',
+																	weekday: 'long'
+																});
+															}
+														}
+													}
+												},
+												animation: {
+													duration: 1200,
+													easing: 'easeOutBounce'
+												}
+											}}
+										/>
 									</div>
-									<div>
-										<p class="font-medium text-gray-900">OAuth2 서비스</p>
-										<p class="text-sm text-gray-600">활성</p>
+								{:else}
+									<div
+										class="flex h-80 items-center justify-center rounded-lg bg-gray-50 text-gray-500"
+									>
+										<div class="text-center">
+											<i class="fas fa-chart-bar mb-3 text-4xl opacity-50"></i>
+											<p class="font-medium">최근 30일 동안</p>
+											<p class="text-sm">토큰 발급 기록이 없습니다</p>
+										</div>
 									</div>
+								{/if}
+							</Card>
+
+							<!-- 클라이언트별 사용량 차트 -->
+							<Card class="transition-shadow duration-300 hover:shadow-lg">
+								<div class="mb-4 flex items-center justify-between">
+									<h3 class="text-lg font-semibold text-gray-900">
+										<i class="fas fa-users mr-2 text-purple-600"></i>
+										클라이언트별 토큰 사용량
+									</h3>
+									<Badge variant="secondary" size="sm">
+										{dashboardStats.clientUsageStats.length}개 클라이언트
+									</Badge>
 								</div>
-								<div class="flex items-center space-x-3">
-									<div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
-										<i class="fas fa-info-circle text-blue-600"></i>
+								{#if dashboardStats.clientUsageStats.length > 0}
+									<div class="h-80">
+										<Chart
+											type="doughnut"
+											data={{
+												labels: dashboardStats.clientUsageStats.map((c) => c.clientName),
+												datasets: [
+													{
+														data: dashboardStats.clientUsageStats.map((c) => c.tokenCount),
+														backgroundColor: [
+															'rgba(59, 130, 246, 0.9)',
+															'rgba(34, 197, 94, 0.9)',
+															'rgba(168, 85, 247, 0.9)',
+															'rgba(251, 191, 36, 0.9)',
+															'rgba(239, 68, 68, 0.9)',
+															'rgba(6, 182, 212, 0.9)',
+															'rgba(236, 72, 153, 0.9)',
+															'rgba(139, 69, 19, 0.9)',
+															'rgba(107, 114, 128, 0.9)',
+															'rgba(5, 150, 105, 0.9)'
+														],
+														borderWidth: 3,
+														borderColor: '#ffffff',
+														hoverBorderWidth: 4,
+														hoverBorderColor: '#ffffff',
+														hoverOffset: 8
+													}
+												]
+											}}
+											options={{
+												responsive: true,
+												maintainAspectRatio: false,
+												plugins: {
+													legend: {
+														position: 'bottom',
+														labels: {
+															boxWidth: 12,
+															padding: 20,
+															font: {
+																size: 11
+															},
+															usePointStyle: true
+														}
+													},
+													tooltip: {
+														backgroundColor: 'rgba(0, 0, 0, 0.8)',
+														titleColor: '#ffffff',
+														bodyColor: '#ffffff',
+														cornerRadius: 8,
+														callbacks: {
+															label: function (context) {
+																const label = context.label || '';
+																const value = context.parsed;
+																const percentage =
+																	dashboardStats.clientUsageStats[context.dataIndex].percentage;
+																return `${label}: ${value}회 (${percentage.toFixed(1)}%)`;
+															}
+														}
+													}
+												},
+												animation: {
+													animateRotate: true,
+													animateScale: true,
+													duration: 1500,
+													easing: 'easeInOutQuart'
+												}
+											}}
+										/>
 									</div>
-									<div>
-										<p class="font-medium text-gray-900">활성 클라이언트</p>
-										<p class="text-sm text-gray-600">{dashboardStats.totalClients}개</p>
+								{:else}
+									<div
+										class="flex h-80 items-center justify-center rounded-lg bg-gray-50 text-gray-500"
+									>
+										<div class="text-center">
+											<i class="fas fa-chart-pie mb-3 text-4xl opacity-50"></i>
+											<p class="font-medium">등록된 클라이언트가</p>
+											<p class="text-sm">없거나 토큰 발급 기록이 없습니다</p>
+										</div>
 									</div>
+								{/if}
+							</Card>
+
+							<!-- 스코프별 사용량 차트 -->
+							<Card class="transition-shadow duration-300 hover:shadow-lg">
+								<div class="mb-4 flex items-center justify-between">
+									<h3 class="text-lg font-semibold text-gray-900">
+										<i class="fas fa-shield-alt mr-2 text-orange-600"></i>
+										스코프별 사용 통계
+									</h3>
+									<Badge variant="warning" size="sm">
+										{dashboardStats.scopeUsageStats.length}개 스코프
+									</Badge>
 								</div>
-								<div class="flex items-center space-x-3">
-									<div class="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100">
-										<i class="fas fa-key text-purple-600"></i>
+								{#if dashboardStats.scopeUsageStats.length > 0}
+									<div class="h-80 space-y-4 overflow-y-auto">
+										{#each dashboardStats.scopeUsageStats as scope, index (scope.scope)}
+											<div
+												class="flex items-center space-x-3 rounded-lg bg-gray-50 p-3 transition-colors hover:bg-gray-100"
+											>
+												<div
+													class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold"
+													style="background-color: {[
+														'rgba(59, 130, 246, 0.9)',
+														'rgba(168, 85, 247, 0.9)',
+														'rgba(34, 197, 94, 0.9)',
+														'rgba(251, 191, 36, 0.9)',
+														'rgba(239, 68, 68, 0.9)',
+														'rgba(6, 182, 212, 0.9)',
+														'rgba(236, 72, 153, 0.9)',
+														'rgba(139, 69, 19, 0.9)',
+														'rgba(107, 114, 128, 0.9)',
+														'rgba(5, 150, 105, 0.9)'
+													][index % 10]}; color: white;"
+												>
+													{index + 1}
+												</div>
+												<div class="min-w-0 flex-1">
+													<div class="mb-1 flex items-center justify-between">
+														<span class="truncate font-medium text-gray-900">{scope.scope}</span>
+														<div class="flex items-center space-x-2">
+															<Badge variant="secondary" size="sm">{scope.count}회</Badge>
+															<span class="text-sm font-medium text-gray-600"
+																>{scope.percentage}%</span
+															>
+														</div>
+													</div>
+													<div class="h-3 w-full rounded-full bg-gray-200">
+														<div
+															class="h-3 rounded-full bg-gradient-to-r from-orange-400 to-orange-600 transition-all duration-1000 ease-out"
+															style="width: {scope.percentage}%"
+														></div>
+													</div>
+												</div>
+											</div>
+										{/each}
 									</div>
-									<div>
-										<p class="font-medium text-gray-900">활성 토큰</p>
-										<p class="text-sm text-gray-600">{dashboardStats.activeTokens}개</p>
+								{:else}
+									<div
+										class="flex h-80 items-center justify-center rounded-lg bg-gray-50 text-gray-500"
+									>
+										<div class="text-center">
+											<i class="fas fa-shield-alt mb-3 text-4xl opacity-50"></i>
+											<p class="font-medium">사용된 스코프가</p>
+											<p class="text-sm">없거나 토큰 발급 기록이 없습니다</p>
+										</div>
 									</div>
+								{/if}
+							</Card>
+						</div>
+
+						<!-- 통계 요약 카드들 -->
+						<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+							<Card
+								class="border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 text-center transition-shadow hover:shadow-md"
+							>
+								<div class="p-4">
+									<div class="mb-3 flex items-center justify-center">
+										<i class="fas fa-key text-3xl text-blue-600"></i>
+									</div>
+									<p class="mb-1 text-3xl font-bold text-blue-900">
+										{dashboardStats.totalTokensIssued.toLocaleString()}
+									</p>
+									<p class="text-sm font-medium text-blue-700">총 토큰 발급</p>
+									<p class="mt-1 text-xs text-blue-600">누적 발급량</p>
 								</div>
-								<div class="flex items-center space-x-3">
-									<div class="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100">
-										<i class="fas fa-clock text-orange-600"></i>
+							</Card>
+
+							<Card
+								class="border-red-200 bg-gradient-to-br from-red-50 to-red-100 text-center transition-shadow hover:shadow-md"
+							>
+								<div class="p-4">
+									<div class="mb-3 flex items-center justify-center">
+										<i class="fas fa-clock text-3xl text-red-600"></i>
 									</div>
-									<div>
-										<p class="font-medium text-gray-900">마지막 업데이트</p>
-										<p class="text-sm text-gray-600">실시간</p>
+									<p class="mb-1 text-3xl font-bold text-red-900">
+										{dashboardStats.expiredTokens.toLocaleString()}
+									</p>
+									<p class="text-sm font-medium text-red-700">만료된 토큰</p>
+									<p class="mt-1 text-xs text-red-600">
+										{dashboardStats.tokenExpirationRate.toFixed(1)}% 만료율
+									</p>
+								</div>
+							</Card>
+
+							<Card
+								class="border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100 text-center transition-shadow hover:shadow-md"
+							>
+								<div class="p-4">
+									<div class="mb-3 flex items-center justify-center">
+										<i class="fas fa-ban text-3xl text-orange-600"></i>
+									</div>
+									<p class="mb-1 text-3xl font-bold text-orange-900">
+										{dashboardStats.revokedTokens.toLocaleString()}
+									</p>
+									<p class="text-sm font-medium text-orange-700">취소된 토큰</p>
+									<p class="mt-1 text-xs text-orange-600">보안 조치</p>
+								</div>
+							</Card>
+
+							<Card
+								class="border-green-200 bg-gradient-to-br from-green-50 to-green-100 text-center transition-shadow hover:shadow-md"
+							>
+								<div class="p-4">
+									<div class="mb-3 flex items-center justify-center">
+										<i class="fas fa-percentage text-3xl text-green-600"></i>
+									</div>
+									<p class="mb-1 text-3xl font-bold text-green-900">
+										{dashboardStats.tokenExpirationRate.toFixed(1)}%
+									</p>
+									<p class="text-sm font-medium text-green-700">만료율</p>
+									<p class="mt-1 text-xs text-green-600">전체 대비</p>
+								</div>
+							</Card>
+						</div>
+
+						<!-- 토큰 수명 분석 -->
+						<Card class="border-indigo-200 bg-gradient-to-r from-indigo-50 to-purple-50">
+							<div class="mb-6 flex items-center justify-between">
+								<h3 class="text-xl font-semibold text-gray-900">
+									<i class="fas fa-hourglass-half mr-2 text-indigo-600"></i>
+									토큰 수명 분석
+								</h3>
+								<div class="flex items-center space-x-2">
+									<Badge
+										variant={dashboardStats.averageTokenLifetime >= 168
+											? 'success'
+											: dashboardStats.averageTokenLifetime >= 24
+												? 'warning'
+												: 'info'}
+										size="sm"
+									>
+										{dashboardStats.averageTokenLifetime >= 168
+											? '장기'
+											: dashboardStats.averageTokenLifetime >= 24
+												? '중기'
+												: '단기'} 수명
+									</Badge>
+								</div>
+							</div>
+							<div class="grid gap-6 md:grid-cols-2">
+								<div class="rounded-xl border border-indigo-100 bg-white p-6 text-center shadow-sm">
+									<div
+										class="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100"
+									>
+										<i class="fas fa-stopwatch text-2xl text-indigo-600"></i>
+									</div>
+									<p class="mb-2 text-4xl font-bold text-indigo-900">
+										{dashboardStats.averageTokenLifetime.toFixed(1)}
+									</p>
+									<p class="text-lg font-medium text-indigo-700">평균 토큰 수명</p>
+									<p class="mt-1 text-sm text-indigo-600">시간 단위</p>
+								</div>
+								<div class="space-y-4">
+									<div class="rounded-xl border border-indigo-100 bg-white p-4 shadow-sm">
+										<div class="mb-2 flex items-center justify-between">
+											<span class="text-sm font-medium text-gray-700">수명 등급</span>
+											<span
+												class="text-sm font-bold {dashboardStats.averageTokenLifetime >= 168
+													? 'text-green-600'
+													: dashboardStats.averageTokenLifetime >= 24
+														? 'text-yellow-600'
+														: 'text-blue-600'}"
+											>
+												{dashboardStats.averageTokenLifetime >= 168
+													? '장기 (안전)'
+													: dashboardStats.averageTokenLifetime >= 24
+														? '중기 (보통)'
+														: '단기 (매우 안전)'}
+											</span>
+										</div>
+										<div class="h-3 w-full rounded-full bg-gray-200">
+											<div
+												class="h-3 rounded-full transition-all duration-1000 {dashboardStats.averageTokenLifetime >=
+												168
+													? 'bg-green-500'
+													: dashboardStats.averageTokenLifetime >= 24
+														? 'bg-yellow-500'
+														: 'bg-blue-500'}"
+												style="width: {Math.min(
+													(dashboardStats.averageTokenLifetime / 720) * 100,
+													100
+												)}%"
+											></div>
+										</div>
+										<p class="mt-2 text-xs text-gray-500">
+											기준: 30일 = 100%, 1일 = 3.5%, 1시간 = 0.15%
+										</p>
+									</div>
+									<div class="rounded-xl border border-indigo-100 bg-white p-4 shadow-sm">
+										<h4 class="mb-2 font-medium text-gray-900">보안 권장사항</h4>
+										<p class="text-sm text-gray-600">
+											{#if dashboardStats.averageTokenLifetime >= 168}
+												토큰 수명이 깁니다. 보안을 강화하려면 만료 시간을 단축하는 것을 고려하세요.
+											{:else if dashboardStats.averageTokenLifetime >= 24}
+												토큰 수명이 적절합니다. 현재 설정을 유지하는 것이 좋습니다.
+											{:else}
+												토큰 수명이 매우 짧습니다. 사용자 경험을 위해 만료 시간을 연장하는 것을
+												고려하세요.
+											{/if}
+										</p>
 									</div>
 								</div>
 							</div>
-						{:else}
-							<!-- 일반 사용자용 간단한 시스템 상태 -->
-							<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-								<div class="flex items-center space-x-3">
-									<div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
-										<i class="fas fa-check text-green-600"></i>
-									</div>
-									<div>
-										<p class="font-medium text-gray-900">서비스 상태</p>
-										<p class="text-sm text-gray-600">정상 작동 중</p>
-									</div>
-								</div>
-								<div class="flex items-center space-x-3">
-									<div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
-										<i class="fas fa-shield-alt text-green-600"></i>
-									</div>
-									<div>
-										<p class="font-medium text-gray-900">보안 상태</p>
-										<p class="text-sm text-gray-600">안전함</p>
-									</div>
-								</div>
-							</div>
-						{/if}
-					</Card>
+						</Card>
+					{/if}
 				</div>
 			{:else if activeTab === 'activity'}
 				<!-- 최근 활동 탭 -->

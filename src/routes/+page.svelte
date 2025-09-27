@@ -44,9 +44,43 @@
 			<!-- 히어로 섹션 -->
 			<div class="mb-12 text-center sm:mb-16 lg:mb-20">
 				{#if isLoading}
-					<!-- 로딩 상태 -->
-					<div class="flex items-center justify-center py-12">
-						<div class="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
+					<!-- 로딩 상태 - 히어로 영역 스켈레톤 -->
+					<div
+						class="mb-6 inline-flex animate-pulse items-center rounded-full bg-gray-200 px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm"
+					>
+						<div class="mr-1.5 h-1.5 w-1.5 rounded-full bg-gray-400 sm:mr-2 sm:h-2 sm:w-2"></div>
+						<div class="h-3 w-40 rounded bg-gray-400"></div>
+					</div>
+
+					<div
+						class="mb-4 animate-pulse text-3xl leading-tight font-bold sm:mb-6 sm:text-4xl md:text-5xl lg:text-6xl"
+					>
+						<div class="mb-2 h-8 rounded bg-gray-200"></div>
+						<div class="h-8 w-3/4 rounded bg-gray-200"></div>
+					</div>
+
+					<div
+						class="mx-auto mb-8 max-w-2xl animate-pulse text-base leading-relaxed sm:mb-10 sm:text-lg lg:text-xl"
+					>
+						<div class="mb-2 h-4 rounded bg-gray-200"></div>
+						<div class="h-4 w-5/6 rounded bg-gray-200"></div>
+					</div>
+
+					<div
+						class="mb-8 flex animate-pulse flex-col items-center justify-center gap-3 sm:mb-12 sm:flex-row sm:gap-4"
+					>
+						<div
+							class="flex h-12 w-full items-center justify-center rounded-lg bg-gray-200 px-6 py-3 text-base sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+						>
+							<div class="mr-2 h-4 w-4 rounded bg-gray-400"></div>
+							<div class="h-4 w-20 rounded bg-gray-400"></div>
+						</div>
+						<div
+							class="flex h-12 w-full items-center justify-center rounded-lg bg-gray-200 px-6 py-3 text-base sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+						>
+							<div class="mr-2 h-4 w-4 rounded bg-gray-400"></div>
+							<div class="h-4 w-16 rounded bg-gray-400"></div>
+						</div>
 					</div>
 				{:else if !isAuthenticated}
 					<!-- 비로그인 사용자용 히어로 -->

@@ -952,8 +952,10 @@
 
 <!-- 2FA 비활성화 확인 대화상자 -->
 {#if showDisableTwoFactorDialog}
-	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
-		<div class="bg-white rounded-lg shadow-xl border border-gray-200 max-w-md w-full max-h-[90vh] overflow-y-auto transform scale-100 transition-all duration-300">
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-md">
+		<div
+			class="max-h-[90vh] w-full max-w-md scale-100 transform overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-xl transition-all duration-300"
+		>
 			<div class="p-6">
 				<div class="mb-4">
 					<h3 class="text-lg font-medium text-gray-900">2FA 비활성화</h3>
@@ -1006,8 +1008,10 @@
 
 <!-- 아바타 제거 확인 모달 -->
 {#if showRemoveAvatarDialog}
-	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
-		<div class="bg-white rounded-lg shadow-xl border border-gray-200 max-w-md w-full max-h-[90vh] overflow-y-auto transform scale-100 transition-all duration-300">
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-md">
+		<div
+			class="max-h-[90vh] w-full max-w-md scale-100 transform overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-xl transition-all duration-300"
+		>
 			<div class="p-6">
 				<div class="mb-4">
 					<h3 class="text-lg font-medium text-gray-900">프로필 사진 제거</h3>
@@ -1066,5 +1070,3 @@
 		</div>
 	</div>
 {/if}
-
-

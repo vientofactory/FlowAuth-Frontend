@@ -108,17 +108,19 @@
 			console.log('Full error object:', err);
 			console.log('Error has status:', 'status' in err);
 			if ('status' in err) {
-				console.log('Error status:', (err as any).status);
+				console.log('Error status:', (err as { status?: number }).status);
 			}
 			console.log('=== END LOGIN ERROR DEBUG ===');
 
 			// 2FA가 필요한 경우 처리
-			if (err instanceof Error && (
-				err.message.includes('2FA') ||
-				err.message.includes('2FA_REQUIRED') ||
-				err.message === '2FA_REQUIRED' ||
-				err.message.toLowerCase().includes('two') && err.message.toLowerCase().includes('factor')
-			)) {
+			if (
+				err instanceof Error &&
+				(err.message.includes('2FA') ||
+					err.message.includes('2FA_REQUIRED') ||
+					err.message === '2FA_REQUIRED' ||
+					(err.message.toLowerCase().includes('two') &&
+						err.message.toLowerCase().includes('factor')))
+			) {
 				console.log('2FA required detected, showing 2FA UI');
 				console.log('2FA error message:', err.message);
 				console.log('Full error object:', err);
@@ -452,5 +454,3 @@
 		</Card>
 	</div>
 </div>
-
-
