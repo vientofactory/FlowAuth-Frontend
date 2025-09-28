@@ -290,6 +290,28 @@ class AuthStore {
 		}
 	}
 
+	// 프로필 새로고침
+	async refreshProfile() {
+		console.log('AuthStore: Refreshing profile...');
+		authState.update((state) => ({ ...state, isLoading: true }));
+
+		try {
+			const user = await apiClient.getProfile();
+			authState.update((state) => ({
+				...state,
+				user,
+				isAuthenticated: true,
+				isLoading: false
+			}));
+			console.log('AuthStore: Profile refreshed successfully');
+			return user;
+		} catch (error) {
+			console.log('AuthStore: Profile refresh failed:', error);
+			authState.update((state) => ({ ...state, isLoading: false }));
+			throw error;
+		}
+	}
+
 	// 현재 상태 가져오기 (내부용)
 	private async getCurrentState(): Promise<AuthState> {
 		return new Promise((resolve) => {

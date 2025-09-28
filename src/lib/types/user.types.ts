@@ -77,6 +77,7 @@ export interface User {
 	userType: USER_TYPES;
 	isEmailVerified: boolean;
 	isTwoFactorEnabled: boolean;
+	avatar?: string | null;
 	createdAt: string;
 	updatedAt: string;
 	lastLoginAt?: string;

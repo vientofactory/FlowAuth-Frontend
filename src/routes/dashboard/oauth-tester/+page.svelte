@@ -23,7 +23,7 @@
 	let copySuccess = $state(false);
 
 	// 스코프 관련 상태
-	let selectedScopes = $state<Set<string>>(new Set(['read:user', 'profile', 'email']));
+	let selectedScopes = $state<Set<string>>(new Set(['identify', 'email']));
 	let showScopeSelector = $state(false);
 	let availableScopes = $state<{ id: string; name: string; description: string }[]>([]);
 	let scopesLoading = $state(false);
@@ -94,18 +94,20 @@
 		try {
 			scopesLoading = true;
 			scopesError = null;
-			const response = await apiClient.getAvailableScopes();
-			availableScopes = response;
+			// 백엔드에서 스코프 목록을 가져오는 대신 프론트엔드에서 정의된 스코프 사용
+			availableScopes = [
+				{ id: 'identify', name: '계정 기본 정보', description: '사용자의 기본 계정 정보 읽기' },
+				{ id: 'email', name: '이메일 주소', description: '사용자의 이메일 주소 읽기' }
+			];
 		} catch (error) {
 			console.error('Failed to load available scopes:', error);
 			scopesError = '스코프 목록을 불러오는데 실패했습니다.';
 			toast.error('스코프 목록을 불러오는데 실패했습니다.');
 
-			// 오류 시 기본 스코프들로 폴백
+			// 오류 시에도 동일한 스코프들 사용
 			availableScopes = [
-				{ id: 'openid', name: 'OpenID', description: 'OpenID Connect 인증' },
-				{ id: 'profile', name: 'Profile', description: '사용자 프로필 정보' },
-				{ id: 'email', name: 'Email', description: '이메일 주소' }
+				{ id: 'identify', name: '계정 기본 정보', description: '사용자의 기본 계정 정보 읽기' },
+				{ id: 'email', name: '이메일 주소', description: '사용자의 이메일 주소 읽기' }
 			];
 		} finally {
 			scopesLoading = false;

@@ -76,7 +76,7 @@ export interface CreateUserDto {
 	firstName: string;
 	lastName: string;
 	userType?: string;
-	recaptchaToken?: string;
+	recaptchaToken: string;
 }
 
 // Stores

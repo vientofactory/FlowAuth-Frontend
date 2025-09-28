@@ -7,6 +7,8 @@
 	import { USER_TYPES } from '$lib/types/user.types';
 	import { authState } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
+	import { env } from '$lib/config/env';
+	import { load } from 'recaptcha-v3';
 	import {
 		validateClientName,
 		validateRedirectUri,
@@ -36,7 +38,7 @@
 		description: '',
 		redirectUris: '',
 		grants: ['authorization_code'],
-		scopes: 'read:user profile',
+		scopes: 'read:user',
 		logoUri: '',
 		termsOfServiceUri: '',
 		policyUri: ''
@@ -81,10 +83,17 @@
 	let termsOfServiceUriValue = $state('');
 	let policyUriValue = $state('');
 
+	let selectedScopes = $state<string[]>([]);
+	let editSelectedScopes = $state<string[]>([]);
+
 	// 로고 업로드 관련
 	let selectedLogoFile = $state<File | null>(null);
 	let logoPreviewUrl = $state<string | null>(null);
 	let logoCacheBuster = $state('');
+
+	// reCAPTCHA 관련
+	let recaptchaToken = $state('');
+	let recaptchaInstance: unknown = null;
 
 	// 폼 검증 상태 (등록 폼)
 	let clientNameError = $state('');
@@ -123,7 +132,7 @@
 
 	$effect(() => {
 		if (newClient.scopes !== undefined) {
-			scopesValue = newClient.scopes || 'read:user profile';
+			scopesValue = newClient.scopes || 'read:user';
 		}
 	});
 
@@ -162,7 +171,8 @@
 		clientNameValue = '';
 		clientDescriptionValue = '';
 		redirectUrisValue = '';
-		scopesValue = 'read:user profile';
+		scopesValue = 'read:user read:profile';
+		selectedScopes = ['read:user', 'read:profile'];
 		logoUriValue = '';
 		termsOfServiceUriValue = '';
 		policyUriValue = '';
@@ -380,6 +390,17 @@
 
 		loadClients();
 
+		// reCAPTCHA 초기화
+		if (env.RECAPTCHA_SITE_KEY) {
+			load(env.RECAPTCHA_SITE_KEY)
+				.then((instance) => {
+					recaptchaInstance = instance;
+				})
+				.catch((error) => {
+					console.error('reCAPTCHA 초기화 실패:', error);
+				});
+		}
+
 		// cleanup 함수 반환
 		return () => {
 			unsubscribe();
@@ -415,7 +436,8 @@
 		clientNameValue = '';
 		clientDescriptionValue = '';
 		redirectUrisValue = '';
-		scopesValue = 'read:user profile';
+		scopesValue = 'read:user read:profile';
+		selectedScopes = ['read:user', 'read:profile'];
 		logoUriValue = '';
 		termsOfServiceUriValue = '';
 		policyUriValue = '';
@@ -432,7 +454,7 @@
 			description: '',
 			redirectUris: '',
 			grants: ['authorization_code'],
-			scopes: 'read:user profile',
+			scopes: 'read:user',
 			logoUri: '',
 			termsOfServiceUri: '',
 			policyUri: ''
@@ -464,6 +486,25 @@
 		isCreating = true;
 
 		try {
+			// reCAPTCHA 검증 (필수)
+			if (!env.RECAPTCHA_SITE_KEY) {
+				toast.error('reCAPTCHA가 설정되지 않았습니다. 관리자에게 문의해주세요.');
+				isCreating = false;
+				return;
+			}
+			if (!recaptchaInstance) {
+				toast.error('reCAPTCHA가 초기화되지 않았습니다. 페이지를 새로고침해주세요.');
+				isCreating = false;
+				return;
+			}
+			try {
+				recaptchaToken = await recaptchaInstance.execute('createClient');
+			} catch {
+				toast.error('reCAPTCHA 검증에 실패했습니다. 다시 시도해주세요.');
+				isCreating = false;
+				return;
+			}
+
 			// 로고 파일이 선택된 경우 먼저 업로드
 			if (selectedLogoFile) {
 				try {
@@ -500,7 +541,8 @@
 				scopes,
 				logoUri: logoUriValue || undefined,
 				termsOfServiceUri: termsOfServiceUriValue || undefined,
-				policyUri: policyUriValue || undefined
+				policyUri: policyUriValue || undefined,
+				recaptchaToken: recaptchaToken || undefined
 			})) as { clientSecret: string };
 
 			createdClientSecret = response.clientSecret;
@@ -535,7 +577,8 @@
 		editClientName = client.name;
 		editClientDescription = client.description || '';
 		editRedirectUris = client.redirectUris.join('\n');
-		editScopes = client.scopes ? client.scopes.join(' ') : 'read write';
+		editScopes = client.scopes ? client.scopes.join(' ') : 'read:user read:profile';
+		editSelectedScopes = client.scopes || ['read:user', 'read:profile'];
 
 		// 로고 URI가 유효한 경우만 설정, 그렇지 않으면 빈 문자열
 		const originalLogoUri = client.logoUri;
@@ -820,6 +863,27 @@
 		clientToResetSecret = null;
 		newResetSecret = '';
 	}
+
+	// 스코프 토글 함수들
+	function handleScopeToggle(scope: string) {
+		if (selectedScopes.includes(scope)) {
+			selectedScopes = selectedScopes.filter((s) => s !== scope);
+		} else {
+			selectedScopes = [...selectedScopes, scope];
+		}
+		// scopesValue도 동기화
+		scopesValue = selectedScopes.join(' ');
+	}
+
+	function handleEditScopeToggle(scope: string) {
+		if (editSelectedScopes.includes(scope)) {
+			editSelectedScopes = editSelectedScopes.filter((s) => s !== scope);
+		} else {
+			editSelectedScopes = [...editSelectedScopes, scope];
+		}
+		// editScopes도 동기화
+		editScopes = editSelectedScopes.join(' ');
+	}
 </script>
 
 <DashboardLayout
@@ -866,6 +930,7 @@
 		bind:clientDescriptionValue
 		bind:redirectUrisValue
 		bind:scopesValue
+		bind:selectedScopes
 		bind:logoUriValue
 		bind:termsOfServiceUriValue
 		bind:policyUriValue
@@ -878,8 +943,10 @@
 		bind:selectedLogoFile
 		bind:logoPreviewUrl
 		cacheBuster={logoCacheBuster}
+		bind:recaptchaToken
 		onToggleCreateForm={toggleCreateForm}
 		onCreateClient={createClient}
+		onScopeToggle={handleScopeToggle}
 	/>
 
 	<ClientList
@@ -937,6 +1004,7 @@
 	bind:editClientDescription
 	bind:editRedirectUris
 	bind:editScopes
+	bind:selectedScopes={editSelectedScopes}
 	bind:editLogoUri
 	bind:editTermsOfServiceUri
 	bind:editPolicyUri
@@ -956,4 +1024,5 @@
 	}}
 	onUpdateClient={updateClient}
 	onRemoveClientLogo={removeClientLogo}
+	onScopeToggle={handleEditScopeToggle}
 />

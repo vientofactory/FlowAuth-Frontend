@@ -2,7 +2,7 @@
 
 FlowAuth의 프론트엔드 애플리케이션입니다. SvelteKit을 기반으로 모던하고 직관적인 OAuth2 관리 인터페이스를 제공합니다.
 
-## 🚀 기술 스택
+## 기술 스택
 
 - **Framework**: [SvelteKit](https://kit.svelte.dev/)
 - **Language**: TypeScript
@@ -13,13 +13,13 @@ FlowAuth의 프론트엔드 애플리케이션입니다. SvelteKit을 기반으�
 - **Linting**: ESLint
 - **Code Formatting**: Prettier
 
-## 📋 사전 요구사항
+## 사전 요구사항
 
 - Node.js (v18 이상)
 - npm 또는 yarn
 - 백엔드 서버 실행 중 (http://localhost:3000)
 
-## 🛠️ 빠른 시작
+## 빠른 시작
 
 ### 1. 의존성 설치
 
@@ -56,7 +56,7 @@ npm run build
 npm run preview
 ```
 
-## 📁 프로젝트 구조
+## 프로젝트 구조
 
 ```
 frontend/
@@ -109,9 +109,9 @@ frontend/
 └── package.json
 ```
 
-## 🎨 주요 기능
+## 주요 기능
 
-### 🔐 인증 시스템
+### 인증 시스템
 
 - **회원가입/로그인**: JWT 기반 사용자 인증
 - **프로필 관리**: 사용자 정보 조회 및 수정
@@ -124,7 +124,7 @@ frontend/
 - **토큰 관리**: 발급된 토큰 조회/취소
 - **OAuth2 테스터**: 개발자용 테스트 도구
 
-### 🔄 OAuth2 플로우
+### OAuth2 플로우
 
 - **인가 요청**: 사용자 권한 승인 인터페이스
 - **콜백 처리**: 토큰 교환 및 결과 표시
@@ -139,7 +139,7 @@ frontend/
 - **Table**: 데이터 테이블
 - **Toast**: 알림 메시지 시스템
 
-## 🧪 테스트 및 품질
+## 테스트 및 품질
 
 ### 코드 품질 검사
 
@@ -181,7 +181,7 @@ npm run lint          # 린팅
 npm run format        # 포맷팅
 ```
 
-## ⚙️ 환경별 설정
+## 환경별 설정
 
 ### 개발 환경
 
@@ -222,7 +222,7 @@ export class ApiClient {
 
 모바일 우선 접근 방식을 채택하여 모든 디바이스에서 최적의 경험을 제공합니다.
 
-## 🎨 디자인 시스템
+## 디자인 시스템
 
 ### 색상 팔레트
 
@@ -238,7 +238,7 @@ export class ApiClient {
 - 접근성 고려
 - 모던한 UI/UX
 
-## 🚀 배포
+## 배포
 
 ### Node.js 서버 배포
 
@@ -265,7 +265,7 @@ pm2 start build/index.js --name flowauth-frontend
 - **DigitalOcean App Platform**: Node.js 앱으로 배포
 - **PM2**: 프로세스 매니저를 통한 배포
 
-## 🔧 개발 환경 설정
+## 개발 환경 설정
 
 ### VS Code 추천 확장
 
@@ -281,7 +281,7 @@ pm2 start build/index.js --name flowauth-frontend
 - Safari (최신)
 - Edge (최신)
 
-## 🤝 기여하기
+## 기여하기
 
 1. 이 리포지토리를 포크하세요
 2. 기능 브랜치를 생성하세요 (`git checkout -b feature/AmazingFeature`)
@@ -295,6 +295,6 @@ pm2 start build/index.js --name flowauth-frontend
 - Prettier 자동 포맷팅
 - 의미 있는 커밋 메시지
 
-## 📄 라이선스
+## 라이선스
 
 이 프로젝트는 MIT 라이선스 하에 있습니다.

@@ -7,6 +7,7 @@
 	import { onMount } from 'svelte';
 	import { USER_TYPES } from '$lib/types/user.types';
 	import type { User } from '$lib';
+	import './+page.css';
 
 	let user: User | null = null;
 	let isAuthenticated = false;
@@ -43,9 +44,43 @@
 			<!-- 히어로 섹션 -->
 			<div class="mb-12 text-center sm:mb-16 lg:mb-20">
 				{#if isLoading}
-					<!-- 로딩 상태 -->
-					<div class="flex items-center justify-center py-12">
-						<div class="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
+					<!-- 로딩 상태 - 히어로 영역 스켈레톤 -->
+					<div
+						class="mb-6 inline-flex animate-pulse items-center rounded-full bg-gray-200 px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm"
+					>
+						<div class="mr-1.5 h-1.5 w-1.5 rounded-full bg-gray-400 sm:mr-2 sm:h-2 sm:w-2"></div>
+						<div class="h-3 w-40 rounded bg-gray-400"></div>
+					</div>
+
+					<div
+						class="mb-4 animate-pulse text-3xl leading-tight font-bold sm:mb-6 sm:text-4xl md:text-5xl lg:text-6xl"
+					>
+						<div class="mb-2 h-8 rounded bg-gray-200"></div>
+						<div class="h-8 w-3/4 rounded bg-gray-200"></div>
+					</div>
+
+					<div
+						class="mx-auto mb-8 max-w-2xl animate-pulse text-base leading-relaxed sm:mb-10 sm:text-lg lg:text-xl"
+					>
+						<div class="mb-2 h-4 rounded bg-gray-200"></div>
+						<div class="h-4 w-5/6 rounded bg-gray-200"></div>
+					</div>
+
+					<div
+						class="mb-8 flex animate-pulse flex-col items-center justify-center gap-3 sm:mb-12 sm:flex-row sm:gap-4"
+					>
+						<div
+							class="flex h-12 w-full items-center justify-center rounded-lg bg-gray-200 px-6 py-3 text-base sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+						>
+							<div class="mr-2 h-4 w-4 rounded bg-gray-400"></div>
+							<div class="h-4 w-20 rounded bg-gray-400"></div>
+						</div>
+						<div
+							class="flex h-12 w-full items-center justify-center rounded-lg bg-gray-200 px-6 py-3 text-base sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+						>
+							<div class="mr-2 h-4 w-4 rounded bg-gray-400"></div>
+							<div class="h-4 w-16 rounded bg-gray-400"></div>
+						</div>
 					</div>
 				{:else if !isAuthenticated}
 					<!-- 비로그인 사용자용 히어로 -->
@@ -108,7 +143,7 @@
 						class="mb-4 text-3xl leading-tight font-bold text-gray-900 sm:mb-6 sm:text-4xl md:text-5xl lg:text-6xl"
 					>
 						안녕하세요, <span
-							class="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent"
+							class="bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent"
 							>{user?.firstName}</span
 						>님!
 					</h2>
@@ -155,7 +190,7 @@
 						class="mb-4 text-3xl leading-tight font-bold text-gray-900 sm:mb-6 sm:text-4xl md:text-5xl lg:text-6xl"
 					>
 						환영합니다, <span
-							class="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent"
+							class="bg-gradient-to-r from-violet-600 to-blue-600 bg-clip-text text-transparent"
 							>{user?.firstName}</span
 						>님!
 					</h2>
@@ -889,99 +924,4 @@
 		<!-- 푸터 -->
 		<Footer />
 	</div>
-
-	<style>
-		/* 홈페이지 전용 스타일만 유지 */
-		.animate-on-scroll {
-			animation: slide-up 0.8s ease-out;
-		}
-
-		/* 그라데이션 텍스트 효과 */
-		.bg-clip-text {
-			-webkit-background-clip: text;
-			background-clip: text;
-			-webkit-text-fill-color: transparent;
-		}
-
-		/* 백드롭 블러 효과 */
-		.backdrop-blur-md {
-			backdrop-filter: blur(12px);
-		}
-
-		.bg-white\/80 {
-			background-color: rgba(255, 255, 255, 0.8);
-		}
-
-		.bg-white\/60 {
-			background-color: rgba(255, 255, 255, 0.6);
-		}
-
-		/* 반응형 개선을 위한 추가 스타일 */
-		@media (max-width: 640px) {
-			/* 모바일에서 텍스트 크기 조정 */
-			.text-3xl {
-				font-size: 1.75rem;
-				line-height: 2rem;
-			}
-
-			/* 모바일에서 카드 간격 조정 */
-			.gap-6 {
-				gap: 1rem;
-			}
-
-			/* 모바일에서 섹션 마진 조정 */
-			.mb-12 {
-				margin-bottom: 2rem;
-			}
-
-			.mb-8 {
-				margin-bottom: 1.5rem;
-			}
-		}
-
-		@media (min-width: 641px) and (max-width: 1023px) {
-			/* 태블릿에서 그리드 조정 */
-			.sm\\:grid-cols-2 {
-				grid-template-columns: repeat(2, minmax(0, 1fr));
-			}
-		}
-
-		@media (min-width: 1024px) {
-			/* 데스크톱에서 더 큰 그리드 */
-			.lg\\:grid-cols-3 {
-				grid-template-columns: repeat(3, minmax(0, 1fr));
-			}
-		}
-
-		@media (min-width: 1280px) {
-			/* 초대형 화면에서 4열 그리드 */
-			.xl\\:grid-cols-4 {
-				grid-template-columns: repeat(4, minmax(0, 1fr));
-			}
-		}
-
-		/* 터치 디바이스 최적화 */
-		@media (hover: none) and (pointer: coarse) {
-			/* 터치 디바이스에서 호버 효과 제거 */
-			.group:hover .group-hover\\:scale-110 {
-				transform: scale(1);
-			}
-
-			.hover\\:-translate-y-1:hover {
-				transform: translateY(0);
-			}
-
-			.hover\\:-translate-y-2:hover {
-				transform: translateY(0);
-			}
-		}
-
-		/* 고해상도 디스플레이 지원 */
-		@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-			/* 고해상도에서 더 부드러운 효과 */
-			.backdrop-blur-md {
-				backdrop-filter: blur(16px);
-			}
-		}
-	</style>
 </div>

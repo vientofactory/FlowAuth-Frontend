@@ -60,8 +60,7 @@
 {#if open}
 	<!-- Backdrop overlay -->
 	<div
-		class="fixed inset-0 z-[60] transition-opacity"
-		style="background-color: rgba(0, 0, 0, 0.5);"
+		class="fixed inset-0 z-[60] bg-black/70 backdrop-blur-md transition-opacity"
 		onclick={handleBackdropClick}
 		role="presentation"
 	></div>

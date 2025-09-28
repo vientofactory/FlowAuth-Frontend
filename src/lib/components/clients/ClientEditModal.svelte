@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Modal, Button, LogoUpload } from '$lib';
+	import ScopeSelector from '$lib/components/ScopeSelector.svelte';
 	import type { Client } from '$lib/types/oauth.types';
 
 	interface Props {
@@ -9,6 +10,7 @@
 		editClientDescription: string;
 		editRedirectUris: string;
 		editScopes: string;
+		selectedScopes: string[];
 		editLogoUri: string;
 		editTermsOfServiceUri: string;
 		editPolicyUri: string;
@@ -25,6 +27,7 @@
 		onClose: () => void;
 		onUpdateClient: () => void;
 		onRemoveClientLogo?: () => void;
+		onScopeToggle: (scope: string) => void;
 	}
 
 	let {
@@ -34,6 +37,7 @@
 		editClientDescription = $bindable(),
 		editRedirectUris = $bindable(),
 		editScopes = $bindable(),
+		selectedScopes = $bindable([]),
 		editLogoUri = $bindable(),
 		editTermsOfServiceUri = $bindable(),
 		editPolicyUri = $bindable(),
@@ -49,7 +53,8 @@
 		logoCacheBuster = '',
 		onClose,
 		onUpdateClient,
-		onRemoveClientLogo
+		onRemoveClientLogo,
+		onScopeToggle
 	}: Props = $props();
 
 	function handleLogoFileSelect(file: File | null) {
@@ -119,20 +124,12 @@
 				</div>
 
 				<div>
-					<label for="editScopes" class="mb-1 block text-sm font-medium text-gray-700">
-						권한 범위
-					</label>
-					<input
-						id="editScopes"
-						bind:value={editScopes}
-						placeholder="read write"
-						class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-11"
+					<ScopeSelector
+						bind:selectedScopes
+						{onScopeToggle}
+						error={editScopesError}
+						disabled={isUpdating}
 					/>
-					{#if editScopesError}
-						<p class="mt-1 text-sm text-red-600">{editScopesError}</p>
-					{:else}
-						<p class="mt-1 text-xs text-gray-500">공백으로 구분하여 입력해주세요.</p>
-					{/if}
 				</div>
 
 				<div>

@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { Card, Button, Loading, LogoUpload } from '$lib';
+	import ScopeSelector from '$lib/components/ScopeSelector.svelte';
 	import { useToast } from '$lib';
+	import { onMount } from 'svelte';
+	import { env } from '$lib/config/env';
+	import { load } from 'recaptcha-v3';
 
 	interface Props {
 		showCreateForm: boolean;
@@ -9,6 +13,7 @@
 		clientDescriptionValue: string;
 		redirectUrisValue: string;
 		scopesValue: string;
+		selectedScopes: string[];
 		logoUriValue: string;
 		termsOfServiceUriValue: string;
 		policyUriValue: string;
@@ -21,8 +26,10 @@
 		selectedLogoFile: File | null;
 		logoPreviewUrl: string | null;
 		cacheBuster?: string;
+		recaptchaToken?: string;
 		onToggleCreateForm: () => void;
 		onCreateClient: () => void;
+		onScopeToggle: (scope: string) => void;
 	}
 
 	let {
@@ -32,6 +39,7 @@
 		clientDescriptionValue = $bindable(),
 		redirectUrisValue = $bindable(),
 		scopesValue = $bindable(),
+		selectedScopes = $bindable([]),
 		logoUriValue = $bindable(),
 		termsOfServiceUriValue = $bindable(),
 		policyUriValue = $bindable(),
@@ -44,11 +52,28 @@
 		selectedLogoFile = $bindable(),
 		logoPreviewUrl = $bindable(),
 		cacheBuster = '',
+		recaptchaToken = $bindable(''),
 		onToggleCreateForm,
-		onCreateClient
+		onCreateClient,
+		onScopeToggle
 	}: Props = $props();
 
 	const { success: _success } = useToast();
+
+	let _recaptchaInstance: unknown = null;
+
+	onMount(() => {
+		// reCAPTCHA 초기화
+		if (env.RECAPTCHA_SITE_KEY) {
+			load(env.RECAPTCHA_SITE_KEY)
+				.then((instance) => {
+					_recaptchaInstance = instance;
+				})
+				.catch((error) => {
+					console.error('reCAPTCHA 초기화 실패:', error);
+				});
+		}
+	});
 
 	function handleLogoFileSelect(file: File | null) {
 		selectedLogoFile = file;
@@ -118,21 +143,13 @@
 						{/if}
 					</div>
 
-					<div>
-						<label for="scopes" class="mb-1 block text-sm font-medium text-gray-700">
-							권한 범위
-						</label>
-						<input
-							id="scopes"
-							bind:value={scopesValue}
-							placeholder="read write"
-							class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-11"
+					<div class="sm:col-span-2">
+						<ScopeSelector
+							bind:selectedScopes
+							{onScopeToggle}
+							error={scopesError}
+							disabled={isCreating}
 						/>
-						{#if scopesError}
-							<p class="mt-1 text-sm text-red-600">{scopesError}</p>
-						{:else}
-							<p class="mt-1 text-xs text-gray-500">공백으로 구분하여 입력해주세요.</p>
-						{/if}
 					</div>
 
 					<div class="sm:col-span-2">

@@ -1,49 +1,10 @@
 // OAuth2 스코프 정의 (백엔드와 동기화)
 export const OAUTH2_SCOPES = {
-	// 사용자 관련
-	READ_USER: 'read:user',
-	WRITE_USER: 'write:user',
-	DELETE_USER: 'delete:user',
+	// 계정 기본 정보
+	IDENTIFY: 'identify',
 
-	// 프로필 관련
-	READ_PROFILE: 'read:profile',
-	WRITE_PROFILE: 'write:profile',
-
-	// 파일 관련
-	UPLOAD_FILE: 'upload:file',
-	READ_FILE: 'read:file',
-	DELETE_FILE: 'delete:file',
-
-	// 클라이언트 관련
-	READ_CLIENT: 'read:client',
-	WRITE_CLIENT: 'write:client',
-	DELETE_CLIENT: 'delete:client',
-
-	// 관리자 권한
-	ADMIN: 'admin',
-
-	// 기본 권한
-	BASIC: 'basic',
-
-	// OpenID Connect 표준 스코프 (레거시 호환성)
-	OPENID: 'openid',
-	PROFILE: 'profile',
-	EMAIL: 'email',
-
-	// 레거시 스코프
-	READ: 'read',
-	WRITE: 'write'
-} as const;
-
-// 스코프 카테고리
-export const SCOPE_CATEGORIES = {
-	USER: 'user',
-	PROFILE: 'profile',
-	FILE: 'file',
-	CLIENT: 'client',
-	ADMIN: 'admin',
-	OPENID: 'openid',
-	LEGACY: 'legacy'
+	// 이메일
+	EMAIL: 'email'
 } as const;
 
 // 타입 정의
@@ -53,7 +14,6 @@ export interface ScopeInfo {
 	icon: string;
 	color: string;
 	risk: string;
-	category: string;
 	sensitive: boolean;
 }
 
@@ -62,181 +22,22 @@ const VALID_SCOPES_SET: Set<string> = new Set(Object.values(OAUTH2_SCOPES));
 
 // 스코프별 메타데이터 매핑
 export const SCOPE_MAPPINGS: Record<string, ScopeInfo> = {
-	// 사용자 관련
-	[OAUTH2_SCOPES.READ_USER]: {
-		name: '사용자 기본 정보 읽기',
-		description: '앱이 귀하의 기본 사용자 정보(이름, ID 등)를 읽을 수 있습니다',
+	// 계정 기본 정보
+	[OAUTH2_SCOPES.IDENTIFY]: {
+		name: '계정 기본 정보 읽기',
+		description: '앱이 귀하의 기본 계정 정보(사용자 ID, 이름 등)를 읽을 수 있습니다',
 		icon: 'fa-user-circle',
 		color: 'blue',
 		risk: 'low',
-		category: SCOPE_CATEGORIES.USER,
 		sensitive: false
 	},
-	[OAUTH2_SCOPES.WRITE_USER]: {
-		name: '사용자 정보 수정',
-		description: '앱이 귀하의 사용자 정보를 수정할 수 있습니다',
-		icon: 'fa-user-edit',
-		color: 'orange',
-		risk: 'medium',
-		category: SCOPE_CATEGORIES.USER,
-		sensitive: true
-	},
-	[OAUTH2_SCOPES.DELETE_USER]: {
-		name: '사용자 삭제',
-		description: '앱이 귀하의 계정을 삭제할 수 있습니다',
-		icon: 'fa-user-times',
-		color: 'red',
-		risk: 'high',
-		category: SCOPE_CATEGORIES.USER,
-		sensitive: true
-	},
-
-	// 프로필 관련
-	[OAUTH2_SCOPES.READ_PROFILE]: {
-		name: '프로필 정보 읽기',
-		description: '앱이 귀하의 상세 프로필 정보를 읽을 수 있습니다',
-		icon: 'fa-id-card',
-		color: 'green',
-		risk: 'low',
-		category: SCOPE_CATEGORIES.PROFILE,
-		sensitive: false
-	},
-	[OAUTH2_SCOPES.WRITE_PROFILE]: {
-		name: '프로필 정보 수정',
-		description: '앱이 귀하의 프로필 정보를 수정할 수 있습니다',
-		icon: 'fa-edit',
-		color: 'orange',
-		risk: 'medium',
-		category: SCOPE_CATEGORIES.PROFILE,
-		sensitive: true
-	},
-
-	// 파일 관련
-	[OAUTH2_SCOPES.UPLOAD_FILE]: {
-		name: '파일 업로드',
-		description: '앱이 파일을 업로드할 수 있습니다',
-		icon: 'fa-upload',
-		color: 'purple',
-		risk: 'medium',
-		category: SCOPE_CATEGORIES.FILE,
-		sensitive: false
-	},
-	[OAUTH2_SCOPES.READ_FILE]: {
-		name: '파일 읽기',
-		description: '앱이 업로드된 파일을 읽을 수 있습니다',
-		icon: 'fa-file',
-		color: 'indigo',
-		risk: 'low',
-		category: SCOPE_CATEGORIES.FILE,
-		sensitive: false
-	},
-	[OAUTH2_SCOPES.DELETE_FILE]: {
-		name: '파일 삭제',
-		description: '앱이 업로드된 파일을 삭제할 수 있습니다',
-		icon: 'fa-trash',
-		color: 'red',
-		risk: 'high',
-		category: SCOPE_CATEGORIES.FILE,
-		sensitive: true
-	},
-
-	// 클라이언트 관련
-	[OAUTH2_SCOPES.READ_CLIENT]: {
-		name: '클라이언트 정보 읽기',
-		description: '앱이 OAuth2 클라이언트 정보를 읽을 수 있습니다',
-		icon: 'fa-cog',
-		color: 'cyan',
-		risk: 'low',
-		category: SCOPE_CATEGORIES.CLIENT,
-		sensitive: false
-	},
-	[OAUTH2_SCOPES.WRITE_CLIENT]: {
-		name: '클라이언트 생성/수정',
-		description: '앱이 새로운 OAuth2 클라이언트를 생성하거나 기존 클라이언트를 수정할 수 있습니다',
-		icon: 'fa-plus-circle',
-		color: 'orange',
-		risk: 'high',
-		category: SCOPE_CATEGORIES.CLIENT,
-		sensitive: true
-	},
-	[OAUTH2_SCOPES.DELETE_CLIENT]: {
-		name: '클라이언트 삭제',
-		description: '앱이 OAuth2 클라이언트를 삭제할 수 있습니다',
-		icon: 'fa-times-circle',
-		color: 'red',
-		risk: 'high',
-		category: SCOPE_CATEGORIES.CLIENT,
-		sensitive: true
-	},
-
-	// 관리자 권한
-	[OAUTH2_SCOPES.ADMIN]: {
-		name: '시스템 관리자 권한',
-		description: '앱이 시스템 전체에 대한 관리자 권한을 가집니다',
-		icon: 'fa-crown',
-		color: 'red',
-		risk: 'critical',
-		category: SCOPE_CATEGORIES.ADMIN,
-		sensitive: true
-	},
-
-	// 기본 권한
-	[OAUTH2_SCOPES.BASIC]: {
-		name: '기본 권한',
-		description: '앱이 기본적인 기능에 접근할 수 있습니다',
-		icon: 'fa-key',
-		color: 'gray',
-		risk: 'low',
-		category: SCOPE_CATEGORIES.USER,
-		sensitive: false
-	},
-
-	// OpenID Connect 표준 스코프
-	[OAUTH2_SCOPES.OPENID]: {
-		name: 'OpenID 인증',
-		description: 'OpenID Connect를 통한 인증이 가능합니다',
-		icon: 'fa-id-badge',
-		color: 'blue',
-		risk: 'low',
-		category: SCOPE_CATEGORIES.OPENID,
-		sensitive: false
-	},
-	[OAUTH2_SCOPES.PROFILE]: {
-		name: '기본 프로필',
-		description: '앱이 귀하의 기본 프로필 정보에 접근할 수 있습니다',
-		icon: 'fa-user',
-		color: 'green',
-		risk: 'low',
-		category: SCOPE_CATEGORIES.PROFILE,
-		sensitive: false
-	},
+	// 이메일
 	[OAUTH2_SCOPES.EMAIL]: {
-		name: '이메일 주소',
+		name: '이메일 주소 읽기',
 		description: '앱이 귀하의 이메일 주소를 읽을 수 있습니다',
 		icon: 'fa-envelope',
-		color: 'blue',
-		risk: 'low',
-		category: SCOPE_CATEGORIES.PROFILE,
-		sensitive: false
-	},
-
-	// 레거시 스코프
-	[OAUTH2_SCOPES.READ]: {
-		name: '읽기 권한 (레거시)',
-		description: '앱이 일반적인 읽기 권한을 가집니다 (레거시 스코프)',
-		icon: 'fa-book-open',
-		color: 'gray',
-		risk: 'low',
-		category: SCOPE_CATEGORIES.LEGACY,
-		sensitive: false
-	},
-	[OAUTH2_SCOPES.WRITE]: {
-		name: '쓰기 권한 (레거시)',
-		description: '앱이 일반적인 쓰기 권한을 가집니다 (레거시 스코프)',
-		icon: 'fa-pen',
 		color: 'orange',
 		risk: 'medium',
-		category: SCOPE_CATEGORIES.LEGACY,
 		sensitive: true
 	}
 };
@@ -262,100 +63,33 @@ export function getScopeInfo(scope: string): ScopeInfo {
 		icon: 'fa-key',
 		color: 'gray',
 		risk: 'unknown',
-		category: SCOPE_CATEGORIES.USER,
 		sensitive: false
 	};
 }
 
 /**
- * 스코프 배열을 카테고리별로 그룹화
- */
-export function groupScopesByCategory(scopes: string[]): Record<string, string[]> {
-	const groups: Record<string, string[]> = {};
-
-	scopes.forEach((scope) => {
-		const scopeInfo = getScopeInfo(scope);
-		const category = scopeInfo.category;
-
-		if (!groups[category]) {
-			groups[category] = [];
-		}
-		groups[category].push(scope);
-	});
-
-	return groups;
-}
-
-/**
  * 스코프 유효성 검증
  */
-export function validateScopes(scopes: string[]): { isValid: boolean; message?: string } {
-	if (!scopes || scopes.length === 0) {
-		return { isValid: false, message: '최소 하나의 권한 범위를 선택해주세요.' };
-	}
-
-	const invalidScopes = scopes.filter((scope) => !VALID_SCOPES_SET.has(scope));
-
-	if (invalidScopes.length > 0) {
-		return {
-			isValid: false,
-			message: `유효하지 않은 권한 범위: ${invalidScopes.join(', ')}`
-		};
-	}
-
-	return { isValid: true };
+export function isValidScope(scope: string): boolean {
+	return VALID_SCOPES_SET.has(scope);
 }
 
 /**
- * 스코프의 민감도 계산
+ * 여러 스코프의 유효성 검증
  */
-export function calculateScopeRisk(scopes: string[]): 'low' | 'medium' | 'high' | 'critical' {
-	let maxRisk: 'low' | 'medium' | 'high' | 'critical' = 'low';
+export function validateScopes(scopes: string[]): { valid: string[]; invalid: string[] } {
+	const valid: string[] = [];
+	const invalid: string[] = [];
 
 	scopes.forEach((scope) => {
-		const scopeInfo = getScopeInfo(scope);
-		const risk = scopeInfo.risk;
-
-		if (risk === 'critical') {
-			maxRisk = 'critical';
-		} else if (risk === 'high' && maxRisk !== 'critical') {
-			maxRisk = 'high';
-		} else if (risk === 'medium' && maxRisk !== 'critical' && maxRisk !== 'high') {
-			maxRisk = 'medium';
+		if (isValidScope(scope)) {
+			valid.push(scope);
+		} else {
+			invalid.push(scope);
 		}
 	});
 
-	return maxRisk;
-}
-
-/**
- * 민감한 스코프인지 확인
- */
-export function isSensitiveScope(scope: string): boolean {
-	const scopeInfo = getScopeInfo(scope);
-	return scopeInfo.sensitive;
-}
-
-/**
- * 민감한 스코프 필터링
- */
-export function filterSensitiveScopes(scopes: string[]): string[] {
-	return scopes.filter((scope) => isSensitiveScope(scope));
-}
-
-/**
- * 카테고리별 스코프 개수 반환
- */
-export function getScopeCategoryCounts(scopes: string[]): Record<string, number> {
-	const counts: Record<string, number> = {};
-
-	scopes.forEach((scope) => {
-		const scopeInfo = getScopeInfo(scope);
-		const category = scopeInfo.category;
-		counts[category] = (counts[category] || 0) + 1;
-	});
-
-	return counts;
+	return { valid, invalid };
 }
 
 /**
@@ -368,16 +102,8 @@ export function normalizeScopeFormat(scope: string): string {
 		return scope;
 	}
 
-	// 레거시 형식 변환
-	const legacyMappings: Record<string, string> = {
-		read: OAUTH2_SCOPES.READ,
-		write: OAUTH2_SCOPES.WRITE,
-		profile: OAUTH2_SCOPES.PROFILE,
-		email: OAUTH2_SCOPES.EMAIL,
-		openid: OAUTH2_SCOPES.OPENID,
-		admin: OAUTH2_SCOPES.ADMIN,
-		basic: OAUTH2_SCOPES.BASIC
-	};
+	// 레거시 형식 변환 (현재는 없음)
+	const legacyMappings: Record<string, string> = {};
 
 	return legacyMappings[scope] || scope;
 }
@@ -408,7 +134,7 @@ export function getScopeRiskText(risk: string): string {
 		case 'low':
 			return '낮음';
 		case 'medium':
-			return '보통';
+			return '중간';
 		case 'high':
 			return '높음';
 		case 'critical':

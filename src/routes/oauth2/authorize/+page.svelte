@@ -10,6 +10,7 @@
 	import type { PageData } from './$types';
 	import { env } from '$lib/config/env';
 	import { getScopeInfo } from '$lib/utils/scope.utils';
+	import './+page.css';
 
 	let { data }: { data: PageData } = $props();
 
@@ -403,13 +404,3 @@
 		</div>
 	</div>
 </div>
-
-<style>
-	/* 모바일 최적화 */
-	@media (max-width: 640px) {
-		/* 버튼 터치 타겟 개선 */
-		button {
-			min-height: 44px;
-		}
-	}
-</style>

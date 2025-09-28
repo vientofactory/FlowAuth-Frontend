@@ -60,14 +60,20 @@
 			return;
 		}
 
-		// reCAPTCHA 검증
-		if (env.RECAPTCHA_SITE_KEY && recaptchaInstance) {
-			try {
-				recaptchaToken = await recaptchaInstance.execute('register');
-			} catch {
-				toast.error('reCAPTCHA 검증에 실패했습니다. 다시 시도해주세요.');
-				return;
-			}
+		// reCAPTCHA 검증 (필수)
+		if (!env.RECAPTCHA_SITE_KEY) {
+			toast.error('reCAPTCHA가 설정되지 않았습니다. 관리자에게 문의해주세요.');
+			return;
+		}
+		if (!recaptchaInstance) {
+			toast.error('reCAPTCHA가 초기화되지 않았습니다. 페이지를 새로고침해주세요.');
+			return;
+		}
+		try {
+			recaptchaToken = await recaptchaInstance.execute('register');
+		} catch {
+			toast.error('reCAPTCHA 검증에 실패했습니다. 다시 시도해주세요.');
+			return;
 		}
 
 		isLoading = true;
@@ -80,7 +86,7 @@
 				firstName: firstNameField.value,
 				lastName: lastNameField.value,
 				userType,
-				recaptchaToken: recaptchaToken || undefined
+				recaptchaToken: recaptchaToken
 			};
 
 			await apiClient.register(userData);
@@ -367,7 +373,3 @@
 		</Card>
 	</div>
 </div>
-
-<style>
-	/* 회원가입 페이지 전용 스타일만 유지 */
-</style>

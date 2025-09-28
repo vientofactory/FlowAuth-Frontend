@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { authState, authStore, Button } from '$lib';
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 	import type { User } from '$lib';
 	import { USER_TYPES, PERMISSIONS } from '$lib/types/user.types';
+	import { env } from '$lib/config/env';
 
 	// 프로필 메뉴 아이템 타입 정의
 	type ProfileMenuItem = {
@@ -31,21 +32,31 @@
 	let _isLoading = $state(true); // 초기 상태를 로딩 중으로 설정
 	let mobileMenuOpen = $state(false);
 	let profileDropdownOpen = $state(false);
-	let unsubscribe: (() => void) | null = null;
 	let initialAuthCheckDone = $state(false); // 초기 인증 확인 완료 여부
 
-	onMount(() => {
-		// 초기 인증 상태를 localStorage에서 직접 확인
-		const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
-		const hasToken = !!(token && token.trim() !== '');
-		isAuthenticated = hasToken;
-		initialAuthCheckDone = true;
-
-		unsubscribe = authState.subscribe((state) => {
+	// authState를 reactive하게 연결 - Svelte 5 store subscribe 방식
+	$effect(() => {
+		const unsubscribeEffect = authState.subscribe((state) => {
 			user = state.user;
 			isAuthenticated = state.isAuthenticated;
 			_isLoading = state.isLoading;
+			initialAuthCheckDone = true;
+
+			console.log('Navigation: Auth state changed', {
+				user: state.user,
+				avatar: state.user?.avatar,
+				isAuthenticated: state.isAuthenticated,
+				isInitialized: state.isInitialized
+			});
 		});
+
+		return () => {
+			unsubscribeEffect();
+		};
+	});
+
+	onMount(() => {
+		console.log('Navigation: Component mounted');
 
 		// 드롭다운 외부 클릭 감지
 		const handleClickOutside = (event: MouseEvent) => {
@@ -72,17 +83,11 @@
 		};
 	});
 
-	onDestroy(() => {
-		if (unsubscribe) {
-			unsubscribe();
-		}
-	});
-
 	async function handleLogout() {
 		profileDropdownOpen = false;
 		try {
 			await authStore.logout();
-			// 로그아웃 성공 후 리다이렉션은 authStore에서 처리됨
+			location.href = '/';
 		} catch (error) {
 			console.error('Logout failed:', error);
 			// 로그아웃 실패 시에도 클라이언트 측 정리
@@ -254,75 +259,127 @@
 
 					<!-- 프로필 배지 -->
 					{#if showProfileBadge}
-						<div class="profile-dropdown relative">
-							<button
-								class="flex items-center space-x-2 rounded-full border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-								onclick={() => (profileDropdownOpen = !profileDropdownOpen)}
-							>
-								<div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
-									<span class="text-sm font-medium text-blue-800">
-										{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
-									</span>
-								</div>
-								<span class="hidden lg:block">{user?.firstName} {user?.lastName}</span>
-								<i class="fas fa-chevron-down text-xs"></i>
-							</button>
-
-							<!-- 프로필 드롭다운 메뉴 -->
-							{#if profileDropdownOpen}
-								<div
-									class="ring-opacity-5 animate-in fade-in slide-in-from-top-2 dropdown-shadow absolute right-0 z-50 mt-2 w-56 origin-top-right transform rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-200/50 transition-all duration-200 ease-out focus:outline-none"
+						{#if initialAuthCheckDone}
+							<div class="profile-dropdown relative">
+								<button
+									class="flex items-center space-x-2 rounded-full border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+									onclick={() => (profileDropdownOpen = !profileDropdownOpen)}
 								>
-									<div class="mb-1 border-b border-gray-100 px-4 py-3">
-										<p class="text-sm font-semibold text-gray-900">
-											{user?.firstName}
-											{user?.lastName}
-										</p>
-										<p class="mt-0.5 text-xs text-gray-500">{user?.email}</p>
-										{#if user?.userType}
-											<div class="mt-1">
-												<span
-													class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800"
-												>
-													{user.userType === USER_TYPES.DEVELOPER ? '개발자' : '일반 사용자'}
-												</span>
+									<!-- 프로필 사진 또는 이니셜 표시 -->
+									{#if user?.avatar}
+										<img
+											src={user.avatar.startsWith('http')
+												? user.avatar
+												: `${env.API_BASE_URL}${user.avatar}`}
+											alt="프로필 사진"
+											class="h-8 w-8 rounded-full border border-gray-200 object-cover"
+										/>
+									{:else}
+										<div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
+											<span class="text-sm font-medium text-blue-800">
+												{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+											</span>
+										</div>
+									{/if}
+									<span class="hidden lg:block">{user?.firstName} {user?.lastName}</span>
+									<i class="fas fa-chevron-down text-xs"></i>
+								</button>
+
+								<!-- 프로필 드롭다운 메뉴 -->
+								{#if profileDropdownOpen}
+									<div
+										class="ring-opacity-5 animate-in fade-in slide-in-from-top-2 dropdown-shadow absolute right-0 z-50 mt-2 w-56 origin-top-right transform rounded-lg bg-white py-2 shadow-xl ring-1 ring-gray-200/50 transition-all duration-200 ease-out focus:outline-none"
+									>
+										<div class="mb-1 border-b border-gray-100 px-4 py-3">
+											<div class="flex items-center space-x-3">
+												<!-- 프로필 사진 또는 이니셜 표시 -->
+												{#if user?.avatar}
+													<img
+														src={user.avatar.startsWith('http')
+															? user.avatar
+															: `${env.API_BASE_URL}${user.avatar}`}
+														alt="프로필 사진"
+														class="h-10 w-10 rounded-full border border-gray-200 object-cover"
+													/>
+												{:else}
+													<div
+														class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100"
+													>
+														<span class="text-sm font-medium text-blue-800">
+															{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+														</span>
+													</div>
+												{/if}
+												<div class="min-w-0 flex-1">
+													<p class="truncate text-sm font-semibold text-gray-900">
+														{user?.firstName}
+														{user?.lastName}
+													</p>
+													<p class="mt-0.5 truncate text-xs text-gray-500">{user?.email}</p>
+													{#if user?.userType}
+														<div class="mt-1">
+															<span
+																class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800"
+															>
+																{user.userType === USER_TYPES.DEVELOPER ? '개발자' : '일반 사용자'}
+															</span>
+														</div>
+													{/if}
+												</div>
 											</div>
-										{/if}
+										</div>
+										<div class="space-y-1">
+											{#each profileMenuItems as item (item.label)}
+												{#if item.href}
+													<a
+														href={item.href}
+														class="mx-1 flex items-center rounded-md px-4 py-2.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
+														onclick={() => (profileDropdownOpen = false)}
+													>
+														<i class="{item.icon} mr-3 w-4 text-center text-gray-400"></i>
+														{item.label}
+													</a>
+												{:else if item.action}
+													<button
+														onclick={() => {
+															item.action?.();
+															profileDropdownOpen = false;
+														}}
+														class="mx-1 flex w-full items-center rounded-md px-4 py-2.5 text-sm transition-colors duration-150 {item.danger
+															? 'text-red-600 hover:bg-red-50 hover:text-red-700'
+															: 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}"
+													>
+														<i
+															class="{item.icon} mr-3 w-4 text-center {item.danger
+																? ''
+																: 'text-gray-400'}"
+														></i>
+														{item.label}
+													</button>
+												{/if}
+											{/each}
+										</div>
 									</div>
-									<div class="space-y-1">
-										{#each profileMenuItems as item (item.label)}
-											{#if item.href}
-												<a
-													href={item.href}
-													class="mx-1 flex items-center rounded-md px-4 py-2.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
-													onclick={() => (profileDropdownOpen = false)}
-												>
-													<i class="{item.icon} mr-3 w-4 text-center text-gray-400"></i>
-													{item.label}
-												</a>
-											{:else if item.action}
-												<button
-													onclick={() => {
-														item.action?.();
-														profileDropdownOpen = false;
-													}}
-													class="mx-1 flex w-full items-center rounded-md px-4 py-2.5 text-sm transition-colors duration-150 {item.danger
-														? 'text-red-600 hover:bg-red-50 hover:text-red-700'
-														: 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}"
-												>
-													<i
-														class="{item.icon} mr-3 w-4 text-center {item.danger
-															? ''
-															: 'text-gray-400'}"
-													></i>
-													{item.label}
-												</button>
-											{/if}
-										{/each}
-									</div>
+								{/if}
+							</div>
+						{:else}
+							<!-- 인증 상태 초기화 중: 프로필 배지 스켈레톤 -->
+							<div
+								class="flex items-center space-x-2 rounded-full border border-gray-300 bg-white px-3 py-2 shadow-sm"
+							>
+								<div
+									class="flex h-8 w-8 animate-pulse items-center justify-center rounded-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
+								>
+									<div class="h-4 w-4 rounded-full bg-gray-300 opacity-60"></div>
 								</div>
-							{/if}
-						</div>
+								<div
+									class="hidden h-4 w-20 animate-pulse rounded bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 lg:block"
+								></div>
+								<div
+									class="h-3 w-3 animate-pulse rounded bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
+								></div>
+							</div>
+						{/if}
 					{/if}
 				{:else}
 					<!-- 비로그인 상태: 로그인/회원가입 버튼 -->
@@ -363,9 +420,20 @@
 							aria-expanded={profileDropdownOpen}
 							aria-label="프로필 메뉴"
 						>
-							<span class="text-sm font-medium">
-								{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
-							</span>
+							<!-- 모바일에서도 아바타 표시 -->
+							{#if user?.avatar}
+								<img
+									src={user.avatar.startsWith('http')
+										? user.avatar
+										: `${env.API_BASE_URL}${user.avatar}`}
+									alt="프로필 사진"
+									class="h-8 w-8 rounded-full border border-gray-200 object-cover"
+								/>
+							{:else}
+								<span class="text-sm font-medium">
+									{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+								</span>
+							{/if}
 						</button>
 
 						<!-- 모바일 프로필 드롭다운 메뉴 -->
