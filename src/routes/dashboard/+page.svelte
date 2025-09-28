@@ -20,6 +20,7 @@
 	let user = $state<User | null>(null);
 	let _isLoading = $state(true);
 	let isDashboardLoading = $state(false);
+	let isDashboardDataLoaded = $state(false);
 
 	let dashboardStats = $state({
 		totalClients: 0,
@@ -211,9 +212,9 @@
 	}
 
 	// 상대적 시간 표시
-	function getRelativeTime(dateString: string): string {
+	function getRelativeTime(dateInput: string | Date): string {
+		const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
 		const now = new Date();
-		const date = new Date(dateString);
 		const diffMs = now.getTime() - date.getTime();
 		const diffMins = Math.floor(diffMs / (1000 * 60));
 		const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
@@ -243,7 +244,7 @@
 			_isLoading = state.isLoading;
 
 			// authState 로딩이 끝나고 user가 있고 아직 대시보드 데이터를 로드하지 않은 경우에만 로드
-			if (!state.isLoading && user && !isDashboardLoading && !dashboardStats.accountCreated) {
+			if (!state.isLoading && user && !isDashboardLoading && !isDashboardDataLoaded) {
 				loadDashboardData().catch(console.error);
 			}
 
@@ -300,6 +301,7 @@
 			toast.error('대시보드 데이터를 불러오는데 실패했습니다.');
 		} finally {
 			isDashboardLoading = false;
+			isDashboardDataLoaded = true; // 데이터 로드 시도 완료 표시
 		}
 	}
 
@@ -861,8 +863,6 @@
 													}
 												},
 												animation: {
-													animateRotate: true,
-													animateScale: true,
 													duration: 1500,
 													easing: 'easeInOutQuart'
 												}
