@@ -19,6 +19,7 @@
 
 	let user = $state<User | null>(null);
 	let _isLoading = $state(true);
+	let isDashboardLoading = $state(false);
 
 	let dashboardStats = $state({
 		totalClients: 0,
@@ -241,19 +242,25 @@
 			user = state.user;
 			_isLoading = state.isLoading;
 
+			// authState 로딩이 끝나고 user가 있고 아직 대시보드 데이터를 로드하지 않은 경우에만 로드
+			if (!state.isLoading && user && !isDashboardLoading && !dashboardStats.accountCreated) {
+				loadDashboardData().catch(console.error);
+			}
+
 			// user가 로드되면 accountCreated 업데이트
 			if (user?.createdAt && dashboardStats.accountCreated !== user.createdAt) {
 				dashboardStats.accountCreated = user.createdAt;
 			}
 		});
 
-		// 대시보드 통계 로드
-		loadDashboardData().catch(console.error);
-
 		return unsubscribe;
 	});
 	async function loadDashboardData() {
+		if (isDashboardLoading) return; // 이미 로딩 중이면 중복 호출 방지
+
 		try {
+			isDashboardLoading = true;
+
 			// 실제 API 호출로 대시보드 통계 가져오기
 			const [stats, activities] = await Promise.all([
 				apiClient.getDashboardStats(),
@@ -273,10 +280,26 @@
 			dashboardStats = {
 				totalClients: 0,
 				activeTokens: 0,
+				totalTokensIssued: 0,
+				expiredTokens: 0,
+				revokedTokens: 0,
 				lastLoginDate: null,
-				accountCreated: user?.createdAt || null
+				accountCreated: user?.createdAt || null,
+				tokenIssuanceByHour: [],
+				tokenIssuanceByDay: [],
+				clientUsageStats: [],
+				scopeUsageStats: [],
+				tokenExpirationRate: 0,
+				averageTokenLifetime: 0,
+				insights: {
+					trends: '',
+					recommendations: '',
+					alerts: ''
+				}
 			};
 			toast.error('대시보드 데이터를 불러오는데 실패했습니다.');
+		} finally {
+			isDashboardLoading = false;
 		}
 	}
 
@@ -374,7 +397,7 @@
 	description={userTypeConfig?.description || 'OAuth2 인증 시스템을 관리하고 모니터링하세요.'}
 >
 	<!-- 통계 카드들 -->
-	{#if userTypeConfig}
+	{#if userTypeConfig && !isDashboardLoading}
 		<div class="mb-6 grid gap-4 {getGridColsClass(userTypeConfig.stats.length, 'stats')}">
 			{#each userTypeConfig.stats as stat, index (stat.label || `stat-${index}`)}
 				<Card
@@ -478,7 +501,7 @@
 				<!-- 분석 탭 -->
 				<div class="space-y-6">
 					<!-- 로딩 상태 -->
-					{#if !dashboardStats.totalClients && !dashboardStats.activeTokens}
+					{#if isDashboardLoading}
 						<div class="flex items-center justify-center py-12">
 							<div class="text-center">
 								<div
