@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getScopeInfo, groupScopesByCategory, SCOPE_CATEGORIES } from '$lib/utils/scope.utils';
+	import { getScopeInfo } from '$lib/utils/scope.utils';
 
 	interface Props {
 		selectedScopes: string[];
@@ -12,20 +12,9 @@
 
 	// 모든 스코프 목록
 	const allScopes = [
-		'read:user',
-		'read:profile',
-		'upload:file',
-		'read:file',
-		'delete:file',
-		'read:client',
-		'write:client',
-		'delete:client',
-		'basic',
+		'identify',
 		'email'
 	];
-
-	// 스코프를 카테고리별로 그룹화
-	let groupedScopes = $derived(groupScopesByCategory(allScopes));
 
 	// 스코프 아이콘 색상 클래스 가져오기 함수
 	function getScopeColorClasses(color: string) {
@@ -41,21 +30,6 @@
 		};
 
 		return colorMap[color as keyof typeof colorMap] || colorMap.gray;
-	}
-
-	// 카테고리 이름 매핑
-	function getCategoryName(category: string): string {
-		const categoryNames = {
-			[SCOPE_CATEGORIES.USER]: '사용자 권한',
-			[SCOPE_CATEGORIES.PROFILE]: '프로필 권한',
-			[SCOPE_CATEGORIES.FILE]: '파일 권한',
-			[SCOPE_CATEGORIES.CLIENT]: '클라이언트 권한',
-			[SCOPE_CATEGORIES.ADMIN]: '관리자 권한',
-			[SCOPE_CATEGORIES.OPENID]: 'OpenID Connect',
-			[SCOPE_CATEGORIES.LEGACY]: '레거시 권한'
-		};
-
-		return categoryNames[category as keyof typeof categoryNames] || category;
 	}
 
 	// 스코프가 선택되었는지 확인
@@ -102,60 +76,53 @@
 
 	<!-- 스코프 선택 영역 -->
 	<div id="scope-selector" class="max-h-64 overflow-y-auto rounded-md border border-gray-200">
-		{#each Object.entries(groupedScopes) as [category, scopes] (category)}
-			<div class="border-b border-gray-100 last:border-b-0">
-				<div class="bg-gray-50 px-3 py-2">
-					<h4 class="text-sm font-medium text-gray-900">{getCategoryName(category)}</h4>
-				</div>
-				<div class="p-3">
-					<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-						{#each scopes as scope (scope)}
-							{@const scopeInfo = getScopeInfo(scope)}
-							{@const isSelected = isScopeSelected(scope)}
-							<button
-								type="button"
-								onclick={() => handleScopeToggle(scope)}
-								{disabled}
-								class="flex items-center space-x-3 rounded-lg border p-3 text-left transition-all hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none {isSelected
-									? 'border-blue-300 bg-blue-50'
-									: 'border-gray-200'}"
+		<div class="p-3">
+			<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+				{#each allScopes as scope (scope)}
+					{@const scopeInfo = getScopeInfo(scope)}
+					{@const isSelected = isScopeSelected(scope)}
+					<button
+						type="button"
+						onclick={() => handleScopeToggle(scope)}
+						{disabled}
+						class="flex items-center space-x-3 rounded-lg border p-3 text-left transition-all hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none {isSelected
+							? 'border-blue-300 bg-blue-50'
+							: 'border-gray-200'}"
+					>
+						<div class="flex-shrink-0">
+							<div
+								class="flex h-8 w-8 items-center justify-center rounded-full {getScopeColorClasses(
+									scopeInfo.color
+								)}"
 							>
-								<div class="flex-shrink-0">
-									<div
-										class="flex h-8 w-8 items-center justify-center rounded-full {getScopeColorClasses(
-											scopeInfo.color
-										)}"
-									>
-										<i class="fas {scopeInfo.icon} text-sm"></i>
-									</div>
-								</div>
-								<div class="min-w-0 flex-1">
-									<p class="truncate text-sm font-medium text-gray-900">
-										{scopeInfo.name}
-									</p>
-									<p class="truncate text-xs text-gray-600">
-										{scopeInfo.description}
-									</p>
-									{#if scopeInfo.sensitive}
-										<span class="mt-1 inline-flex items-center text-xs text-red-600">
-											<i class="fas fa-exclamation-triangle mr-1"></i>
-											민감한 권한
-										</span>
-									{/if}
-								</div>
-								<div class="flex-shrink-0">
-									{#if isSelected}
-										<i class="fas fa-check text-blue-600"></i>
-									{:else}
-										<i class="fas fa-plus text-gray-400"></i>
-									{/if}
-								</div>
-							</button>
-						{/each}
-					</div>
-				</div>
+								<i class="fas {scopeInfo.icon} text-sm"></i>
+							</div>
+						</div>
+						<div class="min-w-0 flex-1">
+							<p class="truncate text-sm font-medium text-gray-900">
+								{scopeInfo.name}
+							</p>
+							<p class="truncate text-xs text-gray-600">
+								{scopeInfo.description}
+							</p>
+							{#if scopeInfo.sensitive}
+								<span class="mt-1 inline-flex items-center text-xs text-red-600">
+									<i class="fas fa-exclamation-triangle mr-1"></i>
+									민감한 권한
+								</span>
+							{/if}
+						</div>
+						<div class="flex-shrink-0">
+							{#if isSelected}
+								<i class="fas fa-check text-blue-600"></i>
+							{:else}
+								<i class="fas fa-plus text-gray-400"></i>
+							{/if}
+						</div>
+					</button>
+				{/each}
 			</div>
-		{/each}
+		</div>
 	</div>
 
 	{#if error}

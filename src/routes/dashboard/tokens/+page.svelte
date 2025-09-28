@@ -189,6 +189,12 @@
 	}
 
 	function getTokenScopes(token: Token): string[] {
+		// 로그인 토큰의 경우 scopes가 없으므로 토큰 타입 표시
+		if (token.tokenType === 'login') {
+			return ['로그인 세션'];
+		}
+
+		// OAuth2 토큰의 경우 실제 scopes 표시
 		if (!token.scopes) return [];
 
 		// scopes가 이미 배열인 경우
