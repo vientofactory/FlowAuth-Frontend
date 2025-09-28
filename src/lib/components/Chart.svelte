@@ -40,6 +40,7 @@
 
 	let canvas: HTMLCanvasElement;
 	let chart: ChartJS | null = null;
+	let updateTimeout: number | null = null;
 
 	// 기본 옵션 설정
 	const defaultOptions = {
@@ -53,6 +54,22 @@
 	};
 
 	const chartOptions = $derived({ ...defaultOptions, ...options });
+
+	// 디바운스된 차트 업데이트 함수
+	function debouncedUpdate() {
+		if (updateTimeout) {
+			clearTimeout(updateTimeout as number);
+		}
+
+		updateTimeout = setTimeout(() => {
+			if (chart) {
+				chart.data = data;
+				chart.options = { ...defaultOptions, ...options };
+				chart.update();
+			}
+			updateTimeout = null;
+		}, 100); // 100ms 디바운스
+	}
 
 	onMount(() => {
 		if (canvas) {
@@ -70,16 +87,20 @@
 			if (chart) {
 				chart.destroy();
 			}
+			if (updateTimeout) {
+				clearTimeout(updateTimeout);
+			}
 		};
 	});
 
-	// 데이터나 옵션이 변경될 때 차트 업데이트
+	// 데이터나 옵션이 변경될 때 디바운스된 차트 업데이트
 	$effect(() => {
-		if (chart) {
-			chart.data = data;
-			chart.options = { ...defaultOptions, ...options };
-			chart.update();
-		}
+		// data와 options의 변경을 감지하여 디바운스된 업데이트 실행
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+		data;
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+		options;
+		debouncedUpdate();
 	});
 </script>
 
