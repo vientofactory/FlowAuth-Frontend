@@ -11,10 +11,7 @@
 	let { selectedScopes = $bindable([]), onScopeToggle, error, disabled = false }: Props = $props();
 
 	// 모든 스코프 목록
-	const allScopes = [
-		'identify',
-		'email'
-	];
+	const allScopes = ['identify', 'email'];
 
 	// 스코프 아이콘 색상 클래스 가져오기 함수
 	function getScopeColorClasses(color: string) {
