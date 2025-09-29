@@ -26,44 +26,11 @@
 			</div>
 
 			<div>
-				<h4 class="mb-4 text-lg font-semibold">제품</h4>
-				<ul class="space-y-2">
-					<li>
-						<a
-							href="/features"
-							data-sveltekit-preload-data
-							class="text-gray-600 transition-colors duration-200 hover:text-gray-900"
-						>
-							기능
-						</a>
-					</li>
-					<li>
-						<a
-							href="/security"
-							data-sveltekit-preload-data
-							class="text-gray-600 transition-colors duration-200 hover:text-gray-900"
-						>
-							보안
-						</a>
-					</li>
-					<li>
-						<a
-							href="/integrations"
-							data-sveltekit-preload-data
-							class="text-gray-600 transition-colors duration-200 hover:text-gray-900"
-						>
-							통합
-						</a>
-					</li>
-				</ul>
-			</div>
-
-			<div>
 				<h4 class="mb-4 text-lg font-semibold">지원</h4>
 				<ul class="space-y-2">
 					<li>
 						<a
-							href="/docs"
+							href="https://op0.gitbook.io/flowauth"
 							data-sveltekit-preload-data
 							class="text-gray-600 transition-colors duration-200 hover:text-gray-900"
 						>
@@ -72,20 +39,11 @@
 					</li>
 					<li>
 						<a
-							href="/api"
+							href="https://op0.gitbook.io/flowauth/reference/flowauth-oauth2-authentication-system"
 							data-sveltekit-preload-data
 							class="text-gray-600 transition-colors duration-200 hover:text-gray-900"
 						>
 							API 레퍼런스
-						</a>
-					</li>
-					<li>
-						<a
-							href="/community"
-							data-sveltekit-preload-data
-							class="text-gray-600 transition-colors duration-200 hover:text-gray-900"
-						>
-							커뮤니티
 						</a>
 					</li>
 				</ul>

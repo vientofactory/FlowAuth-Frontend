@@ -154,7 +154,7 @@
 					label: '도움말',
 					icon: 'fas fa-question-circle',
 					color: 'orange',
-					action: () => goto('/help')
+					action: () => location.href = 'https://op0.gitbook.io/flowauth'
 				}
 			]
 		};
@@ -399,28 +399,52 @@
 	description={userTypeConfig?.description || 'OAuth2 인증 시스템을 관리하고 모니터링하세요.'}
 >
 	<!-- 통계 카드들 -->
-	{#if userTypeConfig && !isDashboardLoading}
+	{#if userTypeConfig}
 		<div class="mb-6 grid gap-4 {getGridColsClass(userTypeConfig.stats.length, 'stats')}">
 			{#each userTypeConfig.stats as stat, index (stat.label || `stat-${index}`)}
-				<Card
-					class="group relative overflow-hidden bg-gradient-to-br {stat.color} text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
-				>
-					<div class="relative p-4 sm:p-6">
-						<div class="flex items-center justify-between">
-							<div class="flex-1">
-								<div class="mb-2 flex items-center justify-between">
-									<i class="{stat.icon} text-2xl opacity-80 sm:text-3xl"></i>
-									<span class="text-xs opacity-70">{getStatBadgeText(stat.label)}</span>
+				{#if isDashboardLoading}
+					<!-- 스켈레톤 로딩 카드 -->
+					<div
+						class="group relative animate-pulse overflow-hidden rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 text-white shadow-lg"
+					>
+						<div class="relative p-4 sm:p-6">
+							<div class="flex items-center justify-between">
+								<div class="flex-1">
+									<div class="mb-2 flex items-center justify-between">
+										<div class="h-6 w-6 rounded bg-gray-400 opacity-80 sm:h-8 sm:w-8"></div>
+										<div class="h-4 w-8 rounded bg-gray-400 opacity-70"></div>
+									</div>
+									<div class="mb-2 h-4 w-16 rounded bg-gray-400 opacity-80"></div>
+									<div class="h-6 w-12 rounded bg-gray-400 opacity-90 sm:h-8 sm:w-16"></div>
 								</div>
-								<p class="mb-1 text-sm font-medium opacity-80">{stat.label}</p>
-								<p class="text-xl font-bold sm:text-2xl">{stat.value}</p>
+							</div>
+							<div class="absolute -right-4 -bottom-4 opacity-10">
+								<div class="h-12 w-12 rounded-full bg-gray-400 sm:h-16 sm:w-16"></div>
 							</div>
 						</div>
-						<div class="absolute -right-4 -bottom-4 opacity-10">
-							<i class="{stat.icon} text-6xl sm:text-8xl"></i>
-						</div>
 					</div>
-				</Card>
+				{:else}
+					<!-- 실제 통계 카드 -->
+					<Card
+						class="group relative overflow-hidden bg-gradient-to-br {stat.color} text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
+					>
+						<div class="relative p-4 sm:p-6">
+							<div class="flex items-center justify-between">
+								<div class="flex-1">
+									<div class="mb-2 flex items-center justify-between">
+										<i class="{stat.icon} text-2xl opacity-80 sm:text-3xl"></i>
+										<span class="text-xs opacity-70">{getStatBadgeText(stat.label)}</span>
+									</div>
+									<p class="mb-1 text-sm font-medium opacity-80">{stat.label}</p>
+									<p class="text-xl font-bold sm:text-2xl">{stat.value}</p>
+								</div>
+							</div>
+							<div class="absolute -right-4 -bottom-4 opacity-10">
+								<i class="{stat.icon} text-6xl sm:text-8xl"></i>
+							</div>
+						</div>
+					</Card>
+				{/if}
 			{/each}
 		</div>
 	{/if}
@@ -1014,96 +1038,6 @@
 								</div>
 							</Card>
 						</div>
-
-						<!-- 토큰 수명 분석 -->
-						<Card class="border-indigo-200 bg-gradient-to-r from-indigo-50 to-purple-50">
-							<div class="mb-6 flex items-center justify-between">
-								<h3 class="text-xl font-semibold text-gray-900">
-									<i class="fas fa-hourglass-half mr-2 text-indigo-600"></i>
-									토큰 수명 분석
-								</h3>
-								<div class="flex items-center space-x-2">
-									<Badge
-										variant={dashboardStats.averageTokenLifetime >= 168
-											? 'success'
-											: dashboardStats.averageTokenLifetime >= 24
-												? 'warning'
-												: 'info'}
-										size="sm"
-									>
-										{dashboardStats.averageTokenLifetime >= 168
-											? '장기'
-											: dashboardStats.averageTokenLifetime >= 24
-												? '중기'
-												: '단기'} 수명
-									</Badge>
-								</div>
-							</div>
-							<div class="grid gap-6 md:grid-cols-2">
-								<div class="rounded-xl border border-indigo-100 bg-white p-6 text-center shadow-sm">
-									<div
-										class="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100"
-									>
-										<i class="fas fa-stopwatch text-2xl text-indigo-600"></i>
-									</div>
-									<p class="mb-2 text-4xl font-bold text-indigo-900">
-										{dashboardStats.averageTokenLifetime.toFixed(1)}
-									</p>
-									<p class="text-lg font-medium text-indigo-700">평균 토큰 수명</p>
-									<p class="mt-1 text-sm text-indigo-600">시간 단위</p>
-								</div>
-								<div class="space-y-4">
-									<div class="rounded-xl border border-indigo-100 bg-white p-4 shadow-sm">
-										<div class="mb-2 flex items-center justify-between">
-											<span class="text-sm font-medium text-gray-700">수명 등급</span>
-											<span
-												class="text-sm font-bold {dashboardStats.averageTokenLifetime >= 168
-													? 'text-green-600'
-													: dashboardStats.averageTokenLifetime >= 24
-														? 'text-yellow-600'
-														: 'text-blue-600'}"
-											>
-												{dashboardStats.averageTokenLifetime >= 168
-													? '장기 (안전)'
-													: dashboardStats.averageTokenLifetime >= 24
-														? '중기 (보통)'
-														: '단기 (매우 안전)'}
-											</span>
-										</div>
-										<div class="h-3 w-full rounded-full bg-gray-200">
-											<div
-												class="h-3 rounded-full transition-all duration-1000 {dashboardStats.averageTokenLifetime >=
-												168
-													? 'bg-green-500'
-													: dashboardStats.averageTokenLifetime >= 24
-														? 'bg-yellow-500'
-														: 'bg-blue-500'}"
-												style="width: {Math.min(
-													(dashboardStats.averageTokenLifetime / 720) * 100,
-													100
-												)}%"
-											></div>
-										</div>
-										<p class="mt-2 text-xs text-gray-500">
-											기준: 30일 = 100%, 1일 = 3.5%, 1시간 = 0.15%
-										</p>
-									</div>
-									<div class="rounded-xl border border-indigo-100 bg-white p-4 shadow-sm">
-										<h4 class="mb-2 font-medium text-gray-900">보안 권장사항</h4>
-										<p class="text-sm text-gray-600">
-											{#if dashboardStats.averageTokenLifetime >= 168}
-												토큰 수명이 깁니다. 보안을 강화하려면 만료 시간을 단축하는 것을 고려하세요.
-											{:else if dashboardStats.averageTokenLifetime >= 24}
-												토큰 수명이 적절합니다. 현재 설정을 유지하는 것이 좋습니다.
-											{:else}
-												토큰 수명이 매우 짧습니다. 사용자 경험을 위해 만료 시간을 연장하는 것을
-												고려하세요.
-											{/if}
-										</p>
-									</div>
-								</div>
-							</div>
-						</Card>
 					{/if}
 				</div>
 			{:else if activeTab === 'activity'}

@@ -198,13 +198,6 @@
 										{/if}
 									</div>
 								</div>
-								<span
-									class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {getStatusColor(
-										app.status
-									)}"
-								>
-									{getStatusText(app.status)}
-								</span>
 							</div>
 						</div>
 
@@ -250,29 +243,6 @@
 						</div>
 					</div>
 				{/each}
-			</div>
-
-			<!-- 요약 정보 -->
-			<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-				<h3 class="mb-4 text-lg font-semibold text-gray-900">연결 요약</h3>
-				<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-					<div class="text-center">
-						<div class="text-2xl font-bold text-blue-600">{apps.length}</div>
-						<div class="text-sm text-gray-600">총 연결 앱</div>
-					</div>
-					<div class="text-center">
-						<div class="text-2xl font-bold text-green-600">
-							{apps.filter((app) => app.status === 'active').length}
-						</div>
-						<div class="text-sm text-gray-600">활성 연결</div>
-					</div>
-					<div class="text-center">
-						<div class="text-2xl font-bold text-red-600">
-							{apps.filter((app) => app.status === 'expired' || app.status === 'revoked').length}
-						</div>
-						<div class="text-sm text-gray-600">만료/취소됨</div>
-					</div>
-				</div>
 			</div>
 		{/if}
 	</div>

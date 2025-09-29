@@ -36,6 +36,23 @@
 		maxSize: number;
 		maxSizeMB: number;
 		destination: string;
+		// 이미지 타입인 경우 추가 정보
+		supportedFormats?: string;
+		recommendedSize?: {
+			width: number;
+			height: number;
+		};
+		aspectRatio?: string;
+		resizeFit?: string;
+		resizePosition?: string;
+		optimization?: {
+			outputFormats: readonly string[];
+			quality: {
+				jpeg: number;
+				webp: number;
+				avif: number;
+			};
+		};
 	} | null>(null);
 	let configLoading = $state(false);
 	let configError = $state('');
@@ -270,15 +287,31 @@
 
 			{#if error}
 				<p class="mt-1 text-sm text-red-600">{error}</p>
+			{:else if uploadConfig}
+				<div class="mt-3 rounded-md border border-blue-200 bg-blue-50 p-3">
+					<h4 class="text-sm font-medium text-blue-900 mb-2">업로드 권장 사항</h4>
+					<div class="space-y-1 text-xs text-blue-800">
+						{#if uploadConfig.supportedFormats}
+							<p><strong>지원 형식:</strong> {uploadConfig.supportedFormats}</p>
+						{/if}
+						<p><strong>최대 크기:</strong> {uploadConfig.maxSizeMB}MB</p>
+						{#if uploadConfig.recommendedSize}
+							<p><strong>권장 크기:</strong> {uploadConfig.recommendedSize.width}x{uploadConfig.recommendedSize.height} 픽셀</p>
+						{/if}
+						{#if uploadConfig.aspectRatio}
+							<p><strong>권장 비율:</strong> {uploadConfig.aspectRatio}</p>
+						{/if}
+						{#if uploadConfig.resizeFit && uploadConfig.resizePosition}
+							<p><strong>리사이징:</strong> {uploadConfig.resizeFit} 방식 ({uploadConfig.resizePosition} 기준)</p>
+						{/if}
+						{#if uploadConfig.optimization}
+							<p><strong>최적화:</strong> {uploadConfig.optimization.outputFormats.join(', ')} 형식으로 자동 변환</p>
+						{/if}
+					</div>
+				</div>
 			{:else}
 				<p class="mt-1 text-xs text-gray-500">
-					{#if uploadConfig}
-						지원 형식: {uploadConfig.allowedMimes
-							.map((mime) => mime.split('/')[1].toUpperCase())
-							.join(', ')} | 최대 크기: {uploadConfig.maxSizeMB}MB
-					{:else}
-						PNG, JPG, GIF 파일을 지원합니다. (최대 5MB)
-					{/if}
+					PNG, JPG, GIF 파일을 지원합니다. (최대 5MB)
 				</p>
 			{/if}
 		</div>

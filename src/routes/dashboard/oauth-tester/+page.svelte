@@ -23,7 +23,7 @@
 	let copySuccess = $state(false);
 
 	// 스코프 관련 상태
-	let selectedScopes = $state<Set<string>>(new Set(['identify', 'email']));
+	let selectedScopes = $state<Set<string>>(new Set(['identify']));
 	let showScopeSelector = $state(false);
 	let availableScopes = $state<{ id: string; name: string; description: string }[]>([]);
 	let scopesLoading = $state(false);
@@ -299,9 +299,6 @@
 						class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
 					>
 						<option value="code">Authorization Code</option>
-						<option value="token">Implicit (Token)</option>
-						<option value="id_token">OpenID Connect (ID Token)</option>
-						<option value="code id_token">Hybrid Flow</option>
 					</select>
 				</div>
 
@@ -567,38 +564,4 @@
 			{/if}
 		</Card>
 	</div>
-
-	<!-- 도움말 섹션 -->
-	<Card class="mt-6">
-		<h3 class="mb-4 text-lg font-medium text-gray-900">OAuth2 플로우 가이드</h3>
-		<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-			<div class="rounded-lg border border-gray-200 p-4">
-				<div class="mb-2 flex items-center">
-					<i class="fas fa-key mr-2 text-blue-600"></i>
-					<h4 class="font-medium text-gray-900">Authorization Code</h4>
-				</div>
-				<p class="text-sm text-gray-600">
-					가장 안전한 방식으로, 서버 사이드 애플리케이션에 권장됩니다.
-				</p>
-			</div>
-
-			<div class="rounded-lg border border-gray-200 p-4">
-				<div class="mb-2 flex items-center">
-					<i class="fas fa-bolt mr-2 text-yellow-600"></i>
-					<h4 class="font-medium text-gray-900">Implicit Flow</h4>
-				</div>
-				<p class="text-sm text-gray-600">
-					클라이언트 사이드 애플리케이션용이지만, 보안상 권장되지 않습니다.
-				</p>
-			</div>
-
-			<div class="rounded-lg border border-gray-200 p-4">
-				<div class="mb-2 flex items-center">
-					<i class="fas fa-shield-alt mr-2 text-green-600"></i>
-					<h4 class="font-medium text-gray-900">PKCE</h4>
-				</div>
-				<p class="text-sm text-gray-600">코드 가로채기 공격을 방지하는 보안 확장 기능입니다.</p>
-			</div>
-		</div>
-	</Card>
 </DashboardLayout>

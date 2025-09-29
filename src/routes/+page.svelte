@@ -121,7 +121,7 @@
 						</Button>
 						<Button
 							variant="outline"
-							onclick={() => (window.location.href = '/docs')}
+							onclick={() => (window.location.href = 'https://op0.gitbook.io/flowauth')}
 							class="w-full border-2 px-6 py-3 text-base transition-colors duration-200 hover:bg-blue-50 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
 						>
 							<i class="fas fa-book mr-2"></i>
@@ -515,7 +515,7 @@
 										<Button
 											variant="outline"
 											size="sm"
-											onclick={() => (window.location.href = '/docs')}
+											onclick={() => (window.location.href = 'https://op0.gitbook.io/flowauth')}
 											class="w-full"
 										>
 											문서 보기
