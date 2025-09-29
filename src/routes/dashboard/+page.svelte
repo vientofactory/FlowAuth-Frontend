@@ -154,7 +154,7 @@
 					label: '도움말',
 					icon: 'fas fa-question-circle',
 					color: 'orange',
-					action: () => goto('/help')
+					action: () => location.href = 'https://op0.gitbook.io/flowauth'
 				}
 			]
 		};
@@ -399,28 +399,52 @@
 	description={userTypeConfig?.description || 'OAuth2 인증 시스템을 관리하고 모니터링하세요.'}
 >
 	<!-- 통계 카드들 -->
-	{#if userTypeConfig && !isDashboardLoading}
+	{#if userTypeConfig}
 		<div class="mb-6 grid gap-4 {getGridColsClass(userTypeConfig.stats.length, 'stats')}">
 			{#each userTypeConfig.stats as stat, index (stat.label || `stat-${index}`)}
-				<Card
-					class="group relative overflow-hidden bg-gradient-to-br {stat.color} text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
-				>
-					<div class="relative p-4 sm:p-6">
-						<div class="flex items-center justify-between">
-							<div class="flex-1">
-								<div class="mb-2 flex items-center justify-between">
-									<i class="{stat.icon} text-2xl opacity-80 sm:text-3xl"></i>
-									<span class="text-xs opacity-70">{getStatBadgeText(stat.label)}</span>
+				{#if isDashboardLoading}
+					<!-- 스켈레톤 로딩 카드 -->
+					<div
+						class="group relative animate-pulse overflow-hidden rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 text-white shadow-lg"
+					>
+						<div class="relative p-4 sm:p-6">
+							<div class="flex items-center justify-between">
+								<div class="flex-1">
+									<div class="mb-2 flex items-center justify-between">
+										<div class="h-6 w-6 rounded bg-gray-400 opacity-80 sm:h-8 sm:w-8"></div>
+										<div class="h-4 w-8 rounded bg-gray-400 opacity-70"></div>
+									</div>
+									<div class="mb-2 h-4 w-16 rounded bg-gray-400 opacity-80"></div>
+									<div class="h-6 w-12 rounded bg-gray-400 opacity-90 sm:h-8 sm:w-16"></div>
 								</div>
-								<p class="mb-1 text-sm font-medium opacity-80">{stat.label}</p>
-								<p class="text-xl font-bold sm:text-2xl">{stat.value}</p>
+							</div>
+							<div class="absolute -right-4 -bottom-4 opacity-10">
+								<div class="h-12 w-12 rounded-full bg-gray-400 sm:h-16 sm:w-16"></div>
 							</div>
 						</div>
-						<div class="absolute -right-4 -bottom-4 opacity-10">
-							<i class="{stat.icon} text-6xl sm:text-8xl"></i>
-						</div>
 					</div>
-				</Card>
+				{:else}
+					<!-- 실제 통계 카드 -->
+					<Card
+						class="group relative overflow-hidden bg-gradient-to-br {stat.color} text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
+					>
+						<div class="relative p-4 sm:p-6">
+							<div class="flex items-center justify-between">
+								<div class="flex-1">
+									<div class="mb-2 flex items-center justify-between">
+										<i class="{stat.icon} text-2xl opacity-80 sm:text-3xl"></i>
+										<span class="text-xs opacity-70">{getStatBadgeText(stat.label)}</span>
+									</div>
+									<p class="mb-1 text-sm font-medium opacity-80">{stat.label}</p>
+									<p class="text-xl font-bold sm:text-2xl">{stat.value}</p>
+								</div>
+							</div>
+							<div class="absolute -right-4 -bottom-4 opacity-10">
+								<i class="{stat.icon} text-6xl sm:text-8xl"></i>
+							</div>
+						</div>
+					</Card>
+				{/if}
 			{/each}
 		</div>
 	{/if}
