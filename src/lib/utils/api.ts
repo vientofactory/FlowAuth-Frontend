@@ -757,6 +757,23 @@ class ApiClient {
 		maxSize: number;
 		maxSizeMB: number;
 		destination: string;
+		// 이미지 타입인 경우 추가 정보
+		supportedFormats?: string;
+		recommendedSize?: {
+			width: number;
+			height: number;
+		};
+		aspectRatio?: string;
+		resizeFit?: string;
+		resizePosition?: string;
+		optimization?: {
+			outputFormats: readonly string[];
+			quality: {
+				jpeg: number;
+				webp: number;
+				avif: number;
+			};
+		};
 	}> {
 		return this.request(`/uploads/config/${type}`);
 	}

@@ -23,7 +23,7 @@
 	let copySuccess = $state(false);
 
 	// 스코프 관련 상태
-	let selectedScopes = $state<Set<string>>(new Set(['identify', 'email']));
+	let selectedScopes = $state<Set<string>>(new Set(['identify']));
 	let showScopeSelector = $state(false);
 	let availableScopes = $state<{ id: string; name: string; description: string }[]>([]);
 	let scopesLoading = $state(false);
