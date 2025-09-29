@@ -124,7 +124,7 @@
 			{
 				label: 'API 문서',
 				icon: 'fas fa-book',
-				href: '/docs',
+				href: 'https://op0.gitbook.io/flowauth/reference/flowauth-oauth2-authentication-system',
 				external: true
 			}
 		];
