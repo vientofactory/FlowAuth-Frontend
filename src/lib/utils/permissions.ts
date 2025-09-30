@@ -31,30 +31,39 @@ export const PERMISSIONS = {
 	MANAGE_DASHBOARD: 1 << 13, // 8192
 
 	// 업로드 권한
-	UPLOAD_FILE: 1 << 14 // 16384
-	// ADMIN 권한은 별도로 계산됨 (모든 권한의 조합)
+	UPLOAD_FILE: 1 << 14, // 16384
+
+	// ADMIN 권한 - 별도의 슈퍼 권한
+	ADMIN_ACCESS: 1 << 31 // 2147483648
 } as const;
 
 // 권한 헬퍼 함수들
 export const PERMISSION_UTILS = {
 	/**
-	 * 모든 권한의 비트마스크를 계산
+	 * 모든 권한의 비트마스크를 계산 (ADMIN_ACCESS 제외)
 	 */
 	getAllPermissionsMask: (): number => {
-		return Object.values(PERMISSIONS).reduce((acc, perm) => acc | perm, 0);
+		return Object.values(PERMISSIONS).reduce((acc, perm) => {
+			if (perm !== PERMISSIONS.ADMIN_ACCESS) {
+				return acc | perm;
+			}
+			return acc;
+		}, 0);
 	},
 
 	/**
-	 * ADMIN 권한 값 (모든 권한의 조합)
+	 * ADMIN 권한 값 (ADMIN_ACCESS 비트만)
 	 */
 	getAdminPermission: (): number => {
-		return PERMISSION_UTILS.getAllPermissionsMask();
+		return PERMISSIONS.ADMIN_ACCESS;
 	},
 
 	/**
-	 * 사용 가능한 모든 권한 목록
+	 * 사용 가능한 모든 권한 목록 (ADMIN_ACCESS 제외)
 	 */
-	getAllPermissions: () => Object.values(PERMISSIONS),
+	getAllPermissions: () => {
+		return Object.values(PERMISSIONS).filter((p) => p !== PERMISSIONS.ADMIN_ACCESS);
+	},
 
 	/**
 	 * 권한 이름으로 값 찾기
@@ -62,26 +71,50 @@ export const PERMISSION_UTILS = {
 	getPermissionValue: (name: keyof typeof PERMISSIONS) => PERMISSIONS[name]
 } as const;
 
-// 사전 정의된 역할들
+// 역할 상수들
 export const ROLES = {
-	USER: PERMISSIONS.READ_USER,
-	CLIENT_MANAGER:
-		PERMISSIONS.READ_CLIENT |
-		PERMISSIONS.WRITE_CLIENT |
-		PERMISSIONS.DELETE_CLIENT |
-		PERMISSIONS.READ_TOKEN |
-		PERMISSIONS.WRITE_TOKEN |
-		PERMISSIONS.DELETE_TOKEN |
-		PERMISSIONS.READ_DASHBOARD |
-		PERMISSIONS.WRITE_DASHBOARD |
-		PERMISSIONS.UPLOAD_FILE, // 대시보드 및 업로드 권한 추가
-	TOKEN_MANAGER: PERMISSIONS.READ_TOKEN | PERMISSIONS.WRITE_TOKEN | PERMISSIONS.DELETE_TOKEN,
-	USER_MANAGER:
-		PERMISSIONS.READ_USER |
-		PERMISSIONS.WRITE_USER |
-		PERMISSIONS.DELETE_USER |
-		PERMISSIONS.MANAGE_USERS,
-	ADMIN: PERMISSION_UTILS.getAdminPermission() // 동적으로 계산된 모든 권한
+	USER: 'user',
+	CLIENT_MANAGER: 'client_manager',
+	TOKEN_MANAGER: 'token_manager',
+	USER_MANAGER: 'user_manager',
+	ADMIN: 'admin'
+} as const;
+
+// 역할별 권한 매핑
+export const ROLE_PERMISSIONS = {
+	[ROLES.USER]: [PERMISSIONS.READ_USER, PERMISSIONS.READ_DASHBOARD],
+	[ROLES.CLIENT_MANAGER]: [
+		PERMISSIONS.READ_CLIENT,
+		PERMISSIONS.WRITE_CLIENT,
+		PERMISSIONS.DELETE_CLIENT,
+		PERMISSIONS.READ_TOKEN,
+		PERMISSIONS.WRITE_TOKEN,
+		PERMISSIONS.DELETE_TOKEN,
+		PERMISSIONS.READ_DASHBOARD,
+		PERMISSIONS.WRITE_DASHBOARD,
+		PERMISSIONS.UPLOAD_FILE
+	],
+	[ROLES.TOKEN_MANAGER]: [
+		PERMISSIONS.READ_TOKEN,
+		PERMISSIONS.WRITE_TOKEN,
+		PERMISSIONS.DELETE_TOKEN
+	],
+	[ROLES.USER_MANAGER]: [
+		PERMISSIONS.READ_USER,
+		PERMISSIONS.WRITE_USER,
+		PERMISSIONS.DELETE_USER,
+		PERMISSIONS.MANAGE_USERS
+	],
+	[ROLES.ADMIN]: [PERMISSIONS.ADMIN_ACCESS] // ADMIN은 별도의 슈퍼 권한만 가짐
+} as const;
+
+// 역할 계층 구조 (상속 관계)
+export const ROLE_HIERARCHY = {
+	[ROLES.USER]: [],
+	[ROLES.CLIENT_MANAGER]: [ROLES.USER],
+	[ROLES.TOKEN_MANAGER]: [ROLES.USER],
+	[ROLES.USER_MANAGER]: [ROLES.USER, ROLES.CLIENT_MANAGER],
+	[ROLES.ADMIN]: [ROLES.USER, ROLES.CLIENT_MANAGER, ROLES.TOKEN_MANAGER, ROLES.USER_MANAGER]
 } as const;
 
 // 역할 이름 매핑
@@ -109,8 +142,8 @@ export const PERMISSION_NAMES: Record<number, string> = {
 	[PERMISSIONS.READ_DASHBOARD]: '대시보드 조회',
 	[PERMISSIONS.WRITE_DASHBOARD]: '대시보드 수정',
 	[PERMISSIONS.MANAGE_DASHBOARD]: '대시보드 관리',
-	[PERMISSIONS.UPLOAD_FILE]: '파일 업로드'
-	// ADMIN은 모든 권한의 조합이므로 개별 권한으로 표시하지 않음
+	[PERMISSIONS.UPLOAD_FILE]: '파일 업로드',
+	[PERMISSIONS.ADMIN_ACCESS]: '관리자 접근'
 };
 
 /**
@@ -166,22 +199,41 @@ export class PermissionUtils {
 		}
 
 		// 정확히 일치하는 역할 찾기 (ADMIN 제외)
-		for (const [roleName, rolePermissions] of Object.entries(ROLES)) {
-			if (roleName !== 'ADMIN' && permissions === rolePermissions) {
-				return ROLE_NAMES[rolePermissions] || roleName;
+		for (const [roleName, rolePermissions] of Object.entries(ROLE_PERMISSIONS)) {
+			if (roleName !== ROLES.ADMIN && this.hasAllPermissions(permissions, [...rolePermissions])) {
+				return ROLE_NAMES[roleName as keyof typeof ROLE_NAMES];
 			}
 		}
 
 		// 포함 관계로 가장 가까운 역할 찾기 (권한 레벨이 높은 순서로)
-		const rolePriority = ['USER_MANAGER', 'CLIENT_MANAGER', 'TOKEN_MANAGER', 'USER'];
+		const rolePriority = [
+			ROLES.USER_MANAGER,
+			ROLES.CLIENT_MANAGER,
+			ROLES.TOKEN_MANAGER,
+			ROLES.USER
+		];
 		for (const roleName of rolePriority) {
-			const rolePermissions = ROLES[roleName as keyof typeof ROLES];
-			if (this.hasAllPermissions(permissions, [rolePermissions])) {
-				return ROLE_NAMES[rolePermissions] || roleName;
+			const rolePermissions = ROLE_PERMISSIONS[roleName as keyof typeof ROLE_PERMISSIONS];
+			if (this.hasAllPermissions(permissions, [...rolePermissions])) {
+				return ROLE_NAMES[roleName as keyof typeof ROLE_NAMES];
 			}
 		}
 
 		return '사용자 정의';
+	}
+
+	/**
+	 * 기본 사용자 권한 생성
+	 */
+	static getDefaultPermissions(): number {
+		return ROLE_PERMISSIONS[ROLES.USER].reduce((acc, perm) => acc | perm, 0);
+	}
+
+	/**
+	 * 권한 비트마스크를 16진수 문자열로 변환
+	 */
+	static permissionsToHex(permissions: number): string {
+		return '0x' + permissions.toString(16).toUpperCase();
 	}
 
 	/**
@@ -194,6 +246,9 @@ export class PermissionUtils {
 
 // 프론트엔드에서 사용하는 인증 관련 상수들
 export const AUTH_CONSTANTS = {
-	DEFAULT_USER_PERMISSIONS: ROLES.CLIENT_MANAGER, // OAuth2 기본 기능 권한
+	DEFAULT_USER_PERMISSIONS: ROLE_PERMISSIONS[ROLES.CLIENT_MANAGER].reduce(
+		(acc, perm) => acc | perm,
+		0
+	), // OAuth2 기본 기능 권한
 	TOKEN_TYPE: 'access' as const
 } as const;
