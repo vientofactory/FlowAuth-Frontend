@@ -83,7 +83,7 @@
 		}
 	}
 
-	function getStatusColor(status: string): string {
+	function _getStatusColor(status: string): string {
 		switch (status) {
 			case 'active':
 				return 'text-green-600 bg-green-100';
@@ -96,7 +96,7 @@
 		}
 	}
 
-	function getStatusText(status: string): string {
+	function _getStatusText(status: string): string {
 		switch (status) {
 			case 'active':
 				return '활성';

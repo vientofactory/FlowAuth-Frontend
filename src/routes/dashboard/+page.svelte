@@ -8,8 +8,7 @@
 		apiClient,
 		authState,
 		useToast,
-		PermissionUtils,
-		PERMISSIONS
+		PermissionUtils
 	} from '$lib';
 	import Chart from '$lib/components/Chart.svelte';
 	import { onMount } from 'svelte';
@@ -53,25 +52,11 @@
 	});
 
 	// 권한 관련 상태
-	const {
-		user: currentUser,
-		hasPermission,
-		canManageSystem,
-		isClientManager,
-		isTokenManager,
-		isUserManager,
-		roleName,
-		canReadDashboard,
-		canWriteDashboard,
-		canReadClient,
-		canWriteClient,
-		canReadToken,
-		canWriteToken,
-		canUploadFile,
-	} = usePermissions();
+	const { canManageSystem, isClientManager, isTokenManager, isUserManager, roleName } =
+		usePermissions();
 
 	// 파생 상태
-	const hasManageSystemPermission = $derived($canManageSystem);
+	const _hasManageSystemPermission = $derived($canManageSystem);
 	const isDeveloper = $derived($isClientManager || $isTokenManager || $isUserManager);
 
 	// 사용자 유형별 대시보드 설정
@@ -124,7 +109,42 @@
 					color: 'from-red-500 to-red-600',
 					show: true
 				}
-			].filter((stat) => stat.show)
+			].filter((stat) => stat.show),
+			quickActions: isDeveloper
+				? [
+						{
+							label: '클라이언트\n생성',
+							icon: 'fas fa-plus-circle',
+							color: 'blue',
+							action: navigateToClients
+						},
+						{
+							label: '토큰\n관리',
+							icon: 'fas fa-key',
+							color: 'green',
+							action: navigateToTokens
+						},
+						{
+							label: 'OAuth2\n테스터',
+							icon: 'fas fa-link',
+							color: 'orange',
+							action: navigateToOAuthTester
+						}
+					]
+				: [
+						{
+							label: '프로필\n편집',
+							icon: 'fas fa-user-edit',
+							color: 'blue',
+							action: navigateToProfile
+						},
+						{
+							label: '토큰\n관리',
+							icon: 'fas fa-key',
+							color: 'green',
+							action: navigateToTokens
+						}
+					]
 		};
 	});
 
@@ -212,7 +232,13 @@
 			_isLoading = state.isLoading;
 
 			// authState 초기화가 완료되고 로딩이 끝나고 user가 있고 아직 대시보드 데이터를 로드하지 않은 경우에만 로드
-			if (state.isInitialized && !state.isLoading && user && !isDashboardLoading && !isDashboardDataLoaded) {
+			if (
+				state.isInitialized &&
+				!state.isLoading &&
+				user &&
+				!isDashboardLoading &&
+				!isDashboardDataLoaded
+			) {
 				loadDashboardData().catch(console.error);
 			}
 
@@ -353,7 +379,7 @@
 		goto('/dashboard/tokens');
 	}
 
-	function navigateToSettings() {
+	function _navigateToSettings() {
 		goto('/dashboard/settings');
 	}
 
