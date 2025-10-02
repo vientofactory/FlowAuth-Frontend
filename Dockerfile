@@ -22,22 +22,8 @@ RUN sed -i 's|"file:../shared"|"file:./shared"|g' package.json && npm install
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/shared/dist ./shared-dist
-COPY --from=deps /app/shared/package.json ./shared-package.json
 COPY ./frontend ./frontend
 COPY ./shared ./shared
-
-# Copy built shared module to node_modules
-RUN rm -rf /app/node_modules/@flowauth/shared
-RUN mkdir -p /app/node_modules/@flowauth/shared
-RUN cp -r /app/shared-dist/* /app/node_modules/@flowauth/shared/
-RUN cp /app/shared-package.json /app/node_modules/@flowauth/shared/package.json
-
-# Fix paths in shared module package.json
-RUN sed -i 's|"dist/index.js"|"index.js"|g; s|"dist/index.d.ts"|"index.d.ts"|g; s|"./dist/|"./|g' /app/node_modules/@flowauth/shared/package.json
-
-# Remove shared module reference from frontend package.json since it's manually installed
-RUN sed -i '/"@flowauth\/shared": "file:\.\/shared"/d' /app/frontend/package.json
 
 # Go to frontend directory and install dependencies
 WORKDIR /app/frontend
