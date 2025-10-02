@@ -23,6 +23,7 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/shared/dist ./shared-dist
+COPY --from=deps /app/shared/package.json ./shared-package.json
 COPY ./frontend ./frontend
 COPY ./shared ./shared
 
@@ -30,6 +31,7 @@ COPY ./shared ./shared
 RUN rm -rf /app/node_modules/@flowauth/shared
 RUN mkdir -p /app/node_modules/@flowauth/shared
 RUN cp -r /app/shared-dist/* /app/node_modules/@flowauth/shared/
+RUN cp /app/shared-package.json /app/node_modules/@flowauth/shared/package.json
 
 # Go to frontend directory and reinstall to ensure shared module is properly linked
 WORKDIR /app/frontend
