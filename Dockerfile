@@ -9,6 +9,13 @@ WORKDIR /app
 # Copy package files
 COPY ./frontend/package*.json ./
 COPY ./shared ./shared
+
+# Build shared module first
+WORKDIR /app/shared
+RUN npm ci && npm run build
+
+# Go back to app directory and install dependencies
+WORKDIR /app
 RUN sed -i 's|"file:../shared"|"file:./shared"|g' package.json && npm install
 
 # Rebuild the source code only when needed
@@ -18,16 +25,12 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY ./frontend ./frontend
 COPY ./shared ./shared
 
-# Build shared module first
-WORKDIR /app/shared
-RUN npm ci && npm run build
-
-# Copy built shared module to node_modules
+# Copy built shared module to node_modules (already built in deps stage)
 RUN rm -rf /app/node_modules/@flowauth/shared
 RUN mkdir -p /app/node_modules/@flowauth/shared
 RUN cp -r /app/shared/dist/* /app/node_modules/@flowauth/shared/
 
-# Go back to frontend directory
+# Go to frontend directory
 WORKDIR /app/frontend
 
 # Build the application
