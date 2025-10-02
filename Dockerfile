@@ -22,13 +22,14 @@ RUN sed -i 's|"file:../shared"|"file:./shared"|g' package.json && npm install
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/shared/dist ./shared-dist
 COPY ./frontend ./frontend
 COPY ./shared ./shared
 
-# Copy built shared module to node_modules (already built in deps stage)
+# Copy built shared module to node_modules (built in deps stage)
 RUN rm -rf /app/node_modules/@flowauth/shared
 RUN mkdir -p /app/node_modules/@flowauth/shared
-RUN cp -r /app/shared/dist/* /app/node_modules/@flowauth/shared/
+RUN cp -r /app/shared-dist/* /app/node_modules/@flowauth/shared/
 
 # Go to frontend directory
 WORKDIR /app/frontend
