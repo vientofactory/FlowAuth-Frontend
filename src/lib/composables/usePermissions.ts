@@ -1,6 +1,6 @@
 import { derived } from 'svelte/store';
 import { authState } from '$lib/stores/auth';
-import { PermissionUtils, PERMISSIONS, ROLES, ROLE_NAMES } from '$lib/utils/permissions';
+import { PermissionUtils, PERMISSIONS, ROLES, ROLE_NAMES } from '@flowauth/shared';
 
 /**
  * 권한 관련 composable
