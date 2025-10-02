@@ -36,7 +36,10 @@ RUN cp /app/shared-package.json /app/node_modules/@flowauth/shared/package.json
 # Fix paths in shared module package.json
 RUN sed -i 's|"dist/index.js"|"index.js"|g; s|"dist/index.d.ts"|"index.d.ts"|g; s|"./dist/|"./|g' /app/node_modules/@flowauth/shared/package.json
 
-# Go to frontend directory and reinstall to ensure shared module is properly linked
+# Remove shared module reference from frontend package.json since it's manually installed
+RUN sed -i '/"@flowauth\/shared": "file:\.\/shared"/d' /app/frontend/package.json
+
+# Go to frontend directory and install dependencies
 WORKDIR /app/frontend
 RUN npm install
 
