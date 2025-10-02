@@ -18,7 +18,7 @@ RUN npm ci && npm run build
 WORKDIR /app
 RUN sed -i 's|"file:../shared"|"file:./shared"|g' package.json && npm install
 
-# Rebuild the source code only when needed
+# Build stage
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -26,18 +26,19 @@ COPY --from=deps /app/shared/dist ./shared-dist
 COPY ./frontend ./frontend
 COPY ./shared ./shared
 
-# Copy built shared module to node_modules (built in deps stage)
+# Copy built shared module to node_modules
 RUN rm -rf /app/node_modules/@flowauth/shared
 RUN mkdir -p /app/node_modules/@flowauth/shared
 RUN cp -r /app/shared-dist/* /app/node_modules/@flowauth/shared/
 
-# Go to frontend directory
+# Go to frontend directory and reinstall to ensure shared module is properly linked
 WORKDIR /app/frontend
+RUN npm install
 
 # Build the application
 RUN npm run build
 
-# Production image, copy all the files and run next
+# Production image
 FROM base AS runner
 WORKDIR /app
 
