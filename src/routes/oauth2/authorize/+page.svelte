@@ -10,6 +10,7 @@
 	import type { PageData } from './$types';
 	import { env } from '$lib/config/env';
 	import { getScopeInfo } from '$lib/utils/scope.utils';
+	import { oidcStore } from '$lib/stores/oidc';
 	import './+page.css';
 
 	let { data }: { data: PageData } = $props();
@@ -127,6 +128,14 @@
 	}
 
 	onMount(() => {
+		// OIDC 파라미터가 있는 경우 nonce와 state 생성
+		const urlParams = new URLSearchParams(window.location.search);
+		const responseType = urlParams.get('response_type');
+
+		if (responseType && (responseType.includes('id_token') || responseType === 'code')) {
+			oidcStore.generateAndStoreNonce();
+		}
+
 		console.log('[Page] Component mounted, starting authorization data load');
 		loadAuthorizationData();
 

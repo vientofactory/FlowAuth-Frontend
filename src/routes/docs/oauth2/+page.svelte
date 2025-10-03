@@ -5,13 +5,18 @@
 	import { OIDCUtils } from '$lib/utils/oidc.util';
 	import { CryptoUtils } from '$lib/utils/crypto.util';
 	import { useToast } from '$lib';
-	import type { ImplicitTokenResponse, IdTokenPayload } from '$lib/types/oauth.types';
+	import type {
+		ImplicitTokenResponse,
+		IdTokenPayload,
+		DiscoveryDocument,
+		UserInfo
+	} from '$lib/types/oauth.types';
 
-	let discoveryDocument: any = $state(null);
+	let discoveryDocument: DiscoveryDocument | null = $state(null);
 	let tokens: ImplicitTokenResponse | null = $state(null);
 	let idTokenPayload: IdTokenPayload | null = $state(null);
-	let userInfo: any = $state(null);
-	let isLoading = $state(false);
+	let userInfo: UserInfo | null = $state(null);
+	let _isLoading = $state(false);
 
 	const toast = useToast();
 
@@ -33,7 +38,7 @@
 		// Discovery 문서 로드
 		try {
 			discoveryDocument = await OIDCUtils.getDiscoveryDocument(OIDC_CONFIG.issuer);
-		} catch (error) {
+		} catch {
 			toast.error('Discovery 문서를 로드할 수 없습니다.');
 		}
 	});
@@ -86,7 +91,9 @@
 
 			toast.success('ID 토큰이 유효합니다.');
 		} catch (error) {
-			toast.error(`ID 토큰 검증 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+			toast.error(
+				`ID 토큰 검증 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`
+			);
 		}
 	}
 
@@ -104,7 +111,9 @@
 
 			toast.success('사용자 정보를 가져왔습니다.');
 		} catch (error) {
-			toast.error(`사용자 정보 조회 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+			toast.error(
+				`사용자 정보 조회 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`
+			);
 		}
 	}
 
@@ -169,20 +178,14 @@
 
 			<div class="token-actions">
 				{#if tokens.id_token}
-					<Button onclick={validateIdToken} variant="outline">
-						ID 토큰 검증
-					</Button>
+					<Button onclick={validateIdToken} variant="outline">ID 토큰 검증</Button>
 				{/if}
 
 				{#if tokens.access_token}
-					<Button onclick={fetchUserInfo} variant="outline">
-						사용자 정보 조회
-					</Button>
+					<Button onclick={fetchUserInfo} variant="outline">사용자 정보 조회</Button>
 				{/if}
 
-				<Button onclick={logout} variant="danger">
-					로그아웃
-				</Button>
+				<Button onclick={logout} variant="danger">로그아웃</Button>
 			</div>
 		</Card>
 	{/if}
