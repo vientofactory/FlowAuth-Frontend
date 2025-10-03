@@ -9,6 +9,7 @@
 	import { USER_TYPES } from '$lib/types/user.types';
 	import { authState } from '$lib';
 	import type { User } from '$lib';
+	import { SCOPE_MAPPINGS, OAUTH2_SCOPES } from '$lib/utils/scope.utils';
 
 	// 상태 변수들
 	let user = $state<User | null>(null);
@@ -23,7 +24,7 @@
 	let copySuccess = $state(false);
 
 	// 스코프 관련 상태
-	let selectedScopes = $state<Set<string>>(new Set(['identify']));
+	let selectedScopes = $state<Set<string>>(new Set(['openid', 'profile']));
 	let showScopeSelector = $state(false);
 	let availableScopes = $state<{ id: string; name: string; description: string }[]>([]);
 	let scopesLoading = $state(false);
@@ -94,21 +95,29 @@
 		try {
 			scopesLoading = true;
 			scopesError = null;
-			// 백엔드에서 스코프 목록을 가져오는 대신 프론트엔드에서 정의된 스코프 사용
-			availableScopes = [
-				{ id: 'identify', name: '계정 기본 정보', description: '사용자의 기본 계정 정보 읽기' },
-				{ id: 'email', name: '이메일 주소', description: '사용자의 이메일 주소 읽기' }
-			];
+			// scope.utils.ts에서 정의된 스코프들을 사용
+			availableScopes = Object.values(OAUTH2_SCOPES).map((scopeId) => {
+				const scopeInfo = SCOPE_MAPPINGS[scopeId];
+				return {
+					id: scopeId,
+					name: scopeInfo?.name || scopeId,
+					description: scopeInfo?.description || `앱이 ${scopeId} 권한을 사용할 수 있습니다`
+				};
+			});
 		} catch (error) {
 			console.error('Failed to load available scopes:', error);
 			scopesError = '스코프 목록을 불러오는데 실패했습니다.';
 			toast.error('스코프 목록을 불러오는데 실패했습니다.');
 
 			// 오류 시에도 동일한 스코프들 사용
-			availableScopes = [
-				{ id: 'identify', name: '계정 기본 정보', description: '사용자의 기본 계정 정보 읽기' },
-				{ id: 'email', name: '이메일 주소', description: '사용자의 이메일 주소 읽기' }
-			];
+			availableScopes = Object.values(OAUTH2_SCOPES).map((scopeId) => {
+				const scopeInfo = SCOPE_MAPPINGS[scopeId];
+				return {
+					id: scopeId,
+					name: scopeInfo?.name || scopeId,
+					description: scopeInfo?.description || `앱이 ${scopeId} 권한을 사용할 수 있습니다`
+				};
+			});
 		} finally {
 			scopesLoading = false;
 		}

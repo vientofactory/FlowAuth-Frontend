@@ -47,9 +47,36 @@ export interface ConsentRequest extends AuthorizeRequest {
 }
 
 export interface AuthorizeResponse {
-	code: string;
+	code?: string;
+	access_token?: string;
+	id_token?: string;
+	token_type?: string;
+	expires_in?: number;
 	state?: string;
 	redirect_uri: string;
+}
+
+export interface ImplicitTokenResponse {
+	access_token?: string;
+	id_token?: string;
+	token_type: string;
+	expires_in?: number;
+	state?: string;
+}
+
+export interface IdTokenPayload {
+	iss: string;
+	sub: string;
+	aud: string;
+	exp: number;
+	iat: number;
+	auth_time?: number;
+	nonce?: string;
+	email?: string;
+	email_verified?: boolean;
+	preferred_username?: string;
+	roles?: string[];
+	[key: string]: unknown;
 }
 
 export interface TokenRequest {

@@ -64,16 +64,45 @@
 	const toast = useToast();
 
 	onMount(() => {
-		// URL 파라미터 파싱
+		// URL 파라미터 파싱 (Authorization Code Grant)
 		const urlParams = new URLSearchParams(window.location.search);
 		authCode = urlParams.get('code') || '';
 		oauthState = urlParams.get('state') || '';
 		error = urlParams.get('error') || '';
 
+		// URL fragment 파싱 (Implicit Grant)
+		const hashParams = new URLSearchParams(window.location.hash.substring(1));
+		const implicitAccessToken = hashParams.get('access_token');
+		const implicitIdToken = hashParams.get('id_token');
+		const implicitTokenType = hashParams.get('token_type');
+		const implicitExpiresIn = hashParams.get('expires_in');
+		const implicitState = hashParams.get('state');
+
+		// Implicit Grant 토큰이 있는 경우
+		if (implicitAccessToken || implicitIdToken) {
+			tokenResponse = {
+				access_token: implicitAccessToken || '',
+				token_type: implicitTokenType || 'Bearer',
+				expires_in: implicitExpiresIn ? parseInt(implicitExpiresIn) : 3600,
+				id_token: implicitIdToken
+			};
+
+			// state 병합 (fragment의 state 우선)
+			oauthState = implicitState || oauthState;
+
+			// Implicit Grant 토큰 정보 표시
+			if (implicitIdToken) {
+				toast.success('ID 토큰을 받았습니다!');
+			}
+			if (implicitAccessToken) {
+				toast.success('액세스 토큰을 받았습니다!');
+			}
+		}
+
 		// 현재 URL에서 redirect_uri 추출 (콜백 URL)
 		tokenForm.redirectUri = window.location.origin + window.location.pathname;
 
-		// 폼에 코드 설정
+		// 폼에 코드 설정 (Authorization Code Grant)
 		if (authCode) {
 			tokenForm.code = authCode;
 		}
@@ -98,6 +127,8 @@
 			toast.error(`OAuth2 인증 에러: ${error}`);
 		} else if (authCode) {
 			toast.success('인증 코드를 받았습니다. 토큰으로 교환해보세요!');
+		} else if (!implicitAccessToken && !implicitIdToken) {
+			toast.info('인증 파라미터가 없습니다. OAuth2 인증을 시작해보세요.');
 		}
 	});
 

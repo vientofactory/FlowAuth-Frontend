@@ -38,7 +38,7 @@
 		description: '',
 		redirectUris: '',
 		grants: ['authorization_code'],
-		scopes: 'identify',
+		scopes: 'openid profile',
 		logoUri: '',
 		termsOfServiceUri: '',
 		policyUri: ''
@@ -132,7 +132,7 @@
 
 	$effect(() => {
 		if (newClient.scopes !== undefined) {
-			scopesValue = newClient.scopes || 'identify';
+			scopesValue = newClient.scopes || 'profile';
 		}
 	});
 
@@ -171,8 +171,8 @@
 		clientNameValue = '';
 		clientDescriptionValue = '';
 		redirectUrisValue = '';
-		scopesValue = 'identify';
-		selectedScopes = ['identify'];
+		scopesValue = 'openid profile';
+		selectedScopes = ['openid', 'profile'];
 		logoUriValue = '';
 		termsOfServiceUriValue = '';
 		policyUriValue = '';
@@ -436,8 +436,8 @@
 		clientNameValue = '';
 		clientDescriptionValue = '';
 		redirectUrisValue = '';
-		scopesValue = 'identify';
-		selectedScopes = ['identify'];
+		scopesValue = 'openid profile';
+		selectedScopes = ['openid', 'profile'];
 		logoUriValue = '';
 		termsOfServiceUriValue = '';
 		policyUriValue = '';
@@ -454,7 +454,7 @@
 			description: '',
 			redirectUris: '',
 			grants: ['authorization_code'],
-			scopes: 'identify',
+			scopes: 'profile',
 			logoUri: '',
 			termsOfServiceUri: '',
 			policyUri: ''
@@ -577,8 +577,8 @@
 		editClientName = client.name;
 		editClientDescription = client.description || '';
 		editRedirectUris = client.redirectUris.join('\n');
-		editScopes = client.scopes ? client.scopes.join(' ') : 'identify';
-		editSelectedScopes = client.scopes || ['identify'];
+		editScopes = client.scopes ? client.scopes.join(' ') : 'openid profile';
+		editSelectedScopes = client.scopes || ['openid', 'profile'];
 
 		// 로고 URI가 유효한 경우만 설정, 그렇지 않으면 빈 문자열
 		const originalLogoUri = client.logoUri;
