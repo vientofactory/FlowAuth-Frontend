@@ -133,7 +133,9 @@
 		if (storedNonce && oauthNonce && storedNonce !== oauthNonce) {
 			toast.warning('Nonce 파라미터가 일치하지 않습니다. 보안 문제가 있을 수 있습니다.');
 		} else if (storedNonce && !oauthNonce) {
-			toast.warning('Nonce 파라미터가 누락되었습니다. OIDC 요청의 경우 보안 문제가 있을 수 있습니다.');
+			toast.warning(
+				'Nonce 파라미터가 누락되었습니다. OIDC 요청의 경우 보안 문제가 있을 수 있습니다.'
+			);
 		}
 
 		isLoading = false;

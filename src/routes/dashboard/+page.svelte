@@ -398,123 +398,134 @@
 			{#each userTypeConfig.stats as stat, index (stat.label || `stat-${index}`)}
 				{#if isDashboardLoading}
 					<!-- 스켈레톤 로딩 카드 -->
-					<div
-						class="group relative animate-pulse overflow-hidden rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 text-white shadow-lg"
-					>
-						<div class="relative p-4 sm:p-6">
-							<div class="flex items-center justify-between">
-								<div class="flex-1">
-									<div class="mb-2 flex items-center justify-between">
-										<div class="h-6 w-6 rounded bg-gray-400 opacity-80 sm:h-8 sm:w-8"></div>
-										<div class="h-4 w-8 rounded bg-gray-400 opacity-70"></div>
-									</div>
-									<div class="mb-2 h-4 w-16 rounded bg-gray-400 opacity-80"></div>
-									<div class="h-6 w-12 rounded bg-gray-400 opacity-90 sm:h-8 sm:w-16"></div>
+					<div class="group relative animate-pulse overflow-hidden rounded-xl bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 p-6 shadow-sm">
+						<div class="flex items-center justify-between">
+							<div class="flex-1 space-y-3">
+								<div class="flex items-center justify-between">
+									<div class="h-5 w-5 rounded-lg bg-gray-400/60"></div>
+									<div class="h-3 w-12 rounded bg-gray-400/40"></div>
 								</div>
+								<div class="h-4 w-20 rounded bg-gray-400/50"></div>
+								<div class="h-7 w-16 rounded bg-gray-400/70"></div>
 							</div>
-							<div class="absolute -right-4 -bottom-4 opacity-10">
-								<div class="h-12 w-12 rounded-full bg-gray-400 sm:h-16 sm:w-16"></div>
-							</div>
+						</div>
+						<div class="absolute -right-2 -bottom-2 opacity-20">
+							<div class="h-16 w-16 rounded-full bg-gray-400/30"></div>
 						</div>
 					</div>
 				{:else}
 					<!-- 실제 통계 카드 -->
-					<Card
-						class="group relative overflow-hidden bg-gradient-to-br {stat.color} text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
-					>
-						<div class="relative p-4 sm:p-6">
-							<div class="flex items-center justify-between">
-								<div class="flex-1">
-									<div class="mb-2 flex items-center justify-between">
-										<i class="{stat.icon} text-2xl opacity-80 sm:text-3xl"></i>
-										<span class="text-xs opacity-70">{getStatBadgeText(stat.label)}</span>
-									</div>
-									<p class="mb-1 text-sm font-medium opacity-80">{stat.label}</p>
-									<p class="text-xl font-bold sm:text-2xl">{stat.value}</p>
+					<div class="group relative overflow-hidden rounded-xl bg-gradient-to-br {stat.color} p-6 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+						<div class="relative z-10">
+							<div class="flex items-center justify-between mb-4">
+								<div class="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+									<i class="{stat.icon} text-xl"></i>
 								</div>
 							</div>
-							<div class="absolute -right-4 -bottom-4 opacity-10">
-								<i class="{stat.icon} text-6xl sm:text-8xl"></i>
+							<div class="space-y-1">
+								<p class="text-sm font-medium text-white/80">{stat.label}</p>
+								<p class="text-2xl font-bold tracking-tight">{stat.value}</p>
 							</div>
 						</div>
-					</Card>
+						<!-- 배경 장식 -->
+						<div class="absolute -right-4 -bottom-4 opacity-10">
+							<i class="{stat.icon} text-6xl"></i>
+						</div>
+						<div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent"></div>
+					</div>
 				{/if}
 			{/each}
 		</div>
 	{/if}
 
 	<!-- 탭 인터페이스 -->
-	<Card class="mb-6 lg:mb-8">
+	<div class="mb-6 overflow-hidden rounded-xl bg-white shadow-lg lg:mb-8">
 		<Tabs {tabs} bind:activeTab />
 
 		<!-- 탭 콘텐츠 -->
-		<div class="mt-6">
+		<div class="p-6">
 			{#if activeTab === 'overview'}
 				<!-- 개요 탭 -->
 				<div class="space-y-4 sm:space-y-6">
 					<!-- 사용자 정보 카드 -->
 					{#if user}
-						<Card class="border-l-4 border-l-blue-500">
-							<div
-								class="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0"
-							>
-								<div class="flex-1">
-									<h3 class="mb-3 text-base font-semibold text-gray-900 sm:mb-0 sm:text-lg">
-										계정 정보
-									</h3>
-									<div class="grid grid-cols-1 gap-2 text-sm text-gray-600 sm:grid-cols-2 sm:gap-4">
-										<div class="flex items-center space-x-2">
-											<i class="fas fa-user w-4 text-gray-400"></i>
-											<span><span class="font-medium">사용자명:</span> {user.username}</span>
-										</div>
-										<div class="flex items-center space-x-2">
-											<i class="fas fa-envelope w-4 text-gray-400"></i>
-											<span><span class="font-medium">이메일:</span> {user.email}</span>
-										</div>
-										<div class="flex items-center space-x-2 sm:col-span-2">
-											<i class="fas fa-id-card w-4 text-gray-400"></i>
-											<span>
-												<span class="font-medium">이름:</span>
-												{user.firstName}
-												{user.lastName}
-											</span>
-										</div>
-										<div class="flex items-center space-x-2">
-											<i class="fas fa-shield-alt w-4 text-gray-400"></i>
-											<span>
-												<span class="font-medium">역할:</span>
-												{#if user.permissions !== undefined}
-													<Badge variant="info" size="sm" class="ml-1">
-														{PermissionUtils.getRoleName(Number(user.permissions))}
+						<div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 p-6 shadow-sm ring-1 ring-blue-100">
+							<div class="relative">
+								<div class="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+									<div class="flex-1">
+										<h3 class="mb-4 text-lg font-semibold text-gray-900 flex items-center">
+											<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 mr-3">
+												<i class="fas fa-user text-blue-600"></i>
+											</div>
+											계정 정보
+										</h3>
+										<div class="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
+											<div class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm">
+												<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
+													<i class="fas fa-user text-blue-600"></i>
+												</div>
+												<div>
+													<p class="text-xs font-medium text-gray-500 uppercase tracking-wide">사용자명</p>
+													<p class="font-medium text-gray-900">{user.username}</p>
+												</div>
+											</div>
+											<div class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm">
+												<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100">
+													<i class="fas fa-envelope text-green-600"></i>
+												</div>
+												<div>
+													<p class="text-xs font-medium text-gray-500 uppercase tracking-wide">이메일</p>
+													<p class="font-medium text-gray-900">{user.email}</p>
+												</div>
+											</div>
+											<div class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm sm:col-span-2 lg:col-span-1">
+												<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
+													<i class="fas fa-id-card text-purple-600"></i>
+												</div>
+												<div>
+													<p class="text-xs font-medium text-gray-500 uppercase tracking-wide">이름</p>
+													<p class="font-medium text-gray-900">{user.firstName} {user.lastName}</p>
+												</div>
+											</div>
+											<div class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm">
+												<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100">
+													<i class="fas fa-shield-alt text-red-600"></i>
+												</div>
+												<div>
+													<p class="text-xs font-medium text-gray-500 uppercase tracking-wide">역할</p>
+													<div class="flex items-center space-x-2">
+														{#if user.permissions !== undefined}
+															<Badge variant="info" size="sm" class="font-medium">
+																{PermissionUtils.getRoleName(Number(user.permissions))}
+															</Badge>
+														{:else}
+															<Badge variant="secondary" size="sm" class="font-medium">권한 없음</Badge>
+														{/if}
+													</div>
+												</div>
+											</div>
+											<div class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm">
+												<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100">
+													<i class="fas fa-user-tag text-orange-600"></i>
+												</div>
+												<div>
+													<p class="text-xs font-medium text-gray-500 uppercase tracking-wide">유형</p>
+													<Badge variant={user.userType === USER_TYPES.DEVELOPER ? 'success' : 'info'} size="sm" class="font-medium">
+														{user.userType === USER_TYPES.DEVELOPER ? '개발자' : '사용자'}
 													</Badge>
-												{:else}
-													<Badge variant="secondary" size="sm" class="ml-1">권한 없음</Badge>
-												{/if}
-											</span>
-										</div>
-										<div class="flex items-center space-x-2">
-											<i class="fas fa-user-tag w-4 text-gray-400"></i>
-											<span>
-												<span class="font-medium">유형:</span>
-												<Badge
-													variant={user.userType === USER_TYPES.DEVELOPER ? 'success' : 'info'}
-													size="sm"
-													class="ml-1"
-												>
-													{user.userType === USER_TYPES.DEVELOPER ? '개발자' : '일반 사용자'}
-												</Badge>
-											</span>
+												</div>
+											</div>
 										</div>
 									</div>
-								</div>
-								<div class="flex justify-center sm:justify-end">
-									<Button variant="outline" onclick={navigateToProfile} class="w-full sm:w-auto">
-										<i class="fas fa-edit mr-2"></i>
-										프로필 편집
-									</Button>
+									<div class="flex justify-center sm:justify-end mt-4 sm:mt-0">
+										<Button variant="outline" onclick={navigateToProfile} class="w-full sm:w-auto hover:bg-blue-50 hover:border-blue-200 transition-colors">
+											<i class="fas fa-edit mr-2"></i>
+											프로필 편집
+										</Button>
+									</div>
 								</div>
 							</div>
-						</Card>
+						</div>
 					{/if}
 				</div>
 			{:else if activeTab === 'analytics'}
@@ -1036,123 +1047,135 @@
 				</div>
 			{:else if activeTab === 'activity'}
 				<!-- 최근 활동 탭 -->
-				<div class="space-y-4">
-					<h3 class="text-lg font-semibold text-gray-900">최근 활동</h3>
-					<div class="space-y-3">
-						{#each recentActivities as activity, index (activity.id || activity.createdAt || `activity-${index}`)}
-							{@const { icon, color } = getActivityIcon(activity.type)}
-							<div
-								class="flex items-start space-x-3 rounded-lg border border-gray-200 p-4 transition-all duration-200 hover:border-gray-300 hover:shadow-sm"
-							>
-								<div
-									class="flex h-10 w-10 items-center justify-center rounded-full {color} flex-shrink-0"
-								>
-									<i class={icon}></i>
-								</div>
-								<div class="min-w-0 flex-1">
-									<div class="flex items-start justify-between">
-										<div class="flex-1">
-											<p class="mb-1 text-sm font-medium text-gray-900">{activity.description}</p>
-											{#if activity.metadata?.activity}
-												<p class="mb-2 text-xs text-gray-600">{activity.metadata.activity}</p>
-											{/if}
+				<div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 p-6 shadow-sm ring-1 ring-green-100">
+					<div class="relative">
+						<h3 class="mb-6 text-lg font-semibold text-gray-900 flex items-center">
+							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 mr-3">
+								<i class="fas fa-history text-green-600"></i>
+							</div>
+							최근 활동
+						</h3>
+						<div class="space-y-4">
+							{#each recentActivities as activity, index (activity.id || activity.createdAt || `activity-${index}`)}
+								{@const { icon, color } = getActivityIcon(activity.type)}
+								<div class="group flex items-start space-x-4 rounded-lg bg-white/60 p-4 backdrop-blur-sm transition-all duration-200 hover:bg-white/80 hover:shadow-sm">
+									<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br {color} group-hover:scale-110 transition-transform flex-shrink-0">
+										<i class="{icon} text-white"></i>
+									</div>
+									<div class="min-w-0 flex-1">
+										<div class="flex items-start justify-between">
+											<div class="flex-1">
+												<p class="mb-1 text-sm font-medium text-gray-900">{activity.description}</p>
+												{#if activity.metadata?.activity}
+													<p class="mb-2 text-xs text-gray-600">{activity.metadata.activity}</p>
+												{/if}
 
-											<!-- 추가 세부 정보 표시 -->
-											{#if activity.metadata?.details}
-												<div class="space-y-1">
-													{#if activity.metadata.details.scopes && Array.isArray(activity.metadata.details.scopes)}
-														<div class="flex flex-wrap gap-1">
-															{#each activity.metadata.details.scopes as scope, scopeIndex (`${scope}-${scopeIndex}`)}
-																<Badge variant="secondary" class="px-2 py-0.5 text-xs">
-																	{scope}
-																</Badge>
-															{/each}
-														</div>
-													{/if}
+												<!-- 추가 세부 정보 표시 -->
+												{#if activity.metadata?.details}
+													<div class="space-y-1">
+														{#if activity.metadata.details.scopes && Array.isArray(activity.metadata.details.scopes)}
+															<div class="flex flex-wrap gap-1">
+																{#each activity.metadata.details.scopes as scope, scopeIndex (`${scope}-${scopeIndex}`)}
+																	<Badge variant="secondary" class="px-2 py-0.5 text-xs">
+																		{scope}
+																	</Badge>
+																{/each}
+															</div>
+														{/if}
 
-													{#if activity.metadata.details.expiresAt}
-														<p class="text-xs text-gray-500">
-															<i class="fas fa-clock mr-1"></i>
-															만료: {new Date(activity.metadata.details.expiresAt).toLocaleString(
-																'ko-KR'
-															)}
-														</p>
-													{/if}
+														{#if activity.metadata.details.expiresAt}
+															<p class="text-xs text-gray-500">
+																<i class="fas fa-clock mr-1"></i>
+																만료: {new Date(activity.metadata.details.expiresAt).toLocaleString(
+																	'ko-KR'
+																)}
+															</p>
+														{/if}
 
-													{#if activity.metadata.details.isActive !== undefined}
-														<p class="text-xs text-gray-500">
-															<i class="fas fa-info-circle mr-1"></i>
-															상태: {activity.metadata.details.isActive ? '활성' : '비활성'}
-															{#if activity.metadata.details.isConfidential !== undefined}
-																• 기밀: {activity.metadata.details.isConfidential ? '예' : '아니오'}
-															{/if}
-														</p>
-													{/if}
+														{#if activity.metadata.details.isActive !== undefined}
+															<p class="text-xs text-gray-500">
+																<i class="fas fa-info-circle mr-1"></i>
+																상태: {activity.metadata.details.isActive ? '활성' : '비활성'}
+																{#if activity.metadata.details.isConfidential !== undefined}
+																	• 기밀: {activity.metadata.details.isConfidential ? '예' : '아니오'}
+																{/if}
+															</p>
+														{/if}
 
-													{#if activity.metadata.details.description}
-														<p class="mt-1 text-xs text-gray-500 italic">
-															"{activity.metadata.details.description}"
-														</p>
-													{/if}
-												</div>
-											{/if}
+														{#if activity.metadata.details.description}
+															<p class="mt-1 text-xs text-gray-500 italic">
+																"{activity.metadata.details.description}"
+															</p>
+														{/if}
+													</div>
+												{/if}
 
-											{#if activity.metadata?.reason}
-												<p class="mt-1 text-xs text-red-600">
-													<i class="fas fa-exclamation-triangle mr-1"></i>
-													사유: {activity.metadata.reason}
-												</p>
-											{/if}
-										</div>
-										<div class="ml-3 flex-shrink-0 text-right">
-											<p class="text-xs text-gray-500">{getRelativeTime(activity.createdAt)}</p>
+												{#if activity.metadata?.reason}
+													<p class="mt-1 text-xs text-red-600">
+														<i class="fas fa-exclamation-triangle mr-1"></i>
+														사유: {activity.metadata.reason}
+													</p>
+												{/if}
+											</div>
+											<div class="ml-3 flex-shrink-0 text-right">
+												<p class="text-xs text-gray-500">{getRelativeTime(activity.createdAt)}</p>
+											</div>
 										</div>
 									</div>
 								</div>
-							</div>
-						{/each}
-						{#if recentActivities.length === 0}
-							<div class="py-8 text-center text-gray-500">
-								<i class="fas fa-clock mb-2 text-3xl"></i>
-								<p>최근 활동이 없습니다.</p>
-							</div>
-						{/if}
+							{/each}
+							{#if recentActivities.length === 0}
+								<div class="flex flex-col items-center justify-center py-12 text-center">
+									<div class="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 mb-4">
+										<i class="fas fa-inbox text-gray-400 text-2xl"></i>
+									</div>
+									<h4 class="text-sm font-medium text-gray-900 mb-1">최근 활동이 없습니다</h4>
+									<p class="text-sm text-gray-500">활동 내역이 여기에 표시됩니다.</p>
+								</div>
+							{/if}
+						</div>
 					</div>
 				</div>
 			{:else if activeTab === 'quick-actions'}
 				<!-- 빠른 작업 탭 -->
-				<div class="space-y-4 sm:space-y-6">
-					<div class="text-center sm:text-left">
-						<h3 class="mb-2 text-lg font-semibold text-gray-900">빠른 작업</h3>
-						<p class="text-sm text-gray-600">자주 사용하는 기능을 빠르게 실행하세요</p>
-					</div>
-					{#if userTypeConfig}
-						<div
-							class="grid gap-4 {getGridColsClass(userTypeConfig.quickActions.length, 'actions')}"
-						>
-							{#each userTypeConfig.quickActions as action, actionIndex (action.label || `action-${actionIndex}`)}
-								{@const colorClass = COLOR_CLASSES[action.color as keyof typeof COLOR_CLASSES]}
-								<Button
-									variant="outline"
-									class="group flex h-24 flex-col items-center justify-center space-y-1 border-dashed border-gray-300 px-2 py-2 transition-all duration-200 hover:scale-105 {colorClass?.hover ||
-										''} sm:h-28 sm:px-3 sm:py-3"
-									onclick={action.action}
-								>
-									<div
-										class="flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-200 {colorClass?.background ||
-											''} sm:h-10 sm:w-10"
-									>
-										<i class="text-lg {colorClass?.text || ''} sm:text-xl {action.icon}"></i>
-									</div>
-									<span class="text-center text-xs leading-none font-medium sm:text-sm">
-										{action.label}
-									</span>
-								</Button>
-							{/each}
+				<div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 p-6 shadow-sm ring-1 ring-purple-100">
+					<div class="relative">
+						<div class="text-center sm:text-left mb-6">
+							<h3 class="mb-2 text-lg font-semibold text-gray-900 flex items-center justify-center sm:justify-start">
+								<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100 mr-3">
+									<i class="fas fa-bolt text-purple-600"></i>
+								</div>
+								빠른 작업
+							</h3>
+							<p class="text-sm text-gray-600">자주 사용하는 기능을 빠르게 실행하세요</p>
 						</div>
-					{/if}
+						{#if userTypeConfig}
+							<div class="grid gap-4 {getGridColsClass(userTypeConfig.quickActions.length, 'actions')}">
+								{#each userTypeConfig.quickActions as action, actionIndex (action.label || `action-${actionIndex}`)}
+									{@const colorClass = COLOR_CLASSES[action.color as keyof typeof COLOR_CLASSES]}
+									<div class="group relative overflow-hidden rounded-xl bg-white/60 p-4 backdrop-blur-sm transition-all duration-300 hover:bg-white/80 hover:shadow-lg hover:scale-105 border border-gray-100">
+										<Button
+											variant="ghost"
+											class="w-full h-full flex flex-col items-center justify-center space-y-3 p-0 hover:bg-transparent"
+											onclick={action.action}
+										>
+											<div class="relative">
+												<div class="flex h-12 w-12 items-center justify-center rounded-xl transition-all duration-300 {colorClass?.background || 'bg-gray-100'} group-hover:scale-110 group-hover:shadow-lg">
+													<i class="text-xl {colorClass?.text || 'text-gray-600'} {action.icon}"></i>
+												</div>
+												<div class="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+											</div>
+											<span class="text-center text-sm leading-tight font-medium text-gray-700 group-hover:text-gray-900 transition-colors">
+												{action.label}
+											</span>
+										</Button>
+									</div>
+								{/each}
+							</div>
+						{/if}
+					</div>
 				</div>
 			{/if}
 		</div>
-	</Card>
+	</div>
 </DashboardLayout>
