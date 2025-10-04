@@ -864,19 +864,6 @@
 							<span class="text-sm font-medium text-gray-900">프로필</span>
 						</button>
 
-						<!-- 설정 -->
-						<button
-							onclick={() => goto('/dashboard/settings')}
-							class="group flex cursor-pointer flex-col items-center rounded-xl border-0 bg-white/80 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:outline-none"
-						>
-							<div
-								class="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 transition-transform duration-300 group-hover:scale-110"
-							>
-								<i class="fas fa-cog text-lg text-white"></i>
-							</div>
-							<span class="text-sm font-medium text-gray-900">설정</span>
-						</button>
-
 						<!-- 연결 관리 -->
 						<button
 							onclick={() => goto('/dashboard/connections')}

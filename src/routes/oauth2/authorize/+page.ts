@@ -12,6 +12,7 @@ export interface ConsentPageData {
 		state?: string;
 		code_challenge?: string;
 		code_challenge_method?: string;
+		nonce?: string;
 	};
 }
 
@@ -24,6 +25,7 @@ export const load = async ({ url }: LoadEvent) => {
 	const state = url.searchParams.get('state');
 	const code_challenge = url.searchParams.get('code_challenge');
 	const code_challenge_method = url.searchParams.get('code_challenge_method');
+	const nonce = url.searchParams.get('nonce');
 
 	if (!client_id || !redirect_uri || !response_type) {
 		throw new Error('Missing required OAuth2 parameters');
@@ -37,7 +39,8 @@ export const load = async ({ url }: LoadEvent) => {
 			scope: scope || undefined,
 			state: state || undefined,
 			code_challenge: code_challenge || undefined,
-			code_challenge_method: code_challenge_method || undefined
+			code_challenge_method: code_challenge_method || undefined,
+			nonce: nonce || undefined
 		}
 	};
 };

@@ -91,7 +91,8 @@ class AuthStore {
 					...state,
 					user,
 					isAuthenticated: true,
-					isLoading: false
+					isLoading: false,
+					isInitialized: true
 				}));
 			} catch (fallbackError) {
 				// 모든 인증 방법 실패

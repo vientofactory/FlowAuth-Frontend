@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getScopeInfo } from '$lib/utils/scope.utils';
+	import { getScopeInfo, OAUTH2_SCOPES } from '$lib/utils/scope.utils';
 
 	interface Props {
 		selectedScopes: string[];
@@ -10,8 +10,8 @@
 
 	let { selectedScopes = $bindable([]), onScopeToggle, error, disabled = false }: Props = $props();
 
-	// 모든 스코프 목록
-	const allScopes = ['identify', 'email'];
+	// 모든 스코프 목록 (scope.utils.ts에서 가져옴)
+	const allScopes = Object.values(OAUTH2_SCOPES);
 
 	// 스코프 아이콘 색상 클래스 가져오기 함수
 	function getScopeColorClasses(color: string) {

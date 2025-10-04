@@ -37,7 +37,7 @@
 	onMount(() => {
 		unsubscribe = authState.subscribe((state) => {
 			user = state.user;
-			isLoading = state.isLoading;
+			isLoading = !state.isInitialized || state.isLoading; // 초기화 완료 전이거나 실제 로딩 중인 경우
 			isAuthenticated = state.isAuthenticated;
 		});
 

@@ -9,6 +9,7 @@
 	import { USER_TYPES } from '$lib/types/user.types';
 	import { authState } from '$lib';
 	import type { User } from '$lib';
+	import { SCOPE_MAPPINGS, OAUTH2_SCOPES } from '$lib/utils/scope.utils';
 
 	// 상태 변수들
 	let user = $state<User | null>(null);
@@ -17,13 +18,14 @@
 	let selectedClient = $state<Client | null>(null);
 	let responseType = $state('code');
 	let usePKCE = $state(true);
+	let useOIDC = $state(false);
 	let generatedUrl = $state('');
 	let showResult = $state(false);
 	let isCopying = $state(false);
 	let copySuccess = $state(false);
 
 	// 스코프 관련 상태
-	let selectedScopes = $state<Set<string>>(new Set(['identify']));
+	let selectedScopes = $state<Set<string>>(new Set(['openid', 'profile']));
 	let showScopeSelector = $state(false);
 	let availableScopes = $state<{ id: string; name: string; description: string }[]>([]);
 	let scopesLoading = $state(false);
@@ -94,21 +96,29 @@
 		try {
 			scopesLoading = true;
 			scopesError = null;
-			// 백엔드에서 스코프 목록을 가져오는 대신 프론트엔드에서 정의된 스코프 사용
-			availableScopes = [
-				{ id: 'identify', name: '계정 기본 정보', description: '사용자의 기본 계정 정보 읽기' },
-				{ id: 'email', name: '이메일 주소', description: '사용자의 이메일 주소 읽기' }
-			];
+			// scope.utils.ts에서 정의된 스코프들을 사용
+			availableScopes = Object.values(OAUTH2_SCOPES).map((scopeId) => {
+				const scopeInfo = SCOPE_MAPPINGS[scopeId];
+				return {
+					id: scopeId,
+					name: scopeInfo?.name || scopeId,
+					description: scopeInfo?.description || `앱이 ${scopeId} 권한을 사용할 수 있습니다`
+				};
+			});
 		} catch (error) {
 			console.error('Failed to load available scopes:', error);
 			scopesError = '스코프 목록을 불러오는데 실패했습니다.';
 			toast.error('스코프 목록을 불러오는데 실패했습니다.');
 
 			// 오류 시에도 동일한 스코프들 사용
-			availableScopes = [
-				{ id: 'identify', name: '계정 기본 정보', description: '사용자의 기본 계정 정보 읽기' },
-				{ id: 'email', name: '이메일 주소', description: '사용자의 이메일 주소 읽기' }
-			];
+			availableScopes = Object.values(OAUTH2_SCOPES).map((scopeId) => {
+				const scopeInfo = SCOPE_MAPPINGS[scopeId];
+				return {
+					id: scopeId,
+					name: scopeInfo?.name || scopeId,
+					description: scopeInfo?.description || `앱이 ${scopeId} 권한을 사용할 수 있습니다`
+				};
+			});
 		} finally {
 			scopesLoading = false;
 		}
@@ -130,6 +140,12 @@
 			const baseUrl = createApiUrl('/oauth2/authorize');
 			const redirectUri = selectedClient.redirectUris[0];
 			const state = CryptoUtils.generateRandomString(32);
+			let nonce: string | undefined;
+
+			// OIDC response type인 경우 nonce 생성
+			if (responseType.includes('id_token')) {
+				nonce = CryptoUtils.generateRandomString(32);
+			}
 
 			// 선택된 스코프들을 문자열로 변환
 			const scopeString = getScopesString();
@@ -142,7 +158,14 @@
 				state
 			});
 
-			if (usePKCE && responseType === 'code') {
+			// OIDC인 경우 nonce 추가
+			if (nonce) {
+				params.append('nonce', nonce);
+				// nonce를 세션 스토리지에 저장하여 콜백에서 검증할 수 있도록
+				sessionStorage.setItem('oauth_nonce', nonce);
+			}
+
+			if (usePKCE && responseType.includes('code')) {
 				try {
 					const codeVerifier = CryptoUtils.generateCodeVerifier();
 					const codeChallenge = await CryptoUtils.generateCodeChallenge(codeVerifier);
@@ -157,7 +180,7 @@
 					toast.error('PKCE 파라미터 생성에 실패했습니다. 페이지를 새로고침 후 다시 시도해주세요.');
 					return;
 				}
-			} else if (responseType === 'code' && !usePKCE) {
+			} else if (responseType.includes('code') && !usePKCE) {
 				toast.warning(
 					'PKCE를 사용하지 않으면 보안이 취약해질 수 있습니다. 프로덕션 환경에서는 PKCE 사용을 권장합니다.'
 				);
@@ -299,7 +322,17 @@
 						class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
 					>
 						<option value="code">Authorization Code</option>
+						<option value="token">Implicit Grant (Access Token)</option>
+						<option value="id_token">Implicit Grant (ID Token)</option>
+						<option value="code id_token">Hybrid Flow (Code + ID Token)</option>
+						<option value="token id_token">Implicit Grant (Access Token + ID Token)</option>
 					</select>
+					{#if responseType.includes('id_token')}
+						<p class="mt-1 text-xs text-blue-600">
+							<i class="fas fa-info-circle mr-1"></i>
+							OIDC 응답 타입입니다. openid 스코프가 필요합니다.
+						</p>
+					{/if}
 				</div>
 
 				<!-- Scopes -->
@@ -433,7 +466,7 @@
 				</div>
 
 				<!-- PKCE 설정 -->
-				{#if responseType === 'code'}
+				{#if responseType.includes('code')}
 					<div>
 						<label class="flex items-center">
 							<input

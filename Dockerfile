@@ -7,19 +7,32 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
-RUN npm ci
+COPY ./frontend/package*.json ./
+COPY ./shared ./shared
 
-# Rebuild the source code only when needed
+# Build shared module first
+WORKDIR /app/shared
+RUN npm ci && npm run build
+
+# Go back to app directory and install dependencies
+WORKDIR /app
+RUN sed -i 's|"file:../shared"|"file:./shared"|g' package.json && npm install
+
+# Build stage
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY ./frontend ./frontend
+COPY ./shared ./shared
+
+# Go to frontend directory and install dependencies
+WORKDIR /app/frontend
+RUN npm install
 
 # Build the application
 RUN npm run build
 
-# Production image, copy all the files and run next
+# Production image
 FROM base AS runner
 WORKDIR /app
 
@@ -30,9 +43,10 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 sveltekit
 
 # Copy the built application
-COPY --from=builder /app/build ./build
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/.env ./
+COPY --from=builder /app/frontend/build ./build
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/frontend/package*.json ./
+COPY --from=builder /app/frontend/.env ./.env
 
 # Install production dependencies only
 RUN npm ci --only=production && npm cache clean --force

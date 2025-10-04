@@ -8,14 +8,14 @@
 		apiClient,
 		authState,
 		useToast,
-		PermissionUtils,
-		PERMISSIONS
+		PermissionUtils
 	} from '$lib';
 	import Chart from '$lib/components/Chart.svelte';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import type { User } from '$lib';
 	import { USER_TYPES } from '$lib/types/user.types';
+	import { usePermissions } from '$lib/composables/usePermissions';
 
 	let user = $state<User | null>(null);
 	let _isLoading = $state(true);
@@ -51,14 +51,17 @@
 		}
 	});
 
+	// 권한 관련 상태
+	const { canManageSystem, isClientManager, isTokenManager, isUserManager, roleName } =
+		usePermissions();
+
+	// 파생 상태
+	const _hasManageSystemPermission = $derived($canManageSystem);
+	const isDeveloper = $derived($isClientManager || $isTokenManager || $isUserManager);
+
 	// 사용자 유형별 대시보드 설정
 	const userTypeConfig = $derived.by(() => {
 		if (!user) return null;
-
-		const isDeveloper = user.userType === USER_TYPES.DEVELOPER;
-		const hasManageSystemPermission =
-			user.permissions !== undefined &&
-			PermissionUtils.hasPermission(Number(user.permissions), PERMISSIONS.MANAGE_SYSTEM);
 
 		return {
 			title: isDeveloper ? '개발자 대시보드' : '사용자 대시보드',
@@ -98,65 +101,50 @@
 					icon: 'fas fa-calendar',
 					color: 'from-orange-500 to-orange-600',
 					show: true
+				},
+				{
+					label: '권한',
+					value: $roleName,
+					icon: 'fas fa-shield-alt',
+					color: 'from-red-500 to-red-600',
+					show: true
 				}
 			].filter((stat) => stat.show),
-			quickActions: [
-				// 개발자용 작업들
-				...(isDeveloper
-					? [
-							{
-								label: '클라이언트\n생성',
-								icon: 'fas fa-plus-circle',
-								color: 'blue',
-								action: navigateToClients
-							},
-							{
-								label: '토큰\n관리',
-								icon: 'fas fa-key',
-								color: 'green',
-								action: navigateToTokens
-							},
-							{
-								label: 'OAuth2\n테스터',
-								icon: 'fas fa-link',
-								color: 'orange',
-								action: navigateToOAuthTester
-							}
-						]
-					: [
-							// 일반 사용자용 작업들
-							{
-								label: '프로필\n편집',
-								icon: 'fas fa-user-edit',
-								color: 'blue',
-								action: navigateToProfile
-							},
-							{
-								label: '토큰\n관리',
-								icon: 'fas fa-key',
-								color: 'green',
-								action: navigateToTokens
-							}
-						]),
-				// 시스템 관리 권한이 있는 경우 시스템 설정 버튼 추가
-				...(hasManageSystemPermission
-					? [
-							{
-								label: '시스템\n설정',
-								icon: 'fas fa-cog',
-								color: 'purple',
-								action: navigateToSettings
-							}
-						]
-					: []),
-				// 도움말 버튼 (항상 표시)
-				{
-					label: '도움말',
-					icon: 'fas fa-question-circle',
-					color: 'orange',
-					action: () => location.href = 'https://op0.gitbook.io/flowauth'
-				}
-			]
+			quickActions: isDeveloper
+				? [
+						{
+							label: '클라이언트\n생성',
+							icon: 'fas fa-plus-circle',
+							color: 'blue',
+							action: navigateToClients
+						},
+						{
+							label: '토큰\n관리',
+							icon: 'fas fa-key',
+							color: 'green',
+							action: navigateToTokens
+						},
+						{
+							label: 'OAuth2\n테스터',
+							icon: 'fas fa-link',
+							color: 'orange',
+							action: navigateToOAuthTester
+						}
+					]
+				: [
+						{
+							label: '프로필\n편집',
+							icon: 'fas fa-user-edit',
+							color: 'blue',
+							action: navigateToProfile
+						},
+						{
+							label: '토큰\n관리',
+							icon: 'fas fa-key',
+							color: 'green',
+							action: navigateToTokens
+						}
+					]
 		};
 	});
 
@@ -243,8 +231,14 @@
 			user = state.user;
 			_isLoading = state.isLoading;
 
-			// authState 로딩이 끝나고 user가 있고 아직 대시보드 데이터를 로드하지 않은 경우에만 로드
-			if (!state.isLoading && user && !isDashboardLoading && !isDashboardDataLoaded) {
+			// authState 초기화가 완료되고 로딩이 끝나고 user가 있고 아직 대시보드 데이터를 로드하지 않은 경우에만 로드
+			if (
+				state.isInitialized &&
+				!state.isLoading &&
+				user &&
+				!isDashboardLoading &&
+				!isDashboardDataLoaded
+			) {
 				loadDashboardData().catch(console.error);
 			}
 
@@ -385,7 +379,7 @@
 		goto('/dashboard/tokens');
 	}
 
-	function navigateToSettings() {
+	function _navigateToSettings() {
 		goto('/dashboard/settings');
 	}
 

@@ -117,3 +117,106 @@ export class CryptoUtils {
 		return bytes;
 	}
 }
+
+/**
+ * JWT 토큰 파싱 및 검증 유틸리티 (OpenID Connect용)
+ */
+export class JwtUtils {
+	/**
+	 * JWT 토큰을 파싱하여 헤더, 페이로드, 시그니처로 분리
+	 * @param token JWT 토큰
+	 * @returns 파싱된 토큰 정보
+	 */
+	static parseJwt(token: string): {
+		header: Record<string, unknown>;
+		payload: Record<string, unknown>;
+		signature: string;
+	} {
+		const parts = token.split('.');
+		if (parts.length !== 3) {
+			throw new Error('Invalid JWT token format');
+		}
+
+		const [headerB64, payloadB64, signature] = parts;
+
+		try {
+			const header = JSON.parse(this.base64UrlDecode(headerB64));
+			const payload = JSON.parse(this.base64UrlDecode(payloadB64));
+
+			return { header, payload, signature };
+		} catch {
+			throw new Error('Failed to parse JWT token');
+		}
+	}
+
+	/**
+	 * JWT 토큰의 만료 여부 확인
+	 * @param token JWT 토큰
+	 * @returns 만료 여부
+	 */
+	static isTokenExpired(token: string): boolean {
+		try {
+			const { payload } = this.parseJwt(token);
+			const exp = payload.exp as number;
+
+			if (!exp) return false;
+
+			const currentTime = Math.floor(Date.now() / 1000);
+			return currentTime >= exp;
+		} catch {
+			return true; // 파싱 실패 시 만료된 것으로 간주
+		}
+	}
+
+	/**
+	 * JWT 토큰의 만료 시간 가져오기
+	 * @param token JWT 토큰
+	 * @returns 만료 시간 (Date 객체)
+	 */
+	static getTokenExpiration(token: string): Date | null {
+		try {
+			const { payload } = this.parseJwt(token);
+			const exp = payload.exp as number;
+
+			if (!exp) return null;
+
+			return new Date(exp * 1000);
+		} catch {
+			return null;
+		}
+	}
+
+	/**
+	 * JWT 토큰의 발급 시간 가져오기
+	 * @param token JWT 토큰
+	 * @returns 발급 시간 (Date 객체)
+	 */
+	static getTokenIssuedAt(token: string): Date | null {
+		try {
+			const { payload } = this.parseJwt(token);
+			const iat = payload.iat as number;
+
+			if (!iat) return null;
+
+			return new Date(iat * 1000);
+		} catch {
+			return null;
+		}
+	}
+
+	/**
+	 * Base64URL 디코딩
+	 * @param str Base64URL 문자열
+	 * @returns 디코딩된 문자열
+	 */
+	private static base64UrlDecode(str: string): string {
+		let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+
+		// 패딩 추가
+		while (base64.length % 4 !== 0) {
+			base64 += '=';
+		}
+
+		return atob(base64);
+	}
+}
