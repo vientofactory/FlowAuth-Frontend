@@ -8,6 +8,7 @@
 	// URL 파라미터에서 코드와 상태 추출
 	let authCode = $state('');
 	let oauthState = $state('');
+	let oauthNonce = $state('');
 	let error = $state('');
 	let isLoading = $state(true);
 
@@ -28,6 +29,7 @@
 		expires_in: number;
 		refresh_token?: string;
 		scope?: string;
+		id_token?: string;
 	}
 
 	interface UserProfile {
@@ -41,6 +43,7 @@
 		header: {
 			alg: string;
 			typ: string;
+			kid?: string;
 			[key: string]: unknown;
 		};
 		payload: Record<string, unknown>;
@@ -48,6 +51,7 @@
 		issuedAt: Date | null;
 		expiresAt: Date | null;
 		isExpired: boolean;
+		isValidNonce?: boolean;
 	}
 
 	// 응답 데이터
@@ -59,6 +63,7 @@
 	let isTestingToken = $state(false);
 	let userProfile: UserProfile | null = $state(null);
 	let tokenInfo: TokenInfo | null = $state(null);
+	let idTokenInfo: TokenInfo | null = $state(null);
 	let activeTab = $state('token'); // 'token', 'profile', 'test'
 
 	const toast = useToast();
@@ -68,6 +73,7 @@
 		const urlParams = new URLSearchParams(window.location.search);
 		authCode = urlParams.get('code') || '';
 		oauthState = urlParams.get('state') || '';
+		oauthNonce = urlParams.get('nonce') || '';
 		error = urlParams.get('error') || '';
 
 		// URL fragment 파싱 (Implicit Grant)
@@ -77,6 +83,7 @@
 		const implicitTokenType = hashParams.get('token_type');
 		const implicitExpiresIn = hashParams.get('expires_in');
 		const implicitState = hashParams.get('state');
+		const implicitNonce = hashParams.get('nonce');
 
 		// Implicit Grant 토큰이 있는 경우
 		if (implicitAccessToken || implicitIdToken) {
@@ -84,11 +91,12 @@
 				access_token: implicitAccessToken || '',
 				token_type: implicitTokenType || 'Bearer',
 				expires_in: implicitExpiresIn ? parseInt(implicitExpiresIn) : 3600,
-				id_token: implicitIdToken
+				id_token: implicitIdToken || undefined
 			};
 
-			// state 병합 (fragment의 state 우선)
+			// state와 nonce 병합 (fragment의 값 우선)
 			oauthState = implicitState || oauthState;
+			oauthNonce = implicitNonce || oauthNonce;
 
 			// Implicit Grant 토큰 정보 표시
 			if (implicitIdToken) {
@@ -107,9 +115,10 @@
 			tokenForm.code = authCode;
 		}
 
-		// 세션 스토리지에서 code_verifier와 state 가져오기
+		// 세션 스토리지에서 code_verifier, state, nonce 가져오기
 		const storedCodeVerifier = sessionStorage.getItem('code_verifier');
 		const storedState = sessionStorage.getItem('state');
+		const storedNonce = sessionStorage.getItem('oauth_nonce');
 
 		if (storedCodeVerifier) {
 			tokenForm.codeVerifier = storedCodeVerifier;
@@ -118,6 +127,13 @@
 		// state 검증
 		if (storedState && oauthState && storedState !== oauthState) {
 			toast.warning('State 파라미터가 일치하지 않습니다. 보안 문제가 있을 수 있습니다.');
+		}
+
+		// nonce 검증 (OIDC인 경우)
+		if (storedNonce && oauthNonce && storedNonce !== oauthNonce) {
+			toast.warning('Nonce 파라미터가 일치하지 않습니다. 보안 문제가 있을 수 있습니다.');
+		} else if (storedNonce && !oauthNonce) {
+			toast.warning('Nonce 파라미터가 누락되었습니다. OIDC 요청의 경우 보안 문제가 있을 수 있습니다.');
 		}
 
 		isLoading = false;
@@ -216,7 +232,7 @@
 	}
 
 	// 토큰 정보 디코딩
-	function decodeJWT(token: string): TokenInfo | null {
+	function decodeJWT(token: string, expectedNonce?: string): TokenInfo | null {
 		try {
 			const parts = token.split('.');
 			if (parts.length !== 3) {
@@ -226,13 +242,22 @@
 			const payload = JSON.parse(atob(parts[1]));
 			const header = JSON.parse(atob(parts[0]));
 
+			// nonce 검증 (ID 토큰인 경우)
+			let isValidNonce = true;
+			if (expectedNonce && payload.nonce) {
+				isValidNonce = payload.nonce === expectedNonce;
+			} else if (expectedNonce && !payload.nonce) {
+				isValidNonce = false; // nonce가 필요한데 없는 경우
+			}
+
 			return {
 				header,
 				payload,
 				signature: parts[2],
 				issuedAt: payload.iat ? new Date(payload.iat * 1000) : null,
 				expiresAt: payload.exp ? new Date(payload.exp * 1000) : null,
-				isExpired: payload.exp ? Date.now() > payload.exp * 1000 : false
+				isExpired: payload.exp ? Date.now() > payload.exp * 1000 : false,
+				isValidNonce
 			};
 		} catch {
 			return null;
@@ -276,15 +301,25 @@
 
 	// 토큰 정보 분석
 	function analyzeToken() {
-		if (!tokenResponse?.access_token) {
-			toast.error('유효한 액세스 토큰이 없습니다.');
+		if (!tokenResponse?.access_token && !tokenResponse?.id_token) {
+			toast.error('유효한 토큰이 없습니다.');
 			return;
 		}
 
-		tokenInfo = decodeJWT(tokenResponse.access_token);
+		// 액세스 토큰 분석
+		if (tokenResponse.access_token) {
+			tokenInfo = decodeJWT(tokenResponse.access_token);
+		}
+
+		// ID 토큰 분석 (OIDC)
+		if (tokenResponse.id_token) {
+			const storedNonce = sessionStorage.getItem('oauth_nonce') || undefined;
+			idTokenInfo = decodeJWT(tokenResponse.id_token, storedNonce);
+		}
+
 		activeTab = 'test';
 
-		if (tokenInfo) {
+		if (tokenInfo || idTokenInfo) {
 			toast.success('토큰 정보를 분석했습니다.');
 		} else {
 			toast.error('토큰을 분석할 수 없습니다.');
@@ -809,7 +844,85 @@
 									</div>
 								</div>
 							</div>
-						{:else}
+						{/if}
+
+						<!-- ID 토큰 정보 (OIDC) -->
+						{#if idTokenInfo}
+							<div class="space-y-4">
+								<div class="border-t border-gray-200 pt-4">
+									<h3 class="mb-4 text-lg font-medium text-gray-900">ID 토큰 (OIDC)</h3>
+								</div>
+
+								<!-- ID 토큰 상태 -->
+								<div class="grid grid-cols-2 gap-4">
+									<div>
+										<div class="mb-1 text-sm font-medium text-gray-700">상태</div>
+										<div class="text-sm">
+											{#if idTokenInfo.isExpired}
+												<Badge variant="error">만료됨</Badge>
+											{:else if idTokenInfo.isValidNonce === false}
+												<Badge variant="error">Nonce 불일치</Badge>
+											{:else}
+												<Badge variant="success">유효함</Badge>
+											{/if}
+										</div>
+									</div>
+									<div>
+										<div class="mb-1 text-sm font-medium text-gray-700">알고리즘</div>
+										<div class="text-sm text-gray-900">{idTokenInfo?.header?.alg || 'N/A'}</div>
+									</div>
+								</div>
+
+								<!-- ID 토큰 시간 정보 -->
+								{#if idTokenInfo.issuedAt || idTokenInfo.expiresAt}
+									<div class="grid grid-cols-1 gap-4">
+										{#if idTokenInfo.issuedAt}
+											<div>
+												<div class="mb-1 text-sm font-medium text-gray-700">발급 시간</div>
+												<div class="text-sm text-gray-900">
+													{idTokenInfo.issuedAt.toLocaleString()}
+												</div>
+											</div>
+										{/if}
+										{#if idTokenInfo.expiresAt}
+											<div>
+												<div class="mb-1 text-sm font-medium text-gray-700">만료 시간</div>
+												<div class="text-sm text-gray-900">
+													{idTokenInfo.expiresAt.toLocaleString()}
+												</div>
+											</div>
+										{/if}
+									</div>
+								{/if}
+
+								<!-- ID 토큰 페이로드 정보 -->
+								<div>
+									<div class="mb-2 text-sm font-medium text-gray-700">ID 토큰 페이로드</div>
+									<div class="rounded-md border border-gray-200 bg-gray-50 p-3">
+										<pre class="text-xs text-gray-800">{JSON.stringify(
+												idTokenInfo.payload,
+												null,
+												2
+											)}</pre>
+									</div>
+								</div>
+
+								<!-- ID 토큰 헤더 정보 -->
+								<div>
+									<div class="mb-2 text-sm font-medium text-gray-700">ID 토큰 헤더</div>
+									<div class="rounded-md border border-gray-200 bg-gray-50 p-3">
+										<pre class="text-xs text-gray-800">{JSON.stringify(
+												idTokenInfo.header,
+												null,
+												2
+											)}</pre>
+									</div>
+								</div>
+							</div>
+						{/if}
+
+						<!-- 토큰 분석이 안 된 경우 -->
+						{#if !tokenInfo && !idTokenInfo}
 							<div class="py-8 text-center">
 								<i class="fas fa-search mb-4 text-4xl text-gray-400"></i>
 								<p class="mb-4 text-gray-500">토큰을 분석하려면 "토큰 분석" 버튼을 클릭하세요.</p>
