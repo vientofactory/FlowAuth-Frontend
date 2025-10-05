@@ -6,7 +6,7 @@
 	import { USER_TYPES } from '$lib/types/user.types';
 	import { env } from '$lib/config/env';
 	import { onMount } from 'svelte';
-	import { load } from 'recaptcha-v3';
+	import { load, type ReCaptchaInstance } from 'recaptcha-v3';
 
 	// 폼 검증 필드들
 	const emailField = useFieldValidation('', validators.email);
@@ -32,7 +32,7 @@
 	let isLoading = $state(false);
 	let agreeToTerms = $state(false);
 	let recaptchaToken = $state('');
-	let recaptchaInstance: unknown = null;
+	let recaptchaInstance: ReCaptchaInstance | null = null;
 
 	// 중앙화된 토스트 훅 사용
 	const toast = useToast();

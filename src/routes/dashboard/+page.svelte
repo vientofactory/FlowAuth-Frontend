@@ -350,22 +350,6 @@
 		}
 	}
 
-	// 통계 라벨 표시 함수
-	function getStatBadgeText(label: string): string {
-		switch (label) {
-			case '클라이언트':
-				return '총계';
-			case '토큰':
-				return '활성';
-			case '로그인':
-				return '최근';
-			case '계정':
-				return '생성';
-			default:
-				return '';
-		}
-	}
-
 	// 빠른 액션 함수들
 	function navigateToProfile() {
 		goto('/dashboard/profile');
@@ -398,7 +382,9 @@
 			{#each userTypeConfig.stats as stat, index (stat.label || `stat-${index}`)}
 				{#if isDashboardLoading}
 					<!-- 스켈레톤 로딩 카드 -->
-					<div class="group relative animate-pulse overflow-hidden rounded-xl bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 p-6 shadow-sm">
+					<div
+						class="group relative animate-pulse overflow-hidden rounded-xl bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 p-6 shadow-sm"
+					>
 						<div class="flex items-center justify-between">
 							<div class="flex-1 space-y-3">
 								<div class="flex items-center justify-between">
@@ -415,10 +401,14 @@
 					</div>
 				{:else}
 					<!-- 실제 통계 카드 -->
-					<div class="group relative overflow-hidden rounded-xl bg-gradient-to-br {stat.color} p-6 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+					<div
+						class="group relative overflow-hidden rounded-xl bg-gradient-to-br {stat.color} p-6 text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+					>
 						<div class="relative z-10">
-							<div class="flex items-center justify-between mb-4">
-								<div class="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+							<div class="mb-4 flex items-center justify-between">
+								<div
+									class="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm"
+								>
 									<i class="{stat.icon} text-xl"></i>
 								</div>
 							</div>
@@ -449,76 +439,120 @@
 				<div class="space-y-4 sm:space-y-6">
 					<!-- 사용자 정보 카드 -->
 					{#if user}
-						<div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 p-6 shadow-sm ring-1 ring-blue-100">
+						<div
+							class="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 p-6 shadow-sm ring-1 ring-blue-100"
+						>
 							<div class="relative">
-								<div class="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+								<div
+									class="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0"
+								>
 									<div class="flex-1">
-										<h3 class="mb-4 text-lg font-semibold text-gray-900 flex items-center">
-											<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 mr-3">
+										<h3 class="mb-4 flex items-center text-lg font-semibold text-gray-900">
+											<div
+												class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100"
+											>
 												<i class="fas fa-user text-blue-600"></i>
 											</div>
 											계정 정보
 										</h3>
 										<div class="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
-											<div class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm">
-												<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
+											<div
+												class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm"
+											>
+												<div
+													class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100"
+												>
 													<i class="fas fa-user text-blue-600"></i>
 												</div>
 												<div>
-													<p class="text-xs font-medium text-gray-500 uppercase tracking-wide">사용자명</p>
+													<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
+														사용자명
+													</p>
 													<p class="font-medium text-gray-900">{user.username}</p>
 												</div>
 											</div>
-											<div class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm">
-												<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100">
+											<div
+												class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm"
+											>
+												<div
+													class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100"
+												>
 													<i class="fas fa-envelope text-green-600"></i>
 												</div>
 												<div>
-													<p class="text-xs font-medium text-gray-500 uppercase tracking-wide">이메일</p>
+													<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
+														이메일
+													</p>
 													<p class="font-medium text-gray-900">{user.email}</p>
 												</div>
 											</div>
-											<div class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm sm:col-span-2 lg:col-span-1">
-												<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
+											<div
+												class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm sm:col-span-2 lg:col-span-1"
+											>
+												<div
+													class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100"
+												>
 													<i class="fas fa-id-card text-purple-600"></i>
 												</div>
 												<div>
-													<p class="text-xs font-medium text-gray-500 uppercase tracking-wide">이름</p>
+													<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
+														이름
+													</p>
 													<p class="font-medium text-gray-900">{user.firstName} {user.lastName}</p>
 												</div>
 											</div>
-											<div class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm">
+											<div
+												class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm"
+											>
 												<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100">
 													<i class="fas fa-shield-alt text-red-600"></i>
 												</div>
 												<div>
-													<p class="text-xs font-medium text-gray-500 uppercase tracking-wide">역할</p>
+													<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
+														역할
+													</p>
 													<div class="flex items-center space-x-2">
 														{#if user.permissions !== undefined}
 															<Badge variant="info" size="sm" class="font-medium">
 																{PermissionUtils.getRoleName(Number(user.permissions))}
 															</Badge>
 														{:else}
-															<Badge variant="secondary" size="sm" class="font-medium">권한 없음</Badge>
+															<Badge variant="secondary" size="sm" class="font-medium"
+																>권한 없음</Badge
+															>
 														{/if}
 													</div>
 												</div>
 											</div>
-											<div class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm">
-												<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100">
+											<div
+												class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm"
+											>
+												<div
+													class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100"
+												>
 													<i class="fas fa-user-tag text-orange-600"></i>
 												</div>
 												<div>
-													<p class="text-xs font-medium text-gray-500 uppercase tracking-wide">유형</p>
-													<Badge variant={user.userType === USER_TYPES.DEVELOPER ? 'success' : 'info'} size="sm" class="font-medium">
+													<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
+														유형
+													</p>
+													<Badge
+														variant={user.userType === USER_TYPES.DEVELOPER ? 'success' : 'info'}
+														size="sm"
+														class="font-medium"
+													>
 														{user.userType === USER_TYPES.DEVELOPER ? '개발자' : '사용자'}
 													</Badge>
 												</div>
 											</div>
 										</div>
 									</div>
-									<div class="flex justify-center sm:justify-end mt-4 sm:mt-0">
-										<Button variant="outline" onclick={navigateToProfile} class="w-full sm:w-auto hover:bg-blue-50 hover:border-blue-200 transition-colors">
+									<div class="mt-4 flex justify-center sm:mt-0 sm:justify-end">
+										<Button
+											variant="outline"
+											onclick={navigateToProfile}
+											class="w-full transition-colors hover:border-blue-200 hover:bg-blue-50 sm:w-auto"
+										>
 											<i class="fas fa-edit mr-2"></i>
 											프로필 편집
 										</Button>
@@ -1047,10 +1081,12 @@
 				</div>
 			{:else if activeTab === 'activity'}
 				<!-- 최근 활동 탭 -->
-				<div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 p-6 shadow-sm ring-1 ring-green-100">
+				<div
+					class="relative overflow-hidden rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 p-6 shadow-sm ring-1 ring-green-100"
+				>
 					<div class="relative">
-						<h3 class="mb-6 text-lg font-semibold text-gray-900 flex items-center">
-							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 mr-3">
+						<h3 class="mb-6 flex items-center text-lg font-semibold text-gray-900">
+							<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-green-100">
 								<i class="fas fa-history text-green-600"></i>
 							</div>
 							최근 활동
@@ -1058,8 +1094,12 @@
 						<div class="space-y-4">
 							{#each recentActivities as activity, index (activity.id || activity.createdAt || `activity-${index}`)}
 								{@const { icon, color } = getActivityIcon(activity.type)}
-								<div class="group flex items-start space-x-4 rounded-lg bg-white/60 p-4 backdrop-blur-sm transition-all duration-200 hover:bg-white/80 hover:shadow-sm">
-									<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br {color} group-hover:scale-110 transition-transform flex-shrink-0">
+								<div
+									class="group flex items-start space-x-4 rounded-lg bg-white/60 p-4 backdrop-blur-sm transition-all duration-200 hover:bg-white/80 hover:shadow-sm"
+								>
+									<div
+										class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br {color} flex-shrink-0 transition-transform group-hover:scale-110"
+									>
 										<i class="{icon} text-white"></i>
 									</div>
 									<div class="min-w-0 flex-1">
@@ -1097,7 +1137,9 @@
 																<i class="fas fa-info-circle mr-1"></i>
 																상태: {activity.metadata.details.isActive ? '활성' : '비활성'}
 																{#if activity.metadata.details.isConfidential !== undefined}
-																	• 기밀: {activity.metadata.details.isConfidential ? '예' : '아니오'}
+																	• 기밀: {activity.metadata.details.isConfidential
+																		? '예'
+																		: '아니오'}
 																{/if}
 															</p>
 														{/if}
@@ -1126,10 +1168,12 @@
 							{/each}
 							{#if recentActivities.length === 0}
 								<div class="flex flex-col items-center justify-center py-12 text-center">
-									<div class="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 mb-4">
-										<i class="fas fa-inbox text-gray-400 text-2xl"></i>
+									<div
+										class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100"
+									>
+										<i class="fas fa-inbox text-2xl text-gray-400"></i>
 									</div>
-									<h4 class="text-sm font-medium text-gray-900 mb-1">최근 활동이 없습니다</h4>
+									<h4 class="mb-1 text-sm font-medium text-gray-900">최근 활동이 없습니다</h4>
 									<p class="text-sm text-gray-500">활동 내역이 여기에 표시됩니다.</p>
 								</div>
 							{/if}
@@ -1138,11 +1182,15 @@
 				</div>
 			{:else if activeTab === 'quick-actions'}
 				<!-- 빠른 작업 탭 -->
-				<div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 p-6 shadow-sm ring-1 ring-purple-100">
+				<div
+					class="relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 p-6 shadow-sm ring-1 ring-purple-100"
+				>
 					<div class="relative">
-						<div class="text-center sm:text-left mb-6">
-							<h3 class="mb-2 text-lg font-semibold text-gray-900 flex items-center justify-center sm:justify-start">
-								<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100 mr-3">
+						<div class="mb-6 text-center sm:text-left">
+							<h3
+								class="mb-2 flex items-center justify-center text-lg font-semibold text-gray-900 sm:justify-start"
+							>
+								<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
 									<i class="fas fa-bolt text-purple-600"></i>
 								</div>
 								빠른 작업
@@ -1150,22 +1198,34 @@
 							<p class="text-sm text-gray-600">자주 사용하는 기능을 빠르게 실행하세요</p>
 						</div>
 						{#if userTypeConfig}
-							<div class="grid gap-4 {getGridColsClass(userTypeConfig.quickActions.length, 'actions')}">
+							<div
+								class="grid gap-4 {getGridColsClass(userTypeConfig.quickActions.length, 'actions')}"
+							>
 								{#each userTypeConfig.quickActions as action, actionIndex (action.label || `action-${actionIndex}`)}
 									{@const colorClass = COLOR_CLASSES[action.color as keyof typeof COLOR_CLASSES]}
-									<div class="group relative overflow-hidden rounded-xl bg-white/60 p-4 backdrop-blur-sm transition-all duration-300 hover:bg-white/80 hover:shadow-lg hover:scale-105 border border-gray-100">
+									<div
+										class="group relative overflow-hidden rounded-xl border border-gray-100 bg-white/60 p-4 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white/80 hover:shadow-lg"
+									>
 										<Button
 											variant="ghost"
-											class="w-full h-full flex flex-col items-center justify-center space-y-3 p-0 hover:bg-transparent"
+											class="flex h-full w-full flex-col items-center justify-center space-y-3 p-0 hover:bg-transparent"
 											onclick={action.action}
 										>
 											<div class="relative">
-												<div class="flex h-12 w-12 items-center justify-center rounded-xl transition-all duration-300 {colorClass?.background || 'bg-gray-100'} group-hover:scale-110 group-hover:shadow-lg">
-													<i class="text-xl {colorClass?.text || 'text-gray-600'} {action.icon}"></i>
+												<div
+													class="flex h-12 w-12 items-center justify-center rounded-xl transition-all duration-300 {colorClass?.background ||
+														'bg-gray-100'} group-hover:scale-110 group-hover:shadow-lg"
+												>
+													<i class="text-xl {colorClass?.text || 'text-gray-600'} {action.icon}"
+													></i>
 												</div>
-												<div class="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+												<div
+													class="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 opacity-0 transition-opacity group-hover:opacity-100"
+												></div>
 											</div>
-											<span class="text-center text-sm leading-tight font-medium text-gray-700 group-hover:text-gray-900 transition-colors">
+											<span
+												class="text-center text-sm leading-tight font-medium text-gray-700 transition-colors group-hover:text-gray-900"
+											>
 												{action.label}
 											</span>
 										</Button>

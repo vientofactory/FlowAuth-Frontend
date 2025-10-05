@@ -18,7 +18,6 @@
 	let selectedClient = $state<Client | null>(null);
 	let responseType = $state('code');
 	let usePKCE = $state(true);
-	let useOIDC = $state(false);
 	let generatedUrl = $state('');
 	let showResult = $state(false);
 	let isCopying = $state(false);

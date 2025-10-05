@@ -291,7 +291,9 @@
 			await apiClient.removeAvatar();
 
 			// 로컬 상태 업데이트
-			user.avatar = undefined;
+			if (user) {
+				user.avatar = undefined;
+			}
 			authState.update((state) => ({
 				...state,
 				user: user ? { ...user, avatar: undefined } : null

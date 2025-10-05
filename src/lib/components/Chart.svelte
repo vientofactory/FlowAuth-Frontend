@@ -68,7 +68,7 @@
 				chart.update();
 			}
 			updateTimeout = null;
-		}, 100); // 100ms 디바운스
+		}, 100) as unknown as number; // 100ms 디바운스
 	}
 
 	onMount(() => {

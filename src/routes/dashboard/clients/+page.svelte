@@ -8,7 +8,7 @@
 	import { authState } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
 	import { env } from '$lib/config/env';
-	import { load } from 'recaptcha-v3';
+	import { load, type ReCaptchaInstance } from 'recaptcha-v3';
 	import {
 		validateClientName,
 		validateRedirectUri,
@@ -81,7 +81,7 @@
 	let scopesValue = $state('read write');
 	let logoUriValue = $state('');
 	let termsOfServiceUriValue = $state('');
-	let policyUriValue = $state('');
+	let policyUriValue: string = $state('');
 
 	let selectedScopes = $state<string[]>([]);
 	let editSelectedScopes = $state<string[]>([]);
@@ -93,7 +93,7 @@
 
 	// reCAPTCHA 관련
 	let recaptchaToken = $state('');
-	let recaptchaInstance: unknown = null;
+	let recaptchaInstance: ReCaptchaInstance | null = null;
 
 	// 폼 검증 상태 (등록 폼)
 	let clientNameError = $state('');
@@ -542,8 +542,8 @@
 				logoUri: logoUriValue || undefined,
 				termsOfServiceUri: termsOfServiceUriValue || undefined,
 				policyUri: policyUriValue || undefined,
-				recaptchaToken: recaptchaToken || undefined
-			})) as { clientSecret: string };
+				recaptchaToken: recaptchaToken
+			})) as { clientSecret: string; policyUri?: string };
 
 			createdClientSecret = response.clientSecret;
 			showSecretModal = true;

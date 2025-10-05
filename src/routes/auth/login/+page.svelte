@@ -8,7 +8,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { env } from '$lib/config/env';
-	import { load } from 'recaptcha-v3';
+	import { load, type ReCaptchaInstance } from 'recaptcha-v3';
 	import './+page.css';
 
 	// 폼 검증 필드들
@@ -25,7 +25,7 @@
 	let isLoading = $state(false);
 	let returnUrl = $state('');
 	let recaptchaToken = $state('');
-	let recaptchaInstance: unknown = null;
+	let recaptchaInstance: ReCaptchaInstance | null = null;
 
 	// 2FA 관련 상태
 	let requiresTwoFactor = $state(false);
@@ -106,9 +106,9 @@
 				console.log('Error stack:', err.stack);
 			}
 			console.log('Full error object:', err);
-			console.log('Error has status:', 'status' in err);
-			if ('status' in err) {
-				console.log('Error status:', (err as { status?: number }).status);
+			console.log('Error has status:', 'status' in (err as Record<string, unknown>));
+			if ('status' in (err as Record<string, unknown>)) {
+				console.log('Error status:', (err as Record<string, unknown>).status as number);
 			}
 			console.log('=== END LOGIN ERROR DEBUG ===');
 

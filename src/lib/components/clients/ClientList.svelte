@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Card, Button, Badge } from '$lib';
+	import { Button, Badge } from '$lib';
 	import type { Client } from '$lib/types/oauth.types';
 
 	interface Props {
@@ -26,11 +26,13 @@
 </script>
 
 <!-- 클라이언트 목록 -->
-<div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-gray-50 p-6 shadow-sm ring-1 ring-gray-100">
+<div
+	class="relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-gray-50 p-6 shadow-sm ring-1 ring-gray-100"
+>
 	<div class="relative">
 		<div class="mb-6 flex items-center justify-between">
-			<h3 class="text-lg font-semibold text-gray-900 flex items-center">
-				<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 mr-3">
+			<h3 class="flex items-center text-lg font-semibold text-gray-900">
+				<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
 					<i class="fas fa-list text-slate-600"></i>
 				</div>
 				클라이언트 목록
@@ -39,20 +41,23 @@
 
 		{#if isLoading}
 			<div class="flex flex-col items-center justify-center py-12 text-center">
-				<div class="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 mb-4">
+				<div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
 					<i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i>
 				</div>
-				<h4 class="text-sm font-medium text-gray-900 mb-1">클라이언트 목록을 불러오는 중...</h4>
+				<h4 class="mb-1 text-sm font-medium text-gray-900">클라이언트 목록을 불러오는 중...</h4>
 				<p class="text-sm text-gray-500">잠시만 기다려주세요.</p>
 			</div>
 		{:else if clients.length === 0}
 			<div class="flex flex-col items-center justify-center py-12 text-center">
-				<div class="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 mb-4">
-					<i class="fas fa-inbox text-gray-400 text-2xl"></i>
+				<div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+					<i class="fas fa-inbox text-2xl text-gray-400"></i>
 				</div>
-				<h4 class="text-sm font-medium text-gray-900 mb-1">등록된 클라이언트가 없습니다</h4>
-				<p class="text-sm text-gray-500 mb-4">첫 번째 클라이언트를 생성해보세요.</p>
-				<Button onclick={onToggleCreateForm} class="hover:bg-slate-50 hover:border-slate-200 transition-colors">
+				<h4 class="mb-1 text-sm font-medium text-gray-900">등록된 클라이언트가 없습니다</h4>
+				<p class="mb-4 text-sm text-gray-500">첫 번째 클라이언트를 생성해보세요.</p>
+				<Button
+					onclick={onToggleCreateForm}
+					class="transition-colors hover:border-slate-200 hover:bg-slate-50"
+				>
 					<i class="fas fa-plus mr-2"></i>
 					첫 번째 클라이언트 생성
 				</Button>
@@ -60,10 +65,16 @@
 		{:else}
 			<div class="space-y-4">
 				{#each clients as client (client.id)}
-					<div class="group relative overflow-hidden rounded-lg bg-white/60 p-4 backdrop-blur-sm transition-all duration-200 hover:bg-white/80 hover:shadow-sm border border-gray-100">
-						<div class="flex flex-col space-y-4 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
+					<div
+						class="group relative overflow-hidden rounded-lg border border-gray-100 bg-white/60 p-4 backdrop-blur-sm transition-all duration-200 hover:bg-white/80 hover:shadow-sm"
+					>
+						<div
+							class="flex flex-col space-y-4 sm:flex-row sm:items-start sm:justify-between sm:space-y-0"
+						>
 							<div class="flex-1">
-								<div class="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3 mb-3">
+								<div
+									class="mb-3 flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3"
+								>
 									<h4 class="text-base font-medium text-gray-900 sm:text-lg">{client.name}</h4>
 									<Badge
 										variant={client.isActive ? 'success' : 'secondary'}
@@ -83,17 +94,21 @@
 										<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
 											<i class="fas fa-id-card text-blue-600"></i>
 										</div>
-										<div class="flex-1 min-w-0">
-											<p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Client ID</p>
-											<div class="flex items-center space-x-2 mt-1">
-												<code class="flex-1 truncate text-xs text-gray-900 bg-white/60 px-2 py-1 rounded">
+										<div class="min-w-0 flex-1">
+											<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
+												Client ID
+											</p>
+											<div class="mt-1 flex items-center space-x-2">
+												<code
+													class="flex-1 truncate rounded bg-white/60 px-2 py-1 text-xs text-gray-900"
+												>
 													{client.clientId}
 												</code>
 												<Button
 													variant="ghost"
 													size="sm"
 													onclick={() => onCopyToClipboard(client.clientId)}
-													class="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+													class="h-6 w-6 p-0 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
 													aria-label="Copy Client ID"
 												>
 													<i class="fas fa-copy text-xs"></i>
@@ -106,8 +121,10 @@
 										<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100">
 											<i class="fas fa-external-link-alt text-green-600"></i>
 										</div>
-										<div class="flex-1 min-w-0">
-											<p class="text-xs font-medium text-gray-500 uppercase tracking-wide">리다이렉트 URI</p>
+										<div class="min-w-0 flex-1">
+											<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
+												리다이렉트 URI
+											</p>
 											<div class="mt-1 space-y-1">
 												{#each client.redirectUris.slice(0, 2) as uri (uri)}
 													<p class="truncate text-xs text-gray-900">{uri}</p>
@@ -124,7 +141,9 @@
 											<i class="fas fa-calendar text-purple-600"></i>
 										</div>
 										<div class="flex-1">
-											<p class="text-xs font-medium text-gray-500 uppercase tracking-wide">생성일</p>
+											<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
+												생성일
+											</p>
 											<p class="mt-1 text-sm font-medium text-gray-900">
 												{new Date(client.createdAt).toLocaleDateString('ko-KR')}
 											</p>
@@ -134,12 +153,12 @@
 							</div>
 
 							<!-- 액션 버튼들 -->
-							<div class="flex flex-wrap gap-2 sm:flex-col sm:gap-2 sm:ml-4">
+							<div class="flex flex-wrap gap-2 sm:ml-4 sm:flex-col sm:gap-2">
 								<Button
 									variant="outline"
 									size="sm"
 									onclick={() => onEditClient(client)}
-									class="flex-1 sm:flex-none hover:bg-blue-50 hover:border-blue-200 transition-colors"
+									class="flex-1 transition-colors hover:border-blue-200 hover:bg-blue-50 sm:flex-none"
 									title="수정"
 								>
 									<i class="fas fa-edit mr-2"></i>
@@ -149,7 +168,7 @@
 									variant="outline"
 									size="sm"
 									onclick={() => onResetClientSecret(client)}
-									class="flex-1 sm:flex-none text-orange-600 hover:text-orange-700 hover:bg-orange-50 hover:border-orange-200 transition-colors"
+									class="flex-1 text-orange-600 transition-colors hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700 sm:flex-none"
 									title="시크릿 재설정"
 								>
 									<i class="fas fa-key mr-2"></i>
@@ -159,7 +178,7 @@
 									variant="outline"
 									size="sm"
 									onclick={() => onToggleClientStatus(client)}
-									class="flex-1 sm:flex-none hover:bg-green-50 hover:border-green-200 transition-colors"
+									class="flex-1 transition-colors hover:border-green-200 hover:bg-green-50 sm:flex-none"
 									title={client.isActive ? '비활성화' : '활성화'}
 								>
 									<i class="fas {client.isActive ? 'fa-pause' : 'fa-play'} mr-2"></i>
@@ -169,7 +188,7 @@
 									variant="outline"
 									size="sm"
 									onclick={() => onDeleteClient(client.id)}
-									class="flex-1 sm:flex-none text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-200 transition-colors"
+									class="flex-1 text-red-600 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-700 sm:flex-none"
 									title="삭제"
 								>
 									<i class="fas fa-trash mr-2"></i>

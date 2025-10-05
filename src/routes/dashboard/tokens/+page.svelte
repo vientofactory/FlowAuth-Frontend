@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { DashboardLayout, Card, Button, Badge, apiClient, Tabs, Modal } from '$lib';
+	import { DashboardLayout, Button, Badge, apiClient, Tabs, Modal } from '$lib';
 	import { useToast } from '$lib';
 	import { onMount, onDestroy } from 'svelte';
 	import type { Token } from '$lib/types/oauth.types';
@@ -219,10 +219,14 @@
 	<!-- 통계 카드 -->
 	<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 		<!-- 총 토큰 -->
-		<div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 p-4 shadow-sm ring-1 ring-blue-100 transition-all duration-200 hover:shadow-md">
+		<div
+			class="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 p-4 shadow-sm ring-1 ring-blue-100 transition-all duration-200 hover:shadow-md"
+		>
 			<div class="relative flex items-center">
 				<div class="flex-shrink-0">
-					<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100">
+					<div
+						class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100"
+					>
 						<i class="fas fa-key text-lg text-blue-600"></i>
 					</div>
 				</div>
@@ -234,10 +238,14 @@
 		</div>
 
 		<!-- 활성 토큰 -->
-		<div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 p-4 shadow-sm ring-1 ring-green-100 transition-all duration-200 hover:shadow-md">
+		<div
+			class="relative overflow-hidden rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 p-4 shadow-sm ring-1 ring-green-100 transition-all duration-200 hover:shadow-md"
+		>
 			<div class="relative flex items-center">
 				<div class="flex-shrink-0">
-					<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-green-100 to-emerald-100">
+					<div
+						class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-green-100 to-emerald-100"
+					>
 						<i class="fas fa-check-circle text-lg text-green-600"></i>
 					</div>
 				</div>
@@ -251,10 +259,14 @@
 		</div>
 
 		<!-- 만료된 토큰 -->
-		<div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-yellow-50 to-orange-50 p-4 shadow-sm ring-1 ring-yellow-100 transition-all duration-200 hover:shadow-md">
+		<div
+			class="relative overflow-hidden rounded-xl bg-gradient-to-r from-yellow-50 to-orange-50 p-4 shadow-sm ring-1 ring-yellow-100 transition-all duration-200 hover:shadow-md"
+		>
 			<div class="relative flex items-center">
 				<div class="flex-shrink-0">
-					<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-yellow-100 to-orange-100">
+					<div
+						class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-yellow-100 to-orange-100"
+					>
 						<i class="fas fa-clock text-lg text-yellow-600"></i>
 					</div>
 				</div>
@@ -268,10 +280,14 @@
 		</div>
 
 		<!-- 클라이언트 수 -->
-		<div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-50 to-violet-50 p-4 shadow-sm ring-1 ring-purple-100 transition-all duration-200 hover:shadow-md">
+		<div
+			class="relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-50 to-violet-50 p-4 shadow-sm ring-1 ring-purple-100 transition-all duration-200 hover:shadow-md"
+		>
 			<div class="relative flex items-center">
 				<div class="flex-shrink-0">
-					<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-purple-100 to-violet-100">
+					<div
+						class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-purple-100 to-violet-100"
+					>
 						<i class="fas fa-shield-alt text-lg text-purple-600"></i>
 					</div>
 				</div>
@@ -286,11 +302,13 @@
 	</div>
 
 	<!-- 토큰 목록 -->
-	<div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-gray-50 p-6 shadow-sm ring-1 ring-gray-100">
+	<div
+		class="relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-gray-50 p-6 shadow-sm ring-1 ring-gray-100"
+	>
 		<div class="relative">
 			<div class="mb-6 flex items-center justify-between">
-				<h3 class="text-lg font-semibold text-gray-900 flex items-center">
-					<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 mr-3">
+				<h3 class="flex items-center text-lg font-semibold text-gray-900">
+					<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
 						<i class="fas fa-list text-slate-600"></i>
 					</div>
 					토큰 목록
@@ -299,7 +317,7 @@
 					<Button
 						onclick={() => openRevokeAllModal(activeTab)}
 						variant="outline"
-						class="h-10 w-full border-red-300 text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors sm:h-11 sm:w-auto"
+						class="h-10 w-full border-red-300 text-red-600 transition-colors hover:border-red-200 hover:bg-red-50 sm:h-11 sm:w-auto"
 					>
 						<i class="fas fa-ban mr-2"></i>
 						{activeTab === TOKEN_TYPES.LOGIN ? '모든 로그인 토큰 취소' : '모든 OAuth2 토큰 취소'}
@@ -328,18 +346,18 @@
 				{#snippet children({ activeTab: _currentActiveTab })}
 					{#if isLoading}
 						<div class="flex flex-col items-center justify-center py-12 text-center">
-							<div class="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 mb-4">
+							<div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
 								<i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i>
 							</div>
-							<h4 class="text-sm font-medium text-gray-900 mb-1">토큰 목록을 불러오는 중...</h4>
+							<h4 class="mb-1 text-sm font-medium text-gray-900">토큰 목록을 불러오는 중...</h4>
 							<p class="text-sm text-gray-500">잠시만 기다려주세요.</p>
 						</div>
 					{:else if currentTokens.length === 0}
 						<div class="flex flex-col items-center justify-center py-12 text-center">
-							<div class="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 mb-4">
-								<i class="fas fa-key text-gray-400 text-2xl"></i>
+							<div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+								<i class="fas fa-key text-2xl text-gray-400"></i>
 							</div>
-							<h4 class="text-sm font-medium text-gray-900 mb-1">
+							<h4 class="mb-1 text-sm font-medium text-gray-900">
 								{activeTab === TOKEN_TYPES.LOGIN
 									? '발급된 로그인 토큰이 없습니다'
 									: '발급된 OAuth2 토큰이 없습니다'}
@@ -349,10 +367,16 @@
 					{:else}
 						<div class="space-y-4">
 							{#each currentTokens as token (token.id)}
-								<div class="group relative overflow-hidden rounded-lg bg-white/60 p-4 backdrop-blur-sm transition-all duration-200 hover:bg-white/80 hover:shadow-sm border border-gray-100">
-									<div class="flex flex-col space-y-4 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
+								<div
+									class="group relative overflow-hidden rounded-lg border border-gray-100 bg-white/60 p-4 backdrop-blur-sm transition-all duration-200 hover:bg-white/80 hover:shadow-sm"
+								>
+									<div
+										class="flex flex-col space-y-4 sm:flex-row sm:items-start sm:justify-between sm:space-y-0"
+									>
 										<div class="flex-1">
-											<div class="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3 mb-3">
+											<div
+												class="mb-3 flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3"
+											>
 												<h4 class="text-base font-medium text-gray-900 sm:text-lg">
 													{token.tokenType === TOKEN_TYPES.LOGIN
 														? 'Login Session'
@@ -373,22 +397,30 @@
 
 											<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
 												<div class="flex items-center space-x-3 rounded-lg bg-gray-50/60 p-3">
-													<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
+													<div
+														class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100"
+													>
 														<i class="fas fa-hashtag text-blue-600"></i>
 													</div>
 													<div class="flex-1">
-														<p class="text-xs font-medium text-gray-500 uppercase tracking-wide">토큰 ID</p>
+														<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
+															토큰 ID
+														</p>
 														<p class="text-sm font-medium text-gray-900">#{token.id}</p>
 													</div>
 												</div>
 
 												<div class="flex items-center space-x-3 rounded-lg bg-gray-50/60 p-3">
-													<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100">
+													<div
+														class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100"
+													>
 														<i class="fas fa-shield-alt text-green-600"></i>
 													</div>
 													<div class="flex-1">
-														<p class="text-xs font-medium text-gray-500 uppercase tracking-wide">권한 범위</p>
-														<div class="flex flex-wrap gap-1 mt-1">
+														<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
+															권한 범위
+														</p>
+														<div class="mt-1 flex flex-wrap gap-1">
 															{#each getTokenScopes(token) as scope (scope)}
 																<Badge variant="secondary" size="sm">{scope}</Badge>
 															{:else}
@@ -399,11 +431,15 @@
 												</div>
 
 												<div class="flex items-center space-x-3 rounded-lg bg-gray-50/60 p-3">
-													<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
+													<div
+														class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100"
+													>
 														<i class="fas fa-calendar-plus text-purple-600"></i>
 													</div>
 													<div class="flex-1">
-														<p class="text-xs font-medium text-gray-500 uppercase tracking-wide">생성일</p>
+														<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
+															생성일
+														</p>
 														<p class="text-sm font-medium text-gray-900">
 															{formatDate(token.createdAt)}
 														</p>
@@ -411,11 +447,15 @@
 												</div>
 
 												<div class="flex items-center space-x-3 rounded-lg bg-gray-50/60 p-3">
-													<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100">
+													<div
+														class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100"
+													>
 														<i class="fas fa-calendar-times text-orange-600"></i>
 													</div>
 													<div class="flex-1">
-														<p class="text-xs font-medium text-gray-500 uppercase tracking-wide">만료일</p>
+														<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
+															만료일
+														</p>
 														<p class="text-sm font-medium text-gray-900">
 															{formatDate(token.expiresAt)}
 														</p>
@@ -423,12 +463,18 @@
 												</div>
 
 												{#if token.refreshToken && token.refreshExpiresAt}
-													<div class="flex items-center space-x-3 rounded-lg bg-gray-50/60 p-3 sm:col-span-2 lg:col-span-4">
-														<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100">
+													<div
+														class="flex items-center space-x-3 rounded-lg bg-gray-50/60 p-3 sm:col-span-2 lg:col-span-4"
+													>
+														<div
+															class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100"
+														>
 															<i class="fas fa-redo text-indigo-600"></i>
 														</div>
 														<div class="flex-1">
-															<p class="text-xs font-medium text-gray-500 uppercase tracking-wide">리프레시 토큰 만료일</p>
+															<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
+																리프레시 토큰 만료일
+															</p>
 															<p class="text-sm font-medium text-gray-900">
 																{formatDate(token.refreshExpiresAt)}
 															</p>
@@ -439,13 +485,13 @@
 										</div>
 
 										<!-- 액션 버튼 -->
-										<div class="flex gap-2 sm:flex-col sm:gap-2 sm:ml-4">
+										<div class="flex gap-2 sm:ml-4 sm:flex-col sm:gap-2">
 											{#if !isExpired(token)}
 												<Button
 													variant="outline"
 													size="sm"
 													onclick={() => openRevokeModal(token)}
-													class="flex-1 sm:flex-none border-red-300 text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors"
+													class="flex-1 border-red-300 text-red-600 transition-colors hover:border-red-200 hover:bg-red-50 sm:flex-none"
 												>
 													<i class="fas fa-ban mr-2"></i>
 													<span class="hidden sm:inline">취소</span>
@@ -455,7 +501,7 @@
 													variant="outline"
 													size="sm"
 													disabled
-													class="flex-1 sm:flex-none text-gray-400 cursor-not-allowed"
+													class="flex-1 cursor-not-allowed text-gray-400 sm:flex-none"
 												>
 													<i class="fas fa-clock mr-2"></i>
 													<span class="hidden sm:inline">만료됨</span>
@@ -472,23 +518,27 @@
 		</div>
 	</div>
 	<!-- 토큰 관리 안내 -->
-	<div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-amber-50 to-yellow-50 p-6 shadow-sm ring-1 ring-amber-100 mt-6">
+	<div
+		class="relative mt-6 overflow-hidden rounded-xl bg-gradient-to-r from-amber-50 to-yellow-50 p-6 shadow-sm ring-1 ring-amber-100"
+	>
 		<div class="relative">
-			<h3 class="mb-6 text-lg font-semibold text-gray-900 flex items-center">
-				<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 mr-3">
+			<h3 class="mb-6 flex items-center text-lg font-semibold text-gray-900">
+				<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100">
 					<i class="fas fa-info-circle text-amber-600"></i>
 				</div>
 				{activeTab === TOKEN_TYPES.LOGIN ? '로그인 토큰' : 'OAuth2 토큰'} 관리 안내
 			</h3>
 
 			{#if activeTab === TOKEN_TYPES.LOGIN}
-				<div class="grid grid-cols-1 gap-4 md:grid-cols-2 mb-6">
+				<div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
 					<div class="flex items-start space-x-4 rounded-lg bg-white/60 p-4 backdrop-blur-sm">
-						<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 flex-shrink-0">
+						<div
+							class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100"
+						>
 							<i class="fas fa-user text-blue-600"></i>
 						</div>
 						<div>
-							<h4 class="text-base font-medium text-gray-900 mb-2">로그인 토큰</h4>
+							<h4 class="mb-2 text-base font-medium text-gray-900">로그인 토큰</h4>
 							<p class="text-sm text-gray-600">
 								사용자 로그인 시 발급되는 토큰입니다. 일반적인 API 접근에 사용됩니다.
 							</p>
@@ -496,11 +546,13 @@
 					</div>
 
 					<div class="flex items-start space-x-4 rounded-lg bg-white/60 p-4 backdrop-blur-sm">
-						<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 flex-shrink-0">
+						<div
+							class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-green-100"
+						>
 							<i class="fas fa-redo text-green-600"></i>
 						</div>
 						<div>
-							<h4 class="text-base font-medium text-gray-900 mb-2">세션 관리</h4>
+							<h4 class="mb-2 text-base font-medium text-gray-900">세션 관리</h4>
 							<p class="text-sm text-gray-600">
 								로그인 토큰은 사용자 세션을 유지하며, 자동으로 갱신될 수 있습니다.
 							</p>
@@ -508,13 +560,15 @@
 					</div>
 				</div>
 			{:else}
-				<div class="grid grid-cols-1 gap-4 md:grid-cols-2 mb-6">
+				<div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
 					<div class="flex items-start space-x-4 rounded-lg bg-white/60 p-4 backdrop-blur-sm">
-						<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 flex-shrink-0">
+						<div
+							class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-purple-100"
+						>
 							<i class="fas fa-code-branch text-purple-600"></i>
 						</div>
 						<div>
-							<h4 class="text-base font-medium text-gray-900 mb-2">OAuth2 토큰</h4>
+							<h4 class="mb-2 text-base font-medium text-gray-900">OAuth2 토큰</h4>
 							<p class="text-sm text-gray-600">
 								타사 애플리케이션이 사용자 데이터에 접근하기 위해 발급되는 토큰입니다.
 							</p>
@@ -522,11 +576,13 @@
 					</div>
 
 					<div class="flex items-start space-x-4 rounded-lg bg-white/60 p-4 backdrop-blur-sm">
-						<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100 flex-shrink-0">
+						<div
+							class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-orange-100"
+						>
 							<i class="fas fa-shield-alt text-orange-600"></i>
 						</div>
 						<div>
-							<h4 class="text-base font-medium text-gray-900 mb-2">권한 범위</h4>
+							<h4 class="mb-2 text-base font-medium text-gray-900">권한 범위</h4>
 							<p class="text-sm text-gray-600">
 								OAuth2 토큰은 특정 권한 범위(scope)로 제한되며, 클라이언트별로 관리됩니다.
 							</p>
@@ -535,12 +591,16 @@
 				</div>
 			{/if}
 
-			<div class="flex items-start space-x-4 rounded-lg bg-white/60 p-4 backdrop-blur-sm border border-yellow-200">
-				<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-100 flex-shrink-0">
+			<div
+				class="flex items-start space-x-4 rounded-lg border border-yellow-200 bg-white/60 p-4 backdrop-blur-sm"
+			>
+				<div
+					class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-yellow-100"
+				>
 					<i class="fas fa-exclamation-triangle text-yellow-600"></i>
 				</div>
 				<div>
-					<h4 class="text-base font-medium text-gray-900 mb-2">보안 주의사항</h4>
+					<h4 class="mb-2 text-base font-medium text-gray-900">보안 주의사항</h4>
 					<ul class="space-y-1 text-sm text-gray-600">
 						<li>• 의심스러운 활동이 발견되면 즉시 토큰을 취소하세요.</li>
 						<li>• 정기적으로 사용하지 않는 토큰을 정리하세요.</li>
