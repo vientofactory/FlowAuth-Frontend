@@ -233,11 +233,18 @@
 	</div>
 </Modal>
 
-<!-- 토큰 상세 정보 컴포넌트 -->
-<TokenDetails
-	{activeTab}
-	{decodedAccessToken}
-	{decodedIdToken}
-	{decodedRefreshToken}
-	{tokenResponse}
-/>
+{#if activeTab === 'access' && decodedAccessToken && tokenResponse}
+	<TokenDetails
+		title="액세스 토큰"
+		tokenInfo={decodedAccessToken}
+		tokenString={tokenResponse.access_token}
+	/>
+{:else if activeTab === 'id' && decodedIdToken && tokenResponse?.id_token}
+	<TokenDetails title="ID 토큰" tokenInfo={decodedIdToken} tokenString={tokenResponse.id_token} />
+{:else if activeTab === 'refresh' && decodedRefreshToken && tokenResponse?.refresh_token}
+	<TokenDetails
+		title="리프레시 토큰"
+		tokenInfo={decodedRefreshToken}
+		tokenString={tokenResponse.refresh_token}
+	/>
+{/if}

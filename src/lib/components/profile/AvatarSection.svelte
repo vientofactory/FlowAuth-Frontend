@@ -9,6 +9,7 @@
 		avatarPreview: string | null;
 		isUploadingAvatar: boolean;
 		isRemovingAvatar: boolean;
+		showRemoveAvatarDialog: boolean;
 		onFileSelect: (event: Event) => void;
 		onUpload: () => Promise<void>;
 		onCancel: () => void;
@@ -21,6 +22,7 @@
 		avatarPreview,
 		isUploadingAvatar,
 		isRemovingAvatar,
+		showRemoveAvatarDialog: _showRemoveAvatarDialog,
 		onFileSelect,
 		onUpload,
 		onCancel,

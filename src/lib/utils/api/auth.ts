@@ -176,11 +176,11 @@ export class AuthApi extends BaseApi {
 		try {
 			const user = await this.getProfile();
 			return user;
-		} catch (error) {
+		} catch {
 			try {
 				await this.refreshJwtToken();
 				return await this.getProfile();
-			} catch (refreshError) {
+			} catch {
 				this.clearAllTokens();
 				throw new Error('Session expired. Please login again.');
 			}

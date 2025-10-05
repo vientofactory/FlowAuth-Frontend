@@ -152,27 +152,27 @@
 		}
 
 		try {
-			isDisablingTwoFactor = true;
+			_isDisablingTwoFactor = true;
 			await twoFactorStore.disableTwoFactor(disableTwoFactorForm.currentPassword);
 			toast.success('2FA가 성공적으로 비활성화되었습니다.');
-			showDisableTwoFactorDialog = false;
+			_showDisableTwoFactorDialog = false;
 			disableTwoFactorForm.currentPassword = '';
 			await loadTwoFactorStatus(); // 상태 새로고침
 		} catch (error) {
 			console.error('Failed to disable 2FA:', error);
 			toast.error('2FA 비활성화에 실패했습니다.');
 		} finally {
-			isDisablingTwoFactor = false;
+			_isDisablingTwoFactor = false;
 		}
 	}
 
 	function openDisableTwoFactorDialog() {
-		showDisableTwoFactorDialog = true;
+		_showDisableTwoFactorDialog = true;
 		disableTwoFactorForm.currentPassword = '';
 	}
 
 	function _closeDisableTwoFactorDialog() {
-		showDisableTwoFactorDialog = false;
+		_showDisableTwoFactorDialog = false;
 		disableTwoFactorForm.currentPassword = '';
 	}
 

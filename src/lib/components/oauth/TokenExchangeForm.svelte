@@ -3,15 +3,6 @@
 	import { createApiUrl } from '$lib/config/env';
 	import { useToast } from '$lib';
 
-	interface TokenForm {
-		clientId: string;
-		clientSecret: string;
-		code: string;
-		redirectUri: string;
-		codeVerifier: string;
-		grantType: 'authorization_code';
-	}
-
 	interface TokenResponse {
 		access_token: string;
 		token_type: string;
@@ -179,9 +170,9 @@
 		/>
 
 		<div class="flex justify-end">
-			<Button 
-				variant="primary" 
-				onclick={exchangeToken} 
+			<Button
+				variant="primary"
+				onclick={exchangeToken}
 				disabled={isExchanging || !clientId || !clientSecret || !code}
 			>
 				{#if isExchanging}

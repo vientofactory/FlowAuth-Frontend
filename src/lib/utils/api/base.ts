@@ -192,9 +192,29 @@ export abstract class BaseApi {
 		}
 	}
 
-	protected getRefreshToken(): string | null {
+	public getRefreshToken(): string | null {
 		if (typeof window !== 'undefined') {
 			return localStorage.getItem(APP_CONSTANTS.REFRESH_TOKEN_STORAGE_KEY);
+		}
+		return null;
+	}
+
+	public getAccessToken(): string | null {
+		// OAuth2 토큰의 경우 현재 토큰을 반환
+		return this.getToken();
+	}
+
+	public getIdToken(): string | null {
+		if (typeof window !== 'undefined') {
+			return localStorage.getItem(APP_CONSTANTS.ID_TOKEN_STORAGE_KEY);
+		}
+		return null;
+	}
+
+	public getTokenExpiry(): Date | null {
+		if (typeof window !== 'undefined') {
+			const expiryStr = localStorage.getItem(APP_CONSTANTS.TOKEN_EXPIRY_STORAGE_KEY);
+			return expiryStr ? new Date(expiryStr) : null;
 		}
 		return null;
 	}
