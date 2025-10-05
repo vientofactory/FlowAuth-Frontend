@@ -11,6 +11,8 @@
 		PermissionUtils
 	} from '$lib';
 	import Chart from '$lib/components/Chart.svelte';
+	import StatsCards from '$lib/components/dashboard/StatsCards.svelte';
+	import RecentActivities from '$lib/components/dashboard/RecentActivities.svelte';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import type { User } from '$lib';
@@ -179,42 +181,6 @@
 
 	const toast = useToast();
 
-	// 활동 타입별 아이콘과 색상
-	function getActivityIcon(type: string): { icon: string; color: string } {
-		switch (type) {
-			case 'login':
-				return { icon: 'fas fa-sign-in-alt', color: 'bg-blue-100 text-blue-600' };
-			case 'account_created':
-				return { icon: 'fas fa-user-plus', color: 'bg-emerald-100 text-emerald-600' };
-			case 'client_created':
-				return { icon: 'fas fa-plus', color: 'bg-purple-100 text-purple-600' };
-			case 'token_created':
-				return { icon: 'fas fa-key', color: 'bg-green-100 text-green-600' };
-			case 'client_updated':
-				return { icon: 'fas fa-edit', color: 'bg-orange-100 text-orange-600' };
-			case 'token_revoked':
-				return { icon: 'fas fa-ban', color: 'bg-red-100 text-red-600' };
-			default:
-				return { icon: 'fas fa-circle', color: 'bg-gray-100 text-gray-600' };
-		}
-	}
-
-	// 상대적 시간 표시
-	function getRelativeTime(dateInput: string | Date): string {
-		const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
-		const now = new Date();
-		const diffMs = now.getTime() - date.getTime();
-		const diffMins = Math.floor(diffMs / (1000 * 60));
-		const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-		const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-		if (diffMins < 1) return '방금 전';
-		if (diffMins < 60) return `${diffMins}분 전`;
-		if (diffHours < 24) return `${diffHours}시간 전`;
-		if (diffDays < 7) return `${diffDays}일 전`;
-		return date.toLocaleDateString('ko-KR');
-	}
-
 	// 탭 설정
 	const tabs = [
 		{ id: 'overview', label: '개요', icon: 'fas fa-tachometer-alt' },
@@ -378,54 +344,7 @@
 >
 	<!-- 통계 카드들 -->
 	{#if userTypeConfig}
-		<div class="mb-6 grid gap-4 {getGridColsClass(userTypeConfig.stats.length, 'stats')}">
-			{#each userTypeConfig.stats as stat, index (stat.label || `stat-${index}`)}
-				{#if isDashboardLoading}
-					<!-- 스켈레톤 로딩 카드 -->
-					<div
-						class="group relative animate-pulse overflow-hidden rounded-xl bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 p-6 shadow-sm"
-					>
-						<div class="flex items-center justify-between">
-							<div class="flex-1 space-y-3">
-								<div class="flex items-center justify-between">
-									<div class="h-5 w-5 rounded-lg bg-gray-400/60"></div>
-									<div class="h-3 w-12 rounded bg-gray-400/40"></div>
-								</div>
-								<div class="h-4 w-20 rounded bg-gray-400/50"></div>
-								<div class="h-7 w-16 rounded bg-gray-400/70"></div>
-							</div>
-						</div>
-						<div class="absolute -right-2 -bottom-2 opacity-20">
-							<div class="h-16 w-16 rounded-full bg-gray-400/30"></div>
-						</div>
-					</div>
-				{:else}
-					<!-- 실제 통계 카드 -->
-					<div
-						class="group relative overflow-hidden rounded-xl bg-gradient-to-br {stat.color} p-6 text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-					>
-						<div class="relative z-10">
-							<div class="mb-4 flex items-center justify-between">
-								<div
-									class="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm"
-								>
-									<i class="{stat.icon} text-xl"></i>
-								</div>
-							</div>
-							<div class="space-y-1">
-								<p class="text-sm font-medium text-white/80">{stat.label}</p>
-								<p class="text-2xl font-bold tracking-tight">{stat.value}</p>
-							</div>
-						</div>
-						<!-- 배경 장식 -->
-						<div class="absolute -right-4 -bottom-4 opacity-10">
-							<i class="{stat.icon} text-6xl"></i>
-						</div>
-						<div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent"></div>
-					</div>
-				{/if}
-			{/each}
-		</div>
+		<StatsCards {dashboardStats} {user} {isDeveloper} roleName={$roleName} {navigateToClients} />
 	{/if}
 
 	<!-- 탭 인터페이스 -->
@@ -1081,105 +1000,7 @@
 				</div>
 			{:else if activeTab === 'activity'}
 				<!-- 최근 활동 탭 -->
-				<div
-					class="relative overflow-hidden rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 p-6 shadow-sm ring-1 ring-green-100"
-				>
-					<div class="relative">
-						<h3 class="mb-6 flex items-center text-lg font-semibold text-gray-900">
-							<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-green-100">
-								<i class="fas fa-history text-green-600"></i>
-							</div>
-							최근 활동
-						</h3>
-						<div class="space-y-4">
-							{#each recentActivities as activity, index (activity.id || activity.createdAt || `activity-${index}`)}
-								{@const { icon, color } = getActivityIcon(activity.type)}
-								<div
-									class="group flex items-start space-x-4 rounded-lg bg-white/60 p-4 backdrop-blur-sm transition-all duration-200 hover:bg-white/80 hover:shadow-sm"
-								>
-									<div
-										class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br {color} flex-shrink-0 transition-transform group-hover:scale-110"
-									>
-										<i class="{icon} text-white"></i>
-									</div>
-									<div class="min-w-0 flex-1">
-										<div class="flex items-start justify-between">
-											<div class="flex-1">
-												<p class="mb-1 text-sm font-medium text-gray-900">{activity.description}</p>
-												{#if activity.metadata?.activity}
-													<p class="mb-2 text-xs text-gray-600">{activity.metadata.activity}</p>
-												{/if}
-
-												<!-- 추가 세부 정보 표시 -->
-												{#if activity.metadata?.details}
-													<div class="space-y-1">
-														{#if activity.metadata.details.scopes && Array.isArray(activity.metadata.details.scopes)}
-															<div class="flex flex-wrap gap-1">
-																{#each activity.metadata.details.scopes as scope, scopeIndex (`${scope}-${scopeIndex}`)}
-																	<Badge variant="secondary" class="px-2 py-0.5 text-xs">
-																		{scope}
-																	</Badge>
-																{/each}
-															</div>
-														{/if}
-
-														{#if activity.metadata.details.expiresAt}
-															<p class="text-xs text-gray-500">
-																<i class="fas fa-clock mr-1"></i>
-																만료: {new Date(activity.metadata.details.expiresAt).toLocaleString(
-																	'ko-KR'
-																)}
-															</p>
-														{/if}
-
-														{#if activity.metadata.details.isActive !== undefined}
-															<p class="text-xs text-gray-500">
-																<i class="fas fa-info-circle mr-1"></i>
-																상태: {activity.metadata.details.isActive ? '활성' : '비활성'}
-																{#if activity.metadata.details.isConfidential !== undefined}
-																	• 기밀: {activity.metadata.details.isConfidential
-																		? '예'
-																		: '아니오'}
-																{/if}
-															</p>
-														{/if}
-
-														{#if activity.metadata.details.description}
-															<p class="mt-1 text-xs text-gray-500 italic">
-																"{activity.metadata.details.description}"
-															</p>
-														{/if}
-													</div>
-												{/if}
-
-												{#if activity.metadata?.reason}
-													<p class="mt-1 text-xs text-red-600">
-														<i class="fas fa-exclamation-triangle mr-1"></i>
-														사유: {activity.metadata.reason}
-													</p>
-												{/if}
-											</div>
-											<div class="ml-3 flex-shrink-0 text-right">
-												<p class="text-xs text-gray-500">{getRelativeTime(activity.createdAt)}</p>
-											</div>
-										</div>
-									</div>
-								</div>
-							{/each}
-							{#if recentActivities.length === 0}
-								<div class="flex flex-col items-center justify-center py-12 text-center">
-									<div
-										class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100"
-									>
-										<i class="fas fa-inbox text-2xl text-gray-400"></i>
-									</div>
-									<h4 class="mb-1 text-sm font-medium text-gray-900">최근 활동이 없습니다</h4>
-									<p class="text-sm text-gray-500">활동 내역이 여기에 표시됩니다.</p>
-								</div>
-							{/if}
-						</div>
-					</div>
-				</div>
+				<RecentActivities activities={recentActivities} isLoading={isDashboardLoading} />
 			{:else if activeTab === 'quick-actions'}
 				<!-- 빠른 작업 탭 -->
 				<div

@@ -3,18 +3,17 @@
 		DashboardLayout,
 		Card,
 		Button,
-		Badge,
 		apiClient,
 		twoFactorStore,
 		authState,
-		useToast,
-		PermissionUtils
+		useToast
 	} from '$lib';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import type { User } from '$lib';
 	import type { TwoFactorState } from '$lib/stores/2fa';
-	import { env } from '$lib/config/env';
+	import AvatarSection from '$lib/components/profile/AvatarSection.svelte';
+	import AccountSidebar from '$lib/components/profile/AccountSidebar.svelte';
 	import './+page.css';
 
 	let user = $state<User | null>(null);
@@ -62,11 +61,11 @@
 	let showRemoveAvatarDialog = $state(false);
 
 	// 2FA 비활성화
-	let showDisableTwoFactorDialog = $state(false);
+	let _showDisableTwoFactorDialog = $state(false);
 	let disableTwoFactorForm = $state({
 		currentPassword: ''
 	});
-	let isDisablingTwoFactor = $state(false);
+	let _isDisablingTwoFactor = $state(false);
 
 	// 사용자명 검증 상태
 	let usernameStatus = $state({
@@ -146,7 +145,7 @@
 		goto('/auth/2fa/setup');
 	}
 
-	async function disableTwoFactor() {
+	async function _disableTwoFactor() {
 		if (!disableTwoFactorForm.currentPassword.trim()) {
 			toast.error('현재 비밀번호를 입력해주세요.');
 			return;
@@ -172,7 +171,7 @@
 		disableTwoFactorForm.currentPassword = '';
 	}
 
-	function closeDisableTwoFactorDialog() {
+	function _closeDisableTwoFactorDialog() {
 		showDisableTwoFactorDialog = false;
 		disableTwoFactorForm.currentPassword = '';
 	}
@@ -285,35 +284,11 @@
 		}
 	}
 
-	async function confirmRemoveAvatar() {
-		isRemovingAvatar = true;
-		try {
-			await apiClient.removeAvatar();
-
-			// 로컬 상태 업데이트
-			if (user) {
-				user.avatar = undefined;
-			}
-			authState.update((state) => ({
-				...state,
-				user: user ? { ...user, avatar: undefined } : null
-			}));
-
-			toast.success('아바타가 성공적으로 제거되었습니다.');
-			closeRemoveAvatarDialog();
-		} catch (error) {
-			console.error('Avatar removal failed:', error);
-			toast.error('아바타 제거에 실패했습니다.');
-		} finally {
-			isRemovingAvatar = false;
-		}
-	}
-
 	function openRemoveAvatarDialog() {
 		showRemoveAvatarDialog = true;
 	}
 
-	function closeRemoveAvatarDialog() {
+	function _closeRemoveAvatarDialog() {
 		showRemoveAvatarDialog = false;
 	}
 
@@ -544,104 +519,18 @@
 					</div>
 
 					<!-- 아바타 섹션 -->
-					<div class="mb-6">
-						<h4 class="mb-3 block text-sm font-medium text-gray-700">프로필 사진</h4>
-						<div class="flex items-center space-x-4">
-							<!-- 현재 아바타 표시 -->
-							<div class="relative">
-								{#if avatarPreview}
-									<img
-										src={avatarPreview}
-										alt="아바타 미리보기"
-										class="h-20 w-20 rounded-full border-2 border-gray-200 object-cover"
-									/>
-								{:else if user.avatar}
-									<img
-										src={user.avatar.startsWith('http')
-											? user.avatar
-											: `${env.API_BASE_URL}${user.avatar}`}
-										alt="프로필 사진"
-										class="h-20 w-20 rounded-full border-2 border-gray-200 object-cover"
-									/>
-								{:else}
-									<div
-										class="flex h-20 w-20 items-center justify-center rounded-full border-2 border-gray-200 bg-gray-200"
-									>
-										<i class="fas fa-user text-2xl text-gray-400"></i>
-									</div>
-								{/if}
-							</div>
-
-							<!-- 파일 선택 및 업로드 버튼 -->
-							<div class="flex flex-col space-y-2">
-								<input
-									id="avatar-input"
-									type="file"
-									accept="image/*"
-									onchange={handleAvatarFileSelect}
-									class="hidden"
-								/>
-								<Button
-									variant="outline"
-									onclick={() => document.getElementById('avatar-input')?.click()}
-									disabled={isUploadingAvatar}
-									class="h-10"
-								>
-									<i class="fas fa-camera mr-2"></i>
-									사진 선택
-								</Button>
-
-								{#if user.avatar && !selectedAvatarFile && !avatarPreview}
-									<Button
-										variant="outline"
-										onclick={openRemoveAvatarDialog}
-										disabled={isRemovingAvatar}
-										class="h-10 text-red-600 hover:bg-red-50 hover:text-red-700"
-									>
-										{#if isRemovingAvatar}
-											<i class="fas fa-spinner fa-spin mr-2"></i>
-											제거 중...
-										{:else}
-											<i class="fas fa-trash mr-2"></i>
-											사진 제거
-										{/if}
-									</Button>
-								{/if}
-
-								{#if selectedAvatarFile || avatarPreview}
-									<div class="flex space-x-2">
-										<Button onclick={uploadAvatar} disabled={isUploadingAvatar} class="h-10">
-											{#if isUploadingAvatar}
-												<i class="fas fa-spinner fa-spin mr-2"></i>
-												업로드 중...
-											{:else}
-												<i class="fas fa-upload mr-2"></i>
-												업로드
-											{/if}
-										</Button>
-										<Button
-											variant="outline"
-											onclick={cancelAvatarUpload}
-											disabled={isUploadingAvatar}
-											class="h-10"
-										>
-											취소
-										</Button>
-									</div>
-								{/if}
-							</div>
-						</div>
-
-						{#if selectedAvatarFile}
-							<p class="mt-2 text-sm text-gray-600">
-								선택된 파일: {selectedAvatarFile.name} ({(
-									selectedAvatarFile.size /
-									1024 /
-									1024
-								).toFixed(2)} MB)
-							</p>
-						{/if}
-					</div>
+					<AvatarSection
+						{user}
+						{selectedAvatarFile}
+						{avatarPreview}
+						{isUploadingAvatar}
+						{isRemovingAvatar}
+						{showRemoveAvatarDialog}
+						onFileSelect={handleAvatarFileSelect}
+						onUpload={uploadAvatar}
+						onCancel={cancelAvatarUpload}
+						onRemoveDialogOpen={openRemoveAvatarDialog}
+					/>
 
 					{#if isEditing}
 						<!-- 편집 폼 -->
@@ -858,271 +747,12 @@
 			</div>
 
 			<!-- 사이드바 정보 -->
-			<div class="space-y-6">
-				<!-- 계정 상태 -->
-				<Card>
-					<h3 class="mb-4 text-lg font-medium text-gray-900">계정 상태</h3>
-					<div class="space-y-3">
-						<div class="flex items-center justify-between">
-							<span class="text-sm text-gray-600">상태</span>
-							<Badge variant="success" size="sm">활성</Badge>
-						</div>
-						<div class="flex items-center justify-between">
-							<span class="text-sm text-gray-600">역할</span>
-							{#if user.permissions !== undefined}
-								<Badge variant="info" size="sm">
-									{PermissionUtils.getRoleName(Number(user.permissions))}
-								</Badge>
-							{:else}
-								<Badge variant="secondary" size="sm">권한 없음</Badge>
-							{/if}
-						</div>
-						<div class="flex items-center justify-between">
-							<span class="text-sm text-gray-600">세부 권한</span>
-							{#if user.permissions !== undefined}
-								<div class="flex max-w-48 flex-wrap gap-1">
-									{#each PermissionUtils.getPermissionNames(Number(user.permissions)) as permission (permission)}
-										<Badge variant="secondary" size="xs">{permission}</Badge>
-									{/each}
-								</div>
-							{:else}
-								<Badge variant="secondary" size="sm">권한 없음</Badge>
-							{/if}
-						</div>
-						<div class="flex items-center justify-between">
-							<span class="text-sm text-gray-600">2FA</span>
-							{#if twoFactorState.isLoading}
-								<div class="flex items-center space-x-2">
-									<i class="fas fa-spinner fa-spin text-gray-400"></i>
-									<span class="text-sm text-gray-500">확인 중...</span>
-								</div>
-							{:else if twoFactorState.status?.enabled}
-								<div class="flex items-center space-x-3">
-									<div class="flex items-center space-x-2">
-										<Badge variant="success" size="sm">활성</Badge>
-										{#if twoFactorState.status.hasBackupCodes}
-											<span class="text-xs text-green-600">백업 코드 있음</span>
-										{:else}
-											<span class="text-xs text-yellow-600">백업 코드 필요</span>
-										{/if}
-									</div>
-									<Button
-										variant="outline"
-										size="xs"
-										onclick={openDisableTwoFactorDialog}
-										class="text-red-600 hover:bg-red-50 hover:text-red-700"
-									>
-										비활성화
-									</Button>
-								</div>
-							{:else}
-								<div class="flex items-center space-x-2">
-									<Badge variant="secondary" size="sm">비활성</Badge>
-									<Button variant="outline" size="xs" onclick={goToTwoFactorSetup}>설정</Button>
-								</div>
-							{/if}
-						</div>
-					</div>
-				</Card>
-
-				<!-- 계정 정보 -->
-				<Card>
-					<h3 class="mb-4 text-lg font-medium text-gray-900">계정 정보</h3>
-					<div class="space-y-3">
-						<div>
-							<span class="text-sm text-gray-600">사용자 ID</span>
-							<p class="text-sm text-gray-900">{user.id}</p>
-						</div>
-						<div>
-							<span class="text-sm text-gray-600">가입일</span>
-							<p class="text-sm text-gray-900">
-								{user.createdAt
-									? new Date(user.createdAt).toLocaleDateString('ko-KR', {
-											year: 'numeric',
-											month: 'long',
-											day: 'numeric'
-										})
-									: '정보 없음'}
-							</p>
-						</div>
-						<div>
-							<span class="text-sm text-gray-600">마지막 로그인</span>
-							<p class="text-sm text-gray-900">정보 없음</p>
-						</div>
-						<div>
-							<span class="text-sm text-gray-600">이메일 인증</span>
-							<p class="text-sm text-gray-900">
-								{user.isEmailVerified ? '인증됨' : '미인증'}
-							</p>
-						</div>
-					</div>
-				</Card>
-
-				<!-- 보안 설정 -->
-				<Card>
-					<h3 class="mb-4 text-lg font-medium text-gray-900">보안 설정</h3>
-					<div class="space-y-3">
-						<Button variant="outline" class="w-full justify-start" onclick={goToTwoFactorSetup}>
-							<i class="fas fa-mobile-alt mr-2"></i>
-							{#if twoFactorState.status?.enabled}
-								2단계 인증 관리
-							{:else}
-								2단계 인증 설정
-							{/if}
-						</Button>
-						<Button variant="outline" class="w-full justify-start">
-							<i class="fas fa-history mr-2"></i>
-							로그인 기록 보기
-						</Button>
-						<Button variant="outline" class="w-full justify-start">
-							<i class="fas fa-download mr-2"></i>
-							데이터 내보내기
-						</Button>
-					</div>
-				</Card>
-
-				<!-- 위험 구역 -->
-				<Card class="border-red-200">
-					<h3 class="mb-4 text-lg font-medium text-red-900">위험 구역</h3>
-					<div class="space-y-3">
-						<Button
-							variant="outline"
-							class="w-full justify-start border-red-300 text-red-600 hover:bg-red-50"
-						>
-							<i class="fas fa-sign-out-alt mr-2"></i>
-							모든 기기에서 로그아웃
-						</Button>
-						<Button
-							variant="outline"
-							class="w-full justify-start border-red-300 text-red-600 hover:bg-red-50"
-						>
-							<i class="fas fa-trash mr-2"></i>
-							계정 삭제
-						</Button>
-					</div>
-				</Card>
-			</div>
+			<AccountSidebar
+				{user}
+				{twoFactorState}
+				onDisableTwoFactorDialogOpen={openDisableTwoFactorDialog}
+				onGoToTwoFactorSetup={goToTwoFactorSetup}
+			/>
 		</div>
 	{/if}
 </DashboardLayout>
-
-<!-- 2FA 비활성화 확인 대화상자 -->
-{#if showDisableTwoFactorDialog}
-	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-md">
-		<div
-			class="max-h-[90vh] w-full max-w-md scale-100 transform overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-xl transition-all duration-300"
-		>
-			<div class="p-6">
-				<div class="mb-4">
-					<h3 class="text-lg font-medium text-gray-900">2FA 비활성화</h3>
-					<p class="mt-2 text-sm text-gray-600">
-						2단계 인증을 비활성화하시겠습니까? 비활성화 후 계정 보안이 약해질 수 있습니다.
-					</p>
-				</div>
-
-				<div class="mb-4">
-					<label for="currentPassword" class="mb-2 block text-sm font-medium text-gray-700">
-						현재 비밀번호
-					</label>
-					<input
-						id="currentPassword"
-						type="password"
-						bind:value={disableTwoFactorForm.currentPassword}
-						class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm transition-colors duration-200 focus:border-red-500 focus:ring-2 focus:ring-red-500"
-						placeholder="현재 비밀번호를 입력하세요"
-						disabled={isDisablingTwoFactor}
-					/>
-				</div>
-
-				<div class="flex justify-end space-x-3">
-					<Button
-						variant="outline"
-						onclick={closeDisableTwoFactorDialog}
-						disabled={isDisablingTwoFactor}
-						class="px-4 py-2"
-					>
-						취소
-					</Button>
-					<Button
-						variant="danger"
-						onclick={disableTwoFactor}
-						disabled={isDisablingTwoFactor || !disableTwoFactorForm.currentPassword.trim()}
-						class="px-4 py-2"
-					>
-						{#if isDisablingTwoFactor}
-							<i class="fas fa-spinner fa-spin mr-2"></i>
-							비활성화 중...
-						{:else}
-							비활성화
-						{/if}
-					</Button>
-				</div>
-			</div>
-		</div>
-	</div>
-{/if}
-
-<!-- 아바타 제거 확인 모달 -->
-{#if showRemoveAvatarDialog}
-	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-md">
-		<div
-			class="max-h-[90vh] w-full max-w-md scale-100 transform overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-xl transition-all duration-300"
-		>
-			<div class="p-6">
-				<div class="mb-4">
-					<h3 class="text-lg font-medium text-gray-900">프로필 사진 제거</h3>
-					<p class="mt-2 text-sm text-gray-600">
-						정말로 프로필 사진을 제거하시겠습니까? 이 작업은 되돌릴 수 없습니다.
-					</p>
-				</div>
-
-				<div class="mb-4 flex items-center space-x-3">
-					{#if user?.avatar}
-						<img
-							src={user.avatar.startsWith('http')
-								? user.avatar
-								: `${env.API_BASE_URL}${user.avatar}`}
-							alt="현재 프로필 사진"
-							class="h-12 w-12 rounded-full border border-gray-200 object-cover"
-						/>
-					{:else}
-						<div
-							class="flex h-12 w-12 items-center justify-center rounded-full border border-gray-200 bg-gray-200"
-						>
-							<i class="fas fa-user text-gray-400"></i>
-						</div>
-					{/if}
-					<div>
-						<p class="text-sm font-medium text-gray-900">현재 프로필 사진</p>
-						<p class="text-xs text-gray-500">제거 후 기본 아이콘으로 표시됩니다.</p>
-					</div>
-				</div>
-
-				<div class="flex justify-end space-x-3">
-					<Button
-						variant="outline"
-						onclick={closeRemoveAvatarDialog}
-						disabled={isRemovingAvatar}
-						class="px-4 py-2"
-					>
-						취소
-					</Button>
-					<Button
-						variant="danger"
-						onclick={confirmRemoveAvatar}
-						disabled={isRemovingAvatar}
-						class="px-4 py-2"
-					>
-						{#if isRemovingAvatar}
-							<i class="fas fa-spinner fa-spin mr-2"></i>
-							제거 중...
-						{:else}
-							<i class="fas fa-trash mr-2"></i>
-							사진 제거
-						{/if}
-					</Button>
-				</div>
-			</div>
-		</div>
-	</div>
-{/if}
