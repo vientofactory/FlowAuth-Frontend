@@ -11,14 +11,20 @@
 			implicitAccessToken: string;
 			implicitIdToken: string;
 		}) => void;
+		onCallbackStart?: () => void;
 	}
 
-	let { onCallbackProcessed }: Props = $props();
+	let { onCallbackProcessed, onCallbackStart }: Props = $props();
 
 	const toast = useToast();
 
 	// 콜백 처리 함수
 	function processOAuthCallback() {
+		// 콜백 처리 시작 알림
+		if (onCallbackStart) {
+			onCallbackStart();
+		}
+
 		// URL 파라미터에서 코드와 상태 추출
 		const urlParams = new URLSearchParams(window.location.search);
 		const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -32,7 +38,6 @@
 		// Implicit Grant의 경우 해시에서 토큰 추출
 		let implicitAccessToken = hashParams.get('access_token') || '';
 		let implicitIdToken = hashParams.get('id_token') || '';
-		let _implicitState = hashParams.get('state') || '';
 
 		// Implicit Grant 토큰 정보 표시
 		if (implicitIdToken) {

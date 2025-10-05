@@ -21,7 +21,6 @@ export const authState = writable<AuthState>({
 class AuthStore {
 	// 사용자 정보 초기화 (앱 시작 시 호출)
 	async initialize() {
-		console.log('AuthStore: Initializing authentication state...');
 		authState.update((state) => ({ ...state, isLoading: true }));
 
 		// 세션 복원 이벤트 리스너 등록
@@ -29,13 +28,10 @@ class AuthStore {
 
 		try {
 			const token = this.getToken();
-			console.log('AuthStore: Token found in storage:', !!token);
 
 			if (token && token.trim() !== '') {
 				// 토큰이 있으면 사용자 정보 가져오기
-				console.log('AuthStore: Attempting to get profile with token...');
 				const user = await apiClient.getProfile();
-				console.log('AuthStore: Profile loaded successfully:', !!user);
 				authState.update((state) => ({
 					...state,
 					user,
@@ -45,10 +41,8 @@ class AuthStore {
 				}));
 			} else {
 				// JWT 토큰이 없어도 쿠키 기반으로 사용자 정보 시도
-				console.log('AuthStore: No token found, trying cookie-based auth...');
 				try {
 					const user = await apiClient.getProfile();
-					console.log('AuthStore: Cookie-based auth successful:', !!user);
 					authState.update((state) => ({
 						...state,
 						user,
@@ -56,9 +50,8 @@ class AuthStore {
 						isLoading: false,
 						isInitialized: true
 					}));
-				} catch (cookieError) {
+				} catch {
 					// 쿠키 기반 인증도 실패하면 로그아웃 처리
-					console.log('AuthStore: Cookie-based auth failed:', cookieError);
 					authState.update((state) => ({
 						...state,
 						user: null,
@@ -70,13 +63,9 @@ class AuthStore {
 			}
 		} catch (tokenError) {
 			// JWT 토큰 기반 인증 실패 시, 쿠키 기반 시도
-			console.log('AuthStore: Token-based auth failed:', tokenError);
-			console.log('AuthStore: Error details:', tokenError);
-
 			// 토큰이 만료되었거나 유효하지 않은 경우 토큰 제거
 			const errorMessage = tokenError instanceof Error ? tokenError.message : String(tokenError);
 			if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
-				console.log('AuthStore: Token appears to be invalid, removing it');
 				// 토큰만 제거하고 완전히 로그아웃하지는 않음
 				if (typeof window !== 'undefined') {
 					localStorage.removeItem('auth_token');
@@ -86,7 +75,6 @@ class AuthStore {
 
 			try {
 				const user = await apiClient.getProfile();
-				console.log('AuthStore: Fallback to cookie-based auth successful:', !!user);
 				authState.update((state) => ({
 					...state,
 					user,
@@ -94,37 +82,15 @@ class AuthStore {
 					isLoading: false,
 					isInitialized: true
 				}));
-			} catch (fallbackError) {
+			} catch {
 				// 모든 인증 방법 실패
-				console.log('AuthStore: All auth methods failed:', fallbackError);
-				const fallbackErrorMessage =
-					fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
-
-				// 네트워크 오류인 경우 세션을 유지 (오프라인 모드)
-				if (
-					fallbackErrorMessage.includes('fetch') ||
-					fallbackErrorMessage.includes('network') ||
-					fallbackErrorMessage.includes('Failed to fetch')
-				) {
-					console.log('AuthStore: Network error detected, keeping session for offline mode');
-					// 네트워크 오류 시 세션 유지 (나중에 재연결 시도)
-					authState.update((state) => ({
-						...state,
-						isLoading: false,
-						isInitialized: true
-						// user와 isAuthenticated는 유지
-					}));
-				} else {
-					// 다른 종류의 오류인 경우 로그아웃
-					this.logout();
-					authState.update((state) => ({
-						...state,
-						user: null,
-						isAuthenticated: false,
-						isLoading: false,
-						isInitialized: true
-					}));
-				}
+				authState.update((state) => ({
+					...state,
+					user: null,
+					isAuthenticated: false,
+					isLoading: false,
+					isInitialized: true
+				}));
 			}
 		}
 	}

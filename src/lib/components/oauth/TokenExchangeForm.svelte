@@ -22,47 +22,57 @@
 	}
 
 	interface Props {
+		clientId: string;
+		clientSecret: string;
+		code: string;
+		redirectUri: string;
+		codeVerifier: string;
 		authCode: string;
 		onTokenExchanged: (tokenResponse: TokenResponse) => void;
+		onClientIdChange: (value: string) => void;
+		onClientSecretChange: (value: string) => void;
+		onCodeChange: (value: string) => void;
+		onRedirectUriChange: (value: string) => void;
+		onCodeVerifierChange: (value: string) => void;
 	}
 
-	let { authCode, onTokenExchanged }: Props = $props();
+	let {
+		clientId,
+		clientSecret,
+		code,
+		redirectUri,
+		codeVerifier,
+		authCode,
+		onTokenExchanged,
+		onClientIdChange,
+		onClientSecretChange,
+		onCodeChange,
+		onRedirectUriChange,
+		onCodeVerifierChange
+	}: Props = $props();
 
 	const toast = useToast();
 
-	// 토큰 교환 폼
-	let tokenForm = $state<TokenForm>({
-		clientId: '',
-		clientSecret: '',
-		code: authCode,
-		redirectUri: '',
-		codeVerifier: '',
-		grantType: 'authorization_code'
+	// authCode가 변경되면 code 업데이트
+	$effect(() => {
+		if (authCode && !code) {
+			onCodeChange(authCode);
+		}
 	});
 
 	let isExchanging = $state(false);
 
-	// 컴포넌트 마운트 시 초기화
-	$effect(() => {
-		// 현재 URL에서 redirect_uri 추출 (콜백 URL)
-		tokenForm.redirectUri = window.location.origin + window.location.pathname;
-
-		// 폼에 코드 설정 (Authorization Code Grant)
-		if (authCode) {
-			tokenForm.code = authCode;
-		}
-
-		// 세션 스토리지에서 code_verifier 가져오기
-		const storedCodeVerifier = sessionStorage.getItem('code_verifier');
-		if (storedCodeVerifier) {
-			tokenForm.codeVerifier = storedCodeVerifier;
-		}
-	});
-
 	// 토큰 교환 함수
 	async function exchangeToken() {
-		if (!tokenForm.clientId || !tokenForm.clientSecret || !tokenForm.code) {
-			toast.error('클라이언트 ID, 시크릿, 인증 코드를 모두 입력해주세요.');
+		// 필수 필드 검증
+		const missingFields = [];
+		if (!clientId) missingFields.push('클라이언트 ID');
+		if (!clientSecret) missingFields.push('클라이언트 시크릿');
+		if (!code) missingFields.push('인증 코드');
+
+		if (missingFields.length > 0) {
+			const errorMsg = `다음 필드를 입력해주세요: ${missingFields.join(', ')}`;
+			toast.error(errorMsg);
 			return;
 		}
 
@@ -72,14 +82,14 @@
 			const tokenEndpoint = createApiUrl('/oauth2/token');
 
 			const params = new URLSearchParams();
-			params.append('grant_type', tokenForm.grantType);
-			params.append('client_id', tokenForm.clientId);
-			params.append('client_secret', tokenForm.clientSecret);
-			params.append('code', tokenForm.code);
-			params.append('redirect_uri', tokenForm.redirectUri);
+			params.append('grant_type', 'authorization_code');
+			params.append('client_id', clientId);
+			params.append('client_secret', clientSecret);
+			params.append('code', code);
+			params.append('redirect_uri', redirectUri);
 
-			if (tokenForm.codeVerifier) {
-				params.append('code_verifier', tokenForm.codeVerifier);
+			if (codeVerifier) {
+				params.append('code_verifier', codeVerifier);
 			}
 
 			const response = await fetch(tokenEndpoint, {
@@ -101,8 +111,6 @@
 
 			// 토큰 교환 성공 이벤트 발생
 			onTokenExchanged(data);
-
-			toast.success('토큰 교환이 성공했습니다!');
 
 			// code_verifier 정리
 			sessionStorage.removeItem('code_verifier');
@@ -130,7 +138,8 @@
 			<Input
 				label="클라이언트 ID"
 				placeholder="your-client-id"
-				bind:value={tokenForm.clientId}
+				value={clientId}
+				oninput={(e) => onClientIdChange((e.target as HTMLInputElement).value)}
 				required
 			/>
 
@@ -138,7 +147,8 @@
 				label="클라이언트 시크릿"
 				type="password"
 				placeholder="your-client-secret"
-				bind:value={tokenForm.clientSecret}
+				value={clientSecret}
+				oninput={(e) => onClientSecretChange((e.target as HTMLInputElement).value)}
 				required
 			/>
 		</div>
@@ -147,26 +157,33 @@
 			<Input
 				label="인증 코드"
 				placeholder="authorization-code"
-				bind:value={tokenForm.code}
+				value={code}
+				oninput={(e) => onCodeChange((e.target as HTMLInputElement).value)}
 				required
 			/>
 
 			<Input
 				label="리다이렉트 URI"
 				placeholder="https://example.com/callback"
-				bind:value={tokenForm.redirectUri}
+				value={redirectUri}
+				oninput={(e) => onRedirectUriChange((e.target as HTMLInputElement).value)}
 				required
 			/>
 		</div>
 
 		<Input
-			label="코드 검증자 (PKCE)"
-			placeholder="code-verifier"
-			bind:value={tokenForm.codeVerifier}
+			label="코드 검증자 (PKCE) - 선택사항"
+			placeholder="PKCE를 사용하는 경우에만 입력"
+			value={codeVerifier}
+			oninput={(e) => onCodeVerifierChange((e.target as HTMLInputElement).value)}
 		/>
 
 		<div class="flex justify-end">
-			<Button variant="primary" onclick={exchangeToken} disabled={isExchanging}>
+			<Button 
+				variant="primary" 
+				onclick={exchangeToken} 
+				disabled={isExchanging || !clientId || !clientSecret || !code}
+			>
 				{#if isExchanging}
 					<Loading size="sm" class="mr-2" />
 					교환 중...

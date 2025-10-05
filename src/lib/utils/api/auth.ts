@@ -40,17 +40,7 @@ export class AuthApi extends BaseApi {
 			}
 			return result;
 		} catch (error) {
-			console.log('API Client: Login error caught:', error);
-			console.log('API Client: Error type:', typeof error);
-			console.log('API Client: Error instanceof Error:', error instanceof Error);
-			if (error instanceof Error) {
-				console.log('API Client: Error message:', error.message);
-				console.log('API Client: Error name:', error.name);
-			}
-			console.log('API Client: Full error object:', error);
-
 			if (error instanceof Error && error.message.includes('2FA_REQUIRED')) {
-				console.log('API Client: 2FA_REQUIRED error detected:', error.message);
 				throw new Error('2FA_REQUIRED');
 			}
 			throw error;
@@ -187,12 +177,10 @@ export class AuthApi extends BaseApi {
 			const user = await this.getProfile();
 			return user;
 		} catch (error) {
-			console.error('Account refresh failed:', error);
 			try {
 				await this.refreshJwtToken();
 				return await this.getProfile();
 			} catch (refreshError) {
-				console.error('JWT token refresh also failed:', refreshError);
 				this.clearAllTokens();
 				throw new Error('Session expired. Please login again.');
 			}

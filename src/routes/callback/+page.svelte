@@ -3,11 +3,22 @@
 	import Footer from '$lib/components/Footer.svelte';
 	import { createApiUrl } from '$lib/config/env';
 	import { useToast } from '$lib';
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
+	import TokenExchangeForm from '$lib/components/oauth/TokenExchangeForm.svelte';
+
+	interface TokenResponse {
+		access_token: string;
+		token_type: string;
+		expires_in?: number;
+		refresh_token?: string;
+		scope?: string;
+		id_token?: string;
+	}
 
 	// URL 파라미터에서 코드와 상태 추출
 	let authCode = $state('');
 	let oauthState = $state('');
+	let oauthNonce = $state('');
 	let error = $state('');
 	let isLoading = $state(true);
 
@@ -18,17 +29,11 @@
 		code: '',
 		redirectUri: 'http://localhost:5173/callback',
 		codeVerifier: '',
-		grantType: 'authorization_code'
+		grantType: 'authorization_code' as const
 	});
 
-	// 토큰 응답 타입 정의
-	interface TokenResponse {
-		access_token: string;
-		token_type: string;
-		expires_in: number;
-		refresh_token?: string;
-		scope?: string;
-	}
+	// 로딩 타임아웃 설정
+	let loadingTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	interface UserProfile {
 		sub: string;
@@ -52,7 +57,6 @@
 
 	// 응답 데이터
 	let tokenResponse: TokenResponse | null = $state(null);
-	let isExchanging = $state(false);
 	let showTokenModal = $state(false);
 
 	// 토큰 테스트 관련
@@ -64,23 +68,48 @@
 	const toast = useToast();
 
 	onMount(() => {
+		// 브라우저 환경 확인
+		if (typeof window === 'undefined') {
+			isLoading = false;
+			return;
+		}
+
 		// URL 파라미터 파싱
 		const urlParams = new URLSearchParams(window.location.search);
 		authCode = urlParams.get('code') || '';
 		oauthState = urlParams.get('state') || '';
 		error = urlParams.get('error') || '';
 
-		// 폼에 코드 설정
+		// 토큰 폼에 코드 설정
 		if (authCode) {
 			tokenForm.code = authCode;
 		}
 
-		// 로컬 스토리지에서 code_verifier 가져오기
-		const storedCodeVerifier = localStorage.getItem('code_verifier');
-		if (storedCodeVerifier) {
-			tokenForm.codeVerifier = storedCodeVerifier;
-		}
+		// 세션 스토리지에서 OAuth2 인증 요청 시 저장된 값들 복원
+		const storedClientId = sessionStorage.getItem('client_id');
+		const storedClientSecret = sessionStorage.getItem('client_secret');
+		const storedCodeVerifier = sessionStorage.getItem('code_verifier');
+		const storedRedirectUri = sessionStorage.getItem('redirect_uri');
 
+		// 토큰 폼 초기화
+		tokenForm = {
+			clientId: storedClientId || '',
+			clientSecret: storedClientSecret || '',
+			code: authCode,
+			redirectUri: storedRedirectUri || 'http://localhost:5173/callback',
+			codeVerifier: storedCodeVerifier || '',
+			grantType: 'authorization_code' as const
+		};
+
+		// 3초 후에도 로딩이 끝나지 않으면 강제로 로딩 해제
+		loadingTimeout = setTimeout(() => {
+			if (isLoading) {
+				isLoading = false;
+				toast.error('콜백 처리 시간이 초과되었습니다. 페이지를 새로고침해주세요.');
+			}
+		}, 3000);
+
+		// 로딩 완료
 		isLoading = false;
 
 		// 에러가 있는 경우 토스트로 표시
@@ -91,79 +120,15 @@
 		}
 	});
 
-	async function exchangeCodeForToken() {
-		if (!tokenForm.clientId.trim()) {
-			toast.error('클라이언트 ID를 입력해주세요.');
-			return;
-		}
-
-		if (!tokenForm.clientSecret.trim()) {
-			toast.error('클라이언트 시크릿을 입력해주세요.');
-			return;
-		}
-
-		if (!tokenForm.code.trim()) {
-			toast.error('인증 코드를 입력해주세요.');
-			return;
-		}
-
-		isExchanging = true;
-		try {
-			const requestBody: Record<string, string> = {
-				grant_type: tokenForm.grantType,
-				client_id: tokenForm.clientId.trim(),
-				client_secret: tokenForm.clientSecret.trim(),
-				code: tokenForm.code.trim(),
-				redirect_uri: tokenForm.redirectUri.trim()
-			};
-
-			// PKCE 사용 시 code_verifier 추가
-			if (tokenForm.codeVerifier.trim()) {
-				requestBody.code_verifier = tokenForm.codeVerifier.trim();
-			}
-
-			const response = await fetch(createApiUrl('/oauth2/token'), {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(requestBody)
-			});
-
-			const data = await response.json();
-
-			if (!response.ok) {
-				// PKCE 관련 에러를 구분하여 처리
-				if (data.message && data.message.includes('PKCE')) {
-					throw new Error(`PKCE 검증 실패: ${data.message}`);
-				}
-				throw new Error(data.message || `HTTP error! status: ${response.status}`);
-			}
-
-			tokenResponse = data;
-			showTokenModal = true;
-			activeTab = 'token'; // 기본 탭 설정
-			toast.success('토큰 교환이 성공했습니다!');
-
-			// code_verifier 정리
-			localStorage.removeItem('code_verifier');
-		} catch (err: unknown) {
-			const errorMessage = err instanceof Error ? err.message : '토큰 교환에 실패했습니다.';
-			toast.error(errorMessage);
-		} finally {
-			isExchanging = false;
-		}
+	// 토큰 교환 성공 핸들러
+	function handleTokenExchanged(response: TokenResponse) {
+		tokenResponse = response;
+		showTokenModal = true;
+		activeTab = 'token';
+		toast.success('토큰 교환이 성공했습니다!');
 	}
 
-	// 클립보드에 복사
-	async function copyToClipboard(text: string) {
-		try {
-			await navigator.clipboard.writeText(text);
-			toast.success('클립보드에 복사되었습니다!');
-		} catch {
-			toast.error('클립보드 복사에 실패했습니다.');
-		}
-	}
+
 
 	function navigateBack() {
 		window.location.href = '/dashboard/oauth-tester';
@@ -206,7 +171,9 @@
 
 		isTestingToken = true;
 		try {
-			const response = await fetch(createApiUrl('/oauth2/userinfo'), {
+			const apiUrl = createApiUrl('/oauth2/userinfo');
+
+			const response = await fetch(apiUrl, {
 				method: 'GET',
 				headers: {
 					Authorization: `Bearer ${tokenResponse.access_token}`,
@@ -359,132 +326,20 @@
 				</Card>
 
 				<!-- 토큰 교환 폼 -->
-				{#if authCode && !error}
-					<Card class="p-6">
-						<h3 class="mb-4 text-lg font-semibold text-gray-900">토큰 교환</h3>
-
-						<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-							<!-- 클라이언트 ID -->
-							<div>
-								<label for="clientId" class="mb-2 block text-sm font-medium text-gray-700">
-									클라이언트 ID *
-								</label>
-								<Input
-									id="clientId"
-									value={tokenForm.clientId}
-									oninput={(e) =>
-										(tokenForm.clientId = (e.target as HTMLInputElement)?.value || '')}
-									placeholder="클라이언트 ID를 입력하세요"
-									class="w-full"
-									required
-								/>
-							</div>
-
-							<!-- 클라이언트 시크릿 -->
-							<div>
-								<label for="clientSecret" class="mb-2 block text-sm font-medium text-gray-700">
-									클라이언트 시크릿 *
-								</label>
-								<Input
-									id="clientSecret"
-									type="password"
-									value={tokenForm.clientSecret}
-									oninput={(e) =>
-										(tokenForm.clientSecret = (e.target as HTMLInputElement)?.value || '')}
-									placeholder="클라이언트 시크릿을 입력하세요"
-									class="w-full"
-									required
-								/>
-							</div>
-
-							<!-- 인증 코드 -->
-							<div>
-								<label for="code" class="mb-2 block text-sm font-medium text-gray-700">
-									인증 코드 *
-								</label>
-								<Input
-									id="code"
-									value={tokenForm.code}
-									oninput={(e) => (tokenForm.code = (e.target as HTMLInputElement)?.value || '')}
-									placeholder="인증 코드"
-									class="w-full"
-									disabled
-								/>
-							</div>
-
-							<!-- 리다이렉트 URI -->
-							<div>
-								<label for="redirectUri" class="mb-2 block text-sm font-medium text-gray-700">
-									리다이렉트 URI *
-								</label>
-								<Input
-									id="redirectUri"
-									value={tokenForm.redirectUri}
-									oninput={(e) =>
-										(tokenForm.redirectUri = (e.target as HTMLInputElement)?.value || '')}
-									placeholder="리다이렉트 URI"
-									class="w-full"
-									required
-								/>
-							</div>
-
-							<!-- Grant Type -->
-							<div>
-								<label for="grantType" class="mb-2 block text-sm font-medium text-gray-700">
-									Grant Type
-								</label>
-								<select
-									id="grantType"
-									bind:value={tokenForm.grantType}
-									class="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-								>
-									<option value="authorization_code">Authorization Code</option>
-								</select>
-							</div>
-
-							<!-- Code Verifier (PKCE) -->
-							<div>
-								<label for="codeVerifier" class="mb-2 block text-sm font-medium text-gray-700">
-									Code Verifier (PKCE)
-								</label>
-								<Input
-									id="codeVerifier"
-									value={tokenForm.codeVerifier}
-									oninput={(e) =>
-										(tokenForm.codeVerifier = (e.target as HTMLInputElement)?.value || '')}
-									placeholder="PKCE Code Verifier"
-									class="w-full"
-									disabled
-								/>
-								{#if tokenForm.codeVerifier}
-									<p class="mt-1 text-xs text-green-600">
-										<i class="fas fa-check mr-1"></i>
-										로컬 스토리지에서 자동으로 불러왔습니다.
-									</p>
-								{:else}
-									<p class="mt-1 text-xs text-gray-500">PKCE를 사용한 경우에만 필요합니다.</p>
-								{/if}
-							</div>
-						</div>
-
-						<!-- 교환 버튼 -->
-						<div class="mt-6 flex justify-end">
-							<Button
-								onclick={exchangeCodeForToken}
-								disabled={isExchanging}
-								class="bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
-							>
-								{#if isExchanging}
-									<Loading variant="spinner" size="sm" class="mr-2" />
-									교환 중...
-								{:else}
-									<i class="fas fa-exchange-alt mr-2"></i>
-									토큰으로 교환
-								{/if}
-							</Button>
-						</div>
-					</Card>
-				{/if}
+				<TokenExchangeForm
+					clientId={tokenForm.clientId}
+					clientSecret={tokenForm.clientSecret}
+					code={tokenForm.code}
+					redirectUri={tokenForm.redirectUri}
+					codeVerifier={tokenForm.codeVerifier}
+					authCode={authCode}
+					onTokenExchanged={handleTokenExchanged}
+					onClientIdChange={(value) => { tokenForm.clientId = value; }}
+					onClientSecretChange={(value) => { tokenForm.clientSecret = value; }}
+					onCodeChange={(value) => { tokenForm.code = value; }}
+					onRedirectUriChange={(value) => { tokenForm.redirectUri = value; }}
+					onCodeVerifierChange={(value) => { tokenForm.codeVerifier = value; }}
+				/>
 
 				<!-- 사용 안내 -->
 				<Card class="p-6">
@@ -515,50 +370,48 @@
 		onClose={() => (showTokenModal = false)}
 		size="xl"
 	>
-		{#if tokenResponse}
-			<div class="space-y-6">
-				<!-- 성공 메시지 -->
-				<div class="rounded-lg border border-green-200 bg-green-50 p-4">
-					<div class="flex items-center">
-						<i class="fas fa-check-circle mr-2 text-green-600"></i>
-						<span class="font-medium text-green-800">토큰 교환 성공</span>
-					</div>
+	{#if tokenResponse}
+		<div class="space-y-6">
+			<!-- 성공 메시지 -->
+			<div class="rounded-lg border border-green-200 bg-green-50 p-4">
+				<div class="flex items-center">
+					<i class="fas fa-check-circle mr-2 text-green-600"></i>
+					<span class="font-medium text-green-800">토큰 교환 성공</span>
 				</div>
+			</div>
 
-				<!-- 탭 메뉴 -->
-				<div class="border-b border-gray-200">
-					<nav class="-mb-px flex space-x-8">
-						<button
-							onclick={() => (activeTab = 'token')}
-							class="border-b-2 px-1 py-2 text-sm font-medium transition-colors
-								{activeTab === 'token'
-								? 'border-blue-500 text-blue-600'
-								: 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}"
-						>
-							토큰 정보
-						</button>
-						<button
-							onclick={() => (activeTab = 'profile')}
-							class="border-b-2 px-1 py-2 text-sm font-medium transition-colors
-								{activeTab === 'profile'
-								? 'border-blue-500 text-blue-600'
-								: 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}"
-						>
-							프로필 정보
-						</button>
-						<button
-							onclick={() => (activeTab = 'test')}
-							class="border-b-2 px-1 py-2 text-sm font-medium transition-colors
-								{activeTab === 'test'
-								? 'border-blue-500 text-blue-600'
-								: 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}"
-						>
-							토큰 분석
-						</button>
-					</nav>
-				</div>
-
-				<!-- 탭 콘텐츠 -->
+			<!-- 탭 메뉴 -->
+			<div class="border-b border-gray-200">
+				<nav class="-mb-px flex space-x-8">
+					<button
+						onclick={() => (activeTab = 'token')}
+						class="border-b-2 px-1 py-2 text-sm font-medium transition-colors
+							{activeTab === 'token'
+							? 'border-blue-500 text-blue-600'
+							: 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}"
+					>
+						토큰 정보
+					</button>
+					<button
+						onclick={() => (activeTab = 'profile')}
+						class="border-b-2 px-1 py-2 text-sm font-medium transition-colors
+							{activeTab === 'profile'
+							? 'border-blue-500 text-blue-600'
+							: 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}"
+					>
+						프로필 정보
+					</button>
+					<button
+						onclick={() => (activeTab = 'test')}
+						class="border-b-2 px-1 py-2 text-sm font-medium transition-colors
+							{activeTab === 'test'
+							? 'border-blue-500 text-blue-600'
+							: 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}"
+					>
+						토큰 분석
+					</button>
+				</nav>
+			</div>				<!-- 탭 콘텐츠 -->
 				{#if activeTab === 'token'}
 					<div class="space-y-4">
 						{#if tokenResponse.access_token}

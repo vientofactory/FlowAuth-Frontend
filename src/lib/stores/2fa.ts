@@ -33,7 +33,6 @@ function createTwoFactorStore() {
 				}));
 				return status;
 			} catch (error) {
-				console.error('Failed to load 2FA status:', error);
 				const errorMessage =
 					error instanceof Error ? error.message : '2FA 상태를 불러올 수 없습니다.';
 				update((state) => ({

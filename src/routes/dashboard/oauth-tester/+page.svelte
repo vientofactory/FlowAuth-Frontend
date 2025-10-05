@@ -157,6 +157,19 @@
 				state
 			});
 
+			// 콜백에서 사용할 값들을 세션 스토리지에 저장
+			sessionStorage.setItem('client_id', selectedClient.clientId);
+			sessionStorage.setItem('client_secret', selectedClient.clientSecret || '');
+			sessionStorage.setItem('redirect_uri', redirectUri);
+			sessionStorage.setItem('scope', scopeString);
+
+			console.log('[OAuth Tester] 세션 스토리지에 값들 저장:', {
+				client_id: selectedClient.clientId,
+				client_secret: selectedClient.clientSecret ? '있음' : '없음',
+				redirect_uri: redirectUri,
+				scope: scopeString
+			});
+
 			// OIDC인 경우 nonce 추가
 			if (nonce) {
 				params.append('nonce', nonce);
