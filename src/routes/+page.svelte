@@ -246,10 +246,19 @@
 										<span class="text-2xl font-bold">2</span>
 									</div>
 									<h3 class="mb-4 text-xl font-bold text-slate-900">앱 연결</h3>
-									<p class="text-slate-600">
+									<p class="text-slate-600 mb-2">
 										OAuth2 클라이언트를 생성하고<br />
 										귀하의 애플리케이션과 연결하세요
 									</p>
+									<a
+										href="https://github.com/vientofactory/FlowAuth-SDK"
+										target="_blank"
+										rel="noopener"
+										class="inline-flex items-center gap-2 text-sm font-medium text-purple-700 hover:underline"
+									>
+										<i class="fab fa-github"></i>
+										클라이언트 SDK
+									</a>
 								</div>
 
 								<div class="relative text-center lg:text-left">

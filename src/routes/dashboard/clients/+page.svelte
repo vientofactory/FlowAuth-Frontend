@@ -31,6 +31,7 @@
 	import ClientDeleteModal from '$lib/components/clients/ClientDeleteModal.svelte';
 	import ClientEditModal from '$lib/components/clients/ClientEditModal.svelte';
 	import ClientStatusModal from '$lib/components/clients/ClientStatusModal.svelte';
+	import AlertCard from '$lib/components/AlertCard.svelte';
 
 	let user = $state<User | null>(null);
 	let clients = $state<Client[]>([]);
@@ -771,6 +772,25 @@
 	{/snippet}
 
 	<ClientStats {clients} />
+
+	<AlertCard
+		variant="info"
+		title="SDK를 활용한 통합 안내"
+		description="FlowAuth와의 통합을 위해 SDK를 활용해보세요. 아래 링크에서 자세한 사용법을 확인할 수 있습니다."
+		icon="fas fa-code"
+		links={[
+			{
+				text: 'GitHub 저장소',
+				url: 'https://github.com/vientofactory/FlowAuth-SDK',
+				icon: 'fab fa-github'
+			},
+			{
+				text: '공식 문서',
+				url: 'https://op0.gitbook.io/flowauth/oauth2-oidc-sdk',
+				icon: 'fas fa-book'
+			}
+		]}
+	/>
 
 	<ClientCreateForm
 		{showCreateForm}
