@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { DashboardLayout, Button, apiClient } from '$lib';
+	import { DashboardLayout, Button, apiClient, DashboardSkeleton } from '$lib';
 	import { useToast } from '$lib';
 	import { onMount } from 'svelte';
 	import type { Client } from '$lib/types/oauth.types';
@@ -771,7 +771,11 @@
 		</div>
 	{/snippet}
 
-	<ClientStats {clients} />
+	{#if isLoading}
+		<DashboardSkeleton type="stats" />
+	{:else}
+		<ClientStats {clients} />
+	{/if}
 
 	<AlertCard
 		variant="info"

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { apiClient } from '$lib/utils/api';
-	import { DashboardLayout, Modal, authState } from '$lib';
+	import { DashboardLayout, Modal, authState, DashboardSkeleton } from '$lib';
 	import { USER_TYPES } from '$lib/types/user.types';
 	import { env } from '$lib/config/env';
 	import type {
@@ -133,12 +133,7 @@
 	<div class="space-y-6">
 		<!-- 로딩 상태 -->
 		{#if loading}
-			<div class="flex items-center justify-center py-12">
-				<div class="flex items-center space-x-3">
-					<div class="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
-					<span class="text-gray-600">연결된 앱을 불러오는 중...</span>
-				</div>
-			</div>
+			<DashboardSkeleton type="table" count={3} />
 		{:else if error}
 			<!-- 에러 상태 -->
 			<div class="rounded-lg border border-red-200 bg-red-50 p-6">

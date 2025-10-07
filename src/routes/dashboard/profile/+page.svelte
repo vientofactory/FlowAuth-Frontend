@@ -6,7 +6,8 @@
 		apiClient,
 		twoFactorStore,
 		authState,
-		useToast
+		useToast,
+		DashboardSkeleton
 	} from '$lib';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -450,59 +451,7 @@
 	showBackButton={true}
 >
 	{#if _isLoading}
-		<!-- 로딩 상태 -->
-		<div class="space-y-6">
-			<!-- 프로필 정보 스켈레톤 -->
-			<div class="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
-				<div class="lg:col-span-2">
-					<div class="animate-pulse rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-						<div class="mb-6 flex items-center justify-between">
-							<div class="h-6 w-32 rounded bg-gray-200"></div>
-							<div class="h-10 w-20 rounded bg-gray-200"></div>
-						</div>
-						<!-- 아바타 섹션 스켈레톤 -->
-						<div class="mb-6">
-							<div class="mb-3 h-4 w-24 rounded bg-gray-200"></div>
-							<div class="flex items-center space-x-4">
-								<div class="h-20 w-20 rounded-full bg-gray-200"></div>
-								<div class="space-y-2">
-									<div class="h-8 w-24 rounded bg-gray-200"></div>
-									<div class="h-6 w-32 rounded bg-gray-200"></div>
-								</div>
-							</div>
-						</div>
-						<!-- 폼 필드들 스켈레톤 -->
-						<div class="space-y-4">
-							<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-								<div>
-									<div class="mb-2 h-4 w-16 rounded bg-gray-200"></div>
-									<div class="h-10 w-full rounded bg-gray-200"></div>
-								</div>
-								<div>
-									<div class="mb-2 h-4 w-16 rounded bg-gray-200"></div>
-									<div class="h-10 w-full rounded bg-gray-200"></div>
-								</div>
-							</div>
-							<div>
-								<div class="mb-2 h-4 w-20 rounded bg-gray-200"></div>
-								<div class="h-10 w-full rounded bg-gray-200"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<!-- 사이드바 스켈레톤 -->
-				<div class="space-y-6">
-					<div class="animate-pulse rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-						<div class="mb-4 h-6 w-24 rounded bg-gray-200"></div>
-						<div class="space-y-3">
-							<div class="h-12 w-full rounded bg-gray-200"></div>
-							<div class="h-12 w-full rounded bg-gray-200"></div>
-							<div class="h-12 w-full rounded bg-gray-200"></div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+		<DashboardSkeleton type="profile" />
 	{:else if user}
 		<div class="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
 			<!-- 프로필 정보 -->

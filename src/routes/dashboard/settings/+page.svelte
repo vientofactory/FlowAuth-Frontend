@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { DashboardLayout, Card, Button, FormField, TextareaField } from '$lib';
+	import { DashboardLayout, Card, Button, FormField, TextareaField, DashboardSkeleton } from '$lib';
 	import { useToast } from '$lib';
 	import { onMount } from 'svelte';
 	import { apiClient } from '$lib';
@@ -153,89 +153,24 @@
 
 <DashboardLayout title="설정" description="시스템 설정과 환경을 관리하세요." showBackButton={true}>
 	{#if isLoading}
-		<!-- 로딩 상태 -->
+		<!-- 설정 페이지 스켈레톤 -->
 		<div class="space-y-4 sm:space-y-6">
-			<!-- 일반 설정 스켈레톤 -->
-			<div class="animate-pulse rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-				<div class="mb-6 flex items-center justify-between">
-					<div class="h-6 w-32 rounded bg-gray-200"></div>
-					<div class="h-10 w-20 rounded bg-gray-200"></div>
-				</div>
-				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-					<div class="space-y-2">
-						<div class="h-4 w-20 rounded bg-gray-200"></div>
-						<div class="h-10 w-full rounded bg-gray-200"></div>
+			{#each Array(3) as _, i}
+				<div class="overflow-hidden rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+					<div class="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
+						<div class="h-6 w-24 animate-pulse rounded bg-gray-200"></div>
+						<div class="h-10 w-16 animate-pulse rounded-lg bg-gray-200"></div>
 					</div>
-					<div class="space-y-2">
-						<div class="h-4 w-24 rounded bg-gray-200"></div>
-						<div class="h-10 w-full rounded bg-gray-200"></div>
-					</div>
-					<div class="space-y-2 sm:col-span-2">
-						<div class="h-4 w-20 rounded bg-gray-200"></div>
-						<div class="h-6 w-full rounded bg-gray-200"></div>
-					</div>
-					<div class="space-y-2">
-						<div class="h-4 w-32 rounded bg-gray-200"></div>
-						<div class="h-10 w-full rounded bg-gray-200"></div>
-					</div>
-					<div class="space-y-2">
-						<div class="h-4 w-40 rounded bg-gray-200"></div>
-						<div class="h-10 w-full rounded bg-gray-200"></div>
+					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+						{#each Array(4) as _, j}
+							<div class="space-y-2">
+								<div class="h-4 w-20 animate-pulse rounded bg-gray-200"></div>
+								<div class="h-10 w-full animate-pulse rounded-lg bg-gray-100"></div>
+							</div>
+						{/each}
 					</div>
 				</div>
-			</div>
-
-			<!-- 보안 설정 스켈레톤 -->
-			<div class="animate-pulse rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-				<div class="mb-6 flex items-center justify-between">
-					<div class="h-6 w-24 rounded bg-gray-200"></div>
-					<div class="h-10 w-20 rounded bg-gray-200"></div>
-				</div>
-				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-					<div class="space-y-2">
-						<div class="h-4 w-28 rounded bg-gray-200"></div>
-						<div class="h-6 w-12 rounded bg-gray-200"></div>
-					</div>
-					<div class="space-y-2">
-						<div class="h-4 w-32 rounded bg-gray-200"></div>
-						<div class="h-6 w-12 rounded bg-gray-200"></div>
-					</div>
-					<div class="space-y-2">
-						<div class="h-4 w-36 rounded bg-gray-200"></div>
-						<div class="h-6 w-12 rounded bg-gray-200"></div>
-					</div>
-					<div class="space-y-2">
-						<div class="h-4 w-24 rounded bg-gray-200"></div>
-						<div class="h-10 w-full rounded bg-gray-200"></div>
-					</div>
-				</div>
-			</div>
-
-			<!-- 알림 설정 스켈레톤 -->
-			<div class="animate-pulse rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-				<div class="mb-6 flex items-center justify-between">
-					<div class="h-6 w-24 rounded bg-gray-200"></div>
-					<div class="h-10 w-20 rounded bg-gray-200"></div>
-				</div>
-				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-					<div class="space-y-2">
-						<div class="h-4 w-28 rounded bg-gray-200"></div>
-						<div class="h-6 w-12 rounded bg-gray-200"></div>
-					</div>
-					<div class="space-y-2">
-						<div class="h-4 w-32 rounded bg-gray-200"></div>
-						<div class="h-6 w-12 rounded bg-gray-200"></div>
-					</div>
-					<div class="space-y-2">
-						<div class="h-4 w-36 rounded bg-gray-200"></div>
-						<div class="h-6 w-12 rounded bg-gray-200"></div>
-					</div>
-					<div class="space-y-2">
-						<div class="h-4 w-24 rounded bg-gray-200"></div>
-						<div class="h-6 w-12 rounded bg-gray-200"></div>
-					</div>
-				</div>
-			</div>
+			{/each}
 		</div>
 	{:else}
 		<div class="space-y-4 sm:space-y-6">

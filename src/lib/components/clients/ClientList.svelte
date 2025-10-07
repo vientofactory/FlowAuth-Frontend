@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Badge } from '$lib';
+	import { Button, Badge, DashboardSkeleton } from '$lib';
 	import type { Client } from '$lib/types/oauth.types';
 
 	interface Props {
@@ -40,13 +40,7 @@
 		</div>
 
 		{#if isLoading}
-			<div class="flex flex-col items-center justify-center py-12 text-center">
-				<div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-					<i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i>
-				</div>
-				<h4 class="mb-1 text-sm font-medium text-gray-900">클라이언트 목록을 불러오는 중...</h4>
-				<p class="text-sm text-gray-500">잠시만 기다려주세요.</p>
-			</div>
+			<DashboardSkeleton type="table" count={3} />
 		{:else if clients.length === 0}
 			<div class="flex flex-col items-center justify-center py-12 text-center">
 				<div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">

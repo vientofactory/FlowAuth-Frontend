@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { DashboardLayout, Card, Button, apiClient } from '$lib';
+	import { DashboardLayout, Card, Button, apiClient, DashboardSkeleton } from '$lib';
 	import { useToast } from '$lib';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -271,9 +271,17 @@
 					>
 
 					{#if isLoading}
-						<div class="py-4 text-center">
-							<i class="fas fa-spinner fa-spin mr-2 text-gray-400"></i>
-							클라이언트 목록을 불러오는 중...
+						<div class="p-4">
+							<!-- 클라이언트 선택 드롭다운 스켈레톤 -->
+							<div class="space-y-3">
+								<div class="h-10 w-full animate-pulse rounded-lg bg-gray-100"></div>
+								<div class="text-center text-sm text-gray-500">
+									<div class="inline-flex items-center space-x-2">
+										<div class="h-4 w-4 animate-pulse rounded bg-gray-300"></div>
+										<div class="h-4 w-32 animate-pulse rounded bg-gray-300"></div>
+									</div>
+								</div>
+							</div>
 						</div>
 					{:else if clients.length === 0}
 						<div class="py-4 text-center text-gray-500">
