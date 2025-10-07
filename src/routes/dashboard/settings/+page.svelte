@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { DashboardLayout, Card, Button, FormField, TextareaField, DashboardSkeleton } from '$lib';
+	import { DashboardLayout, Card, Button, FormField, TextareaField } from '$lib';
 	import { useToast } from '$lib';
 	import { onMount } from 'svelte';
 	import { apiClient } from '$lib';
@@ -155,14 +155,16 @@
 	{#if isLoading}
 		<!-- 설정 페이지 스켈레톤 -->
 		<div class="space-y-4 sm:space-y-6">
-			{#each Array(3) as _, i}
+			{#each Array(3) as _, i (i)}
 				<div class="overflow-hidden rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-					<div class="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
+					<div
+						class="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between"
+					>
 						<div class="h-6 w-24 animate-pulse rounded bg-gray-200"></div>
 						<div class="h-10 w-16 animate-pulse rounded-lg bg-gray-200"></div>
 					</div>
 					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-						{#each Array(4) as _, j}
+						{#each Array(4) as _, j (j)}
 							<div class="space-y-2">
 								<div class="h-4 w-20 animate-pulse rounded bg-gray-200"></div>
 								<div class="h-10 w-full animate-pulse rounded-lg bg-gray-100"></div>

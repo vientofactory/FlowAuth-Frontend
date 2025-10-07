@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { DashboardLayout, Card, Button, apiClient, DashboardSkeleton } from '$lib';
+	import { DashboardLayout, Card, Button, apiClient } from '$lib';
 	import { useToast } from '$lib';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -177,6 +177,9 @@
 				sessionStorage.setItem('oauth_nonce', nonce);
 			}
 
+			// State를 세션 스토리지에 저장 (모든 flow에서 공통)
+			sessionStorage.setItem('state', state);
+
 			if (usePKCE && responseType.includes('code')) {
 				try {
 					const codeVerifier = CryptoUtils.generateCodeVerifier();
@@ -186,7 +189,6 @@
 
 					// 코드 베리파이어를 세션 스토리지에 저장
 					sessionStorage.setItem('code_verifier', codeVerifier);
-					sessionStorage.setItem('state', state);
 				} catch (error) {
 					console.error('Failed to generate PKCE parameters:', error);
 					toast.error('PKCE 파라미터 생성에 실패했습니다. 페이지를 새로고침 후 다시 시도해주세요.');
@@ -604,9 +606,12 @@
 									<ol class="list-inside list-decimal space-y-1">
 										<li>생성된 URL을 브라우저에서 열어보세요.</li>
 										<li>로그인 페이지에서 인증을 진행하세요.</li>
-										<li>리다이렉트된 URL에서 인증 코드를 확인하세요.</li>
 										{#if responseType === 'code'}
+											<li>리다이렉트된 URL에서 인증 코드를 확인하세요.</li>
 											<li>인증 코드를 사용하여 토큰을 요청하세요.</li>
+										{:else if responseType.includes('token') || responseType.includes('id_token')}
+											<li>리다이렉트된 URL의 Fragment(#)에서 토큰을 확인하세요.</li>
+											<li>받은 토큰으로 바로 API에 접근할 수 있습니다.</li>
 										{/if}
 									</ol>
 								</div>

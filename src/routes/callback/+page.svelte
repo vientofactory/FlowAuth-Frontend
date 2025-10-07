@@ -15,12 +15,16 @@
 		id_token?: string;
 	}
 
-	// URL 파라미터에서 코드와 상태 추출
+	// URL 파라미터에서 코드와 상태 추출 (Authorization Code Grant)
 	let authCode = $state('');
 	let oauthState = $state('');
 	let _oauthNonce = $state('');
 	let error = $state('');
 	let isLoading = $state(true);
+
+	// Implicit Grant에서 Fragment로 받은 토큰들
+	let implicitTokens: TokenResponse | null = $state(null);
+	let responseType = $state(''); // 어떤 response type인지 추적
 
 	// 토큰 교환 폼
 	let tokenForm = $state({
@@ -76,13 +80,63 @@
 			return;
 		}
 
-		// URL 파라미터 파싱
+		// URL 파라미터 파싱 (Authorization Code Grant)
 		const urlParams = new URLSearchParams(window.location.search);
 		authCode = urlParams.get('code') || '';
 		oauthState = urlParams.get('state') || '';
 		error = urlParams.get('error') || '';
 
-		// 토큰 폼에 코드 설정
+		// URL Fragment 파싱 (Implicit Grant)
+		const hash = window.location.hash.substring(1); // # 제거
+		const fragmentParams = new URLSearchParams(hash);
+
+		// Fragment에서 토큰 추출
+		const accessToken = fragmentParams.get('access_token');
+		const idToken = fragmentParams.get('id_token');
+		const tokenType = fragmentParams.get('token_type');
+		const expiresIn = fragmentParams.get('expires_in');
+		const scope = fragmentParams.get('scope');
+		const fragmentState = fragmentParams.get('state');
+		const fragmentError = fragmentParams.get('error');
+
+		// Response type 결정
+		if (authCode) {
+			responseType = 'code';
+		} else if (accessToken && idToken) {
+			responseType = 'token id_token';
+		} else if (accessToken) {
+			responseType = 'token';
+		} else if (idToken) {
+			responseType = 'id_token';
+		}
+
+		// Implicit Grant 처리
+		if (accessToken || idToken) {
+			implicitTokens = {
+				access_token: accessToken || '',
+				token_type: tokenType || 'Bearer',
+				expires_in: expiresIn ? parseInt(expiresIn) : undefined,
+				scope: scope || undefined,
+				id_token: idToken || undefined
+			};
+
+			// Fragment의 state 사용
+			if (fragmentState) {
+				oauthState = fragmentState;
+			}
+
+			// 토큰을 성공적으로 받았으므로 토큰 응답으로 설정
+			tokenResponse = implicitTokens;
+			showTokenModal = true;
+			activeTab = 'token';
+		}
+
+		// Fragment 에러 처리
+		if (fragmentError) {
+			error = fragmentError;
+		}
+
+		// 토큰 폼에 코드 설정 (Authorization Code Grant용)
 		if (authCode) {
 			tokenForm.code = authCode;
 		}
@@ -119,6 +173,8 @@
 			toast.error(`OAuth2 인증 에러: ${error}`);
 		} else if (authCode) {
 			toast.success('인증 코드를 받았습니다. 토큰으로 교환해보세요!');
+		} else if (implicitTokens) {
+			toast.success('토큰을 성공적으로 받았습니다! (Implicit Grant)');
 		}
 	});
 
@@ -164,7 +220,10 @@
 
 	// 사용자 프로필 정보 가져오기
 	async function fetchUserProfile() {
-		if (!tokenResponse?.access_token) {
+		// implicit grant와 authorization code grant 모두 지원
+		const accessToken = tokenResponse?.access_token || implicitTokens?.access_token;
+
+		if (!accessToken) {
 			toast.error('유효한 액세스 토큰이 없습니다.');
 			return;
 		}
@@ -176,7 +235,7 @@
 			const response = await fetch(apiUrl, {
 				method: 'GET',
 				headers: {
-					Authorization: `Bearer ${tokenResponse.access_token}`,
+					Authorization: `Bearer ${accessToken}`,
 					'Content-Type': 'application/json'
 				}
 			});
@@ -201,12 +260,15 @@
 
 	// 토큰 정보 분석
 	function analyzeToken() {
-		if (!tokenResponse?.access_token) {
+		// implicit grant와 authorization code grant 모두 지원
+		const accessToken = tokenResponse?.access_token || implicitTokens?.access_token;
+
+		if (!accessToken) {
 			toast.error('유효한 액세스 토큰이 없습니다.');
 			return;
 		}
 
-		tokenInfo = decodeJWT(tokenResponse.access_token);
+		tokenInfo = decodeJWT(accessToken);
 		tokenAnalysisType = 'access';
 		activeTab = 'test';
 
@@ -219,12 +281,15 @@
 
 	// ID 토큰 정보 분석
 	function analyzeIdToken() {
-		if (!tokenResponse?.id_token) {
+		// implicit grant와 authorization code grant 모두 지원
+		const idToken = tokenResponse?.id_token || implicitTokens?.id_token;
+
+		if (!idToken) {
 			toast.error('유효한 ID 토큰이 없습니다.');
 			return;
 		}
 
-		idTokenInfo = decodeJWT(tokenResponse.id_token);
+		idTokenInfo = decodeJWT(idToken);
 		tokenAnalysisType = 'id';
 		activeTab = 'test';
 
@@ -245,6 +310,21 @@
 			.catch(() => {
 				toast.error('클립보드 복사에 실패했습니다');
 			});
+	}
+
+	// JWT 토큰을 헤더, 페이로드, 서명으로 분리하여 표시하는 함수
+	function formatJwtToken(token: string) {
+		const parts = token.split('.');
+		if (parts.length !== 3) {
+			return { isValid: false, header: '', payload: '', signature: '', fullToken: token };
+		}
+		return {
+			isValid: true,
+			header: parts[0],
+			payload: parts[1],
+			signature: parts[2],
+			fullToken: token
+		};
 	}
 </script>
 
@@ -315,9 +395,19 @@
 						<div class="mb-4 rounded-lg border border-green-200 bg-green-50 p-4">
 							<div class="flex items-center">
 								<i class="fas fa-check-circle mr-2 text-green-600"></i>
-								<span class="font-medium text-green-800">인증 성공</span>
+								<span class="font-medium text-green-800">인증 성공 (Authorization Code Grant)</span>
 							</div>
 							<p class="mt-1 text-green-700">인증 코드를 성공적으로 받았습니다.</p>
+						</div>
+					{:else if implicitTokens}
+						<div class="mb-4 rounded-lg border border-green-200 bg-green-50 p-4">
+							<div class="flex items-center">
+								<i class="fas fa-check-circle mr-2 text-green-600"></i>
+								<span class="font-medium text-green-800">토큰 수신 성공 (Implicit Grant)</span>
+							</div>
+							<p class="mt-1 text-green-700">
+								{responseType} 방식으로 토큰을 성공적으로 받았습니다.
+							</p>
 						</div>
 					{:else}
 						<div class="mb-4 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
@@ -326,12 +416,23 @@
 								<span class="font-medium text-yellow-800">정보</span>
 							</div>
 							<p class="mt-1 text-yellow-700">
-								인증 코드가 없습니다. OAuth2 테스터에서 인증을 시작하세요.
+								인증 결과가 없습니다. OAuth2 테스터에서 인증을 시작하세요.
 							</p>
 						</div>
 					{/if}
 
 					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+						{#if responseType}
+							<div>
+								<div class="mb-1 text-sm font-medium text-gray-700">Response Type</div>
+								<div
+									class="rounded border border-gray-200 bg-gray-50 p-2 font-mono text-xs break-all"
+								>
+									{responseType}
+								</div>
+							</div>
+						{/if}
+
 						{#if authCode}
 							<div>
 								<div class="mb-1 text-sm font-medium text-gray-700">인증 코드</div>
@@ -339,6 +440,28 @@
 									class="rounded border border-gray-200 bg-gray-50 p-2 font-mono text-xs break-all"
 								>
 									{authCode}
+								</div>
+							</div>
+						{/if}
+
+						{#if implicitTokens?.access_token}
+							<div>
+								<div class="mb-1 text-sm font-medium text-gray-700">Access Token (일부)</div>
+								<div
+									class="rounded border border-gray-200 bg-gray-50 p-2 font-mono text-xs break-all"
+								>
+									{implicitTokens.access_token.substring(0, 50)}...
+								</div>
+							</div>
+						{/if}
+
+						{#if implicitTokens?.id_token}
+							<div>
+								<div class="mb-1 text-sm font-medium text-gray-700">ID Token (일부)</div>
+								<div
+									class="rounded border border-gray-200 bg-gray-50 p-2 font-mono text-xs break-all"
+								>
+									{implicitTokens.id_token.substring(0, 50)}...
 								</div>
 							</div>
 						{/if}
@@ -356,48 +479,124 @@
 					</div>
 				</Card>
 
-				<!-- 토큰 교환 폼 -->
-				<TokenExchangeForm
-					clientId={tokenForm.clientId}
-					clientSecret={tokenForm.clientSecret}
-					code={tokenForm.code}
-					redirectUri={tokenForm.redirectUri}
-					codeVerifier={tokenForm.codeVerifier}
-					{authCode}
-					onTokenExchanged={handleTokenExchanged}
-					onClientIdChange={(value) => {
-						tokenForm.clientId = value;
-					}}
-					onClientSecretChange={(value) => {
-						tokenForm.clientSecret = value;
-					}}
-					onCodeChange={(value) => {
-						tokenForm.code = value;
-					}}
-					onRedirectUriChange={(value) => {
-						tokenForm.redirectUri = value;
-					}}
-					onCodeVerifierChange={(value) => {
-						tokenForm.codeVerifier = value;
-					}}
-				/>
+				<!-- 토큰 교환 폼 (Authorization Code Grant에서만 표시) -->
+				{#if authCode && !implicitTokens}
+					<TokenExchangeForm
+						clientId={tokenForm.clientId}
+						clientSecret={tokenForm.clientSecret}
+						code={tokenForm.code}
+						redirectUri={tokenForm.redirectUri}
+						codeVerifier={tokenForm.codeVerifier}
+						{authCode}
+						onTokenExchanged={handleTokenExchanged}
+						onClientIdChange={(value) => {
+							tokenForm.clientId = value;
+						}}
+						onClientSecretChange={(value) => {
+							tokenForm.clientSecret = value;
+						}}
+						onCodeChange={(value) => {
+							tokenForm.code = value;
+						}}
+						onRedirectUriChange={(value) => {
+							tokenForm.redirectUri = value;
+						}}
+						onCodeVerifierChange={(value) => {
+							tokenForm.codeVerifier = value;
+						}}
+					/>
+				{/if}
+
+				<!-- Implicit Grant 토큰 정보 -->
+				{#if implicitTokens}
+					<Card class="p-6">
+						<h3 class="mb-4 text-lg font-semibold text-gray-900">받은 토큰 정보</h3>
+						<div class="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
+							<div class="flex items-center">
+								<i class="fas fa-info-circle mr-2 text-blue-600"></i>
+								<span class="font-medium text-blue-800">Implicit Grant</span>
+							</div>
+							<p class="mt-1 text-blue-700">
+								토큰이 URL Fragment를 통해 직접 전달되었습니다. 토큰 교환 과정이 필요하지 않습니다.
+							</p>
+						</div>
+
+						<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+							{#if implicitTokens.token_type}
+								<div>
+									<div class="mb-1 text-sm font-medium text-gray-700">Token Type</div>
+									<div class="text-sm text-gray-900">{implicitTokens.token_type}</div>
+								</div>
+							{/if}
+
+							{#if implicitTokens.expires_in}
+								<div>
+									<div class="mb-1 text-sm font-medium text-gray-700">Expires In</div>
+									<div class="text-sm text-gray-900">{implicitTokens.expires_in}초</div>
+								</div>
+							{/if}
+
+							{#if implicitTokens.scope}
+								<div class="col-span-2">
+									<div class="mb-1 text-sm font-medium text-gray-700">Scope</div>
+									<div class="text-sm text-gray-900">{implicitTokens.scope}</div>
+								</div>
+							{/if}
+						</div>
+
+						<div class="mt-4 flex space-x-2">
+							<Button onclick={() => (showTokenModal = true)} variant="primary">
+								<i class="fas fa-eye mr-2"></i>
+								토큰 상세 보기
+							</Button>
+							<Button onclick={fetchUserProfile} disabled={isTestingToken} variant="outline">
+								<i class="fas fa-user mr-2"></i>
+								프로필 가져오기
+							</Button>
+						</div>
+					</Card>
+				{/if}
 
 				<!-- 사용 안내 -->
 				<Card class="p-6">
 					<h3 class="mb-4 text-lg font-semibold text-gray-900">사용 안내</h3>
 					<div class="space-y-4 text-sm text-gray-600">
-						<div>
-							<h4 class="font-medium text-gray-900">1. 인증 코드 확인</h4>
-							<p>OAuth2 인증 서버로부터 받은 인증 코드를 확인하세요.</p>
-						</div>
-						<div>
-							<h4 class="font-medium text-gray-900">2. 클라이언트 정보 입력</h4>
-							<p>토큰을 교환하기 위해 클라이언트 ID와 시크릿을 입력하세요.</p>
-						</div>
-						<div>
-							<h4 class="font-medium text-gray-900">3. 토큰 교환</h4>
-							<p>인증 코드를 액세스 토큰으로 교환하여 API에 접근할 수 있습니다.</p>
-						</div>
+						{#if responseType === 'code'}
+							<div>
+								<h4 class="font-medium text-gray-900">1. 인증 코드 확인</h4>
+								<p>OAuth2 인증 서버로부터 받은 인증 코드를 확인하세요.</p>
+							</div>
+							<div>
+								<h4 class="font-medium text-gray-900">2. 클라이언트 정보 입력</h4>
+								<p>토큰을 교환하기 위해 클라이언트 ID와 시크릿을 입력하세요.</p>
+							</div>
+							<div>
+								<h4 class="font-medium text-gray-900">3. 토큰 교환</h4>
+								<p>인증 코드를 액세스 토큰으로 교환하여 API에 접근할 수 있습니다.</p>
+							</div>
+						{:else if implicitTokens}
+							<div>
+								<h4 class="font-medium text-gray-900">1. 토큰 직접 수신</h4>
+								<p>Implicit Grant 방식으로 토큰을 URL Fragment를 통해 직접 받았습니다.</p>
+							</div>
+							<div>
+								<h4 class="font-medium text-gray-900">2. 토큰 사용</h4>
+								<p>받은 액세스 토큰으로 바로 API에 접근할 수 있습니다.</p>
+							</div>
+							<div>
+								<h4 class="font-medium text-gray-900">3. 보안 주의사항</h4>
+								<p>Implicit Grant는 토큰이 브라우저에 노출되므로 보안에 주의하세요.</p>
+							</div>
+						{:else}
+							<div>
+								<h4 class="font-medium text-gray-900">지원하는 Response Types</h4>
+								<p><strong>code</strong>: Authorization Code Grant (권장)</p>
+								<p><strong>token</strong>: Implicit Grant (액세스 토큰만)</p>
+								<p><strong>id_token</strong>: OpenID Connect Implicit (ID 토큰만)</p>
+								<p><strong>token id_token</strong>: Implicit Grant (액세스 토큰 + ID 토큰)</p>
+								<p><strong>code id_token</strong>: Hybrid Flow</p>
+							</div>
+						{/if}
 					</div>
 				</Card>
 			</div>
@@ -455,24 +654,49 @@
 				</div>
 				<!-- 탭 콘텐츠 -->
 				{#if activeTab === 'token'}
+					{@const accessToken = tokenResponse?.access_token || implicitTokens?.access_token}
+					{@const idToken = tokenResponse?.id_token || implicitTokens?.id_token}
 					<div class="space-y-4">
-						{#if tokenResponse.access_token}
+						{#if accessToken}
+							{@const accessTokenParts = formatJwtToken(accessToken)}
 							<div>
 								<div class="mb-2 flex items-center justify-between">
-									<span class="text-sm font-medium text-gray-700">Access Token</span>
+									<span class="text-sm font-medium text-gray-700">Access Token (JWT)</span>
 									<Button
 										variant="outline"
 										size="sm"
-										onclick={() => tokenResponse && copyToClipboard(tokenResponse.access_token)}
+										onclick={() => copyToClipboard(accessToken)}
 										class="text-xs"
 									>
 										<i class="fas fa-copy mr-1"></i>
 										복사
 									</Button>
 								</div>
-								<div class="rounded-md border border-gray-200 bg-gray-50 p-3">
-									<code class="text-xs break-all text-gray-800">{tokenResponse.access_token}</code>
-								</div>
+								{#if accessTokenParts.isValid}
+									<div class="rounded-md border border-gray-200 bg-gray-50 p-3">
+										<div class="mb-2 text-xs font-medium text-gray-600">JWT 구조:</div>
+										<code class="text-xs break-all">
+											<span class="font-semibold text-red-600" title="Header"
+												>{accessTokenParts.header}</span
+											><span class="text-gray-400">.</span><span
+												class="font-semibold text-blue-600"
+												title="Payload">{accessTokenParts.payload}</span
+											><span class="text-gray-400">.</span><span
+												class="font-semibold text-green-600"
+												title="Signature">{accessTokenParts.signature}</span
+											>
+										</code>
+										<div class="mt-2 grid grid-cols-3 gap-2 text-xs">
+											<div class="text-red-600"><i class="fas fa-circle mr-1"></i>Header</div>
+											<div class="text-blue-600"><i class="fas fa-circle mr-1"></i>Payload</div>
+											<div class="text-green-600"><i class="fas fa-circle mr-1"></i>Signature</div>
+										</div>
+									</div>
+								{:else}
+									<div class="rounded-md border border-gray-200 bg-gray-50 p-3">
+										<code class="text-xs break-all text-gray-800">{accessToken}</code>
+									</div>
+								{/if}
 							</div>
 						{/if}
 
@@ -494,6 +718,49 @@
 								<div class="rounded-md border border-gray-200 bg-gray-50 p-3">
 									<code class="text-xs break-all text-gray-800">{tokenResponse.refresh_token}</code>
 								</div>
+							</div>
+						{/if}
+
+						{#if idToken}
+							{@const idTokenParts = formatJwtToken(idToken)}
+							<div>
+								<div class="mb-2 flex items-center justify-between">
+									<span class="text-sm font-medium text-gray-700">ID Token (JWT)</span>
+									<Button
+										variant="outline"
+										size="sm"
+										onclick={() => copyToClipboard(idToken)}
+										class="text-xs"
+									>
+										<i class="fas fa-copy mr-1"></i>
+										복사
+									</Button>
+								</div>
+								{#if idTokenParts.isValid}
+									<div class="rounded-md border border-gray-200 bg-gray-50 p-3">
+										<div class="mb-2 text-xs font-medium text-gray-600">JWT 구조:</div>
+										<code class="text-xs break-all">
+											<span class="font-semibold text-red-600" title="Header"
+												>{idTokenParts.header}</span
+											><span class="text-gray-400">.</span><span
+												class="font-semibold text-blue-600"
+												title="Payload">{idTokenParts.payload}</span
+											><span class="text-gray-400">.</span><span
+												class="font-semibold text-green-600"
+												title="Signature">{idTokenParts.signature}</span
+											>
+										</code>
+										<div class="mt-2 grid grid-cols-3 gap-2 text-xs">
+											<div class="text-red-600"><i class="fas fa-circle mr-1"></i>Header</div>
+											<div class="text-blue-600"><i class="fas fa-circle mr-1"></i>Payload</div>
+											<div class="text-green-600"><i class="fas fa-circle mr-1"></i>Signature</div>
+										</div>
+									</div>
+								{:else}
+									<div class="rounded-md border border-gray-200 bg-gray-50 p-3">
+										<code class="text-xs break-all text-gray-800">{idToken}</code>
+									</div>
+								{/if}
 							</div>
 						{/if}
 

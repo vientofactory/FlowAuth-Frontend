@@ -362,17 +362,23 @@
 					<!-- 사용자 정보 카드 -->
 					{#if isDashboardLoading}
 						<!-- 사용자 정보 카드 스켈레톤 -->
-						<div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 p-6 shadow-sm ring-1 ring-blue-100">
+						<div
+							class="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 p-6 shadow-sm ring-1 ring-blue-100"
+						>
 							<div class="relative">
-								<div class="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+								<div
+									class="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0"
+								>
 									<div class="flex-1">
 										<div class="mb-4 flex items-center text-lg font-semibold">
 											<div class="mr-3 h-8 w-8 animate-pulse rounded-lg bg-blue-200"></div>
 											<div class="h-6 w-24 animate-pulse rounded bg-blue-200"></div>
 										</div>
 										<div class="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
-											{#each Array(5) as _, i}
-												<div class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm">
+											{#each Array(5) as _, i (i)}
+												<div
+													class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm"
+												>
 													<div class="h-8 w-8 animate-pulse rounded-lg bg-blue-200"></div>
 													<div>
 														<div class="mb-1 h-3 w-16 animate-pulse rounded bg-blue-200"></div>
@@ -526,14 +532,16 @@
 								<DashboardSkeleton type="chart" />
 							</div>
 							<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-								{#each Array(4) as _, i}
-									<div class="overflow-hidden rounded-xl border-gray-200 bg-gradient-to-br from-gray-200 to-gray-300 p-4 text-center shadow-lg">
+								{#each Array(4) as _, i (i)}
+									<div
+										class="overflow-hidden rounded-xl border-gray-200 bg-gradient-to-br from-gray-200 to-gray-300 p-4 text-center shadow-lg"
+									>
 										<div class="mb-3 flex items-center justify-center">
 											<div class="h-8 w-8 animate-pulse rounded bg-white/40"></div>
 										</div>
-										<div class="mb-1 h-8 w-16 animate-pulse rounded bg-white/40 mx-auto"></div>
-										<div class="h-4 w-20 animate-pulse rounded bg-white/40 mx-auto mb-1"></div>
-										<div class="h-3 w-12 animate-pulse rounded bg-white/40 mx-auto"></div>
+										<div class="mx-auto mb-1 h-8 w-16 animate-pulse rounded bg-white/40"></div>
+										<div class="mx-auto mb-1 h-4 w-20 animate-pulse rounded bg-white/40"></div>
+										<div class="mx-auto h-3 w-12 animate-pulse rounded bg-white/40"></div>
 									</div>
 								{/each}
 							</div>
