@@ -11,13 +11,7 @@
 		icon?: string;
 	}
 
-	let {
-		variant = 'info',
-		title,
-		description,
-		links = [],
-		icon
-	}: Props = $props();
+	let { variant = 'info', title, description, links = [], icon }: Props = $props();
 
 	// Variant별 스타일 설정
 	const variantStyles = {
@@ -72,7 +66,7 @@
 	const displayIcon = icon || defaultIcon;
 </script>
 
-<div class="{styles.container} border rounded-lg p-4 mb-6">
+<div class="{styles.container} mb-6 rounded-lg border p-4">
 	<div class="flex items-start">
 		<div class="flex-shrink-0">
 			<i class="{displayIcon} {styles.icon} text-lg"></i>
@@ -85,8 +79,8 @@
 				</p>
 			{/if}
 			{#if links.length > 0}
-				<div class="flex flex-col sm:flex-row gap-3">
-					{#each links as link}
+				<div class="flex flex-col gap-3 sm:flex-row">
+					{#each links as link, i (i)}
 						<a
 							href={link.url}
 							target="_blank"

@@ -246,7 +246,7 @@
 										<span class="text-2xl font-bold">2</span>
 									</div>
 									<h3 class="mb-4 text-xl font-bold text-slate-900">앱 연결</h3>
-									<p class="text-slate-600 mb-2">
+									<p class="mb-2 text-slate-600">
 										OAuth2 클라이언트를 생성하고<br />
 										귀하의 애플리케이션과 연결하세요
 									</p>
