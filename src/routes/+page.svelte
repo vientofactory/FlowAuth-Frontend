@@ -47,7 +47,7 @@
 			<!-- 히어로 섹션 -->
 			<div class="text-center">
 				{#if isLoading}
-					<!-- 로딩 상태 -->
+					<!-- 로딩 상태 스켈레톤 -->
 					<div
 						class="mb-8 inline-flex animate-pulse items-center rounded-full bg-slate-200 px-4 py-2"
 					>
@@ -59,49 +59,49 @@
 					<div class="mb-8 animate-pulse">
 						<div class="mx-auto h-6 w-1/2 rounded bg-slate-200"></div>
 					</div>
-					<div class="flex animate-pulse justify-center gap-4">
+					<div class="mb-10 flex animate-pulse justify-center gap-4">
 						<div class="h-12 w-32 rounded-lg bg-slate-200"></div>
 						<div class="h-12 w-32 rounded-lg bg-slate-200"></div>
 					</div>
-					<!-- 비로그인 사용자용 히어로 -->
-					<div
-						class="mb-6 inline-flex items-center rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800"
-					>
-						<i class="fas fa-shield-alt mr-2"></i>
-						OAuth 2.0 & OpenID Connect
+
+					<!-- 특징 섹션 스켈레톤 -->
+					<div class="mt-24 sm:mt-32">
+						<div class="mb-16 animate-pulse text-center">
+							<div class="mx-auto mb-4 h-10 w-80 rounded bg-slate-200"></div>
+							<div class="mx-auto h-6 w-96 rounded bg-slate-200"></div>
+						</div>
+
+						<div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+							{#each Array(4) as _, i (i)}
+								<div class="text-center">
+									<div class="mx-auto mb-6 h-16 w-16 animate-pulse rounded-2xl bg-slate-200"></div>
+									<div class="mx-auto mb-3 h-6 w-32 animate-pulse rounded bg-slate-200"></div>
+									<div class="mx-auto h-4 w-24 animate-pulse rounded bg-slate-200"></div>
+									<div class="mx-auto mt-2 h-4 w-28 animate-pulse rounded bg-slate-200"></div>
+								</div>
+							{/each}
+						</div>
 					</div>
 
-					<h1 class="mb-6 text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
-						<span class="block">안전한 인증,</span>
-						<span
-							class="block bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent"
-						>
-							간편한 통합
-						</span>
-					</h1>
+					<!-- 시작하기 섹션 스켈레톤 -->
+					<div class="mt-24 sm:mt-32">
+						<div class="mb-16 animate-pulse text-center">
+							<div class="mx-auto mb-4 h-10 w-64 rounded bg-slate-200"></div>
+							<div class="mx-auto h-6 w-80 rounded bg-slate-200"></div>
+						</div>
 
-					<p class="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-slate-600 sm:text-xl">
-						표준을 준수하는 OAuth2/OIDC 플랫폼으로<br class="hidden sm:block" />
-						여러분의 애플리케이션에 강력한 인증을 더하세요
-					</p>
-
-					<div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
-						<Button
-							variant="primary"
-							onclick={() => goto('/auth/register')}
-							class="group w-full px-8 py-4 text-lg font-semibold shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl sm:w-auto"
-						>
-							<i class="fas fa-rocket mr-2 transition-transform group-hover:translate-x-1"></i>
-							무료 시작하기
-						</Button>
-						<Button
-							variant="outline"
-							onclick={() => (window.location.href = 'https://op0.gitbook.io/flowauth')}
-							class="w-full border-2 px-8 py-4 text-lg font-semibold transition-all duration-300 hover:bg-slate-50 sm:w-auto"
-						>
-							<i class="fas fa-book mr-2"></i>
-							문서 보기
-						</Button>
+						<div class="grid gap-12 lg:grid-cols-3">
+							{#each Array(3) as _, i (i)}
+								<div class="text-center lg:text-left">
+									<div
+										class="mx-auto mb-6 h-16 w-16 animate-pulse rounded-full bg-slate-200 lg:mx-0"
+									></div>
+									<div class="mb-4 h-6 w-24 animate-pulse rounded bg-slate-200"></div>
+									<div class="h-4 w-32 animate-pulse rounded bg-slate-200"></div>
+									<div class="mt-2 h-4 w-28 animate-pulse rounded bg-slate-200"></div>
+								</div>
+							{/each}
+						</div>
 					</div>
 				{:else if !isAuthenticated}
 					<!-- 비로그인 사용자용 히어로 -->
