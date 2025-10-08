@@ -97,7 +97,14 @@ export class AuthApi extends BaseApi {
 		return this.request<User>(API_ENDPOINTS.AUTH.PROFILE);
 	}
 
-	async updateProfile(data: { firstName?: string; lastName?: string; username?: string }) {
+	async updateProfile(data: {
+		firstName?: string;
+		lastName?: string;
+		username?: string;
+		bio?: string | undefined;
+		website?: string | undefined;
+		location?: string | undefined;
+	}) {
 		return this.request('/profile', {
 			method: 'PUT',
 			body: JSON.stringify(data)

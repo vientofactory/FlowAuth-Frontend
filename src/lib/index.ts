@@ -37,6 +37,32 @@ export { default as TwoFactorQRStep } from './components/auth/TwoFactorQRStep.sv
 export { default as TwoFactorTokenStep } from './components/auth/TwoFactorTokenStep.svelte';
 export { default as TwoFactorBackupStep } from './components/auth/TwoFactorBackupStep.svelte';
 
+// Profile Components
+export { default as ProfileReadOnlyView } from './components/profile/ProfileReadOnlyView.svelte';
+export { default as ProfileEditForm } from './components/profile/ProfileEditForm.svelte';
+export { default as PasswordChangeSection } from './components/profile/PasswordChangeSection.svelte';
+
+// Dashboard Components
+export { default as DashboardStatsSection } from './components/dashboard/DashboardStatsSection.svelte';
+export { default as QuickActionsSection } from './components/dashboard/QuickActionsSection.svelte';
+export { default as TokenAnalyticsSection } from './components/dashboard/TokenAnalyticsSection.svelte';
+
+// Token Components
+export { default as TokensHeader } from './components/tokens/TokensHeader.svelte';
+export { default as TokenCard } from './components/tokens/TokenCard.svelte';
+export { default as TokenList } from './components/tokens/TokenList.svelte';
+export { default as RevokeModal } from './components/tokens/RevokeModal.svelte';
+
+// Callback Components
+export { default as CallbackHeader } from './components/callback/CallbackHeader.svelte';
+export { default as AuthResultDisplay } from './components/callback/AuthResultDisplay.svelte';
+export { default as ImplicitTokenDisplay } from './components/callback/ImplicitTokenDisplay.svelte';
+export { default as UsageGuideSection } from './components/callback/UsageGuideSection.svelte';
+export { default as TokenInfoTab } from './components/callback/TokenInfoTab.svelte';
+export { default as ProfileInfoTab } from './components/callback/ProfileInfoTab.svelte';
+export { default as TokenAnalysisTab } from './components/callback/TokenAnalysisTab.svelte';
+export { default as TokenModal } from './components/callback/TokenModal.svelte';
+
 // Composables
 export { useToast } from './composables/useToast';
 export {

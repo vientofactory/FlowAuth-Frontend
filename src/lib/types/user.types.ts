@@ -146,6 +146,9 @@ export interface User {
 	isEmailVerified: boolean;
 	isTwoFactorEnabled: boolean;
 	avatar?: string | null;
+	bio?: string;
+	website?: string;
+	location?: string;
 	createdAt: string;
 	updatedAt: string;
 	lastLoginAt?: string;
