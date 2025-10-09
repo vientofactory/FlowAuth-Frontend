@@ -220,9 +220,30 @@ class AuthStore {
 			console.log('AuthStore: Removing tokens from localStorage');
 			localStorage.removeItem(TOKEN_STORAGE_KEYS.LOGIN);
 			localStorage.removeItem(TOKEN_STORAGE_KEYS.OAUTH2);
-			// 쿠키도 제거
-			document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-			console.log('AuthStore: Tokens removed successfully');
+
+			// 모든 도메인 관련 쿠키 제거 (다양한 설정으로 시도)
+			const cookieSettings = [
+				'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT',
+				'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure',
+				'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; samesite=lax',
+				'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=lax'
+			];
+
+			cookieSettings.forEach((setting) => {
+				document.cookie = setting;
+			});
+
+			// 모든 리프레시 토큰도 제거
+			localStorage.removeItem(TOKEN_STORAGE_KEYS.REFRESH_LOGIN);
+			localStorage.removeItem(TOKEN_STORAGE_KEYS.REFRESH_OAUTH2);
+
+			// 세션 스토리지도 정리
+			sessionStorage.removeItem(TOKEN_STORAGE_KEYS.LOGIN);
+			sessionStorage.removeItem(TOKEN_STORAGE_KEYS.OAUTH2);
+			sessionStorage.removeItem(TOKEN_STORAGE_KEYS.REFRESH_LOGIN);
+			sessionStorage.removeItem(TOKEN_STORAGE_KEYS.REFRESH_OAUTH2);
+
+			console.log('AuthStore: All tokens and cookies removed successfully');
 		}
 
 		// 상태 업데이트

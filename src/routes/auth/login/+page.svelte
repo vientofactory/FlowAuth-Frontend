@@ -26,6 +26,7 @@
 	let returnUrl = $state('');
 	let recaptchaToken = $state('');
 	let recaptchaInstance: ReCaptchaInstance | null = null;
+	let isOAuth2Context = $state(false); // OAuth2 플로우 컨텍스트 여부
 
 	// 2FA 관련 상태
 	let requiresTwoFactor = $state(false);
@@ -35,10 +36,12 @@
 	// 중앙화된 토스트 훅 사용
 	const toast = useToast();
 
-	// URL 파라미터에서 returnUrl 확인
+	// URL 파라미터에서 returnUrl 확인 및 OAuth2 컨텍스트 판단
 	onMount(() => {
 		const unsubscribe = page.subscribe(($page) => {
 			returnUrl = $page.url.searchParams.get('returnUrl') || '';
+			// OAuth2 플로우인지 확인
+			isOAuth2Context = returnUrl.includes('/oauth2/authorize');
 		});
 
 		// reCAPTCHA 초기화
@@ -89,8 +92,12 @@
 
 			// 리다이렉트 처리 - returnUrl이 있으면 해당 URL로, 없으면 대시보드로
 			if (returnUrl) {
-				// OAuth2 플로우나 다른 특정 URL로 복귀
-				window.location.href = returnUrl;
+				// OAuth2 플로우인 경우 동의 페이지로 리다이렉트
+				console.log('OAuth2 flow detected, redirecting to:', returnUrl);
+				// 짧은 지연 후 리다이렉트 (인증 상태가 완전히 설정되도록)
+				setTimeout(() => {
+					window.location.href = returnUrl;
+				}, 100);
 			} else {
 				// 일반 로그인의 경우 대시보드로
 				goto(ROUTES.DASHBOARD);
@@ -174,10 +181,13 @@
 			console.log('2FA verification successful, redirecting...');
 			// 성공 시 리다이렉트
 			if (returnUrl) {
-				console.log('Redirecting to returnUrl:', returnUrl);
-				window.location.href = returnUrl;
+				console.log('2FA successful, redirecting to returnUrl:', returnUrl);
+				// 짧은 지연 후 리다이렉트 (인증 상태가 완전히 설정되도록)
+				setTimeout(() => {
+					window.location.href = returnUrl;
+				}, 100);
 			} else {
-				console.log('Redirecting to dashboard');
+				console.log('2FA successful, redirecting to dashboard');
 				goto(ROUTES.DASHBOARD);
 			}
 		} catch (err) {
@@ -237,6 +247,8 @@
 				<h2 class="mb-2 text-2xl font-bold text-gray-900">
 					{#if requiresTwoFactor}
 						2단계 인증
+					{:else if isOAuth2Context}
+						애플리케이션 인증
 					{:else}
 						로그인
 					{/if}
@@ -248,6 +260,8 @@
 						{:else}
 							백업 코드를 입력하세요
 						{/if}
+					{:else if isOAuth2Context}
+						애플리케이션이 귀하의 계정에 액세스를 요청하고 있습니다
 					{:else}
 						계정에 로그인하여 서비스를 이용하세요
 					{/if}
