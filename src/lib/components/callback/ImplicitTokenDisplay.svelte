@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { Card, Button } from '$lib';
 
-
-
 	interface Props {
 		implicitTokens: {
 			token_type?: string;

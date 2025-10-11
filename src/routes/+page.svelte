@@ -33,7 +33,7 @@
 </svelte:head>
 
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-	<div class="relative overflow-hidden">
+	<div class="relative">
 		<!-- 배경 패턴 -->
 		<div
 			class="absolute inset-0 opacity-20"
@@ -397,6 +397,8 @@
 		</main>
 
 		<!-- 푸터 -->
-		<Footer />
+		<div class="relative z-10">
+			<Footer />
+		</div>
 	</div>
 </div>

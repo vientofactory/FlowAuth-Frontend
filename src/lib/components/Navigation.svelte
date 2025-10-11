@@ -87,14 +87,14 @@
 		profileDropdownOpen = false;
 		try {
 			await authStore.logout();
-			
+
 			// 완전한 페이지 새로고침으로 모든 상태 초기화
 			window.location.replace('/');
 		} catch (error) {
 			console.error('Logout failed:', error);
 			// 로그아웃 실패 시에도 클라이언트 측 정리
 			authState.set({ user: null, isAuthenticated: false, isLoading: false, isInitialized: true });
-			
+
 			// 강제 페이지 새로고침으로 완전한 상태 초기화
 			window.location.replace('/');
 		}
