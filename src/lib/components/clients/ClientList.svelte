@@ -50,7 +50,7 @@
 				<p class="mb-4 text-sm text-gray-500">첫 번째 클라이언트를 생성해보세요.</p>
 				<Button
 					onclick={onToggleCreateForm}
-					class="transition-colors hover:border-slate-200 hover:bg-slate-50"
+					class="bg-blue-600 hover:bg-blue-700 text-white"
 				>
 					<i class="fas fa-plus mr-2"></i>
 					첫 번째 클라이언트 생성

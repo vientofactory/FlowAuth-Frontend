@@ -32,21 +32,6 @@
 	{/each}
 </div>
 
-{#if isDeveloper}
-	<div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-		{#each [{ label: '클라이언트\n생성', icon: 'fas fa-plus-circle', color: 'blue', action: navigateToClients }, { label: '토큰\n관리', icon: 'fas fa-key', color: 'green', action: () => goto('/tokens') }, { label: '설정', icon: 'fas fa-cog', color: 'gray', action: () => goto('/settings') }, { label: '문서', icon: 'fas fa-book', color: 'purple', action: () => window.open('/docs', '_blank') }] as action (action.label)}
-			<Button
-				variant="outline"
-				class="flex h-20 flex-col items-center justify-center gap-2 hover:bg-{action.color}-50"
-				onclick={action.action}
-			>
-				<i class="{action.icon} text-xl"></i>
-				<span class="text-center text-sm whitespace-pre-line">{action.label}</span>
-			</Button>
-		{/each}
-	</div>
-{/if}
-
 <style>
 	/* Additional styles if needed */
 </style>
