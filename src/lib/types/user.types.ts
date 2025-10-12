@@ -34,7 +34,12 @@ export const PERMISSIONS = {
 	UPLOAD_FILE: 1 << 14, // 16384
 
 	// ADMIN 권한 - 별도의 슈퍼 권한
-	ADMIN_ACCESS: 1 << 30 // 1073741824 (30번째 비트로 변경)
+	// 주의: 30번째 비트 사용 (이전 31번째 비트에서 변경됨)
+	// 변경 이유: JavaScript의 32비트 정수 한계로 인한 호환성 문제
+	// - 31번째 비트(1 << 31)는 JavaScript에서 음수로 해석됨 (부호 비트)
+	// - 30번째 비트(1 << 30)는 양수 범위 내에서 안전하게 사용 가능
+	// - TypeScript/JavaScript와 백엔드 데이터베이스 간 호환성 보장
+	ADMIN_ACCESS: 1 << 30 // 1073741824
 } as const;
 
 // 권한 헬퍼 함수들
