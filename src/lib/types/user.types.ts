@@ -34,7 +34,12 @@ export const PERMISSIONS = {
 	UPLOAD_FILE: 1 << 14, // 16384
 
 	// ADMIN 권한 - 별도의 슈퍼 권한
-	ADMIN_ACCESS: 1 << 31 // 2147483648
+	// 주의: 30번째 비트 사용 (이전 31번째 비트에서 변경됨)
+	// 변경 이유: JavaScript의 32비트 정수 한계로 인한 호환성 문제
+	// - 31번째 비트(1 << 31)는 JavaScript에서 음수로 해석됨 (부호 비트)
+	// - 30번째 비트(1 << 30)는 양수 범위 내에서 안전하게 사용 가능
+	// - TypeScript/JavaScript와 백엔드 데이터베이스 간 호환성 보장
+	ADMIN_ACCESS: 1 << 30 // 1073741824
 } as const;
 
 // 권한 헬퍼 함수들
@@ -82,7 +87,14 @@ export const ROLES = {
 
 // 역할별 권한 매핑
 export const ROLE_PERMISSIONS = {
-	[ROLES.USER]: [PERMISSIONS.READ_USER, PERMISSIONS.READ_DASHBOARD],
+	[ROLES.USER]: [
+		PERMISSIONS.READ_USER,
+		PERMISSIONS.READ_DASHBOARD,
+		PERMISSIONS.READ_CLIENT,
+		PERMISSIONS.WRITE_CLIENT, // 일반 사용자도 OAuth2 클라이언트 생성 가능
+		PERMISSIONS.READ_TOKEN,
+		PERMISSIONS.DELETE_TOKEN // 자신의 토큰 관리 가능
+	],
 	[ROLES.CLIENT_MANAGER]: [
 		PERMISSIONS.READ_CLIENT,
 		PERMISSIONS.WRITE_CLIENT,
@@ -146,6 +158,9 @@ export interface User {
 	isEmailVerified: boolean;
 	isTwoFactorEnabled: boolean;
 	avatar?: string | null;
+	bio?: string;
+	website?: string;
+	location?: string;
 	createdAt: string;
 	updatedAt: string;
 	lastLoginAt?: string;

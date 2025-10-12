@@ -6,6 +6,8 @@ export const APP_CONSTANTS = {
 	DEFAULT_RETRY_DELAY: 1000, // 1 second
 	TOKEN_STORAGE_KEY: 'auth_token',
 	REFRESH_TOKEN_STORAGE_KEY: 'refresh_token',
+	ID_TOKEN_STORAGE_KEY: 'id_token',
+	TOKEN_EXPIRY_STORAGE_KEY: 'token_expiry',
 	REDIRECT_DELAY: 1000 // 1 second
 } as const;
 

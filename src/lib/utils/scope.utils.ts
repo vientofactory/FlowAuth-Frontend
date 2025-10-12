@@ -16,6 +16,7 @@ export interface ScopeInfo {
 	icon: string;
 	color: string;
 	risk: string;
+	category: string;
 	sensitive: boolean;
 }
 
@@ -31,6 +32,7 @@ export const SCOPE_MAPPINGS: Record<string, ScopeInfo> = {
 		icon: 'fa-id-badge',
 		color: 'green',
 		risk: 'low',
+		category: 'OpenID',
 		sensitive: false
 	},
 	[OAUTH2_SCOPES.PROFILE]: {
@@ -39,6 +41,7 @@ export const SCOPE_MAPPINGS: Record<string, ScopeInfo> = {
 		icon: 'fa-user',
 		color: 'blue',
 		risk: 'medium',
+		category: 'Profile',
 		sensitive: false
 	},
 	[OAUTH2_SCOPES.EMAIL]: {
@@ -47,6 +50,7 @@ export const SCOPE_MAPPINGS: Record<string, ScopeInfo> = {
 		icon: 'fa-envelope',
 		color: 'orange',
 		risk: 'medium',
+		category: 'Email',
 		sensitive: true
 	},
 	// 계정 기본 정보 (레거시 호환성)
@@ -57,6 +61,7 @@ export const SCOPE_MAPPINGS: Record<string, ScopeInfo> = {
 		icon: 'fa-user-circle',
 		color: 'blue',
 		risk: 'low',
+		category: 'Legacy',
 		sensitive: false
 	}
 };
@@ -82,6 +87,7 @@ export function getScopeInfo(scope: string): ScopeInfo {
 		icon: 'fa-key',
 		color: 'gray',
 		risk: 'unknown',
+		category: 'Unknown',
 		sensitive: false
 	};
 }

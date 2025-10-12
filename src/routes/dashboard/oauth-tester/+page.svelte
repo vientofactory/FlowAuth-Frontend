@@ -18,7 +18,6 @@
 	let selectedClient = $state<Client | null>(null);
 	let responseType = $state('code');
 	let usePKCE = $state(true);
-	let useOIDC = $state(false);
 	let generatedUrl = $state('');
 	let showResult = $state(false);
 	let isCopying = $state(false);
@@ -158,12 +157,28 @@
 				state
 			});
 
+			// 콜백에서 사용할 값들을 세션 스토리지에 저장
+			sessionStorage.setItem('client_id', selectedClient.clientId);
+			sessionStorage.setItem('client_secret', selectedClient.clientSecret || '');
+			sessionStorage.setItem('redirect_uri', redirectUri);
+			sessionStorage.setItem('scope', scopeString);
+
+			console.log('[OAuth Tester] 세션 스토리지에 값들 저장:', {
+				client_id: selectedClient.clientId,
+				client_secret: selectedClient.clientSecret ? '있음' : '없음',
+				redirect_uri: redirectUri,
+				scope: scopeString
+			});
+
 			// OIDC인 경우 nonce 추가
 			if (nonce) {
 				params.append('nonce', nonce);
 				// nonce를 세션 스토리지에 저장하여 콜백에서 검증할 수 있도록
 				sessionStorage.setItem('oauth_nonce', nonce);
 			}
+
+			// State를 세션 스토리지에 저장 (모든 flow에서 공통)
+			sessionStorage.setItem('state', state);
 
 			if (usePKCE && responseType.includes('code')) {
 				try {
@@ -174,7 +189,6 @@
 
 					// 코드 베리파이어를 세션 스토리지에 저장
 					sessionStorage.setItem('code_verifier', codeVerifier);
-					sessionStorage.setItem('state', state);
 				} catch (error) {
 					console.error('Failed to generate PKCE parameters:', error);
 					toast.error('PKCE 파라미터 생성에 실패했습니다. 페이지를 새로고침 후 다시 시도해주세요.');
@@ -259,9 +273,17 @@
 					>
 
 					{#if isLoading}
-						<div class="py-4 text-center">
-							<i class="fas fa-spinner fa-spin mr-2 text-gray-400"></i>
-							클라이언트 목록을 불러오는 중...
+						<div class="p-4">
+							<!-- 클라이언트 선택 드롭다운 스켈레톤 -->
+							<div class="space-y-3">
+								<div class="h-10 w-full animate-pulse rounded-lg bg-gray-100"></div>
+								<div class="text-center text-sm text-gray-500">
+									<div class="inline-flex items-center space-x-2">
+										<div class="h-4 w-4 animate-pulse rounded bg-gray-300"></div>
+										<div class="h-4 w-32 animate-pulse rounded bg-gray-300"></div>
+									</div>
+								</div>
+							</div>
 						</div>
 					{:else if clients.length === 0}
 						<div class="py-4 text-center text-gray-500">
@@ -584,9 +606,12 @@
 									<ol class="list-inside list-decimal space-y-1">
 										<li>생성된 URL을 브라우저에서 열어보세요.</li>
 										<li>로그인 페이지에서 인증을 진행하세요.</li>
-										<li>리다이렉트된 URL에서 인증 코드를 확인하세요.</li>
 										{#if responseType === 'code'}
+											<li>리다이렉트된 URL에서 인증 코드를 확인하세요.</li>
 											<li>인증 코드를 사용하여 토큰을 요청하세요.</li>
+										{:else if responseType.includes('token') || responseType.includes('id_token')}
+											<li>리다이렉트된 URL의 Fragment(#)에서 토큰을 확인하세요.</li>
+											<li>받은 토큰으로 바로 API에 접근할 수 있습니다.</li>
 										{/if}
 									</ol>
 								</div>

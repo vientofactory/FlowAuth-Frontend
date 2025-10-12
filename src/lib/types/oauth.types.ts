@@ -1,6 +1,7 @@
 export interface Client {
 	id: number;
 	clientId: string;
+	clientSecret?: string;
 	name: string;
 	description?: string;
 	redirectUris: string[];

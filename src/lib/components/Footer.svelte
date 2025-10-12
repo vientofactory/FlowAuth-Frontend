@@ -4,7 +4,7 @@
 </script>
 
 <!-- 푸터 -->
-<footer class="bg-gray-100 text-gray-900">
+<footer class="relative z-10 bg-gray-100 text-gray-900">
 	<div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
 		<div class="grid grid-cols-1 gap-8 md:grid-cols-4">
 			<div class="col-span-1 md:col-span-2">
