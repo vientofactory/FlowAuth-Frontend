@@ -248,7 +248,7 @@ export abstract class BaseApi {
 
 	// 온라인 상태 감지 및 자동 세션 복원
 	protected isOnline = true;
-	protected reconnectTimer: number | null = null;
+	protected reconnectTimer: number | NodeJS.Timeout | null = null;
 	protected readonly RECONNECT_INTERVAL = 30000;
 
 	protected startNetworkMonitoring() {
@@ -266,7 +266,7 @@ export abstract class BaseApi {
 		window.removeEventListener('offline', this.handleOffline.bind(this));
 
 		if (this.reconnectTimer) {
-			clearInterval(this.reconnectTimer);
+			window.clearInterval(this.reconnectTimer);
 			this.reconnectTimer = null;
 		}
 	}
