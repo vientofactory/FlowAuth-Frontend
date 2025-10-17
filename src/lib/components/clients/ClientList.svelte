@@ -48,10 +48,7 @@
 				</div>
 				<h4 class="mb-1 text-sm font-medium text-gray-900">등록된 클라이언트가 없습니다</h4>
 				<p class="mb-4 text-sm text-gray-500">첫 번째 클라이언트를 생성해보세요.</p>
-				<Button
-					onclick={onToggleCreateForm}
-					class="bg-blue-600 hover:bg-blue-700 text-white"
-				>
+				<Button onclick={onToggleCreateForm} class="bg-blue-600 text-white hover:bg-blue-700">
 					<i class="fas fa-plus mr-2"></i>
 					첫 번째 클라이언트 생성
 				</Button>
