@@ -80,21 +80,33 @@
 
 	const toast = useToast();
 
-	onMount(() => {
-		// 브라우저 환경 확인
-		if (typeof window === 'undefined') {
-			isLoading = false;
-			return;
-		}
+	// 유틸리티 함수들 - 데이터 수집 및 복원
+	interface OAuthParams {
+		authCode: string;
+		oauthState: string;
+		error: string;
+		implicitTokens: TokenResponse | null;
+		responseType: string;
+	}
 
+	interface StoredOAuthData {
+		clientId: string;
+		clientSecret: string;
+		codeVerifier: string;
+		redirectUri: string;
+		nonce: string;
+	}
+
+	// URL에서 OAuth 파라미터 추출
+	function extractOAuthParams(): OAuthParams {
 		// URL 파라미터 파싱 (Authorization Code Grant)
 		const urlParams = new URLSearchParams(window.location.search);
-		authCode = urlParams.get('code') || '';
-		oauthState = urlParams.get('state') || '';
-		error = urlParams.get('error') || '';
+		const code = urlParams.get('code') || '';
+		const state = urlParams.get('state') || '';
+		const urlError = urlParams.get('error') || '';
 
 		// URL Fragment 파싱 (Implicit Grant)
-		const hash = window.location.hash.substring(1); // # 제거
+		const hash = window.location.hash.substring(1);
 		const fragmentParams = new URLSearchParams(hash);
 
 		// Fragment에서 토큰 추출
@@ -106,65 +118,175 @@
 		const fragmentState = fragmentParams.get('state');
 		const fragmentError = fragmentParams.get('error');
 
+		// 최종 error 결정
+		const finalError = urlError || fragmentError;
+
+		// 최종 state 결정 (fragment에서 온 state가 우선)
+		const finalState = fragmentState || state;
+
 		// Response type 결정
-		if (authCode) {
-			responseType = 'code';
+		let detectedResponseType = '';
+		if (code) {
+			detectedResponseType = 'code';
 		} else if (accessToken && idToken) {
-			responseType = 'token id_token';
+			detectedResponseType = 'token id_token';
 		} else if (accessToken) {
-			responseType = 'token';
+			detectedResponseType = 'token';
 		} else if (idToken) {
-			responseType = 'id_token';
+			detectedResponseType = 'id_token';
 		}
 
-		// Implicit Grant 처리
+		// Implicit Grant 토큰 객체 생성
+		let tokens: TokenResponse | null = null;
 		if (accessToken || idToken) {
-			implicitTokens = {
+			tokens = {
 				access_token: accessToken || '',
 				token_type: tokenType || 'Bearer',
 				expires_in: expiresIn ? parseInt(expiresIn) : undefined,
 				scope: scope || undefined,
 				id_token: idToken || undefined
 			};
+		}
 
-			// Fragment의 state 사용
-			if (fragmentState) {
-				oauthState = fragmentState;
+		return {
+			authCode: code,
+			oauthState: finalState,
+			error: finalError || '',
+			implicitTokens: tokens,
+			responseType: detectedResponseType
+		};
+	}
+
+	// 세션 스토리지에서 OAuth 데이터 복원
+	function restoreFromSessionStorage(): Partial<StoredOAuthData> {
+		return {
+			clientId: sessionStorage.getItem('client_id') || '',
+			clientSecret: sessionStorage.getItem('client_secret') || '',
+			codeVerifier: sessionStorage.getItem('code_verifier') || '',
+			redirectUri: sessionStorage.getItem('redirect_uri') || '',
+			nonce: sessionStorage.getItem('oauth_nonce') || ''
+		};
+	}
+
+	// localStorage 백업 데이터 복원
+	function restoreFromBackupStorage(oauthState: string): Partial<StoredOAuthData> | null {
+		try {
+			const backupDataStr = localStorage.getItem('oauth_backup_data');
+			if (!backupDataStr) return null;
+
+			const parsed = JSON.parse(backupDataStr);
+
+			// 5분 이내의 데이터만 사용
+			if (Date.now() - parsed.timestamp > 5 * 60 * 1000) {
+				localStorage.removeItem('oauth_backup_data');
+				return null;
 			}
 
-			// 토큰을 성공적으로 받았으므로 토큰 응답으로 설정
+			// state가 일치하는지 확인 (state가 없는 경우는 허용)
+			if (oauthState && parsed.state !== oauthState) {
+				return null;
+			}
+
+			return {
+				clientId: parsed.client_id || '',
+				clientSecret: parsed.client_secret || '',
+				codeVerifier: parsed.code_verifier || '',
+				redirectUri: parsed.redirect_uri || '',
+				nonce: parsed.oauth_nonce || ''
+			};
+		} catch {
+			localStorage.removeItem('oauth_backup_data');
+			return null;
+		}
+	}
+
+	// redirect_uri 결정 로직
+	function determineRedirectUri(
+		sessionData: Partial<StoredOAuthData>,
+		backupData: Partial<StoredOAuthData> | null
+	): string {
+		// 1차: 세션 스토리지
+		if (sessionData.redirectUri) {
+			return sessionData.redirectUri;
+		}
+
+		// 2차: localStorage 백업
+		if (backupData?.redirectUri) {
+			return backupData.redirectUri;
+		}
+
+		// 3차: 현재 URL 기반 추론
+		const currentUrl = new URL(window.location.href);
+		return `${currentUrl.protocol}//${currentUrl.host}${currentUrl.pathname}`;
+	}
+
+	// 저장된 OAuth 데이터 통합
+	function mergeStoredData(
+		sessionData: Partial<StoredOAuthData>,
+		backupData: Partial<StoredOAuthData> | null
+	): StoredOAuthData {
+		return {
+			clientId: sessionData.clientId || backupData?.clientId || '',
+			clientSecret: sessionData.clientSecret || backupData?.clientSecret || '',
+			codeVerifier: sessionData.codeVerifier || backupData?.codeVerifier || '',
+			redirectUri: determineRedirectUri(sessionData, backupData),
+			nonce: sessionData.nonce || backupData?.nonce || ''
+		};
+	}
+
+	// localStorage 백업 데이터 정리
+	function cleanupBackupData(): void {
+		try {
+			localStorage.removeItem('oauth_backup_data');
+		} catch {
+			// 무시
+		}
+	}
+
+	onMount(() => {
+		// 브라우저 환경 확인
+		if (typeof window === 'undefined') {
+			isLoading = false;
+			return;
+		}
+
+		// URL에서 OAuth 파라미터 추출
+		const oauthParams = extractOAuthParams();
+		authCode = oauthParams.authCode;
+		oauthState = oauthParams.oauthState;
+		error = oauthParams.error;
+		implicitTokens = oauthParams.implicitTokens;
+		responseType = oauthParams.responseType;
+
+		// Implicit Grant 성공 처리
+		if (implicitTokens) {
 			tokenResponse = implicitTokens;
 			showTokenModal = true;
 			activeTab = 'token';
 		}
 
-		// Fragment 에러 처리
-		if (fragmentError) {
-			error = fragmentError;
-		}
+		// 저장된 OAuth 데이터 복원
+		const sessionData = restoreFromSessionStorage();
+		const backupData = restoreFromBackupStorage(oauthState);
+		const mergedData = mergeStoredData(sessionData, backupData);
 
-		// 토큰 폼에 코드 설정 (Authorization Code Grant용)
-		if (authCode) {
-			tokenForm.code = authCode;
+		// nonce 값 복원 (세션 스토리지에 설정)
+		if (mergedData.nonce) {
+			sessionStorage.setItem('oauth_nonce', mergedData.nonce);
+			_oauthNonce = mergedData.nonce;
 		}
-
-		// 세션 스토리지에서 OAuth2 인증 요청 시 저장된 값들 복원
-		const storedClientId = sessionStorage.getItem('client_id');
-		const storedClientSecret = sessionStorage.getItem('client_secret');
-		const storedCodeVerifier = sessionStorage.getItem('code_verifier');
-		const storedRedirectUri = sessionStorage.getItem('redirect_uri');
 
 		// 토큰 폼 초기화
 		tokenForm = {
-			clientId: storedClientId || '',
-			clientSecret: storedClientSecret || '',
+			clientId: mergedData.clientId,
+			clientSecret: mergedData.clientSecret,
 			code: authCode,
-			redirectUri: storedRedirectUri || 'http://localhost:5173/callback',
-			codeVerifier: storedCodeVerifier || '',
+			redirectUri: mergedData.redirectUri,
+			codeVerifier: mergedData.codeVerifier,
 			grantType: 'authorization_code' as const
 		};
 
-		// 3초 후에도 로딩이 끝나지 않으면 강제로 로딩 해제
+		// 로딩 타임아웃 설정
 		_loadingTimeout = setTimeout(() => {
 			if (isLoading) {
 				isLoading = false;
@@ -175,13 +297,14 @@
 		// 로딩 완료
 		isLoading = false;
 
-		// 에러가 있는 경우 토스트로 표시
+		// 상태에 따른 토스트 메시지
 		if (error) {
 			toast.error(`OAuth2 인증 에러: ${error}`);
 		} else if (authCode) {
 			toast.success('인증 코드를 받았습니다. 토큰으로 교환해보세요!');
 		} else if (implicitTokens) {
 			toast.success('토큰을 성공적으로 받았습니다! (Implicit Grant)');
+			cleanupBackupData();
 		}
 	});
 
@@ -191,6 +314,9 @@
 		showTokenModal = true;
 		activeTab = 'token';
 		toast.success('토큰 교환이 성공했습니다!');
+
+		// 성공적으로 토큰을 받았으므로 백업 데이터 정리
+		cleanupBackupData();
 	}
 
 	function navigateBack() {

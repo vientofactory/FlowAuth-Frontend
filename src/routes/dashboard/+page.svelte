@@ -347,7 +347,7 @@
 	{#if isDashboardLoading}
 		<DashboardSkeleton type="stats" />
 	{:else if userTypeConfig}
-		<StatsCards {dashboardStats} {user} {isDeveloper} roleName={$roleName} {navigateToClients} />
+		<StatsCards {dashboardStats} {user} {isDeveloper} roleName={$roleName} />
 	{/if}
 
 	<!-- 탭 인터페이스 -->
