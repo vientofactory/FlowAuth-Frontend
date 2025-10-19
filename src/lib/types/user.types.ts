@@ -157,6 +157,7 @@ export interface User {
 	userType: USER_TYPES;
 	isEmailVerified: boolean;
 	isTwoFactorEnabled: boolean;
+	isActive: boolean;
 	avatar?: string | null;
 	bio?: string;
 	website?: string;

@@ -217,6 +217,29 @@
 		showRemoveAvatarDialog = false;
 	}
 
+	async function removeAvatar() {
+		try {
+			isRemovingAvatar = true;
+			await apiClient.removeAvatar();
+
+			// 사용자 정보 업데이트
+			if (user) {
+				user.avatar = null;
+			}
+
+			toast.success('아바타가 성공적으로 제거되었습니다.');
+			showRemoveAvatarDialog = false;
+
+			// 프로필 다시 로드하여 캐시 업데이트
+			await loadProfile();
+		} catch (error) {
+			console.error('Avatar removal failed:', error);
+			toast.error('아바타 제거에 실패했습니다.');
+		} finally {
+			isRemovingAvatar = false;
+		}
+	}
+
 	function toggleEdit() {
 		isEditing = !isEditing;
 	}
@@ -235,6 +258,12 @@
 
 	function handleEditCancel() {
 		isEditing = false;
+	}
+
+	// 비밀번호 변경 성공 콜백
+	function handlePasswordChanged() {
+		showPasswordForm = false;
+		toast.success('비밀번호가 성공적으로 변경되었습니다.');
 	}
 </script>
 
@@ -272,6 +301,8 @@
 						onUpload={uploadAvatar}
 						onCancel={cancelAvatarUpload}
 						onRemoveDialogOpen={openRemoveAvatarDialog}
+						onRemoveDialogClose={_closeRemoveAvatarDialog}
+						onRemoveAvatar={removeAvatar}
 					/>
 
 					{#if isEditing}
@@ -284,7 +315,7 @@
 				<!-- 비밀번호 변경 -->
 				<div class="mt-6">
 					{#if showPasswordForm}
-						<PasswordChangeSection />
+						<PasswordChangeSection onPasswordChanged={handlePasswordChanged} />
 						<div class="mt-4">
 							<Button variant="outline" onclick={togglePasswordForm} class="w-full">
 								<i class="fas fa-times mr-2"></i>
