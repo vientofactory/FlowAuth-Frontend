@@ -37,7 +37,9 @@ export default ts.config(
 				{ argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
 			],
 			// Disable accessibility warnings for form labels (Svelte handles this with bind:value)
-			'svelte/a11y-label-has-associated-control': 'off'
+			'svelte/a11y-label-has-associated-control': 'off',
+			// Allow @html for Font Awesome icons (static HTML is safe)
+			'svelte/no-at-html-tags': 'off'
 		}
 	},
 	{

@@ -98,7 +98,17 @@
 			{error}
 		</p>
 	{:else if showHint}
-		<p class="mt-1 text-xs text-gray-500">{hint}</p>
+		{@const isLoading = hint.includes('fa-spinner') || hint.includes('확인 중')}
+		{@const isSuccess = hint.includes('fa-check') || hint.includes('사용 가능한')}
+		<p
+			class="mt-1 text-xs {isSuccess
+				? 'font-medium text-green-600'
+				: isLoading
+					? 'text-blue-600'
+					: 'text-gray-500'}"
+		>
+			{@html hint}
+		</p>
 	{/if}
 </div>
 

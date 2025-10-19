@@ -120,4 +120,18 @@ export {
 	MESSAGES,
 	STYLE_CONSTANTS
 } from './constants/app.constants';
+export {
+	ICONS,
+	getRequirementIcon,
+	getRequirementStatus,
+	createSuccessHint,
+	createLoadingHint
+} from './constants/icons';
+
+// Types
 export type { ToastMessage } from './stores/toast';
+export type {
+	PasswordRequirements,
+	ValidationResult,
+	DuplicationCheckResults
+} from './types/auth.types';

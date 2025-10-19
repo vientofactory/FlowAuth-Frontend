@@ -74,6 +74,16 @@ class ApiClient extends BaseApi {
 		return this.auth.checkUsername(username);
 	}
 
+	async checkEmail(email: string): Promise<{ available: boolean; message: string }> {
+		return this.auth.checkEmail(email);
+	}
+
+	async checkUsernameForRegistration(
+		username: string
+	): Promise<{ available: boolean; message: string }> {
+		return this.auth.checkUsernameForRegistration(username);
+	}
+
 	async uploadAvatar(formData: FormData): Promise<{ avatarUrl: string; message: string }> {
 		return this.auth.uploadAvatar(formData);
 	}

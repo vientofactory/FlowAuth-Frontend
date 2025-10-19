@@ -115,6 +115,16 @@ export class AuthApi extends BaseApi {
 		return this.request(`/profile/check-username/${encodeURIComponent(username)}`);
 	}
 
+	async checkEmail(email: string): Promise<{ available: boolean; message: string }> {
+		return this.request(`/auth/check-email/${encodeURIComponent(email)}`);
+	}
+
+	async checkUsernameForRegistration(
+		username: string
+	): Promise<{ available: boolean; message: string }> {
+		return this.request(`/auth/check-username/${encodeURIComponent(username)}`);
+	}
+
 	async uploadAvatar(formData: FormData): Promise<{ avatarUrl: string; message: string }> {
 		const config: RequestInit = {
 			method: 'POST',
