@@ -177,12 +177,19 @@ isPasswordValid &&
 	// 키보드 이벤트 핸들러
 	function handleKeyPress(event: KeyboardEvent) {
 		if (event.key === 'Enter' && currentStepValid && !isLoading) {
+			event.preventDefault();
 			if (currentStep === RegisterStep.TERMS_AGREEMENT) {
 				handleRegister();
 			} else {
 				nextStep();
 			}
 		}
+	}
+
+	// 폼 제출 핸들러 (기본 동작 방지)
+	function handleFormSubmit(event: SubmitEvent) {
+		event.preventDefault();
+		handleRegister();
 	}
 
 	async function handleRegister() {
@@ -275,7 +282,7 @@ isPasswordValid &&
 			<RegisterStepIndicator {currentStep} totalSteps={4} {currentStepValid} />
 
 			<form
-				onsubmit={handleRegister}
+				onsubmit={handleFormSubmit}
 				class="min-h-[400px] space-y-4 transition-all duration-300"
 				class:opacity-50={isStepTransitioning}
 			>
