@@ -11,13 +11,30 @@
 	function getStepInfo(step: number) {
 		switch (step) {
 			case 1:
-				return { title: '기본 정보', description: '이름과 사용자 유형을 입력해주세요', requirement: '이름과 성을 각각 2글자 이상 입력해주세요' };
+				return {
+					title: '기본 정보',
+					description: '이름과 사용자 유형을 입력해주세요',
+					requirement: '이름과 성을 각각 2글자 이상 입력해주세요'
+				};
 			case 2:
-				return { title: '계정 정보', description: '사용자 이름과 이메일을 설정해주세요', requirement: '사용자 이름(3글자 이상, 영문/숫자/언더스코어만)과 유효한 이메일을 입력해주세요' };
+				return {
+					title: '계정 정보',
+					description: '사용자 이름과 이메일을 설정해주세요',
+					requirement:
+						'사용자 이름(3글자 이상, 영문/숫자/언더스코어만)과 유효한 이메일을 입력해주세요'
+				};
 			case 3:
-				return { title: '비밀번호 설정', description: '안전한 비밀번호를 설정해주세요', requirement: '모든 비밀번호 요구사항을 만족하고 비밀번호 확인이 일치해야 합니다' };
+				return {
+					title: '비밀번호 설정',
+					description: '안전한 비밀번호를 설정해주세요',
+					requirement: '모든 비밀번호 요구사항을 만족하고 비밀번호 확인이 일치해야 합니다'
+				};
 			case 4:
-				return { title: '정보 확인 및 약관 동의', description: '입력하신 정보를 확인하고 약관에 동의해주세요', requirement: '필수 약관에 동의해주세요' };
+				return {
+					title: '정보 확인 및 약관 동의',
+					description: '입력하신 정보를 확인하고 약관에 동의해주세요',
+					requirement: '필수 약관에 동의해주세요'
+				};
 			default:
 				return { title: '회원가입', description: '새 계정을 만들어주세요', requirement: '' };
 		}
@@ -48,8 +65,7 @@
 				</div>
 				{#if index < totalSteps - 1}
 					<div
-						class="mx-2 h-1 w-12 rounded-full transition-all duration-300 {stepNumber <
-						currentStep
+						class="mx-2 h-1 w-12 rounded-full transition-all duration-300 {stepNumber < currentStep
 							? 'bg-green-500'
 							: 'bg-gray-200'}"
 					></div>
@@ -68,7 +84,8 @@
 					<i class="fas fa-exclamation-triangle mr-2 text-amber-500"></i>
 					<div class="text-left">
 						<p class="text-sm text-amber-700">
-							<strong>완료 조건:</strong> {stepInfo.requirement}
+							<strong>완료 조건:</strong>
+							{stepInfo.requirement}
 						</p>
 					</div>
 				</div>

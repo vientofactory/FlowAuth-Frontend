@@ -41,17 +41,17 @@
 	const lastNameField = useFieldValidation('', validators.lastName);
 
 	const form = useFormValidation({
-email: emailField,
-password: passwordField,
-confirmPassword: confirmPasswordField,
-username: usernameField,
-firstName: firstNameField,
-lastName: lastNameField
-});
+		email: emailField,
+		password: passwordField,
+		confirmPassword: confirmPasswordField,
+		username: usernameField,
+		firstName: firstNameField,
+		lastName: lastNameField
+	});
 
 	// 비밀번호 요구사항 상태
 	let passwordRequirements = $derived({
-length: passwordField.value.length >= 8,
+		length: passwordField.value.length >= 8,
 		lowercase: /(?=.*[a-z])/.test(passwordField.value),
 		uppercase: /(?=.*[A-Z])/.test(passwordField.value),
 		number: /(?=.*\d)/.test(passwordField.value),
@@ -61,7 +61,7 @@ length: passwordField.value.length >= 8,
 	// 전체 비밀번호 검증 상태
 	let isPasswordValid = $derived(Object.values(passwordRequirements).every(Boolean));
 	let isConfirmPasswordValid = $derived(
-confirmPasswordField.value && passwordField.value === confirmPasswordField.value
+		confirmPasswordField.value && passwordField.value === confirmPasswordField.value
 	);
 
 	// 사용자 타입 및 약관 상태
@@ -90,7 +90,7 @@ confirmPasswordField.value && passwordField.value === confirmPasswordField.value
 		switch (currentStep) {
 			case RegisterStep.BASIC_INFO:
 				return (
-firstNameField.value.trim() !== '' &&
+					firstNameField.value.trim() !== '' &&
 					firstNameField.value.trim().length >= 2 &&
 					lastNameField.value.trim() !== '' &&
 					lastNameField.value.trim().length >= 2
@@ -109,7 +109,7 @@ firstNameField.value.trim() !== '' &&
 			}
 			case RegisterStep.PASSWORD_SETUP:
 				return (
-isPasswordValid &&
+					isPasswordValid &&
 					Boolean(isConfirmPasswordValid) &&
 					passwordField.value === confirmPasswordField.value
 				);
@@ -243,8 +243,8 @@ isPasswordValid &&
 			await apiClient.register(userData);
 			toast.success('회원가입이 완료되었습니다! 이메일을 확인해주세요.');
 			await goto('/auth/login');
-		} catch (error: any) {
-			const message = error.message || '회원가입 중 오류가 발생했습니다.';
+		} catch (error: unknown) {
+			const message = (error as Error)?.message || '회원가입 중 오류가 발생했습니다.';
 			toast.error(message);
 		} finally {
 			isLoading = false;

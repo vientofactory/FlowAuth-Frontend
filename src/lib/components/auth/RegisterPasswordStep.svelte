@@ -16,7 +16,8 @@
 		onKeyPress: (event: KeyboardEvent) => void;
 	}
 
-	let { passwordField, confirmPasswordField, passwordRequirements, isLoading, onKeyPress }: Props = $props();
+	let { passwordField, confirmPasswordField, passwordRequirements, isLoading, onKeyPress }: Props =
+		$props();
 
 	function getRequirementStatus(met: boolean) {
 		return met ? 'text-green-600' : 'text-gray-500';
@@ -42,8 +43,8 @@
 		/>
 
 		<!-- 비밀번호 요구사항 -->
-		<div class="bg-gray-50 rounded-lg p-4">
-			<h4 class="text-sm font-medium text-gray-900 mb-3">비밀번호 요구사항</h4>
+		<div class="rounded-lg bg-gray-50 p-4">
+			<h4 class="mb-3 text-sm font-medium text-gray-900">비밀번호 요구사항</h4>
 			<div class="space-y-2 text-sm">
 				<div class={getRequirementStatus(passwordRequirements.length)}>
 					<span class="inline-block w-4">{getRequirementIcon(passwordRequirements.length)}</span>
@@ -62,7 +63,9 @@
 					숫자 포함
 				</div>
 				<div class={getRequirementStatus(passwordRequirements.specialChar)}>
-					<span class="inline-block w-4">{getRequirementIcon(passwordRequirements.specialChar)}</span>
+					<span class="inline-block w-4"
+						>{getRequirementIcon(passwordRequirements.specialChar)}</span
+					>
 					특수문자 포함
 				</div>
 			</div>

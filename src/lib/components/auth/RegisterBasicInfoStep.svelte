@@ -11,7 +11,13 @@
 		onKeyPress: (event: KeyboardEvent) => void;
 	}
 
-	let { firstNameField, lastNameField, userType = $bindable(), isLoading, onKeyPress }: Props = $props();
+	let {
+		firstNameField,
+		lastNameField,
+		userType = $bindable(),
+		isLoading,
+		onKeyPress
+	}: Props = $props();
 </script>
 
 <div class="space-y-6">
@@ -44,9 +50,7 @@
 
 		<!-- 사용자 유형 선택 -->
 		<fieldset class="space-y-3">
-			<legend class="block text-sm font-medium text-gray-700">
-				사용자 유형
-			</legend>
+			<legend class="block text-sm font-medium text-gray-700"> 사용자 유형 </legend>
 			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 				<label
 					class="flex cursor-pointer items-start rounded-lg border border-gray-200 p-3 transition-colors duration-200 hover:border-blue-300 hover:bg-blue-50"
@@ -94,9 +98,7 @@
 					</div>
 				</label>
 			</div>
-			<p class="text-xs text-gray-500">
-				주의: 사용자 유형은 가입 후 변경할 수 없습니다.
-			</p>
+			<p class="text-xs text-gray-500">주의: 사용자 유형은 가입 후 변경할 수 없습니다.</p>
 		</fieldset>
 	</div>
 </div>
