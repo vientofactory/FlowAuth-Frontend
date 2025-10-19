@@ -138,7 +138,7 @@
 
 <!-- 아바타 제거 확인 다이얼로그 -->
 {#if _showRemoveAvatarDialog}
-	<div 
+	<div
 		class="modal-overlay fixed inset-0 z-50 flex items-center justify-center"
 		onclick={handleDialogClick}
 		onkeydown={handleDialogKeydown}
@@ -147,21 +147,18 @@
 		aria-labelledby="remove-avatar-title"
 		tabindex="-1"
 	>
-		<div 
-			class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
-			role="document"
-		>
+		<div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl" role="document">
 			<div class="mb-4 flex items-center">
 				<div class="mr-3 flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
 					<i class="fas fa-exclamation-triangle text-red-600"></i>
 				</div>
 				<h3 id="remove-avatar-title" class="text-lg font-medium text-gray-900">아바타 제거</h3>
 			</div>
-			
+
 			<p class="mb-6 text-sm text-gray-500">
 				정말로 프로필 사진을 제거하시겠습니까? 이 작업은 되돌릴 수 없습니다.
 			</p>
-			
+
 			<div class="flex justify-end space-x-3">
 				<Button
 					variant="outline"
@@ -171,12 +168,7 @@
 				>
 					취소
 				</Button>
-				<Button
-					variant="danger"
-					onclick={onRemoveAvatar}
-					disabled={isRemovingAvatar}
-					class="h-10"
-				>
+				<Button variant="danger" onclick={onRemoveAvatar} disabled={isRemovingAvatar} class="h-10">
 					{#if isRemovingAvatar}
 						<i class="fas fa-spinner fa-spin mr-2"></i>
 						제거 중...

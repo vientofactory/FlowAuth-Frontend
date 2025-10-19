@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { Card, Button } from '$lib';
-	import { goto } from '$app/navigation';
+	import { Card } from '$lib';
 	import type { User } from '$lib';
 
 	interface Props {
@@ -12,10 +11,9 @@
 		};
 		isDeveloper: boolean;
 		roleName: string;
-		navigateToClients: () => void;
 	}
 
-	let { user, dashboardStats, isDeveloper, roleName, navigateToClients }: Props = $props();
+	let { user, dashboardStats, isDeveloper, roleName }: Props = $props();
 </script>
 
 <div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">

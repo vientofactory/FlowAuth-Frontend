@@ -21,7 +21,11 @@
 		<div class="space-y-3">
 			<div class="flex items-center justify-between">
 				<span class="text-sm text-gray-600">상태</span>
-				<Badge variant="success" size="sm">활성</Badge>
+				{#if user.isActive}
+					<Badge variant="success" size="sm">활성</Badge>
+				{:else}
+					<Badge variant="warning" size="sm">비활성</Badge>
+				{/if}
 			</div>
 			<div class="flex items-center justify-between">
 				<span class="text-sm text-gray-600">역할</span>
@@ -87,7 +91,7 @@
 		<div class="space-y-3">
 			<div>
 				<span class="text-sm text-gray-600">사용자 ID</span>
-				<p class="text-sm text-gray-900">{user.id}</p>
+				<p class="text-sm text-gray-900">#{user.id}</p>
 			</div>
 			<div>
 				<span class="text-sm text-gray-600">가입일</span>
@@ -103,7 +107,15 @@
 			</div>
 			<div>
 				<span class="text-sm text-gray-600">마지막 로그인</span>
-				<p class="text-sm text-gray-900">정보 없음</p>
+				<p class="text-sm text-gray-900">
+					{user.lastLoginAt
+						? new Date(user.lastLoginAt).toLocaleDateString('ko-KR', {
+								year: 'numeric',
+								month: 'long',
+								day: 'numeric'
+							})
+						: '정보 없음'}
+				</p>
 			</div>
 			<div>
 				<span class="text-sm text-gray-600">이메일 인증</span>
@@ -125,14 +137,6 @@
 				{:else}
 					2단계 인증 설정
 				{/if}
-			</Button>
-			<Button variant="outline" class="w-full justify-start">
-				<i class="fas fa-history mr-2"></i>
-				로그인 기록 보기
-			</Button>
-			<Button variant="outline" class="w-full justify-start">
-				<i class="fas fa-download mr-2"></i>
-				데이터 내보내기
 			</Button>
 		</div>
 	</Card>

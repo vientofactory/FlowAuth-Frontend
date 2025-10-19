@@ -259,6 +259,12 @@
 	function handleEditCancel() {
 		isEditing = false;
 	}
+
+	// 비밀번호 변경 성공 콜백
+	function handlePasswordChanged() {
+		showPasswordForm = false;
+		toast.success('비밀번호가 성공적으로 변경되었습니다.');
+	}
 </script>
 
 <DashboardLayout
@@ -309,7 +315,7 @@
 				<!-- 비밀번호 변경 -->
 				<div class="mt-6">
 					{#if showPasswordForm}
-						<PasswordChangeSection />
+						<PasswordChangeSection onPasswordChanged={handlePasswordChanged} />
 						<div class="mt-4">
 							<Button variant="outline" onclick={togglePasswordForm} class="w-full">
 								<i class="fas fa-times mr-2"></i>
