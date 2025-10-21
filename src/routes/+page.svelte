@@ -163,11 +163,20 @@
 								>
 									<i class="fas fa-shield-alt text-2xl text-white"></i>
 								</div>
-								<h3 class="mb-3 text-xl font-bold text-slate-900">군사급 보안</h3>
-								<p class="text-slate-600">
-									JWT 토큰과 bcrypt 해싱으로<br />
-									최고 수준의 보안을 제공합니다
+								<h3 class="mb-3 text-xl font-bold text-slate-900">다중화된 보안 계층</h3>
+								<p class="mb-2 text-slate-600">
+									다중화된 보안 계층으로 <br />
+									귀하의 데이터를 안전하게 보호합니다
 								</p>
+								<a
+									href="https://op0.gitbook.io/flowauth/security"
+									target="_blank"
+									rel="noopener"
+									class="inline-flex items-center gap-2 text-sm font-medium text-stone-600 hover:text-stone-700 hover:underline"
+								>
+									<i class="fas fa-external-link-alt"></i>
+									보안 문서 보기
+								</a>
 							</div>
 
 							<div class="group text-center">
