@@ -157,7 +157,7 @@
 				{#if user?.userType === USER_TYPES.DEVELOPER}
 					<a
 						href="/dashboard/oauth-tester"
-						class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+						class="inline-flex items-center rounded-md border border-transparent bg-stone-600 px-4 py-2 text-sm font-medium text-white hover:bg-stone-700"
 					>
 						<i class="fas fa-flask mr-2"></i>
 						OAuth2 테스터로 이동
@@ -204,7 +204,7 @@
 								<div class="flex flex-wrap gap-1">
 									{#each app.scopes as scope (scope)}
 										<span
-											class="inline-flex items-center rounded-md bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800"
+											class="inline-flex items-center rounded-md bg-stone-100 px-2 py-1 text-xs font-medium text-stone-800"
 										>
 											{scope}
 										</span>
@@ -290,7 +290,7 @@
 			<div class="flex justify-end space-x-3">
 				<button
 					onclick={closeRevokeModal}
-					class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+					class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:outline-none"
 					disabled={revoking}
 				>
 					취소
