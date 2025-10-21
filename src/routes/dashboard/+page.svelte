@@ -495,7 +495,7 @@
 														유형
 													</p>
 													<Badge
-														variant={user.userType === USER_TYPES.DEVELOPER ? 'success' : 'info'}
+														variant={user.userType === USER_TYPES.DEVELOPER ? 'secondary' : 'info'}
 														size="sm"
 														class="font-medium"
 													>
@@ -722,7 +722,7 @@
 										<i class="fas fa-calendar mr-2 text-neutral-600"></i>
 										30일 토큰 발급 추이
 									</h3>
-									<Badge variant="success" size="sm">
+									<Badge variant="info" size="sm">
 										{dashboardStats.tokenIssuanceByDay.filter((d) => d.count > 0).length}일 활동
 									</Badge>
 								</div>
@@ -925,7 +925,7 @@
 										<i class="fas fa-shield-alt mr-2 text-slate-600"></i>
 										스코프별 사용 통계
 									</h3>
-									<Badge variant="warning" size="sm">
+									<Badge variant="secondary" size="sm">
 										{dashboardStats.scopeUsageStats.length}개 스코프
 									</Badge>
 								</div>
