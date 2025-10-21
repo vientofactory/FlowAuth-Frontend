@@ -3,6 +3,7 @@
 	import Card from '$lib/components/Card.svelte';
 	import LoadingState from '$lib/components/oauth2/LoadingState.svelte';
 	import ErrorState from '$lib/components/oauth2/ErrorState.svelte';
+	import AccountSwitcher from '$lib/components/oauth2/AccountSwitcher.svelte';
 	import Logo from '$lib/components/Logo.svelte';
 	import { useAuthorization } from '$lib/hooks/useAuthorization';
 	import type { AuthorizationState } from '$lib/types/authorization.types';
@@ -177,6 +178,11 @@
 	function handleGoBack() {
 		window.history.back();
 	}
+
+	// 계정 전환 시 콜백
+	function handleAccountSwitch() {
+		console.log('[OAuth2 Page] Account switch initiated');
+	}
 </script>
 
 <svelte:head>
@@ -191,6 +197,12 @@
 	<div class="w-full max-w-md">
 		{#if currentState?.loading}
 			<Card class="border-0 bg-white/95 shadow-xl backdrop-blur-sm">
+				<!-- 로딩 중에도 계정 정보 표시 -->
+				<AccountSwitcher
+					currentUser={currentState.currentUser}
+					loading={currentState.currentUser === null}
+					onAccountSwitch={handleAccountSwitch}
+				/>
 				<LoadingState
 					message={currentState.loadingProgress < 50
 						? '보안 검증을 준비하고 있습니다...'
@@ -202,12 +214,29 @@
 			</Card>
 		{:else if currentState?.error}
 			<Card class="border-red-200 bg-white/95 shadow-xl backdrop-blur-sm">
-				<ErrorState error={currentState.error} onRetry={handleRetry} onGoBack={handleGoBack} />
+				<!-- 에러 상태에서도 계정 정보 표시 -->
+				<AccountSwitcher
+					currentUser={currentState.currentUser}
+					loading={false}
+					onAccountSwitch={handleAccountSwitch}
+				/>
+				<div class="animate-fadeIn" style="animation-delay: 0.1s;">
+					<ErrorState error={currentState.error} onRetry={handleRetry} onGoBack={handleGoBack} />
+				</div>
 			</Card>
 		{:else if currentState?.client}
-			<Card class="max-w-lg overflow-hidden border-0 bg-white/95 shadow-xl backdrop-blur-sm">
+			<Card
+				class="animate-scaleIn max-w-lg overflow-hidden border-0 bg-white/95 shadow-xl backdrop-blur-sm"
+			>
+				<!-- 현재 로그인된 계정 정보 -->
+				<AccountSwitcher
+					currentUser={currentState.currentUser}
+					loading={false}
+					onAccountSwitch={handleAccountSwitch}
+				/>
+
 				<!-- 앱 정보 헤더 -->
-				<div class="border-b border-gray-100 px-8 py-6 text-center">
+				<div class="animate-fadeIn border-b border-gray-100 px-8 py-6 text-center">
 					<div class="flex flex-col items-center space-y-4">
 						<!-- 앱 로고 표시 -->
 						<div class="relative">
@@ -246,16 +275,16 @@
 				</div>
 
 				<!-- 권한 목록 -->
-				<div class="px-8 py-6">
+				<div class="animate-slideInUp px-8 py-6">
 					<h3 class="mb-4 text-center text-sm font-semibold text-gray-900">
 						이 앱이 요청하는 권한
 					</h3>
 
 					{#if currentState.scopes && currentState.scopes.length > 0}
 						<div class="space-y-3">
-							{#each currentState.scopes as scope (scope)}
+							{#each currentState.scopes as scope, _index (scope)}
 								{@const scopeInfo = getScopeInfo(scope)}
-								<div class="flex items-center space-x-3 rounded-lg bg-gray-50 p-3">
+								<div class="transition-hover flex items-center space-x-3 rounded-lg bg-gray-50 p-3">
 									<div
 										class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full {getScopeColorClasses(
 											scopeInfo.color
@@ -303,20 +332,20 @@
 				</div>
 
 				<!-- 액션 버튼 -->
-				<div class="border-t border-gray-100 bg-gray-50 px-8 py-6">
+				<div class="animate-fadeIn border-t border-gray-100 bg-gray-50 px-8 py-6">
 					<div class="space-y-4">
 						<div class="flex space-x-3">
 							<button
 								onclick={handleDeny}
 								disabled={currentState.submitting}
-								class="flex-1 cursor-pointer rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+								class="flex-1 cursor-pointer rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-all duration-200 hover:scale-[1.02] hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
 							>
 								취소
 							</button>
 							<button
 								onclick={handleApprove}
 								disabled={currentState.submitting}
-								class="flex-1 cursor-pointer rounded-lg border border-transparent bg-green-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+								class="flex-1 cursor-pointer rounded-lg border border-transparent bg-green-600 px-4 py-3 text-sm font-medium text-white transition-all duration-200 hover:scale-[1.02] hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
 							>
 								{#if currentState.submitting}
 									<i class="fas fa-spinner fa-spin mr-2"></i>
@@ -342,7 +371,7 @@
 										href={currentState.client.termsOfServiceUri}
 										target="_blank"
 										rel="noopener noreferrer"
-										class="text-blue-700 hover:text-blue-900"
+										class="text-blue-700 transition-colors hover:text-blue-900"
 									>
 										이용약관
 									</a>
@@ -355,7 +384,7 @@
 										href={currentState.client.policyUri}
 										target="_blank"
 										rel="noopener noreferrer"
-										class="text-blue-700 hover:text-blue-900"
+										class="text-blue-700 transition-colors hover:text-blue-900"
 									>
 										개인정보처리방침
 									</a>
@@ -371,12 +400,12 @@
 		{/if}
 
 		<!-- OAuth2 플랫폼 정보 -->
-		<div class="mt-6 text-center">
+		<div class="animate-fadeIn mt-6 text-center">
 			<div class="mb-3 flex items-center justify-center">
 				<img
 					src="/logo_icon.png"
 					alt="FlowAuth 로고"
-					class="mr-1 h-6 w-6 rounded-md object-cover"
+					class="mr-1 h-6 w-6 rounded-md object-cover transition-transform hover:scale-110"
 					loading="lazy"
 				/>
 				<span class="text-sm font-medium text-gray-600">FlowAuth</span>

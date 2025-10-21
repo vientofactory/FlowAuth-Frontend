@@ -39,9 +39,16 @@
 	// URL 파라미터에서 returnUrl 확인 및 OAuth2 컨텍스트 판단
 	onMount(() => {
 		const unsubscribe = page.subscribe(($page) => {
-			returnUrl = $page.url.searchParams.get('returnUrl') || '';
+			returnUrl =
+				$page.url.searchParams.get('returnUrl') || $page.url.searchParams.get('return_url') || '';
 			// OAuth2 플로우인지 확인
 			isOAuth2Context = returnUrl.includes('/oauth2/authorize');
+
+			console.log('[Login] URL parameters:', {
+				returnUrl,
+				isOAuth2Context,
+				allParams: Object.fromEntries($page.url.searchParams.entries())
+			});
 		});
 
 		// reCAPTCHA 초기화
@@ -93,13 +100,23 @@
 			// 리다이렉트 처리 - returnUrl이 있으면 해당 URL로, 없으면 대시보드로
 			if (returnUrl) {
 				// OAuth2 플로우인 경우 동의 페이지로 리다이렉트
-				console.log('OAuth2 flow detected, redirecting to:', returnUrl);
+				console.log('[Login] OAuth2 flow detected, redirecting to:', returnUrl);
+
+				// URL이 상대 경로인지 확인
+				let redirectUrl = returnUrl;
+				if (!returnUrl.startsWith('http')) {
+					// 상대 경로인 경우 현재 origin을 붙임
+					redirectUrl = new URL(returnUrl, window.location.origin).href;
+				}
+
 				// 짧은 지연 후 리다이렉트 (인증 상태가 완전히 설정되도록)
 				setTimeout(() => {
-					window.location.href = returnUrl;
-				}, 100);
+					console.log('[Login] Redirecting to:', redirectUrl);
+					window.location.href = redirectUrl;
+				}, 200);
 			} else {
 				// 일반 로그인의 경우 대시보드로
+				console.log('[Login] No returnUrl, redirecting to dashboard');
 				goto(ROUTES.DASHBOARD);
 			}
 		} catch (err) {
@@ -181,13 +198,22 @@
 			console.log('2FA verification successful, redirecting...');
 			// 성공 시 리다이렉트
 			if (returnUrl) {
-				console.log('2FA successful, redirecting to returnUrl:', returnUrl);
+				console.log('[Login] 2FA successful, redirecting to returnUrl:', returnUrl);
+
+				// URL이 상대 경로인지 확인
+				let redirectUrl = returnUrl;
+				if (!returnUrl.startsWith('http')) {
+					// 상대 경로인 경우 현재 origin을 붙임
+					redirectUrl = new URL(returnUrl, window.location.origin).href;
+				}
+
 				// 짧은 지연 후 리다이렉트 (인증 상태가 완전히 설정되도록)
 				setTimeout(() => {
-					window.location.href = returnUrl;
-				}, 100);
+					console.log('[Login] 2FA redirecting to:', redirectUrl);
+					window.location.href = redirectUrl;
+				}, 200);
 			} else {
-				console.log('2FA successful, redirecting to dashboard');
+				console.log('[Login] 2FA successful, redirecting to dashboard');
 				goto(ROUTES.DASHBOARD);
 			}
 		} catch (err) {
