@@ -53,14 +53,14 @@
 						</div>
 					</div>
 
-					<div class="rounded-md border border-blue-200 bg-blue-50 p-4">
+					<div class="rounded-md border border-stone-200 bg-stone-50 p-4">
 						<div class="flex">
 							<div class="flex-shrink-0">
-								<i class="fas fa-info-circle text-blue-400"></i>
+								<i class="fas fa-info-circle text-stone-400"></i>
 							</div>
 							<div class="ml-3">
-								<h3 class="text-sm font-medium text-blue-800">재설정 후 해야 할 일</h3>
-								<div class="mt-2 text-sm text-blue-700">
+								<h3 class="text-sm font-medium text-stone-800">재설정 후 해야 할 일</h3>
+								<div class="mt-2 text-sm text-stone-700">
 									<ul class="list-inside list-disc space-y-1">
 										<li>새로운 클라이언트 시크릿을 안전한 곳에 저장하세요</li>
 										<li>모든 애플리케이션에서 새 시크릿으로 업데이트하세요</li>
@@ -133,7 +133,7 @@
 								type="text"
 								value={newSecret}
 								readonly
-								class="flex-1 rounded-md border border-gray-300 bg-gray-50 px-3 py-2 font-mono text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+								class="flex-1 rounded-md border border-gray-300 bg-gray-50 px-3 py-2 font-mono text-sm focus:border-stone-500 focus:ring-1 focus:ring-stone-500"
 							/>
 							<Button
 								onclick={() => onCopyToClipboard(newSecret)}

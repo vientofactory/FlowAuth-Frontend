@@ -17,12 +17,12 @@
 
 <Card class="p-6">
 	<h3 class="mb-4 text-lg font-semibold text-gray-900">받은 토큰 정보</h3>
-	<div class="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
+	<div class="mb-4 rounded-lg border border-stone-200 bg-stone-50 p-4">
 		<div class="flex items-center">
-			<i class="fas fa-info-circle mr-2 text-blue-600"></i>
-			<span class="font-medium text-blue-800">Implicit Grant</span>
+			<i class="fas fa-info-circle mr-2 text-stone-600"></i>
+			<span class="font-medium text-stone-800">Implicit Grant</span>
 		</div>
-		<p class="mt-1 text-blue-700">
+		<p class="mt-1 text-stone-700">
 			토큰이 URL Fragment를 통해 직접 전달되었습니다. 토큰 교환 과정이 필요하지 않습니다.
 		</p>
 	</div>

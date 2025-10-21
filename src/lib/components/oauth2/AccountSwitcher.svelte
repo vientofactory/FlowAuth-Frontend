@@ -161,7 +161,7 @@
 				<div class="flex space-x-1">
 					<button
 						onclick={handleSwitchAccount}
-						class="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+						class="rounded-md bg-stone-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-stone-700 focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:outline-none"
 						title="다른 계정으로 로그인"
 					>
 						<i class="fas fa-repeat mr-1"></i>
@@ -185,7 +185,7 @@
 				</div>
 				<button
 					onclick={handleSwitchAccount}
-					class="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+					class="rounded-md bg-neutral-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-neutral-700 focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 focus:outline-none"
 				>
 					<i class="fas fa-sign-in-alt mr-1"></i>
 					로그인

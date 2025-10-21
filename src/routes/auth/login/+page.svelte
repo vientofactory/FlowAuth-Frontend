@@ -252,7 +252,7 @@
 </svelte:head>
 
 <div
-	class="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 px-4 py-12"
+	class="flex min-h-screen items-center justify-center bg-gradient-to-br from-stone-50 via-gray-50 to-neutral-100 px-4 py-12"
 >
 	<!-- 배경 패턴 -->
 	<div
@@ -303,7 +303,7 @@
 							onclick={() => switchTwoFactorMode('token')}
 							class="flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 {twoFactorMode ===
 							'token'
-								? 'bg-white text-blue-600 shadow-sm'
+								? 'bg-white text-stone-600 shadow-sm'
 								: 'text-gray-500 hover:text-gray-700'}"
 						>
 							<i class="fas fa-mobile-alt mr-2"></i>
@@ -314,7 +314,7 @@
 							onclick={() => switchTwoFactorMode('backup')}
 							class="flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 {twoFactorMode ===
 							'backup'
-								? 'bg-white text-blue-600 shadow-sm'
+								? 'bg-white text-stone-600 shadow-sm'
 								: 'text-gray-500 hover:text-gray-700'}"
 						>
 							<i class="fas fa-key mr-2"></i>
@@ -421,14 +421,14 @@
 							<input
 								type="checkbox"
 								name="remember"
-								class="focus:ring-opacity-50 rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200"
+								class="focus:ring-opacity-50 rounded border-gray-300 text-stone-600 shadow-sm focus:border-stone-300 focus:ring focus:ring-stone-200"
 							/>
 							<span class="ml-2 text-sm text-gray-600">로그인 상태 유지</span>
 						</label>
 						<a
 							href={ROUTES.FORGOT_PASSWORD}
 							data-sveltekit-preload-data
-							class="text-sm font-medium text-blue-600 transition-colors duration-200 hover:text-blue-500"
+							class="text-sm font-medium text-stone-600 transition-colors duration-200 hover:text-stone-500"
 						>
 							비밀번호 찾기
 						</a>
@@ -477,7 +477,7 @@
 					<a
 						href={ROUTES.REGISTER}
 						data-sveltekit-preload-data
-						class="font-semibold text-blue-600 transition-colors duration-200 hover:text-blue-500"
+						class="font-semibold text-stone-600 transition-colors duration-200 hover:text-stone-500"
 					>
 						회원가입
 					</a>

@@ -48,7 +48,7 @@
 				</div>
 				<h4 class="mb-1 text-sm font-medium text-gray-900">등록된 클라이언트가 없습니다</h4>
 				<p class="mb-4 text-sm text-gray-500">첫 번째 클라이언트를 생성해보세요.</p>
-				<Button onclick={onToggleCreateForm} class="bg-blue-600 text-white hover:bg-blue-700">
+				<Button onclick={onToggleCreateForm} class="bg-stone-600 text-white hover:bg-stone-700">
 					<i class="fas fa-plus mr-2"></i>
 					첫 번째 클라이언트 생성
 				</Button>
@@ -82,8 +82,8 @@
 
 								<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 									<div class="flex items-center space-x-3 rounded-lg bg-gray-50/60 p-3">
-										<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
-											<i class="fas fa-id-card text-blue-600"></i>
+										<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100">
+											<i class="fas fa-id-card text-stone-600"></i>
 										</div>
 										<div class="min-w-0 flex-1">
 											<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
@@ -109,8 +109,8 @@
 									</div>
 
 									<div class="flex items-center space-x-3 rounded-lg bg-gray-50/60 p-3">
-										<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100">
-											<i class="fas fa-external-link-alt text-green-600"></i>
+										<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-100">
+											<i class="fas fa-external-link-alt text-neutral-600"></i>
 										</div>
 										<div class="min-w-0 flex-1">
 											<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
@@ -128,8 +128,8 @@
 									</div>
 
 									<div class="flex items-center space-x-3 rounded-lg bg-gray-50/60 p-3">
-										<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
-											<i class="fas fa-calendar text-purple-600"></i>
+										<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
+											<i class="fas fa-calendar text-slate-600"></i>
 										</div>
 										<div class="flex-1">
 											<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
@@ -149,7 +149,7 @@
 									variant="outline"
 									size="sm"
 									onclick={() => onEditClient(client)}
-									class="flex-1 transition-colors hover:border-blue-200 hover:bg-blue-50 sm:flex-none"
+									class="flex-1 transition-colors hover:border-gray-200 hover:bg-gray-50 sm:flex-none"
 									title="수정"
 								>
 									<i class="fas fa-edit mr-2"></i>
@@ -169,7 +169,7 @@
 									variant="outline"
 									size="sm"
 									onclick={() => onToggleClientStatus(client)}
-									class="flex-1 transition-colors hover:border-green-200 hover:bg-green-50 sm:flex-none"
+									class="flex-1 transition-colors hover:border-neutral-200 hover:bg-neutral-50 sm:flex-none"
 									title={client.isActive ? '비활성화' : '활성화'}
 								>
 									<i class="fas {client.isActive ? 'fa-pause' : 'fa-play'} mr-2"></i>

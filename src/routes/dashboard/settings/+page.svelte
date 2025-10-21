@@ -269,7 +269,7 @@
 								class="peer sr-only"
 							/>
 							<div
-								class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
+								class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-stone-600 peer-focus:ring-4 peer-focus:ring-stone-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
 							></div>
 						</label>
 					</div>
@@ -290,7 +290,7 @@
 								class="peer sr-only"
 							/>
 							<div
-								class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
+								class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-neutral-600 peer-focus:ring-4 peer-focus:ring-neutral-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
 							></div>
 						</label>
 					</div>
@@ -311,7 +311,7 @@
 								class="peer sr-only"
 							/>
 							<div
-								class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
+								class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-gray-600 peer-focus:ring-4 peer-focus:ring-gray-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
 							></div>
 						</label>
 					</div>
@@ -326,7 +326,7 @@
 								type="number"
 								bind:value={securitySettings.sessionTimeout}
 								min="300"
-								class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-11"
+								class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-stone-500 focus:ring-stone-500 sm:h-11"
 							/>
 						</div>
 
@@ -340,7 +340,7 @@
 								bind:value={securitySettings.maxLoginAttempts}
 								min="1"
 								max="10"
-								class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-11"
+								class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-stone-500 focus:ring-stone-500 sm:h-11"
 							/>
 						</div>
 					</div>
@@ -374,7 +374,7 @@
 								class="peer sr-only"
 							/>
 							<div
-								class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
+								class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-slate-600 peer-focus:ring-4 peer-focus:ring-slate-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
 							></div>
 						</label>
 					</div>
@@ -395,7 +395,7 @@
 								class="peer sr-only"
 							/>
 							<div
-								class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
+								class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-zinc-600 peer-focus:ring-4 peer-focus:ring-zinc-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
 							></div>
 						</label>
 					</div>
@@ -414,7 +414,7 @@
 								class="peer sr-only"
 							/>
 							<div
-								class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
+								class="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-neutral-600 peer-focus:ring-4 peer-focus:ring-neutral-300 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"
 							></div>
 						</label>
 					</div>

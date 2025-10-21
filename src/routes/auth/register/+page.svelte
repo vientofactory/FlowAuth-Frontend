@@ -365,7 +365,7 @@
 </svelte:head>
 
 <div
-	class="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 px-4 py-12"
+	class="flex min-h-screen items-center justify-center bg-gradient-to-br from-stone-50 via-gray-50 to-neutral-100 px-4 py-12"
 >
 	<!-- 배경 패턴 -->
 	<div
@@ -467,7 +467,7 @@
 				이미 계정이 있으신가요?
 				<a
 					href="/auth/login"
-					class="font-medium text-blue-600 transition-colors duration-200 hover:text-blue-500"
+					class="font-medium text-stone-600 transition-colors duration-200 hover:text-stone-500"
 				>
 					로그인하기
 				</a>

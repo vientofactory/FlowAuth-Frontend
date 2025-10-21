@@ -22,7 +22,7 @@
 		type="button"
 		onclick={onPrevious}
 		disabled={isFirstStep || isLoading}
-		class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+		class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-50 focus:ring-2 focus:ring-stone-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 	>
 		이전
 	</button>
@@ -38,7 +38,7 @@
 			type="button"
 			onclick={onSubmit}
 			disabled={!canGoNext || isLoading}
-			class="min-w-[80px] rounded-lg border border-transparent bg-blue-600 px-6 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+			class="min-w-[80px] rounded-lg border border-transparent bg-stone-600 px-6 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-stone-700 focus:ring-2 focus:ring-stone-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 		>
 			{#if isLoading}
 				<div class="flex items-center justify-center">
@@ -67,7 +67,7 @@
 			type="button"
 			onclick={onNext}
 			disabled={!canGoNext || isLoading}
-			class="rounded-lg border border-transparent bg-blue-600 px-6 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+			class="rounded-lg border border-transparent bg-neutral-600 px-6 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-neutral-700 focus:ring-2 focus:ring-neutral-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 		>
 			다음
 		</button>

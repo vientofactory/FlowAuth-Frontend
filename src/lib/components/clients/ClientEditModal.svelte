@@ -85,7 +85,7 @@
 						bind:value={editClientName}
 						placeholder="클라이언트 애플리케이션 이름"
 						required
-						class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-11"
+						class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-stone-500 focus:ring-stone-500 sm:h-11"
 					/>
 					{#if editClientNameError}
 						<p class="mt-1 text-sm text-red-600">{editClientNameError}</p>
@@ -100,7 +100,7 @@
 						id="editClientDescription"
 						bind:value={editClientDescription}
 						placeholder="클라이언트 애플리케이션 설명"
-						class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-11"
+						class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-stone-500 focus:ring-stone-500 sm:h-11"
 					/>
 				</div>
 
@@ -114,7 +114,7 @@
 						placeholder="https://example.com/callback"
 						rows="3"
 						required
-						class="h-20 w-full rounded-md border-gray-300 px-3 py-2 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-24"
+						class="h-20 w-full rounded-md border-gray-300 px-3 py-2 text-base shadow-sm focus:border-stone-500 focus:ring-stone-500 sm:h-24"
 					></textarea>
 					{#if editRedirectUrisError}
 						<p class="mt-1 text-sm text-red-600">{editRedirectUrisError}</p>
@@ -156,7 +156,7 @@
 						bind:value={editTermsOfServiceUri}
 						placeholder="https://example.com/terms"
 						type="url"
-						class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-11"
+						class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-stone-500 focus:ring-stone-500 sm:h-11"
 					/>
 					{#if editTermsOfServiceUriError}
 						<p class="mt-1 text-sm text-red-600">{editTermsOfServiceUriError}</p>
@@ -174,7 +174,7 @@
 						bind:value={editPolicyUri}
 						placeholder="https://example.com/privacy"
 						type="url"
-						class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:h-11"
+						class="h-10 w-full rounded-md border-gray-300 px-3 text-base shadow-sm focus:border-stone-500 focus:ring-stone-500 sm:h-11"
 					/>
 					{#if editPolicyUriError}
 						<p class="mt-1 text-sm text-red-600">{editPolicyUriError}</p>

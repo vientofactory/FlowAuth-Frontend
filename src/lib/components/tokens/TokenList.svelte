@@ -82,7 +82,7 @@
 		{#if activeTokens.length > 0}
 			<div>
 				<h3 class="mb-4 flex items-center text-lg font-semibold text-gray-900">
-					<i class="fas fa-check-circle mr-2 text-green-500"></i>
+					<i class="fas fa-check-circle mr-2 text-neutral-500"></i>
 					활성 토큰 ({activeTokens.length}개)
 				</h3>
 				<div class="space-y-4">

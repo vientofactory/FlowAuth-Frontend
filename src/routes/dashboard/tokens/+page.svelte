@@ -220,14 +220,14 @@
 	<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 		<!-- 총 토큰 -->
 		<div
-			class="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 p-4 shadow-sm ring-1 ring-blue-100 transition-all duration-200 hover:shadow-md"
+			class="relative overflow-hidden rounded-xl bg-gradient-to-r from-stone-50 to-neutral-50 p-4 shadow-sm ring-1 ring-stone-100 transition-all duration-200 hover:shadow-md"
 		>
 			<div class="relative flex items-center">
 				<div class="flex-shrink-0">
 					<div
-						class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100"
+						class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-stone-100 to-neutral-100"
 					>
-						<i class="fas fa-key text-lg text-blue-600"></i>
+						<i class="fas fa-key text-lg text-stone-600"></i>
 					</div>
 				</div>
 				<div class="ml-3 flex-1">
@@ -239,14 +239,14 @@
 
 		<!-- 활성 토큰 -->
 		<div
-			class="relative overflow-hidden rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 p-4 shadow-sm ring-1 ring-green-100 transition-all duration-200 hover:shadow-md"
+			class="relative overflow-hidden rounded-xl bg-gradient-to-r from-neutral-50 to-gray-50 p-4 shadow-sm ring-1 ring-neutral-100 transition-all duration-200 hover:shadow-md"
 		>
 			<div class="relative flex items-center">
 				<div class="flex-shrink-0">
 					<div
-						class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-green-100 to-emerald-100"
+						class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-neutral-100 to-gray-100"
 					>
-						<i class="fas fa-check-circle text-lg text-green-600"></i>
+						<i class="fas fa-check-circle text-lg text-neutral-600"></i>
 					</div>
 				</div>
 				<div class="ml-3 flex-1">
@@ -260,14 +260,14 @@
 
 		<!-- 만료된 토큰 -->
 		<div
-			class="relative overflow-hidden rounded-xl bg-gradient-to-r from-yellow-50 to-orange-50 p-4 shadow-sm ring-1 ring-yellow-100 transition-all duration-200 hover:shadow-md"
+			class="relative overflow-hidden rounded-xl bg-gradient-to-r from-gray-50 to-stone-50 p-4 shadow-sm ring-1 ring-gray-100 transition-all duration-200 hover:shadow-md"
 		>
 			<div class="relative flex items-center">
 				<div class="flex-shrink-0">
 					<div
-						class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-yellow-100 to-orange-100"
+						class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-gray-100 to-stone-100"
 					>
-						<i class="fas fa-clock text-lg text-yellow-600"></i>
+						<i class="fas fa-clock text-lg text-gray-600"></i>
 					</div>
 				</div>
 				<div class="ml-3 flex-1">
@@ -281,14 +281,14 @@
 
 		<!-- 클라이언트 수 -->
 		<div
-			class="relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-50 to-violet-50 p-4 shadow-sm ring-1 ring-purple-100 transition-all duration-200 hover:shadow-md"
+			class="relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-zinc-50 p-4 shadow-sm ring-1 ring-slate-100 transition-all duration-200 hover:shadow-md"
 		>
 			<div class="relative flex items-center">
 				<div class="flex-shrink-0">
 					<div
-						class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-purple-100 to-violet-100"
+						class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-slate-100 to-zinc-100"
 					>
-						<i class="fas fa-shield-alt text-lg text-purple-600"></i>
+						<i class="fas fa-shield-alt text-lg text-slate-600"></i>
 					</div>
 				</div>
 				<div class="ml-3 flex-1">
@@ -392,9 +392,9 @@
 											<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
 												<div class="flex items-center space-x-3 rounded-lg bg-gray-50/60 p-3">
 													<div
-														class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100"
+														class="flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100"
 													>
-														<i class="fas fa-hashtag text-blue-600"></i>
+														<i class="fas fa-hashtag text-stone-600"></i>
 													</div>
 													<div class="flex-1">
 														<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
@@ -406,9 +406,9 @@
 
 												<div class="flex items-center space-x-3 rounded-lg bg-gray-50/60 p-3">
 													<div
-														class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100"
+														class="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-100"
 													>
-														<i class="fas fa-shield-alt text-green-600"></i>
+														<i class="fas fa-shield-alt text-neutral-600"></i>
 													</div>
 													<div class="flex-1">
 														<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
@@ -426,9 +426,9 @@
 
 												<div class="flex items-center space-x-3 rounded-lg bg-gray-50/60 p-3">
 													<div
-														class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100"
+														class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100"
 													>
-														<i class="fas fa-calendar-plus text-purple-600"></i>
+														<i class="fas fa-calendar-plus text-slate-600"></i>
 													</div>
 													<div class="flex-1">
 														<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
@@ -442,9 +442,9 @@
 
 												<div class="flex items-center space-x-3 rounded-lg bg-gray-50/60 p-3">
 													<div
-														class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100"
+														class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100"
 													>
-														<i class="fas fa-calendar-times text-orange-600"></i>
+														<i class="fas fa-calendar-times text-gray-600"></i>
 													</div>
 													<div class="flex-1">
 														<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
@@ -461,9 +461,9 @@
 														class="flex items-center space-x-3 rounded-lg bg-gray-50/60 p-3 sm:col-span-2 lg:col-span-4"
 													>
 														<div
-															class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100"
+															class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100"
 														>
-															<i class="fas fa-redo text-indigo-600"></i>
+															<i class="fas fa-redo text-gray-600"></i>
 														</div>
 														<div class="flex-1">
 															<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
@@ -513,12 +513,12 @@
 	</div>
 	<!-- 토큰 관리 안내 -->
 	<div
-		class="relative mt-6 overflow-hidden rounded-xl bg-gradient-to-r from-amber-50 to-yellow-50 p-6 shadow-sm ring-1 ring-amber-100"
+		class="relative mt-6 overflow-hidden rounded-xl bg-gradient-to-r from-stone-50 to-neutral-50 p-6 shadow-sm ring-1 ring-stone-100"
 	>
 		<div class="relative">
 			<h3 class="mb-6 flex items-center text-lg font-semibold text-gray-900">
-				<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100">
-					<i class="fas fa-info-circle text-amber-600"></i>
+				<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100">
+					<i class="fas fa-info-circle text-stone-600"></i>
 				</div>
 				{activeTab === TOKEN_TYPES.LOGIN ? '로그인 토큰' : 'OAuth2 토큰'} 관리 안내
 			</h3>
@@ -527,9 +527,9 @@
 				<div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
 					<div class="flex items-start space-x-4 rounded-lg bg-white/60 p-4 backdrop-blur-sm">
 						<div
-							class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100"
+							class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-stone-100"
 						>
-							<i class="fas fa-user text-blue-600"></i>
+							<i class="fas fa-user text-stone-600"></i>
 						</div>
 						<div>
 							<h4 class="mb-2 text-base font-medium text-gray-900">로그인 토큰</h4>
@@ -541,9 +541,9 @@
 
 					<div class="flex items-start space-x-4 rounded-lg bg-white/60 p-4 backdrop-blur-sm">
 						<div
-							class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-green-100"
+							class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100"
 						>
-							<i class="fas fa-redo text-green-600"></i>
+							<i class="fas fa-redo text-gray-600"></i>
 						</div>
 						<div>
 							<h4 class="mb-2 text-base font-medium text-gray-900">세션 관리</h4>
@@ -557,9 +557,9 @@
 				<div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
 					<div class="flex items-start space-x-4 rounded-lg bg-white/60 p-4 backdrop-blur-sm">
 						<div
-							class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-purple-100"
+							class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-zinc-100"
 						>
-							<i class="fas fa-code-branch text-purple-600"></i>
+							<i class="fas fa-code-branch text-zinc-600"></i>
 						</div>
 						<div>
 							<h4 class="mb-2 text-base font-medium text-gray-900">OAuth2 토큰</h4>
@@ -571,9 +571,9 @@
 
 					<div class="flex items-start space-x-4 rounded-lg bg-white/60 p-4 backdrop-blur-sm">
 						<div
-							class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-orange-100"
+							class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-neutral-100"
 						>
-							<i class="fas fa-shield-alt text-orange-600"></i>
+							<i class="fas fa-shield-alt text-neutral-600"></i>
 						</div>
 						<div>
 							<h4 class="mb-2 text-base font-medium text-gray-900">권한 범위</h4>

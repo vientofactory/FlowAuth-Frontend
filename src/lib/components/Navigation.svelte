@@ -266,7 +266,7 @@
 						{#if initialAuthCheckDone}
 							<div class="profile-dropdown relative">
 								<button
-									class="flex items-center space-x-2 rounded-full border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+									class="flex items-center space-x-2 rounded-full border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:outline-none"
 									onclick={() => (profileDropdownOpen = !profileDropdownOpen)}
 								>
 									<!-- 프로필 사진 또는 이니셜 표시 -->
@@ -279,8 +279,8 @@
 											class="h-8 w-8 rounded-full border border-gray-200 object-cover"
 										/>
 									{:else}
-										<div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
-											<span class="text-sm font-medium text-blue-800">
+										<div class="flex h-8 w-8 items-center justify-center rounded-full bg-stone-100">
+											<span class="text-sm font-medium text-stone-800">
 												{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
 											</span>
 										</div>
@@ -307,9 +307,9 @@
 													/>
 												{:else}
 													<div
-														class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100"
+														class="flex h-10 w-10 items-center justify-center rounded-full bg-stone-100"
 													>
-														<span class="text-sm font-medium text-blue-800">
+														<span class="text-sm font-medium text-stone-800">
 															{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
 														</span>
 													</div>
@@ -323,7 +323,7 @@
 													{#if user?.userType}
 														<div class="mt-1">
 															<span
-																class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800"
+																class="inline-flex items-center rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-800"
 															>
 																{user.userType === USER_TYPES.DEVELOPER ? '개발자' : '일반 사용자'}
 															</span>
@@ -390,7 +390,7 @@
 					<a
 						href="/auth/login"
 						data-sveltekit-preload-data
-						class="font-medium text-gray-600 transition-colors duration-200 hover:text-blue-600"
+						class="font-medium text-gray-600 transition-colors duration-200 hover:text-stone-600"
 					>
 						로그인
 					</a>
@@ -417,8 +417,8 @@
 					<!-- 로그인 상태: 프로필 버튼 -->
 					<div class="relative">
 						<button
-							class="profile-dropdown flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-800 transition-colors duration-200 {profileDropdownOpen
-								? 'ring-2 ring-blue-300'
+							class="profile-dropdown flex h-8 w-8 items-center justify-center rounded-full bg-stone-100 text-stone-800 transition-colors duration-200 {profileDropdownOpen
+								? 'ring-2 ring-stone-300'
 								: ''}"
 							onclick={() => (profileDropdownOpen = !profileDropdownOpen)}
 							aria-expanded={profileDropdownOpen}
@@ -517,7 +517,7 @@
 				{:else}
 					<!-- 비로그인 상태: 햄버거 메뉴 -->
 					<button
-						class="p-2 text-gray-600 hover:text-blue-600"
+						class="p-2 text-gray-600 hover:text-stone-600"
 						aria-label="메뉴 열기"
 						onclick={() => (mobileMenuOpen = !mobileMenuOpen)}
 					>
@@ -553,8 +553,8 @@
 					<!-- 로그인 상태 메뉴 -->
 					<div class="border-b border-gray-100 px-4 py-3">
 						<div class="flex items-center space-x-3">
-							<div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-								<span class="text-sm font-medium text-blue-800">
+							<div class="flex h-10 w-10 items-center justify-center rounded-full bg-stone-100">
+								<span class="text-sm font-medium text-stone-800">
 									{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
 								</span>
 							</div>

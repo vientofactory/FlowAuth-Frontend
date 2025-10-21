@@ -66,7 +66,7 @@
 		{required}
 		{name}
 		id={id || label}
-		class="w-full rounded-md border border-gray-300 bg-white transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none
+		class="w-full rounded-md border border-gray-300 bg-white transition-all duration-200 focus:border-stone-500 focus:ring-2 focus:ring-stone-500 focus:outline-none
            {sizeClasses[size]}
            {disabled ? 'cursor-not-allowed bg-gray-50' : ''} 
            {error ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}

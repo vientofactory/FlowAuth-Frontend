@@ -52,9 +52,9 @@
 			<div class="flex items-center">
 				<div
 					class="flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-semibold transition-all duration-300 {isCompleted
-						? 'border-green-500 bg-green-500 text-white'
+						? 'border-stone-500 bg-stone-500 text-white'
 						: isActive
-							? 'border-blue-500 bg-blue-500 text-white'
+							? 'border-neutral-500 bg-neutral-500 text-white'
 							: 'border-gray-300 bg-white text-gray-400'}"
 				>
 					{#if isCompleted}
@@ -66,7 +66,7 @@
 				{#if index < totalSteps - 1}
 					<div
 						class="mx-2 h-1 w-12 rounded-full transition-all duration-300 {stepNumber < currentStep
-							? 'bg-green-500'
+							? 'bg-stone-500'
 							: 'bg-gray-200'}"
 					></div>
 				{/if}
@@ -91,10 +91,10 @@
 				</div>
 			</div>
 		{:else}
-			<div class="mt-3 rounded-lg border border-green-200 bg-green-50 p-3">
+			<div class="mt-3 rounded-lg border border-stone-200 bg-stone-50 p-3">
 				<div class="flex items-center justify-center">
-					<i class="fas fa-check-circle mr-2 text-green-500"></i>
-					<p class="text-sm text-green-700">
+					<i class="fas fa-check-circle mr-2 text-stone-500"></i>
+					<p class="text-sm text-stone-700">
 						<strong>모든 요구사항이 충족되었습니다!</strong> 다음 단계로 진행할 수 있습니다.
 					</p>
 				</div>

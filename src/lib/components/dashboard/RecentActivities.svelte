@@ -37,15 +37,15 @@
 	function getActivityIcon(type: string): { icon: string; color: string } {
 		switch (type) {
 			case 'login':
-				return { icon: 'fas fa-sign-in-alt', color: 'bg-blue-100 text-blue-600' };
+				return { icon: 'fas fa-sign-in-alt', color: 'bg-stone-100 text-stone-600' };
 			case 'account_created':
-				return { icon: 'fas fa-user-plus', color: 'bg-emerald-100 text-emerald-600' };
+				return { icon: 'fas fa-user-plus', color: 'bg-neutral-100 text-neutral-600' };
 			case 'client_created':
-				return { icon: 'fas fa-plus', color: 'bg-purple-100 text-purple-600' };
+				return { icon: 'fas fa-plus', color: 'bg-gray-100 text-gray-600' };
 			case 'token_created':
-				return { icon: 'fas fa-key', color: 'bg-green-100 text-green-600' };
+				return { icon: 'fas fa-key', color: 'bg-slate-100 text-slate-600' };
 			case 'client_updated':
-				return { icon: 'fas fa-edit', color: 'bg-orange-100 text-orange-600' };
+				return { icon: 'fas fa-edit', color: 'bg-zinc-100 text-zinc-600' };
 			case 'token_revoked':
 				return { icon: 'fas fa-ban', color: 'bg-red-100 text-red-600' };
 			default:
@@ -145,7 +145,7 @@
 			{#if activities.length > 10}
 				<div class="mt-4 text-center">
 					<button
-						class="text-sm font-medium text-blue-600 hover:text-blue-800"
+						class="text-sm font-medium text-stone-600 hover:text-stone-800"
 						onclick={() => {
 							// TODO: 더 많은 활동 보기 페이지로 이동
 						}}

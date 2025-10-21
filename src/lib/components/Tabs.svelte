@@ -39,19 +39,19 @@
 		default: {
 			container: 'border-b border-gray-200',
 			tab: 'border-transparent border-b-2 hover:border-gray-300 hover:text-gray-700',
-			activeTab: 'border-blue-500 text-blue-600',
+			activeTab: 'border-stone-500 text-stone-600',
 			inactiveTab: 'text-gray-500'
 		},
 		pills: {
 			container: 'bg-gray-100 rounded-lg p-1',
 			tab: 'rounded-md transition-all duration-200',
-			activeTab: 'bg-white text-blue-600 shadow-sm',
+			activeTab: 'bg-white text-stone-600 shadow-sm',
 			inactiveTab: 'text-gray-600 hover:text-gray-900'
 		},
 		underline: {
 			container: 'border-b border-gray-200',
 			tab: 'border-transparent border-b-2 hover:border-gray-300',
-			activeTab: 'border-blue-500 text-blue-600',
+			activeTab: 'border-stone-500 text-stone-600',
 			inactiveTab: 'text-gray-500 hover:text-gray-700'
 		}
 	};
@@ -75,7 +75,7 @@
 						${variantClasses[variant].tab}
 						${activeTab === tab.id ? variantClasses[variant].activeTab : variantClasses[variant].inactiveTab}
 						${tab.disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
-						flex-shrink-0 font-medium whitespace-nowrap transition-colors duration-200 focus:ring-2 focus:ring-blue-500
+						flex-shrink-0 font-medium whitespace-nowrap transition-colors duration-200 focus:ring-2 focus:ring-stone-500
 						focus:ring-offset-2 focus:outline-none
 					`}
 					onclick={() => handleTabClick(tab)}

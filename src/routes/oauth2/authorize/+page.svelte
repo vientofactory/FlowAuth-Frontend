@@ -40,14 +40,14 @@
 	// 스코프 아이콘 색상 클래스 가져오기 함수
 	function getScopeColorClasses(color: string) {
 		const colorMap = {
-			blue: 'bg-blue-100 text-blue-600',
-			orange: 'bg-orange-100 text-orange-600',
-			green: 'bg-green-100 text-green-600',
-			purple: 'bg-purple-100 text-purple-600',
-			indigo: 'bg-indigo-100 text-indigo-600',
-			red: 'bg-red-100 text-red-600',
+			blue: 'bg-stone-100 text-stone-600',
+			orange: 'bg-neutral-100 text-neutral-600',
+			green: 'bg-gray-100 text-gray-600',
+			purple: 'bg-slate-100 text-slate-600',
+			indigo: 'bg-zinc-100 text-zinc-600',
+			red: 'bg-neutral-100 text-neutral-600',
 			gray: 'bg-gray-100 text-gray-600',
-			cyan: 'bg-cyan-100 text-cyan-600'
+			cyan: 'bg-stone-100 text-stone-600'
 		};
 
 		return colorMap[color as keyof typeof colorMap] || colorMap.gray;
@@ -190,7 +190,7 @@
 </svelte:head>
 
 <div
-	class="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 p-4"
+	class="flex min-h-screen items-center justify-center bg-gradient-to-br from-stone-50 to-gray-50 p-4"
 	role="main"
 	aria-labelledby="authorize-heading"
 >
@@ -262,7 +262,7 @@
 									{#if needsTruncation(currentState.client.description)}
 										<button
 											onclick={toggleDescription}
-											class="text-xs text-blue-600 transition-colors hover:text-blue-800 focus:outline-none"
+											class="text-xs text-stone-600 transition-colors hover:text-stone-800 focus:outline-none"
 										>
 											{isDescriptionExpanded ? '간략히 보기' : '더 보기'}
 										</button>
@@ -316,14 +316,14 @@
 					{/if}
 
 					<!-- 보안 알림 -->
-					<div class="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
+					<div class="mt-6 rounded-lg border border-stone-200 bg-stone-50 p-4">
 						<div class="flex items-start space-x-2">
-							<i class="fas fa-info-circle mt-0.5 text-sm text-amber-600"></i>
+							<i class="fas fa-info-circle mt-0.5 text-sm text-stone-600"></i>
 							<div>
-								<p class="mb-1 text-sm font-medium text-amber-800">
+								<p class="mb-1 text-sm font-medium text-stone-800">
 									신뢰할 수 있는 앱인지 확인하세요
 								</p>
-								<p class="text-xs text-amber-700">
+								<p class="text-xs text-stone-700">
 									승인 후 앱이 귀하의 데이터에 접근할 수 있습니다
 								</p>
 							</div>
@@ -345,7 +345,7 @@
 							<button
 								onclick={handleApprove}
 								disabled={currentState.submitting}
-								class="flex-1 cursor-pointer rounded-lg border border-transparent bg-green-600 px-4 py-3 text-sm font-medium text-white transition-all duration-200 hover:scale-[1.02] hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+								class="flex-1 cursor-pointer rounded-lg border border-transparent bg-stone-600 px-4 py-3 text-sm font-medium text-white transition-all duration-200 hover:scale-[1.02] hover:bg-stone-700 focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
 							>
 								{#if currentState.submitting}
 									<i class="fas fa-spinner fa-spin mr-2"></i>
@@ -366,12 +366,12 @@
 							</p>
 							<p class="text-xs text-gray-500">
 								애플리케이션의
-								{#if currentState.client?.termsOfServiceUri}
+								{#if currentState.client.termsOfServiceUri}
 									<a
 										href={currentState.client.termsOfServiceUri}
 										target="_blank"
 										rel="noopener noreferrer"
-										class="text-blue-700 transition-colors hover:text-blue-900"
+										class="text-stone-700 transition-colors hover:text-stone-900"
 									>
 										이용약관
 									</a>
@@ -379,12 +379,12 @@
 									이용약관
 								{/if}
 								과
-								{#if currentState.client?.policyUri}
+								{#if currentState.client.policyUri}
 									<a
 										href={currentState.client.policyUri}
 										target="_blank"
 										rel="noopener noreferrer"
-										class="text-blue-700 transition-colors hover:text-blue-900"
+										class="text-stone-700 transition-colors hover:text-stone-900"
 									>
 										개인정보처리방침
 									</a>
