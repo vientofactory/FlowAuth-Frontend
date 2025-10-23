@@ -85,10 +85,10 @@
 			<div class="mb-2 flex items-center gap-2">
 				<h3 class="text-lg font-semibold text-gray-900">
 					{#if token.tokenType === TOKEN_TYPES.LOGIN}
-						<i class="fas fa-sign-in-alt mr-2 text-blue-500"></i>
+						<i class="fas fa-sign-in-alt mr-2 text-stone-500"></i>
 						로그인 토큰
 					{:else}
-						<i class="fas fa-key mr-2 text-green-500"></i>
+						<i class="fas fa-key mr-2 text-neutral-500"></i>
 						OAuth2 토큰
 					{/if}
 				</h3>

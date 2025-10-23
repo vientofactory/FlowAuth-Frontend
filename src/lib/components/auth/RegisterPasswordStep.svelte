@@ -1,30 +1,27 @@
 <script lang="ts">
-	import { FormField } from '$lib';
+	import { FormField, getRequirementIcon, getRequirementStatus } from '$lib';
 	import type { FieldValidation } from '$lib/composables/useFormValidation.svelte';
+	import type { PasswordRequirements } from '$lib';
 
 	interface Props {
 		passwordField: FieldValidation;
 		confirmPasswordField: FieldValidation;
-		passwordRequirements: {
-			length: boolean;
-			lowercase: boolean;
-			uppercase: boolean;
-			number: boolean;
-			specialChar: boolean;
-		};
+		passwordRequirements: PasswordRequirements;
 		isLoading: boolean;
 		onKeyPress: (event: KeyboardEvent) => void;
 	}
 
-	let { passwordField, confirmPasswordField, passwordRequirements, isLoading, onKeyPress }: Props = $props();
+	let { passwordField, confirmPasswordField, passwordRequirements, isLoading, onKeyPress }: Props =
+		$props();
 
-	function getRequirementStatus(met: boolean) {
-		return met ? 'text-green-600' : 'text-gray-500';
-	}
-
-	function getRequirementIcon(met: boolean) {
-		return met ? '✓' : '○';
-	}
+	// 요구사항 목록 정의
+	const requirements = [
+		{ key: 'length' as const, label: '8자 이상' },
+		{ key: 'lowercase' as const, label: '소문자 포함' },
+		{ key: 'uppercase' as const, label: '대문자 포함' },
+		{ key: 'number' as const, label: '숫자 포함' },
+		{ key: 'specialChar' as const, label: '특수문자 포함' }
+	] as const;
 </script>
 
 <div class="space-y-6">
@@ -42,29 +39,17 @@
 		/>
 
 		<!-- 비밀번호 요구사항 -->
-		<div class="bg-gray-50 rounded-lg p-4">
-			<h4 class="text-sm font-medium text-gray-900 mb-3">비밀번호 요구사항</h4>
+		<div class="rounded-lg bg-gray-50 p-4">
+			<h4 class="mb-3 text-sm font-medium text-gray-900">비밀번호 요구사항</h4>
 			<div class="space-y-2 text-sm">
-				<div class={getRequirementStatus(passwordRequirements.length)}>
-					<span class="inline-block w-4">{getRequirementIcon(passwordRequirements.length)}</span>
-					8자 이상
-				</div>
-				<div class={getRequirementStatus(passwordRequirements.lowercase)}>
-					<span class="inline-block w-4">{getRequirementIcon(passwordRequirements.lowercase)}</span>
-					소문자 포함
-				</div>
-				<div class={getRequirementStatus(passwordRequirements.uppercase)}>
-					<span class="inline-block w-4">{getRequirementIcon(passwordRequirements.uppercase)}</span>
-					대문자 포함
-				</div>
-				<div class={getRequirementStatus(passwordRequirements.number)}>
-					<span class="inline-block w-4">{getRequirementIcon(passwordRequirements.number)}</span>
-					숫자 포함
-				</div>
-				<div class={getRequirementStatus(passwordRequirements.specialChar)}>
-					<span class="inline-block w-4">{getRequirementIcon(passwordRequirements.specialChar)}</span>
-					특수문자 포함
-				</div>
+				{#each requirements as { key, label } (key)}
+					<div class={getRequirementStatus(passwordRequirements[key])}>
+						<span class="inline-block w-4">
+							{@html getRequirementIcon(passwordRequirements[key])}
+						</span>
+						{label}
+					</div>
+				{/each}
 			</div>
 		</div>
 

@@ -32,7 +32,7 @@
 	<meta name="description" content="OAuth 2.0 표준을 준수하는 개방형 인증 시스템" />
 </svelte:head>
 
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-stone-50 to-neutral-100">
 	<div class="relative">
 		<!-- 배경 패턴 -->
 		<div
@@ -106,7 +106,7 @@
 				{:else if !isAuthenticated}
 					<!-- 비로그인 사용자용 히어로 -->
 					<div
-						class="mb-6 inline-flex items-center rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800"
+						class="mb-6 inline-flex items-center rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-700"
 					>
 						<i class="fas fa-shield-alt mr-2"></i>
 						OAuth 2.0 & OpenID Connect
@@ -115,7 +115,7 @@
 					<h1 class="mb-6 text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
 						<span class="block">안전한 인증,</span>
 						<span
-							class="block bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent"
+							class="block bg-gradient-to-r from-stone-600 via-gray-600 to-slate-600 bg-clip-text text-transparent"
 						>
 							간편한 통합
 						</span>
@@ -159,20 +159,29 @@
 						<div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
 							<div class="group text-center">
 								<div
-									class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
+									class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-stone-500 to-stone-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
 								>
 									<i class="fas fa-shield-alt text-2xl text-white"></i>
 								</div>
-								<h3 class="mb-3 text-xl font-bold text-slate-900">군사급 보안</h3>
-								<p class="text-slate-600">
-									JWT 토큰과 bcrypt 해싱으로<br />
-									최고 수준의 보안을 제공합니다
+								<h3 class="mb-3 text-xl font-bold text-slate-900">다중화된 보안 계층</h3>
+								<p class="mb-2 text-slate-600">
+									다중화된 보안 계층으로 <br />
+									귀하의 데이터를 안전하게 보호합니다
 								</p>
+								<a
+									href="https://op0.gitbook.io/flowauth/security"
+									target="_blank"
+									rel="noopener"
+									class="inline-flex items-center gap-2 text-sm font-medium text-stone-600 hover:text-stone-700 hover:underline"
+								>
+									<i class="fas fa-external-link-alt"></i>
+									보안 문서 보기
+								</a>
 							</div>
 
 							<div class="group text-center">
 								<div
-									class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-green-500 to-green-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
+									class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-neutral-500 to-neutral-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
 								>
 									<i class="fas fa-bolt text-2xl text-white"></i>
 								</div>
@@ -185,7 +194,7 @@
 
 							<div class="group text-center">
 								<div
-									class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-purple-500 to-purple-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
+									class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-gray-500 to-gray-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
 								>
 									<i class="fas fa-chart-line text-2xl text-white"></i>
 								</div>
@@ -198,7 +207,7 @@
 
 							<div class="group text-center">
 								<div
-									class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-indigo-500 to-indigo-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
+									class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-slate-500 to-slate-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
 								>
 									<i class="fas fa-code-branch text-2xl text-white"></i>
 								</div>
@@ -222,13 +231,13 @@
 
 						<div class="relative">
 							<div
-								class="absolute top-8 left-1/2 hidden h-0.5 w-full -translate-x-1/2 transform bg-gradient-to-r from-blue-200 via-purple-200 to-indigo-200 lg:block"
+								class="absolute top-8 left-1/2 hidden h-0.5 w-full -translate-x-1/2 transform bg-gradient-to-r from-stone-200 via-gray-200 to-neutral-200 lg:block"
 							></div>
 
 							<div class="grid gap-12 lg:grid-cols-3">
 								<div class="relative text-center lg:text-left">
 									<div
-										class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg lg:mx-0"
+										class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-stone-500 to-stone-600 text-white shadow-lg lg:mx-0"
 									>
 										<span class="text-2xl font-bold">1</span>
 									</div>
@@ -241,7 +250,7 @@
 
 								<div class="relative text-center lg:text-left">
 									<div
-										class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg lg:mx-0"
+										class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-neutral-500 to-neutral-600 text-white shadow-lg lg:mx-0"
 									>
 										<span class="text-2xl font-bold">2</span>
 									</div>
@@ -254,7 +263,7 @@
 										href="https://github.com/vientofactory/FlowAuth-SDK"
 										target="_blank"
 										rel="noopener"
-										class="inline-flex items-center gap-2 text-sm font-medium text-purple-700 hover:underline"
+										class="inline-flex items-center gap-2 text-sm font-medium text-slate-700 hover:underline"
 									>
 										<i class="fab fa-github"></i>
 										클라이언트 SDK
@@ -263,7 +272,7 @@
 
 								<div class="relative text-center lg:text-left">
 									<div
-										class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg lg:mx-0"
+										class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-gray-500 to-gray-600 text-white shadow-lg lg:mx-0"
 									>
 										<span class="text-2xl font-bold">3</span>
 									</div>
@@ -279,7 +288,7 @@
 				{:else}
 					<!-- 로그인 사용자용 히어로 -->
 					<div
-						class="mb-6 inline-flex items-center rounded-full bg-green-100 px-4 py-2 text-sm font-medium text-green-800"
+						class="mb-6 inline-flex items-center rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-700"
 					>
 						<i class="fas fa-check-circle mr-2"></i>
 						환영합니다, {user?.username || '사용자'}님
@@ -288,7 +297,7 @@
 					<h1 class="mb-6 text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
 						<span class="block">안전한 인증,</span>
 						<span
-							class="block bg-gradient-to-r from-green-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent"
+							class="block bg-gradient-to-r from-stone-600 via-gray-600 to-slate-600 bg-clip-text text-transparent"
 						>
 							지속적인 관리
 						</span>
@@ -334,7 +343,7 @@
 								class="group flex cursor-pointer flex-col items-center rounded-2xl border-0 bg-white/80 p-8 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
 							>
 								<div
-									class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 transition-transform duration-300 group-hover:scale-110"
+									class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-r from-stone-500 to-stone-600 transition-transform duration-300 group-hover:scale-110"
 								>
 									<i class="fas fa-tachometer-alt text-2xl text-white"></i>
 								</div>
@@ -346,7 +355,7 @@
 								class="group flex cursor-pointer flex-col items-center rounded-2xl border-0 bg-white/80 p-8 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
 							>
 								<div
-									class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-r from-green-500 to-green-600 transition-transform duration-300 group-hover:scale-110"
+									class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-r from-neutral-500 to-neutral-600 transition-transform duration-300 group-hover:scale-110"
 								>
 									<i class="fas fa-user text-2xl text-white"></i>
 								</div>
@@ -358,7 +367,7 @@
 								class="group flex cursor-pointer flex-col items-center rounded-2xl border-0 bg-white/80 p-8 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
 							>
 								<div
-									class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 transition-transform duration-300 group-hover:scale-110"
+									class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-r from-gray-500 to-gray-600 transition-transform duration-300 group-hover:scale-110"
 								>
 									<i class="fas fa-plug text-2xl text-white"></i>
 								</div>
@@ -371,7 +380,7 @@
 									class="group flex cursor-pointer flex-col items-center rounded-2xl border-0 bg-white/80 p-8 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
 								>
 									<div
-										class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 transition-transform duration-300 group-hover:scale-110"
+										class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-r from-slate-500 to-slate-600 transition-transform duration-300 group-hover:scale-110"
 									>
 										<i class="fas fa-cubes text-2xl text-white"></i>
 									</div>
@@ -383,7 +392,7 @@
 									class="group flex cursor-pointer flex-col items-center rounded-2xl border-0 bg-white/80 p-8 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
 								>
 									<div
-										class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 transition-transform duration-300 group-hover:scale-110"
+										class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-r from-zinc-500 to-zinc-600 transition-transform duration-300 group-hover:scale-110"
 									>
 										<i class="fas fa-cog text-2xl text-white"></i>
 									</div>

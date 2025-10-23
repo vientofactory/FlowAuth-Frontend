@@ -76,14 +76,14 @@
 					label: '클라이언트',
 					value: dashboardStats.totalClients,
 					icon: 'fas fa-users',
-					color: 'from-blue-500 to-blue-600',
+					color: 'from-stone-500 to-stone-600',
 					show: isDeveloper
 				},
 				{
 					label: '토큰',
 					value: dashboardStats.activeTokens,
 					icon: 'fas fa-key',
-					color: 'from-green-500 to-green-600',
+					color: 'from-neutral-500 to-neutral-600',
 					show: true
 				},
 				{
@@ -95,21 +95,21 @@
 							})
 						: 'N/A',
 					icon: 'fas fa-clock',
-					color: 'from-purple-500 to-purple-600',
+					color: 'from-gray-500 to-gray-600',
 					show: true
 				},
 				{
 					label: '계정',
 					value: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('ko-KR') : 'N/A',
 					icon: 'fas fa-calendar',
-					color: 'from-orange-500 to-orange-600',
+					color: 'from-slate-500 to-slate-600',
 					show: true
 				},
 				{
 					label: '권한',
 					value: $roleName,
 					icon: 'fas fa-shield-alt',
-					color: 'from-red-500 to-red-600',
+					color: 'from-zinc-500 to-zinc-600',
 					show: true
 				}
 			].filter((stat) => stat.show),
@@ -269,24 +269,24 @@
 	// 색상 설정 상수
 	const COLOR_CLASSES = {
 		blue: {
-			hover: 'hover:border-blue-500 hover:bg-blue-50',
-			background: 'bg-blue-100 group-hover:bg-blue-200',
-			text: 'text-blue-600'
+			hover: 'hover:border-stone-400 hover:bg-stone-50',
+			background: 'bg-stone-100 group-hover:bg-stone-200',
+			text: 'text-stone-600'
 		},
 		green: {
-			hover: 'hover:border-green-500 hover:bg-green-50',
-			background: 'bg-green-100 group-hover:bg-green-200',
-			text: 'text-green-600'
+			hover: 'hover:border-neutral-400 hover:bg-neutral-50',
+			background: 'bg-neutral-100 group-hover:bg-neutral-200',
+			text: 'text-neutral-600'
 		},
 		purple: {
-			hover: 'hover:border-purple-500 hover:bg-purple-50',
-			background: 'bg-purple-100 group-hover:bg-purple-200',
-			text: 'text-purple-600'
+			hover: 'hover:border-gray-400 hover:bg-gray-50',
+			background: 'bg-gray-100 group-hover:bg-gray-200',
+			text: 'text-gray-600'
 		},
 		orange: {
-			hover: 'hover:border-orange-500 hover:bg-orange-50',
-			background: 'bg-orange-100 group-hover:bg-orange-200',
-			text: 'text-orange-600'
+			hover: 'hover:border-slate-400 hover:bg-slate-50',
+			background: 'bg-slate-100 group-hover:bg-slate-200',
+			text: 'text-slate-600'
 		}
 	} as const;
 
@@ -347,7 +347,7 @@
 	{#if isDashboardLoading}
 		<DashboardSkeleton type="stats" />
 	{:else if userTypeConfig}
-		<StatsCards {dashboardStats} {user} {isDeveloper} roleName={$roleName} {navigateToClients} />
+		<StatsCards {dashboardStats} {user} {isDeveloper} roleName={$roleName} />
 	{/if}
 
 	<!-- 탭 인터페이스 -->
@@ -363,7 +363,7 @@
 					{#if isDashboardLoading}
 						<!-- 사용자 정보 카드 스켈레톤 -->
 						<div
-							class="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 p-6 shadow-sm ring-1 ring-blue-100"
+							class="relative overflow-hidden rounded-xl bg-gradient-to-r from-stone-50 to-gray-50 p-6 shadow-sm ring-1 ring-stone-100"
 						>
 							<div class="relative">
 								<div
@@ -371,32 +371,32 @@
 								>
 									<div class="flex-1">
 										<div class="mb-4 flex items-center text-lg font-semibold">
-											<div class="mr-3 h-8 w-8 animate-pulse rounded-lg bg-blue-200"></div>
-											<div class="h-6 w-24 animate-pulse rounded bg-blue-200"></div>
+											<div class="mr-3 h-8 w-8 animate-pulse rounded-lg bg-gray-200"></div>
+											<div class="h-6 w-24 animate-pulse rounded bg-gray-200"></div>
 										</div>
 										<div class="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
 											{#each Array(5) as _, i (i)}
 												<div
 													class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm"
 												>
-													<div class="h-8 w-8 animate-pulse rounded-lg bg-blue-200"></div>
+													<div class="h-8 w-8 animate-pulse rounded-lg bg-gray-200"></div>
 													<div>
-														<div class="mb-1 h-3 w-16 animate-pulse rounded bg-blue-200"></div>
-														<div class="h-4 w-20 animate-pulse rounded bg-blue-100"></div>
+														<div class="mb-1 h-3 w-16 animate-pulse rounded bg-gray-200"></div>
+														<div class="h-4 w-20 animate-pulse rounded bg-gray-100"></div>
 													</div>
 												</div>
 											{/each}
 										</div>
 									</div>
 									<div class="mt-4 flex justify-center sm:mt-0 sm:justify-end">
-										<div class="h-10 w-24 animate-pulse rounded bg-blue-200"></div>
+										<div class="h-10 w-24 animate-pulse rounded bg-gray-200"></div>
 									</div>
 								</div>
 							</div>
 						</div>
 					{:else if user}
 						<div
-							class="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 p-6 shadow-sm ring-1 ring-blue-100"
+							class="relative overflow-hidden rounded-xl bg-gradient-to-r from-stone-50 to-gray-50 p-6 shadow-sm ring-1 ring-stone-100"
 						>
 							<div class="relative">
 								<div
@@ -405,9 +405,9 @@
 									<div class="flex-1">
 										<h3 class="mb-4 flex items-center text-lg font-semibold text-gray-900">
 											<div
-												class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100"
+												class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100"
 											>
-												<i class="fas fa-user text-blue-600"></i>
+												<i class="fas fa-user text-stone-600"></i>
 											</div>
 											계정 정보
 										</h3>
@@ -416,9 +416,9 @@
 												class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm"
 											>
 												<div
-													class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100"
+													class="flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100"
 												>
-													<i class="fas fa-user text-blue-600"></i>
+													<i class="fas fa-user text-stone-600"></i>
 												</div>
 												<div>
 													<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
@@ -431,9 +431,9 @@
 												class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm"
 											>
 												<div
-													class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100"
+													class="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-100"
 												>
-													<i class="fas fa-envelope text-green-600"></i>
+													<i class="fas fa-envelope text-neutral-600"></i>
 												</div>
 												<div>
 													<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
@@ -446,9 +446,9 @@
 												class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm sm:col-span-2 lg:col-span-1"
 											>
 												<div
-													class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100"
+													class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100"
 												>
-													<i class="fas fa-id-card text-purple-600"></i>
+													<i class="fas fa-id-card text-gray-600"></i>
 												</div>
 												<div>
 													<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
@@ -460,8 +460,10 @@
 											<div
 												class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm"
 											>
-												<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100">
-													<i class="fas fa-shield-alt text-red-600"></i>
+												<div
+													class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100"
+												>
+													<i class="fas fa-shield-alt text-slate-600"></i>
 												</div>
 												<div>
 													<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
@@ -484,16 +486,16 @@
 												class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm"
 											>
 												<div
-													class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100"
+													class="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100"
 												>
-													<i class="fas fa-user-tag text-orange-600"></i>
+													<i class="fas fa-user-tag text-zinc-600"></i>
 												</div>
 												<div>
 													<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
 														유형
 													</p>
 													<Badge
-														variant={user.userType === USER_TYPES.DEVELOPER ? 'success' : 'info'}
+														variant={user.userType === USER_TYPES.DEVELOPER ? 'secondary' : 'info'}
 														size="sm"
 														class="font-medium"
 													>
@@ -507,7 +509,7 @@
 										<Button
 											variant="outline"
 											onclick={navigateToProfile}
-											class="w-full transition-colors hover:border-blue-200 hover:bg-blue-50 sm:w-auto"
+											class="w-full transition-colors hover:border-stone-200 hover:bg-stone-50 sm:w-auto"
 										>
 											<i class="fas fa-edit mr-2"></i>
 											프로필 편집
@@ -548,11 +550,11 @@
 						</div>
 					{:else}
 						<!-- 인사이트 카드 -->
-						<Card class="border-l-4 border-l-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50">
+						<Card class="border-l-4 border-l-stone-400 bg-gradient-to-r from-stone-50 to-gray-50">
 							<div class="flex items-start space-x-4">
 								<div class="flex-shrink-0">
-									<div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-										<i class="fas fa-lightbulb text-xl text-blue-600"></i>
+									<div class="flex h-12 w-12 items-center justify-center rounded-full bg-stone-100">
+										<i class="fas fa-lightbulb text-xl text-stone-600"></i>
 									</div>
 								</div>
 								<div class="flex-1">
@@ -560,12 +562,12 @@
 									<div class="grid gap-4 md:grid-cols-3">
 										{#if dashboardStats.insights.trends}
 											<div
-												class="flex items-start space-x-3 rounded-lg border border-blue-200 bg-white p-3"
+												class="flex items-start space-x-3 rounded-lg border border-stone-200 bg-white p-3"
 											>
 												<div
-													class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100"
+													class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-stone-100"
 												>
-													<i class="fas fa-chart-line text-blue-600"></i>
+													<i class="fas fa-chart-line text-stone-600"></i>
 												</div>
 												<div class="min-w-0">
 													<p class="text-sm font-medium text-gray-900">트렌드 분석</p>
@@ -575,12 +577,12 @@
 										{/if}
 										{#if dashboardStats.insights.recommendations}
 											<div
-												class="flex items-start space-x-3 rounded-lg border border-green-200 bg-white p-3"
+												class="flex items-start space-x-3 rounded-lg border border-neutral-200 bg-white p-3"
 											>
 												<div
-													class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-100"
+													class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-neutral-100"
 												>
-													<i class="fas fa-check-circle text-green-600"></i>
+													<i class="fas fa-check-circle text-neutral-600"></i>
 												</div>
 												<div class="min-w-0">
 													<p class="text-sm font-medium text-gray-900">권장사항</p>
@@ -592,12 +594,12 @@
 										{/if}
 										{#if dashboardStats.insights.alerts}
 											<div
-												class="flex items-start space-x-3 rounded-lg border border-red-200 bg-white p-3"
+												class="flex items-start space-x-3 rounded-lg border border-gray-200 bg-white p-3"
 											>
 												<div
-													class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-red-100"
+													class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-100"
 												>
-													<i class="fas fa-exclamation-triangle text-red-600"></i>
+													<i class="fas fa-exclamation-triangle text-gray-600"></i>
 												</div>
 												<div class="min-w-0">
 													<p class="text-sm font-medium text-gray-900">주의사항</p>
@@ -623,7 +625,7 @@
 							<Card class="transition-shadow duration-300 hover:shadow-lg">
 								<div class="mb-4 flex items-center justify-between">
 									<h3 class="text-lg font-semibold text-gray-900">
-										<i class="fas fa-clock mr-2 text-blue-600"></i>
+										<i class="fas fa-clock mr-2 text-stone-600"></i>
 										24시간 토큰 발급 추이
 									</h3>
 									<Badge variant="info" size="sm">실시간</Badge>
@@ -717,10 +719,10 @@
 							<Card class="transition-shadow duration-300 hover:shadow-lg">
 								<div class="mb-4 flex items-center justify-between">
 									<h3 class="text-lg font-semibold text-gray-900">
-										<i class="fas fa-calendar mr-2 text-green-600"></i>
+										<i class="fas fa-calendar mr-2 text-neutral-600"></i>
 										30일 토큰 발급 추이
 									</h3>
-									<Badge variant="success" size="sm">
+									<Badge variant="info" size="sm">
 										{dashboardStats.tokenIssuanceByDay.filter((d) => d.count > 0).length}일 활동
 									</Badge>
 								</div>
@@ -829,7 +831,7 @@
 							<Card class="transition-shadow duration-300 hover:shadow-lg">
 								<div class="mb-4 flex items-center justify-between">
 									<h3 class="text-lg font-semibold text-gray-900">
-										<i class="fas fa-users mr-2 text-purple-600"></i>
+										<i class="fas fa-users mr-2 text-gray-600"></i>
 										클라이언트별 토큰 사용량
 									</h3>
 									<Badge variant="secondary" size="sm">
@@ -920,10 +922,10 @@
 							<Card class="transition-shadow duration-300 hover:shadow-lg">
 								<div class="mb-4 flex items-center justify-between">
 									<h3 class="text-lg font-semibold text-gray-900">
-										<i class="fas fa-shield-alt mr-2 text-orange-600"></i>
+										<i class="fas fa-shield-alt mr-2 text-slate-600"></i>
 										스코프별 사용 통계
 									</h3>
-									<Badge variant="warning" size="sm">
+									<Badge variant="secondary" size="sm">
 										{dashboardStats.scopeUsageStats.length}개 스코프
 									</Badge>
 								</div>
@@ -962,7 +964,7 @@
 													</div>
 													<div class="h-3 w-full rounded-full bg-gray-200">
 														<div
-															class="h-3 rounded-full bg-gradient-to-r from-orange-400 to-orange-600 transition-all duration-1000 ease-out"
+															class="h-3 rounded-full bg-gradient-to-r from-stone-400 to-stone-600 transition-all duration-1000 ease-out"
 															style="width: {scope.percentage}%"
 														></div>
 													</div>
@@ -987,64 +989,64 @@
 						<!-- 통계 요약 카드들 -->
 						<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 							<Card
-								class="border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 text-center transition-shadow hover:shadow-md"
+								class="border-stone-200 bg-gradient-to-br from-stone-50 to-stone-100 text-center transition-shadow hover:shadow-md"
 							>
 								<div class="p-4">
 									<div class="mb-3 flex items-center justify-center">
-										<i class="fas fa-key text-3xl text-blue-600"></i>
+										<i class="fas fa-key text-3xl text-stone-600"></i>
 									</div>
-									<p class="mb-1 text-3xl font-bold text-blue-900">
+									<p class="mb-1 text-3xl font-bold text-stone-900">
 										{dashboardStats.totalTokensIssued.toLocaleString()}
 									</p>
-									<p class="text-sm font-medium text-blue-700">총 토큰 발급</p>
-									<p class="mt-1 text-xs text-blue-600">누적 발급량</p>
+									<p class="text-sm font-medium text-stone-700">총 토큰 발급</p>
+									<p class="mt-1 text-xs text-stone-600">누적 발급량</p>
 								</div>
 							</Card>
 
 							<Card
-								class="border-red-200 bg-gradient-to-br from-red-50 to-red-100 text-center transition-shadow hover:shadow-md"
+								class="border-neutral-200 bg-gradient-to-br from-neutral-50 to-neutral-100 text-center transition-shadow hover:shadow-md"
 							>
 								<div class="p-4">
 									<div class="mb-3 flex items-center justify-center">
-										<i class="fas fa-clock text-3xl text-red-600"></i>
+										<i class="fas fa-clock text-3xl text-neutral-600"></i>
 									</div>
-									<p class="mb-1 text-3xl font-bold text-red-900">
+									<p class="mb-1 text-3xl font-bold text-neutral-900">
 										{dashboardStats.expiredTokens.toLocaleString()}
 									</p>
-									<p class="text-sm font-medium text-red-700">만료된 토큰</p>
-									<p class="mt-1 text-xs text-red-600">
+									<p class="text-sm font-medium text-neutral-700">만료된 토큰</p>
+									<p class="mt-1 text-xs text-neutral-600">
 										{dashboardStats.tokenExpirationRate.toFixed(1)}% 만료율
 									</p>
 								</div>
 							</Card>
 
 							<Card
-								class="border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100 text-center transition-shadow hover:shadow-md"
+								class="border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 text-center transition-shadow hover:shadow-md"
 							>
 								<div class="p-4">
 									<div class="mb-3 flex items-center justify-center">
-										<i class="fas fa-ban text-3xl text-orange-600"></i>
+										<i class="fas fa-ban text-3xl text-gray-600"></i>
 									</div>
-									<p class="mb-1 text-3xl font-bold text-orange-900">
+									<p class="mb-1 text-3xl font-bold text-gray-900">
 										{dashboardStats.revokedTokens.toLocaleString()}
 									</p>
-									<p class="text-sm font-medium text-orange-700">취소된 토큰</p>
-									<p class="mt-1 text-xs text-orange-600">보안 조치</p>
+									<p class="text-sm font-medium text-gray-700">취소된 토큰</p>
+									<p class="mt-1 text-xs text-gray-600">보안 조치</p>
 								</div>
 							</Card>
 
 							<Card
-								class="border-green-200 bg-gradient-to-br from-green-50 to-green-100 text-center transition-shadow hover:shadow-md"
+								class="border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 text-center transition-shadow hover:shadow-md"
 							>
 								<div class="p-4">
 									<div class="mb-3 flex items-center justify-center">
-										<i class="fas fa-percentage text-3xl text-green-600"></i>
+										<i class="fas fa-percentage text-3xl text-slate-600"></i>
 									</div>
-									<p class="mb-1 text-3xl font-bold text-green-900">
+									<p class="mb-1 text-3xl font-bold text-slate-900">
 										{dashboardStats.tokenExpirationRate.toFixed(1)}%
 									</p>
-									<p class="text-sm font-medium text-green-700">만료율</p>
-									<p class="mt-1 text-xs text-green-600">전체 대비</p>
+									<p class="text-sm font-medium text-slate-700">만료율</p>
+									<p class="mt-1 text-xs text-slate-600">전체 대비</p>
 								</div>
 							</Card>
 						</div>
@@ -1060,15 +1062,15 @@
 			{:else if activeTab === 'quick-actions'}
 				<!-- 빠른 작업 탭 -->
 				<div
-					class="relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 p-6 shadow-sm ring-1 ring-purple-100"
+					class="relative overflow-hidden rounded-xl bg-gradient-to-r from-stone-50 to-gray-50 p-6 shadow-sm ring-1 ring-stone-100"
 				>
 					<div class="relative">
 						<div class="mb-6 text-center sm:text-left">
 							<h3
 								class="mb-2 flex items-center justify-center text-lg font-semibold text-gray-900 sm:justify-start"
 							>
-								<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
-									<i class="fas fa-bolt text-purple-600"></i>
+								<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100">
+									<i class="fas fa-bolt text-stone-600"></i>
 								</div>
 								빠른 작업
 							</h3>
@@ -1097,7 +1099,7 @@
 													></i>
 												</div>
 												<div
-													class="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 opacity-0 transition-opacity group-hover:opacity-100"
+													class="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-gradient-to-br from-stone-400 to-gray-500 opacity-0 transition-opacity group-hover:opacity-100"
 												></div>
 											</div>
 											<span

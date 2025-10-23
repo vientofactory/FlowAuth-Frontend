@@ -96,12 +96,12 @@
 										<div class="flex flex-col">
 											<i
 												class="fas fa-caret-up text-xs"
-												class:text-blue-600={sortColumn === column.key && sortDirection === 'asc'}
+												class:text-stone-600={sortColumn === column.key && sortDirection === 'asc'}
 												class:text-gray-400={sortColumn !== column.key || sortDirection !== 'asc'}
 											></i>
 											<i
 												class="fas fa-caret-down -mt-1 text-xs"
-												class:text-blue-600={sortColumn === column.key && sortDirection === 'desc'}
+												class:text-stone-600={sortColumn === column.key && sortDirection === 'desc'}
 												class:text-gray-400={sortColumn !== column.key || sortDirection !== 'desc'}
 											></i>
 										</div>

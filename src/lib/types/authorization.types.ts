@@ -1,4 +1,5 @@
 import type { Client } from '$lib/types/oauth.types';
+import type { User } from '$lib/types/user.types';
 
 export const TOKEN_TYPES = {
 	LOGIN: 'login',
@@ -21,6 +22,7 @@ export interface AuthorizationState {
 	client: Client | null;
 	scopes: string[];
 	loadingProgress: number;
+	currentUser: User | null;
 }
 
 export interface AuthorizationError {

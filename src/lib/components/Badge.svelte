@@ -19,11 +19,11 @@
 
 	const variantClasses = {
 		default: 'bg-gray-100 text-gray-800',
-		success: 'bg-green-100 text-green-800',
-		warning: 'bg-yellow-100 text-yellow-800',
+		success: 'bg-neutral-100 text-neutral-800',
+		warning: 'bg-amber-100 text-amber-800',
 		error: 'bg-red-100 text-red-800',
-		info: 'bg-blue-100 text-blue-800',
-		secondary: 'bg-purple-100 text-purple-800'
+		info: 'bg-stone-100 text-stone-800',
+		secondary: 'bg-slate-100 text-slate-800'
 	};
 
 	const sizeClasses = {

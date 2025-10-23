@@ -10,9 +10,9 @@
 		userType: string;
 	}
 
-	let { 
-		termsAccepted = $bindable(), 
-		privacyAccepted = $bindable(), 
+	let {
+		termsAccepted = $bindable(),
+		privacyAccepted = $bindable(),
 		isLoading,
 		firstName,
 		lastName,
@@ -25,17 +25,17 @@
 	function getUserTypeDisplay(type: string): { label: string; badge: string; badgeColor: string } {
 		switch (type) {
 			case 'DEVELOPER':
-				return { 
-					label: '개발자', 
-					badge: '고급', 
-					badgeColor: 'bg-green-100 text-green-800' 
+				return {
+					label: '개발자',
+					badge: '고급',
+					badgeColor: 'bg-neutral-100 text-neutral-800'
 				};
 			case 'REGULAR':
 			default:
-				return { 
-					label: '일반 사용자', 
-					badge: '기본', 
-					badgeColor: 'bg-blue-100 text-blue-800' 
+				return {
+					label: '일반 사용자',
+					badge: '기본',
+					badgeColor: 'bg-stone-100 text-stone-800'
 				};
 		}
 	}
@@ -45,27 +45,29 @@
 
 <div class="space-y-6">
 	<!-- 입력 정보 요약 -->
-	<div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-		<h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-			<i class="fas fa-user-check mr-2 text-blue-600"></i>
+	<div class="rounded-lg border border-stone-200 bg-stone-50 p-4">
+		<h3 class="mb-4 flex items-center text-lg font-semibold text-gray-900">
+			<i class="fas fa-user-check mr-2 text-stone-600"></i>
 			입력하신 정보를 확인해주세요
 		</h3>
-		
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 			<!-- 기본 정보 -->
 			<div class="space-y-3">
-				<div class="bg-white rounded-lg p-3 border border-blue-100">
-					<h4 class="text-sm font-medium text-gray-700 mb-2">기본 정보</h4>
+				<div class="rounded-lg border border-stone-100 bg-white p-3">
+					<h4 class="mb-2 text-sm font-medium text-gray-700">기본 정보</h4>
 					<div class="space-y-2 text-sm">
 						<div class="flex justify-between">
 							<span class="text-gray-600">이름:</span>
 							<span class="font-medium text-gray-900">{firstName} {lastName}</span>
 						</div>
-						<div class="flex justify-between items-center">
+						<div class="flex items-center justify-between">
 							<span class="text-gray-600">사용자 유형:</span>
 							<div class="flex items-center space-x-2">
 								<span class="font-medium text-gray-900">{userTypeInfo.label}</span>
-								<span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {userTypeInfo.badgeColor}">
+								<span
+									class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {userTypeInfo.badgeColor}"
+								>
 									{userTypeInfo.badge}
 								</span>
 							</div>
@@ -76,8 +78,8 @@
 
 			<!-- 계정 정보 -->
 			<div class="space-y-3">
-				<div class="bg-white rounded-lg p-3 border border-blue-100">
-					<h4 class="text-sm font-medium text-gray-700 mb-2">계정 정보</h4>
+				<div class="rounded-lg border border-neutral-100 bg-white p-3">
+					<h4 class="mb-2 text-sm font-medium text-gray-700">계정 정보</h4>
 					<div class="space-y-2 text-sm">
 						<div class="flex justify-between">
 							<span class="text-gray-600">사용자명:</span>
@@ -85,19 +87,19 @@
 						</div>
 						<div class="flex justify-between">
 							<span class="text-gray-600">이메일:</span>
-							<span class="font-medium text-gray-900 break-all">{email}</span>
+							<span class="font-medium break-all text-gray-900">{email}</span>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="mt-4 p-3 bg-white rounded-lg border border-blue-100">
+		<div class="mt-4 rounded-lg border border-gray-100 bg-white p-3">
 			<div class="flex items-start space-x-2">
-				<i class="fas fa-info-circle text-blue-500 mt-0.5"></i>
+				<i class="fas fa-info-circle mt-0.5 text-gray-500"></i>
 				<div class="text-sm text-gray-600">
-					<strong>안내:</strong> 회원가입 완료 후 위 정보는 프로필 페이지에서 수정할 수 있습니다. 
-					단, 사용자 유형은 변경할 수 없으니 신중히 선택해주세요.
+					<strong>안내:</strong> 회원가입 완료 후 위 정보는 프로필 페이지에서 수정할 수 있습니다. 단,
+					사용자 유형은 변경할 수 없으니 신중히 선택해주세요.
 				</div>
 			</div>
 		</div>
@@ -105,39 +107,33 @@
 
 	<div class="space-y-4">
 		<!-- 서비스 이용약관 -->
-		<div class="border border-gray-200 rounded-lg p-4">
-			<label class="flex items-start space-x-3 cursor-pointer">
+		<div class="rounded-lg border border-gray-200 p-4">
+			<label class="flex cursor-pointer items-start space-x-3">
 				<input
 					type="checkbox"
 					bind:checked={termsAccepted}
 					disabled={isLoading}
-					class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
+					class="mt-1 h-4 w-4 rounded border-gray-300 text-stone-600 focus:ring-stone-500 disabled:opacity-50"
 				/>
 				<div class="min-w-0 flex-1">
-					<div class="text-sm font-medium text-gray-900">
-						서비스 이용약관 동의 (필수)
-					</div>
-					<div class="text-xs text-gray-500 mt-1">
-						FlowAuth 서비스 이용을 위한 필수 약관입니다.
-					</div>
+					<div class="text-sm font-medium text-gray-900">서비스 이용약관 동의 (필수)</div>
+					<div class="mt-1 text-xs text-gray-500">FlowAuth 서비스 이용을 위한 필수 약관입니다.</div>
 				</div>
 			</label>
 		</div>
 
 		<!-- 개인정보 처리방침 -->
-		<div class="border border-gray-200 rounded-lg p-4">
-			<label class="flex items-start space-x-3 cursor-pointer">
+		<div class="rounded-lg border border-gray-200 p-4">
+			<label class="flex cursor-pointer items-start space-x-3">
 				<input
 					type="checkbox"
 					bind:checked={privacyAccepted}
 					disabled={isLoading}
-					class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
+					class="mt-1 h-4 w-4 rounded border-gray-300 text-neutral-600 focus:ring-neutral-500 disabled:opacity-50"
 				/>
 				<div class="min-w-0 flex-1">
-					<div class="text-sm font-medium text-gray-900">
-						개인정보 처리방침 동의 (필수)
-					</div>
-					<div class="text-xs text-gray-500 mt-1">
+					<div class="text-sm font-medium text-gray-900">개인정보 처리방침 동의 (필수)</div>
+					<div class="mt-1 text-xs text-gray-500">
 						개인정보 수집 및 이용에 대한 필수 동의입니다.
 					</div>
 				</div>
@@ -146,7 +142,7 @@
 
 		<!-- 전체 동의 -->
 		<div class="border-t border-gray-200 pt-4">
-			<label class="flex items-center space-x-3 cursor-pointer">
+			<label class="flex cursor-pointer items-center space-x-3">
 				<input
 					type="checkbox"
 					checked={termsAccepted && privacyAccepted}
@@ -156,11 +152,9 @@
 						privacyAccepted = checked;
 					}}
 					disabled={isLoading}
-					class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
+					class="h-4 w-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500 disabled:opacity-50"
 				/>
-				<span class="text-sm font-medium text-gray-900">
-					전체 약관에 동의합니다
-				</span>
+				<span class="text-sm font-medium text-gray-900"> 전체 약관에 동의합니다 </span>
 			</label>
 		</div>
 	</div>

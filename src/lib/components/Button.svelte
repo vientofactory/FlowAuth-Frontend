@@ -36,21 +36,23 @@
 	{title}
 	class="inline-flex cursor-pointer items-center justify-center rounded-md border-none font-medium transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none
          {variant === 'primary'
-		? 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
+		? 'bg-stone-600 text-white hover:bg-stone-700 focus:ring-stone-500'
 		: ''}
          {variant === 'secondary'
-		? 'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500'
+		? 'bg-neutral-600 text-white hover:bg-neutral-700 focus:ring-neutral-500'
 		: ''}
          {variant === 'outline'
-		? 'border border-gray-300 bg-transparent text-gray-900 hover:bg-gray-50 focus:ring-blue-500'
+		? 'border border-gray-300 bg-transparent text-gray-900 hover:bg-gray-50 focus:ring-stone-500'
 		: ''}
          {variant === 'ghost'
 		? 'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-500'
 		: ''}
          {variant === 'success'
-		? 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500'
+		? 'bg-slate-600 text-white hover:bg-slate-700 focus:ring-slate-500'
 		: ''}
-         {variant === 'danger' ? 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500' : ''}
+         {variant === 'danger'
+		? 'bg-zinc-600 text-white hover:bg-zinc-700 focus:ring-zinc-500'
+		: ''}
          
          {size === 'xs' ? 'h-7 px-2 py-1 text-xs' : ''}
          {size === 'sm' ? 'h-8 px-3 py-1 text-sm' : ''}

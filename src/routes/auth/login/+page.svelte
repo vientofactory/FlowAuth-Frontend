@@ -39,9 +39,16 @@
 	// URL 파라미터에서 returnUrl 확인 및 OAuth2 컨텍스트 판단
 	onMount(() => {
 		const unsubscribe = page.subscribe(($page) => {
-			returnUrl = $page.url.searchParams.get('returnUrl') || '';
+			returnUrl =
+				$page.url.searchParams.get('returnUrl') || $page.url.searchParams.get('return_url') || '';
 			// OAuth2 플로우인지 확인
 			isOAuth2Context = returnUrl.includes('/oauth2/authorize');
+
+			console.log('[Login] URL parameters:', {
+				returnUrl,
+				isOAuth2Context,
+				allParams: Object.fromEntries($page.url.searchParams.entries())
+			});
 		});
 
 		// reCAPTCHA 초기화
@@ -93,13 +100,23 @@
 			// 리다이렉트 처리 - returnUrl이 있으면 해당 URL로, 없으면 대시보드로
 			if (returnUrl) {
 				// OAuth2 플로우인 경우 동의 페이지로 리다이렉트
-				console.log('OAuth2 flow detected, redirecting to:', returnUrl);
+				console.log('[Login] OAuth2 flow detected, redirecting to:', returnUrl);
+
+				// URL이 상대 경로인지 확인
+				let redirectUrl = returnUrl;
+				if (!returnUrl.startsWith('http')) {
+					// 상대 경로인 경우 현재 origin을 붙임
+					redirectUrl = new URL(returnUrl, window.location.origin).href;
+				}
+
 				// 짧은 지연 후 리다이렉트 (인증 상태가 완전히 설정되도록)
 				setTimeout(() => {
-					window.location.href = returnUrl;
-				}, 100);
+					console.log('[Login] Redirecting to:', redirectUrl);
+					window.location.href = redirectUrl;
+				}, 200);
 			} else {
 				// 일반 로그인의 경우 대시보드로
+				console.log('[Login] No returnUrl, redirecting to dashboard');
 				goto(ROUTES.DASHBOARD);
 			}
 		} catch (err) {
@@ -181,13 +198,22 @@
 			console.log('2FA verification successful, redirecting...');
 			// 성공 시 리다이렉트
 			if (returnUrl) {
-				console.log('2FA successful, redirecting to returnUrl:', returnUrl);
+				console.log('[Login] 2FA successful, redirecting to returnUrl:', returnUrl);
+
+				// URL이 상대 경로인지 확인
+				let redirectUrl = returnUrl;
+				if (!returnUrl.startsWith('http')) {
+					// 상대 경로인 경우 현재 origin을 붙임
+					redirectUrl = new URL(returnUrl, window.location.origin).href;
+				}
+
 				// 짧은 지연 후 리다이렉트 (인증 상태가 완전히 설정되도록)
 				setTimeout(() => {
-					window.location.href = returnUrl;
-				}, 100);
+					console.log('[Login] 2FA redirecting to:', redirectUrl);
+					window.location.href = redirectUrl;
+				}, 200);
 			} else {
-				console.log('2FA successful, redirecting to dashboard');
+				console.log('[Login] 2FA successful, redirecting to dashboard');
 				goto(ROUTES.DASHBOARD);
 			}
 		} catch (err) {
@@ -226,7 +252,7 @@
 </svelte:head>
 
 <div
-	class="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 px-4 py-12"
+	class="flex min-h-screen items-center justify-center bg-gradient-to-br from-stone-50 via-gray-50 to-neutral-100 px-4 py-12"
 >
 	<!-- 배경 패턴 -->
 	<div
@@ -277,7 +303,7 @@
 							onclick={() => switchTwoFactorMode('token')}
 							class="flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 {twoFactorMode ===
 							'token'
-								? 'bg-white text-blue-600 shadow-sm'
+								? 'bg-white text-stone-600 shadow-sm'
 								: 'text-gray-500 hover:text-gray-700'}"
 						>
 							<i class="fas fa-mobile-alt mr-2"></i>
@@ -288,7 +314,7 @@
 							onclick={() => switchTwoFactorMode('backup')}
 							class="flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 {twoFactorMode ===
 							'backup'
-								? 'bg-white text-blue-600 shadow-sm'
+								? 'bg-white text-stone-600 shadow-sm'
 								: 'text-gray-500 hover:text-gray-700'}"
 						>
 							<i class="fas fa-key mr-2"></i>
@@ -395,14 +421,14 @@
 							<input
 								type="checkbox"
 								name="remember"
-								class="focus:ring-opacity-50 rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200"
+								class="focus:ring-opacity-50 rounded border-gray-300 text-stone-600 shadow-sm focus:border-stone-300 focus:ring focus:ring-stone-200"
 							/>
 							<span class="ml-2 text-sm text-gray-600">로그인 상태 유지</span>
 						</label>
 						<a
 							href={ROUTES.FORGOT_PASSWORD}
 							data-sveltekit-preload-data
-							class="text-sm font-medium text-blue-600 transition-colors duration-200 hover:text-blue-500"
+							class="text-sm font-medium text-stone-600 transition-colors duration-200 hover:text-stone-500"
 						>
 							비밀번호 찾기
 						</a>
@@ -451,7 +477,7 @@
 					<a
 						href={ROUTES.REGISTER}
 						data-sveltekit-preload-data
-						class="font-semibold text-blue-600 transition-colors duration-200 hover:text-blue-500"
+						class="font-semibold text-stone-600 transition-colors duration-200 hover:text-stone-500"
 					>
 						회원가입
 					</a>

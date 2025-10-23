@@ -61,7 +61,7 @@
 						<div class="flex items-center space-x-2">
 							<Badge variant="success" size="sm">활성</Badge>
 							{#if twoFactorState.status.hasBackupCodes}
-								<span class="text-xs text-green-600">백업 코드 있음</span>
+								<span class="text-xs text-stone-600">백업 코드 있음</span>
 							{:else}
 								<span class="text-xs text-yellow-600">백업 코드 필요</span>
 							{/if}

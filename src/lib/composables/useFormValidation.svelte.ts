@@ -14,6 +14,7 @@ export interface FieldValidation {
 	validate: (immediate?: boolean) => boolean;
 	clear: () => void;
 	triggerValidation: () => void;
+	setError: (message: string) => void;
 }
 
 export interface FormValidation {
@@ -80,6 +81,14 @@ export function useFieldValidation(
 		error = '';
 	};
 
+	const setError = (message: string) => {
+		if (validationTimeout) {
+			clearTimeout(validationTimeout);
+			validationTimeout = null;
+		}
+		error = message;
+	};
+
 	return {
 		get value() {
 			return value;
@@ -104,7 +113,8 @@ export function useFieldValidation(
 		},
 		validate: (immediate = true) => validate(immediate),
 		triggerValidation: () => validate(false), // Trigger debounced validation manually
-		clear
+		clear,
+		setError
 	};
 }
 

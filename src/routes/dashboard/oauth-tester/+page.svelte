@@ -83,8 +83,7 @@
 			isLoading = true;
 			const response = await apiClient.getClients();
 			clients = Array.isArray(response) ? response.filter((c) => c.isActive) : [];
-		} catch (error) {
-			console.error('Failed to load clients:', error);
+		} catch {
 			toast.error('클라이언트 목록을 불러오는데 실패했습니다.');
 		} finally {
 			isLoading = false;
@@ -104,8 +103,7 @@
 					description: scopeInfo?.description || `앱이 ${scopeId} 권한을 사용할 수 있습니다`
 				};
 			});
-		} catch (error) {
-			console.error('Failed to load available scopes:', error);
+		} catch {
 			scopesError = '스코프 목록을 불러오는데 실패했습니다.';
 			toast.error('스코프 목록을 불러오는데 실패했습니다.');
 
@@ -163,18 +161,33 @@
 			sessionStorage.setItem('redirect_uri', redirectUri);
 			sessionStorage.setItem('scope', scopeString);
 
-			console.log('[OAuth Tester] 세션 스토리지에 값들 저장:', {
+			// 새 탭에서 열기를 대비해 localStorage에도 백업 저장 (시간 제한을 두어 보안 강화)
+			const backupData: {
+				client_id: string;
+				client_secret: string;
+				redirect_uri: string;
+				scope: string;
+				timestamp: number;
+				state: string;
+				oauth_nonce?: string;
+				code_verifier?: string;
+			} = {
 				client_id: selectedClient.clientId,
-				client_secret: selectedClient.clientSecret ? '있음' : '없음',
+				client_secret: selectedClient.clientSecret || '',
 				redirect_uri: redirectUri,
-				scope: scopeString
-			});
+				scope: scopeString,
+				timestamp: Date.now(),
+				state: state // state도 함께 저장하여 검증에 사용
+			};
+			localStorage.setItem('oauth_backup_data', JSON.stringify(backupData));
 
 			// OIDC인 경우 nonce 추가
 			if (nonce) {
 				params.append('nonce', nonce);
 				// nonce를 세션 스토리지에 저장하여 콜백에서 검증할 수 있도록
 				sessionStorage.setItem('oauth_nonce', nonce);
+				// OIDC nonce도 백업에 추가
+				backupData.oauth_nonce = nonce;
 			}
 
 			// State를 세션 스토리지에 저장 (모든 flow에서 공통)
@@ -189,8 +202,10 @@
 
 					// 코드 베리파이어를 세션 스토리지에 저장
 					sessionStorage.setItem('code_verifier', codeVerifier);
-				} catch (error) {
-					console.error('Failed to generate PKCE parameters:', error);
+
+					// localStorage 백업 데이터에 code_verifier 추가
+					backupData.code_verifier = codeVerifier;
+				} catch {
 					toast.error('PKCE 파라미터 생성에 실패했습니다. 페이지를 새로고침 후 다시 시도해주세요.');
 					return;
 				}
@@ -200,12 +215,14 @@
 				);
 			}
 
+			// 최종적으로 localStorage에 백업 데이터 저장 (모든 변경사항 반영)
+			localStorage.setItem('oauth_backup_data', JSON.stringify(backupData));
+
 			generatedUrl = `${baseUrl}?${params.toString()}`;
 			showResult = true;
 
 			toast.success('인증 URL이 생성되었습니다.');
-		} catch (error) {
-			console.error('Failed to generate authorization URL:', error);
+		} catch {
 			toast.error('URL 생성에 실패했습니다.');
 		}
 	}
@@ -226,8 +243,7 @@
 			setTimeout(() => {
 				copySuccess = false;
 			}, 2000);
-		} catch (error) {
-			console.error('Failed to copy URL:', error);
+		} catch {
 			toast.error('URL 복사에 실패했습니다. 수동으로 복사해주세요.');
 		} finally {
 			isCopying = false;
@@ -236,6 +252,10 @@
 
 	function openUrl() {
 		window.open(generatedUrl, '_blank');
+	}
+
+	function openUrlSameTab() {
+		window.location.href = generatedUrl;
 	}
 
 	function resetTest() {
@@ -571,6 +591,10 @@
 									<i class="fas fa-copy mr-2"></i>
 									복사
 								{/if}
+							</Button>
+							<Button size="sm" variant="outline" onclick={openUrlSameTab}>
+								<i class="fas fa-arrow-right mr-2"></i>
+								이동하기
 							</Button>
 							<Button size="sm" variant="outline" onclick={openUrl}>
 								<i class="fas fa-external-link-alt mr-2"></i>

@@ -3,10 +3,7 @@ export const OAUTH2_SCOPES = {
 	// OpenID Connect
 	OPENID: 'openid',
 	PROFILE: 'profile',
-	EMAIL: 'email',
-
-	// 계정 기본 정보 (레거시 호환성)
-	IDENTIFY: 'identify'
+	EMAIL: 'email'
 } as const;
 
 // 타입 정의
@@ -52,17 +49,6 @@ export const SCOPE_MAPPINGS: Record<string, ScopeInfo> = {
 		risk: 'medium',
 		category: 'Email',
 		sensitive: true
-	},
-	// 계정 기본 정보 (레거시 호환성)
-	[OAUTH2_SCOPES.IDENTIFY]: {
-		name: '계정 기본 정보 읽기 (레거시)',
-		description:
-			'앱이 귀하의 기본 계정 정보(사용자 ID, 이름 등)를 읽을 수 있습니다 (레거시 스코프)',
-		icon: 'fa-user-circle',
-		color: 'blue',
-		risk: 'low',
-		category: 'Legacy',
-		sensitive: false
 	}
 };
 
@@ -129,9 +115,10 @@ export function normalizeScopeFormat(scope: string): string {
 
 	// 레거시 스코프 매핑
 	const legacyMappings: Record<string, string> = {
-		basic: 'identify',
-		'read:user': 'identify',
+		basic: 'profile',
+		'read:user': 'profile',
 		'read:profile': 'profile',
+		identify: 'profile',
 		profile: 'profile',
 		email: 'email',
 		openid: 'openid'

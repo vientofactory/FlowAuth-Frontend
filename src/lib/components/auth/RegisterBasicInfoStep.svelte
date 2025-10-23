@@ -11,7 +11,13 @@
 		onKeyPress: (event: KeyboardEvent) => void;
 	}
 
-	let { firstNameField, lastNameField, userType = $bindable(), isLoading, onKeyPress }: Props = $props();
+	let {
+		firstNameField,
+		lastNameField,
+		userType = $bindable(),
+		isLoading,
+		onKeyPress
+	}: Props = $props();
 </script>
 
 <div class="space-y-6">
@@ -44,25 +50,23 @@
 
 		<!-- 사용자 유형 선택 -->
 		<fieldset class="space-y-3">
-			<legend class="block text-sm font-medium text-gray-700">
-				사용자 유형
-			</legend>
+			<legend class="block text-sm font-medium text-gray-700"> 사용자 유형 </legend>
 			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 				<label
-					class="flex cursor-pointer items-start rounded-lg border border-gray-200 p-3 transition-colors duration-200 hover:border-blue-300 hover:bg-blue-50"
+					class="flex cursor-pointer items-start rounded-lg border border-gray-200 p-3 transition-colors duration-200 hover:border-stone-300 hover:bg-stone-50"
 				>
 					<input
 						type="radio"
 						bind:group={userType}
 						value={USER_TYPES.REGULAR}
-						class="mt-0.5 h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+						class="mt-0.5 h-4 w-4 border-gray-300 text-stone-600 focus:ring-stone-500"
 						disabled={isLoading}
 					/>
 					<div class="ml-3 flex-1">
 						<div class="flex items-center justify-between">
 							<span class="text-sm font-medium text-gray-900">일반 사용자</span>
 							<span
-								class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800"
+								class="inline-flex items-center rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-800"
 							>
 								기본
 							</span>
@@ -72,20 +76,20 @@
 				</label>
 
 				<label
-					class="flex cursor-pointer items-start rounded-lg border border-gray-200 p-3 transition-colors duration-200 hover:border-green-300 hover:bg-green-50"
+					class="flex cursor-pointer items-start rounded-lg border border-gray-200 p-3 transition-colors duration-200 hover:border-neutral-300 hover:bg-neutral-50"
 				>
 					<input
 						type="radio"
 						bind:group={userType}
 						value={USER_TYPES.DEVELOPER}
-						class="mt-0.5 h-4 w-4 border-gray-300 text-green-600 focus:ring-green-500"
+						class="mt-0.5 h-4 w-4 border-gray-300 text-neutral-600 focus:ring-neutral-500"
 						disabled={isLoading}
 					/>
 					<div class="ml-3 flex-1">
 						<div class="flex items-center justify-between">
 							<span class="text-sm font-medium text-gray-900">개발자</span>
 							<span
-								class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800"
+								class="inline-flex items-center rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-800"
 							>
 								고급
 							</span>
@@ -94,9 +98,7 @@
 					</div>
 				</label>
 			</div>
-			<p class="text-xs text-gray-500">
-				주의: 사용자 유형은 가입 후 변경할 수 없습니다.
-			</p>
+			<p class="text-xs text-gray-500">주의: 사용자 유형은 가입 후 변경할 수 없습니다.</p>
 		</fieldset>
 	</div>
 </div>

@@ -3,6 +3,7 @@ import { apiClient } from '$lib/utils/api';
 import { parseError } from '../utils/error.utils';
 import { ERROR_MESSAGES } from '../constants/authorization.constants';
 import type { Client } from '$lib/types/oauth.types';
+import type { User } from '$lib/types/user.types';
 interface AuthorizePageData {
 	authorizeParams: {
 		client_id: string;
@@ -32,7 +33,8 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 		error: null,
 		client: null,
 		scopes: [],
-		loadingProgress: 0
+		loadingProgress: 0,
+		currentUser: null
 	};
 
 	const state = writable<AuthorizationState>(initialState);
@@ -75,17 +77,31 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 			state.update((current) => ({ ...current, error, loading: false }));
 		}, 30000);
 
+		// 사용자 정보 변수를 try 블록 밖에서 선언하여 catch에서도 접근 가능
+		let currentUser: User | null = null;
+
 		try {
 			console.log('[Authorization] Starting authorization data load');
 			updateProgress(10);
 			await new Promise((resolve) => setTimeout(resolve, 100)); // 최소 로딩 시간 보장
 
-			updateProgress(30);
+			updateProgress(20);
+			console.log('[Authorization] Loading current user profile');
+			// 현재 사용자 정보 로드
+			try {
+				currentUser = await apiClient.getProfile();
+				console.log('[Authorization] Current user loaded:', currentUser);
+			} catch (userError) {
+				console.warn('[Authorization] Failed to load user profile:', userError);
+				// 사용자 정보 로드 실패는 치명적 오류가 아니므로 계속 진행
+			}
+
+			updateProgress(40);
 			console.log('[Authorization] Checking debug token');
 			// 디버그 정보 출력
 			apiClient.debugToken();
 
-			updateProgress(50);
+			updateProgress(60);
 			await new Promise((resolve) => setTimeout(resolve, 100)); // 최소 로딩 시간 보장
 
 			// 백엔드에서 동의 정보 조회
@@ -104,7 +120,7 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 			const requestUrl = `/oauth2/authorize/info?${params.toString()}`;
 			console.log('[Authorization] Making API request to:', requestUrl);
 
-			updateProgress(80);
+			updateProgress(85);
 
 			// API 요청에 타임아웃 추가 (15초로 단축)
 			const apiTimeoutId = setTimeout(() => {
@@ -130,6 +146,7 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 				...current,
 				client: result.client,
 				scopes: result.scopes,
+				currentUser,
 				loading: false,
 				error: null
 			}));
@@ -159,7 +176,9 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 			state.update((current) => ({
 				...current,
 				error: parsedError,
-				loading: false
+				loading: false,
+				// 사용자 정보가 로드되었다면 보존
+				currentUser: currentUser || current.currentUser
 			}));
 			console.log('[Authorization] Error state updated');
 		}
@@ -207,6 +226,7 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 			loading: true,
 			error: null,
 			loadingProgress: 0
+			// currentUser는 유지하여 에러 상태에서도 로그인 정보를 보존
 		}));
 		await loadAuthorizationData();
 	}
