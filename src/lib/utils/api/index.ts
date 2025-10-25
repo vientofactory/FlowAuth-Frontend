@@ -355,6 +355,18 @@ class ApiClient extends BaseApi {
 		return this.dashboard.getRecentActivities(limit);
 	}
 
+	async getTokenAnalytics() {
+		return this.dashboard.getTokenAnalytics();
+	}
+
+	async getSecurityMetrics() {
+		return this.dashboard.getSecurityMetrics();
+	}
+
+	async getAdvancedAnalytics() {
+		return this.dashboard.getAdvancedAnalytics();
+	}
+
 	// Uploads methods
 	async uploadLogo(file: File) {
 		return this.uploads.uploadLogo(file);
