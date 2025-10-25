@@ -126,7 +126,9 @@
 
 		// Response type 결정
 		let detectedResponseType = '';
-		if (code) {
+		if (code && idToken) {
+			detectedResponseType = 'code id_token'; // Hybrid Grant
+		} else if (code) {
 			detectedResponseType = 'code';
 		} else if (accessToken && idToken) {
 			detectedResponseType = 'token id_token';
@@ -258,9 +260,15 @@
 		implicitTokens = oauthParams.implicitTokens;
 		responseType = oauthParams.responseType;
 
-		// Implicit Grant 성공 처리
+		// Implicit Grant 또는 Hybrid Grant 성공 처리
 		if (implicitTokens) {
 			tokenResponse = implicitTokens;
+			showTokenModal = true;
+			activeTab = 'token';
+		}
+
+		// Hybrid Grant의 경우 ID 토큰을 먼저 표시하되, code 교환은 별도로 처리
+		if (responseType === 'code id_token' && implicitTokens?.id_token) {
 			showTokenModal = true;
 			activeTab = 'token';
 		}
@@ -300,6 +308,8 @@
 		// 상태에 따른 토스트 메시지
 		if (error) {
 			toast.error(`OAuth2 인증 에러: ${error}`);
+		} else if (responseType === 'code id_token') {
+			toast.success('하이브리드 인증이 성공했습니다! ID 토큰을 확인하고 코드를 교환해보세요.');
 		} else if (authCode) {
 			toast.success('인증 코드를 받았습니다. 토큰으로 교환해보세요!');
 		} else if (implicitTokens) {
@@ -310,7 +320,16 @@
 
 	// 토큰 교환 성공 핸들러
 	function handleTokenExchanged(response: TokenResponse) {
-		tokenResponse = response;
+		// Hybrid Grant의 경우 기존 ID 토큰을 유지
+		if (responseType === 'code id_token' && implicitTokens?.id_token) {
+			tokenResponse = {
+				...response,
+				id_token: implicitTokens.id_token
+			};
+		} else {
+			tokenResponse = response;
+		}
+
 		showTokenModal = true;
 		activeTab = 'token';
 		toast.success('토큰 교환이 성공했습니다!');
@@ -485,8 +504,8 @@
 				<!-- 인증 결과 표시 -->
 				<AuthResultDisplay {error} {authCode} {implicitTokens} {responseType} {oauthState} />
 
-				<!-- 토큰 교환 폼 (Authorization Code Grant에서만 표시) -->
-				{#if authCode && !implicitTokens}
+				<!-- 토큰 교환 폼 (Authorization Code Grant 또는 Hybrid Grant에서 표시) -->
+				{#if authCode && (responseType === 'code' || responseType === 'code id_token')}
 					<TokenExchangeForm
 						clientId={tokenForm.clientId}
 						clientSecret={tokenForm.clientSecret}
@@ -513,8 +532,8 @@
 					/>
 				{/if}
 
-				<!-- Implicit Grant 토큰 정보 -->
-				{#if implicitTokens}
+				<!-- Implicit Grant 토큰 정보 (Hybrid Grant 제외) -->
+				{#if implicitTokens && responseType !== 'code id_token'}
 					<ImplicitTokenDisplay
 						{implicitTokens}
 						{isTestingToken}
@@ -524,7 +543,7 @@
 				{/if}
 
 				<!-- 사용 안내 -->
-				<UsageGuideSection {responseType} {implicitTokens} />
+				<UsageGuideSection {responseType} {implicitTokens} {authCode} />
 			</div>
 		</main>
 	</div>
