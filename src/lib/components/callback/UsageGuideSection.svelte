@@ -7,7 +7,7 @@
 		authCode?: string;
 	}
 
-	let { responseType, implicitTokens, authCode }: Props = $props();
+	let { responseType, implicitTokens, authCode: _authCode }: Props = $props();
 </script>
 
 <Card class="p-6">

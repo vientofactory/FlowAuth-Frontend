@@ -29,15 +29,26 @@
 	interface Props {
 		activities: Activity[];
 		isLoading?: boolean;
+		hasMore?: boolean;
+		isLoadingMore?: boolean;
+		onLoadMore?: () => void;
 	}
 
-	let { activities, isLoading = false }: Props = $props();
+	let {
+		activities,
+		isLoading = false,
+		hasMore = false,
+		isLoadingMore = false,
+		onLoadMore
+	}: Props = $props();
 
 	// 활동 타입별 아이콘과 색상
 	function getActivityIcon(type: string): { icon: string; color: string } {
 		switch (type) {
 			case 'login':
 				return { icon: 'fas fa-sign-in-alt', color: 'bg-stone-100 text-stone-600' };
+			case 'login_failed':
+				return { icon: 'fas fa-exclamation-triangle', color: 'bg-red-100 text-red-600' };
 			case 'account_created':
 				return { icon: 'fas fa-user-plus', color: 'bg-neutral-100 text-neutral-600' };
 			case 'client_created':
@@ -59,6 +70,8 @@
 		switch (type) {
 			case 'login':
 				return metadata?.location ? `${description} (${metadata.location})` : description;
+			case 'login_failed':
+				return metadata?.reason ? `로그인 실패: ${metadata.reason}` : '로그인 실패';
 			case 'client_created':
 				return metadata?.clientName ? `클라이언트 "${metadata.clientName}" 생성됨` : description;
 			case 'client_updated':
@@ -122,7 +135,7 @@
 			</div>
 		{:else}
 			<div class="space-y-4">
-				{#each activities.slice(0, 10) as activity (activity.createdAt)}
+				{#each activities as activity (activity.createdAt)}
 					{@const iconData = getActivityIcon(activity.type)}
 					<div class="flex items-start space-x-3 rounded-lg p-3 transition-colors hover:bg-gray-50">
 						<div class="flex-shrink-0">
@@ -142,16 +155,25 @@
 				{/each}
 			</div>
 
-			{#if activities.length > 10}
+			{#if hasMore}
 				<div class="mt-4 text-center">
 					<button
-						class="text-sm font-medium text-stone-600 hover:text-stone-800"
-						onclick={() => {
-							// TODO: 더 많은 활동 보기 페이지로 이동
-						}}
+						class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium text-stone-600 transition-colors hover:bg-stone-50 hover:text-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
+						onclick={onLoadMore}
+						disabled={isLoadingMore}
 					>
-						더 많은 활동 보기
+						{#if isLoadingMore}
+							<i class="fas fa-spinner fa-spin mr-2"></i>
+							불러오는 중...
+						{:else}
+							<i class="fas fa-plus mr-2"></i>
+							더 많은 활동 보기
+						{/if}
 					</button>
+				</div>
+			{:else if activities.length > 0}
+				<div class="mt-4 text-center">
+					<p class="text-sm text-gray-500">모든 활동을 불러왔습니다.</p>
 				</div>
 			{/if}
 		{/if}

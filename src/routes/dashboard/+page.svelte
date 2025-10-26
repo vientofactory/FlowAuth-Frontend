@@ -21,8 +21,8 @@
 		totalTokensIssued: 0,
 		expiredTokens: 0,
 		revokedTokens: 0,
-		lastLoginDate: null as string | null,
-		accountCreated: null as string | null,
+		lastLoginDate: undefined as Date | undefined,
+		accountCreated: undefined as Date | undefined,
 		tokenIssuanceByHour: [] as Array<{ hour: string; count: number }>,
 		tokenIssuanceByDay: [] as Array<{ date: string; count: number }>,
 		clientUsageStats: [] as Array<{
@@ -281,8 +281,8 @@
 			}
 
 			// user가 로드되면 accountCreated 업데이트
-			if (user?.createdAt && dashboardStats.accountCreated !== user.createdAt) {
-				dashboardStats.accountCreated = user.createdAt;
+			if (user?.createdAt && dashboardStats.accountCreated?.getTime() !== new Date(user.createdAt).getTime()) {
+				dashboardStats.accountCreated = new Date(user.createdAt);
 			}
 		});
 
@@ -306,8 +306,9 @@
 
 			dashboardStats = {
 				...stats,
-				// user 객체에서 accountCreated가 없으면 API 응답 사용
-				accountCreated: user?.createdAt || stats.accountCreated
+				// API 응답의 날짜 문자열을 Date 객체로 변환, null은 undefined로
+				lastLoginDate: stats.lastLoginDate ? new Date(stats.lastLoginDate) : undefined,
+				accountCreated: stats.accountCreated ? new Date(stats.accountCreated) : undefined
 			};
 
 			recentActivities = activities;
@@ -402,8 +403,8 @@
 				totalTokensIssued: 0,
 				expiredTokens: 0,
 				revokedTokens: 0,
-				lastLoginDate: null,
-				accountCreated: user?.createdAt || null,
+				lastLoginDate: undefined,
+				accountCreated: user?.createdAt ? new Date(user.createdAt) : undefined,
 				tokenIssuanceByHour: [],
 				tokenIssuanceByDay: [],
 				clientUsageStats: [],

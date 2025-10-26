@@ -1,6 +1,8 @@
 <script lang="ts">
 	import RecentActivities from './RecentActivities.svelte';
 	import { DashboardSkeleton } from '$lib';
+	import { apiClient } from '$lib';
+	import { useToast } from '$lib';
 
 	type Activity = {
 		id: number;
@@ -35,10 +37,53 @@
 	}
 
 	let { recentActivities, isDashboardLoading }: Props = $props();
+
+	let activities = $state(recentActivities);
+	let isLoadingMore = $state(false);
+	let hasMore = $state(true);
+	let currentLimit = $state(5);
+
+	const toast = useToast();
+
+	// activities prop이 변경되면 로컬 상태 업데이트
+	$effect(() => {
+		activities = recentActivities;
+		currentLimit = 5;
+		hasMore = true;
+	});
+
+	async function loadMoreActivities() {
+		if (isLoadingMore) return;
+
+		try {
+			isLoadingMore = true;
+			const newLimit = currentLimit + 5;
+			const moreActivities = await apiClient.getRecentActivities(newLimit);
+
+			activities = moreActivities;
+			currentLimit = newLimit;
+
+			// 더 이상 로드할 활동이 없으면 hasMore를 false로 설정
+			if (moreActivities.length < newLimit) {
+				hasMore = false;
+			}
+		} catch (error) {
+			console.error('Failed to load more activities:', error);
+			toast.error('활동을 더 불러오는데 실패했습니다.');
+		} finally {
+			isLoadingMore = false;
+		}
+	}
 </script>
 
 {#if isDashboardLoading}
 	<DashboardSkeleton type="activity" count={5} />
 {:else}
-	<RecentActivities activities={recentActivities} isLoading={isDashboardLoading} />
+	<RecentActivities
+		{activities}
+		isLoading={isDashboardLoading}
+		{hasMore}
+		{isLoadingMore}
+		onLoadMore={loadMoreActivities}
+	/>
 {/if}
