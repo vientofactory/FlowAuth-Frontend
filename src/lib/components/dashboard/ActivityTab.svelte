@@ -18,6 +18,9 @@
 			activity?: string;
 			location?: string;
 			userId?: number;
+			ipAddress?: string;
+			userAgent?: string;
+			severity?: string;
 			details?: {
 				scopes?: string[];
 				expiresAt?: string;

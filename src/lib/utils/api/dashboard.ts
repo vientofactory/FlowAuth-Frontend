@@ -39,7 +39,28 @@ export class DashboardApi extends BaseApi {
 			description: string;
 			createdAt: string | Date;
 			resourceId?: number;
-			metadata?: { [key: string]: unknown };
+			metadata?: {
+				clientName?: string;
+				clientId?: number;
+				scopes?: string[];
+				reason?: string;
+				activity?: string;
+				location?: string;
+				userId?: number;
+				ipAddress?: string;
+				userAgent?: string;
+				severity?: string;
+				details?: {
+					scopes?: string[];
+					expiresAt?: string;
+					isActive?: boolean;
+					isConfidential?: boolean;
+					description?: string;
+					createdAt?: string;
+					updatedAt?: string;
+					tokenId?: number;
+				};
+			};
 		}[]
 	> {
 		return this.request(`/dashboard/activities?limit=${limit}`);

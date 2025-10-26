@@ -13,6 +13,9 @@
 			activity?: string;
 			location?: string;
 			userId?: number;
+			ipAddress?: string;
+			userAgent?: string;
+			severity?: string;
 			details?: {
 				scopes?: string[];
 				expiresAt?: string;
@@ -69,7 +72,7 @@
 
 		switch (type) {
 			case 'login':
-				return metadata?.location ? `${description} (${metadata.location})` : description;
+				return description;
 			case 'login_failed':
 				return metadata?.reason ? `로그인 실패: ${metadata.reason}` : '로그인 실패';
 			case 'client_created':
@@ -102,6 +105,53 @@
 		if (diffInDays < 7) return `${diffInDays}일 전`;
 
 		return activityDate.toLocaleDateString('ko-KR');
+	}
+
+	function parseUserAgent(ua: string): { browser: string; os: string; device: string } {
+		if (!ua) return { browser: 'Unknown', os: 'Unknown', device: 'Unknown' };
+
+		let browser = 'Unknown';
+		let os = 'Unknown';
+		let device = 'Desktop';
+
+		// Browser detection
+		if (ua.includes('Chrome') && !ua.includes('Edg/')) {
+			browser = 'Chrome';
+		} else if (ua.includes('Firefox')) {
+			browser = 'Firefox';
+		} else if (ua.includes('Safari') && !ua.includes('Chrome')) {
+			browser = 'Safari';
+		} else if (ua.includes('Edg/')) {
+			browser = 'Edge';
+		} else if (ua.includes('Opera') || ua.includes('OPR/')) {
+			browser = 'Opera';
+		} else if (ua.includes('MSIE') || ua.includes('Trident/')) {
+			browser = 'Internet Explorer';
+		}
+
+		// OS detection
+		if (ua.includes('Windows NT')) {
+			os = 'Windows';
+		} else if (ua.includes('Mac OS X')) {
+			os = 'macOS';
+		} else if (ua.includes('Linux')) {
+			os = 'Linux';
+		} else if (ua.includes('Android')) {
+			os = 'Android';
+		} else if (ua.includes('iPhone') || ua.includes('iPad') || ua.includes('iPod')) {
+			os = 'iOS';
+		}
+
+		// Device detection
+		if (ua.includes('Mobile') || (ua.includes('Android') && !ua.includes('Tablet'))) {
+			device = 'Mobile';
+		} else if (ua.includes('Tablet') || ua.includes('iPad')) {
+			device = 'Tablet';
+		} else if (ua.includes('TV') || ua.includes('SmartTV')) {
+			device = 'TV';
+		}
+
+		return { browser, os, device };
 	}
 </script>
 
@@ -147,6 +197,23 @@
 							<p class="text-sm font-medium text-gray-900">
 								{formatActivityDescription(activity)}
 							</p>
+							{#if (activity.type === 'login' || activity.type === 'login_failed') && (activity.metadata?.ipAddress || activity.metadata?.userAgent)}
+								<div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-600">
+									{#if activity.metadata.ipAddress}
+										<span class="flex items-center">
+											<i class="fas fa-map-marker-alt mr-1 text-gray-400"></i>
+											{activity.metadata.ipAddress}
+										</span>
+									{/if}
+									{#if activity.metadata.userAgent}
+										{@const uaInfo = parseUserAgent(activity.metadata.userAgent)}
+										<span class="flex items-center" title={activity.metadata.userAgent}>
+											<i class="fas fa-desktop mr-1 text-gray-400"></i>
+											{uaInfo.browser} • {uaInfo.os} • {uaInfo.device}
+										</span>
+									{/if}
+								</div>
+							{/if}
 							<p class="mt-1 text-xs text-gray-500">
 								{formatTimeAgo(activity.createdAt)}
 							</p>

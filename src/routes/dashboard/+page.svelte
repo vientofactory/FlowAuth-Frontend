@@ -237,6 +237,9 @@
 				activity?: string;
 				location?: string;
 				userId?: number;
+				ipAddress?: string;
+				userAgent?: string;
+				severity?: string;
 				details?: {
 					scopes?: string[];
 					expiresAt?: string;
@@ -281,7 +284,10 @@
 			}
 
 			// user가 로드되면 accountCreated 업데이트
-			if (user?.createdAt && dashboardStats.accountCreated?.getTime() !== new Date(user.createdAt).getTime()) {
+			if (
+				user?.createdAt &&
+				dashboardStats.accountCreated?.getTime() !== new Date(user.createdAt).getTime()
+			) {
 				dashboardStats.accountCreated = new Date(user.createdAt);
 			}
 		});
