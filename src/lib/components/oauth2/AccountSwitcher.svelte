@@ -125,13 +125,29 @@
 				<div class="flex items-center space-x-3">
 					<!-- 사용자 아바타 -->
 					<div class="relative">
-						<Logo
-							src={getAvatarUrl(currentUser.avatar) || '/logo_icon.png'}
-							alt="{getDisplayName(currentUser)} 프로필 이미지"
-							size="sm"
-							fallbackSrc="/logo_icon.png"
-							className="rounded-full border border-gray-200 object-cover"
-						/>
+						{#if getAvatarUrl(currentUser.avatar)}
+							<Logo
+								src={getAvatarUrl(currentUser.avatar) || '/logo_icon.png'}
+								alt={getDisplayName(currentUser) + ' 프로필 이미지'}
+								size="sm"
+								fallbackSrc="/logo_icon.png"
+								className="rounded-full border border-gray-200 object-cover"
+							/>
+						{:else}
+							<div
+								class="h-8 w-8 flex items-center justify-center rounded-full bg-gray-100 text-sm font-medium text-gray-700 border border-gray-200"
+								aria-hidden="true"
+							>
+								{(() => {
+									const name = (getDisplayName(currentUser) || '').trim();
+									if (!name) return '';
+									const parts = name.split(/\s+/).filter(Boolean);
+									if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+									return (parts[0][0] + (parts[1][0] || '')).toUpperCase();
+								})()}
+							</div>
+						{/if}
+
 						{#if currentUser.isActive}
 							<div
 								class="absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full border-2 border-white bg-green-400"
