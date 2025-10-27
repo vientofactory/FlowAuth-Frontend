@@ -126,8 +126,13 @@
 	});
 
 	// 권한 관련 상태
-	const { canManageSystem, isClientManager, isTokenManager, isUserManager, roleName } =
-		usePermissions();
+	const {
+		canManageSystem,
+		isClientManager,
+		isTokenManager,
+		isUserManager,
+		roleName: _roleName
+	} = usePermissions();
 
 	// 파생 상태
 	const _hasManageSystemPermission = $derived($canManageSystem);
@@ -137,18 +142,36 @@
 	const userTypeConfig = $derived.by(() => {
 		if (!user) return null;
 
+		// 사용자 유형에 따른 역할 이름 결정
+		let displayRoleName = '일반 사용자'; // 기본값
+		if (user.userType === 'developer') {
+			displayRoleName = '개발자';
+		} else if (user.userType === 'regular') {
+			displayRoleName = '일반 사용자';
+		}
+
+		// ADMIN 권한이 있는 경우 시스템 관리자로 표시
+		const userPermissions =
+			typeof user.permissions === 'string' ? parseInt(user.permissions, 10) : user.permissions;
+		if (userPermissions && (userPermissions & 1073741824) === 1073741824) {
+			// ADMIN_ACCESS 비트
+			displayRoleName = '시스템 관리자';
+		}
+
 		return {
-			title: isDeveloper ? '개발자 대시보드' : '사용자 대시보드',
-			description: isDeveloper
-				? 'OAuth2 클라이언트와 토큰을 관리하고 모니터링하세요.'
-				: '계정을 관리하고 OAuth2 로그인을 이용하세요.',
+			title: user.userType === 'developer' ? '개발자 대시보드' : '사용자 대시보드',
+			description:
+				user.userType === 'developer'
+					? 'OAuth2 클라이언트와 토큰을 관리하고 모니터링하세요.'
+					: '계정을 관리하고 OAuth2 로그인을 이용하세요.',
+			displayRoleName,
 			stats: [
 				{
 					label: '클라이언트',
 					value: dashboardStats.totalClients,
 					icon: 'fas fa-users',
 					color: 'from-stone-500 to-stone-600',
-					show: isDeveloper
+					show: user.userType === 'developer'
 				},
 				{
 					label: '토큰',
@@ -178,47 +201,48 @@
 				},
 				{
 					label: '권한',
-					value: $roleName,
+					value: displayRoleName,
 					icon: 'fas fa-shield-alt',
 					color: 'from-zinc-500 to-zinc-600',
 					show: true
 				}
 			].filter((stat) => stat.show),
-			quickActions: isDeveloper
-				? [
-						{
-							label: '클라이언트\n생성',
-							icon: 'fas fa-plus-circle',
-							color: 'blue',
-							action: navigateToClients
-						},
-						{
-							label: '토큰\n관리',
-							icon: 'fas fa-key',
-							color: 'green',
-							action: navigateToTokens
-						},
-						{
-							label: 'OAuth2\n테스터',
-							icon: 'fas fa-link',
-							color: 'orange',
-							action: navigateToOAuthTester
-						}
-					]
-				: [
-						{
-							label: '프로필\n편집',
-							icon: 'fas fa-user-edit',
-							color: 'blue',
-							action: navigateToProfile
-						},
-						{
-							label: '토큰\n관리',
-							icon: 'fas fa-key',
-							color: 'green',
-							action: navigateToTokens
-						}
-					]
+			quickActions:
+				user.userType === 'developer'
+					? [
+							{
+								label: '클라이언트\n생성',
+								icon: 'fas fa-plus-circle',
+								color: 'blue',
+								action: navigateToClients
+							},
+							{
+								label: '토큰\n관리',
+								icon: 'fas fa-key',
+								color: 'green',
+								action: navigateToTokens
+							},
+							{
+								label: 'OAuth2\n테스터',
+								icon: 'fas fa-link',
+								color: 'orange',
+								action: navigateToOAuthTester
+							}
+						]
+					: [
+							{
+								label: '프로필\n편집',
+								icon: 'fas fa-user-edit',
+								color: 'blue',
+								action: navigateToProfile
+							},
+							{
+								label: '토큰\n관리',
+								icon: 'fas fa-key',
+								color: 'green',
+								action: navigateToTokens
+							}
+						]
 		};
 	});
 
@@ -528,7 +552,7 @@
 	{#if isDashboardLoading}
 		<DashboardSkeleton type="stats" />
 	{:else if userTypeConfig}
-		<StatsCards {dashboardStats} {user} {isDeveloper} roleName={$roleName} />
+		<StatsCards {dashboardStats} {user} {isDeveloper} roleName={userTypeConfig.displayRoleName} />
 	{/if}
 
 	<!-- 탭 인터페이스 -->

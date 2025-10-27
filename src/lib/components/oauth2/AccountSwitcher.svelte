@@ -135,7 +135,7 @@
 							/>
 						{:else}
 							<div
-								class="h-8 w-8 flex items-center justify-center rounded-full bg-gray-100 text-sm font-medium text-gray-700 border border-gray-200"
+								class="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-gray-100 text-sm font-medium text-gray-700"
 								aria-hidden="true"
 							>
 								{(() => {
