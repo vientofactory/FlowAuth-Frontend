@@ -351,8 +351,8 @@ class ApiClient extends BaseApi {
 		return this.dashboard.getDashboardStats();
 	}
 
-	async getRecentActivities(limit: number = 10) {
-		return this.dashboard.getRecentActivities(limit);
+	async getRecentActivities(limit: number = 10, offset: number = 0) {
+		return this.dashboard.getRecentActivities(limit, offset);
 	}
 
 	async getTokenAnalytics() {

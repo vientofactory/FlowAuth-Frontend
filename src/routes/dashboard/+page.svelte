@@ -239,8 +239,8 @@
 		};
 	});
 
-	let recentActivities = $state<
-		{
+	let recentActivities = $state<{
+		activities: {
 			id: number;
 			type: string;
 			description: string;
@@ -268,8 +268,9 @@
 					tokenId?: number;
 				};
 			};
-		}[]
-	>([]);
+		}[];
+		total: number;
+	}>({ activities: [], total: 0 });
 
 	const toast = useToast();
 
@@ -495,6 +496,8 @@
 					systemCapacity: { current: 0, predicted: 0, bottleneck: '' }
 				}
 			};
+
+			recentActivities = { activities: [], total: 0 };
 
 			toast.error('대시보드 데이터를 불러오는데 실패했습니다.');
 		} finally {

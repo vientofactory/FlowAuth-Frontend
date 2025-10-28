@@ -35,41 +35,48 @@
 	};
 
 	interface Props {
-		recentActivities: Activity[];
+		recentActivities: {
+			activities: Activity[];
+			total: number;
+		};
 		isDashboardLoading: boolean;
 	}
 
 	let { recentActivities, isDashboardLoading }: Props = $props();
 
-	let activities = $state(recentActivities);
+	let activities = $state(recentActivities.activities);
+	let total = $state(recentActivities.total);
 	let isLoadingMore = $state(false);
-	let hasMore = $state(true);
-	let currentLimit = $state(5);
+	let currentOffset = $state(5);
+	let hasMore = $derived(currentOffset < total);
 
 	const toast = useToast();
 
-	// activities prop이 변경되면 로컬 상태 업데이트
+	// props이 변경되면 로컬 상태 업데이트 (초기 로드 시)
 	$effect(() => {
-		activities = recentActivities;
-		currentLimit = 5;
-		hasMore = true;
+		if (recentActivities.activities.length > 0 && activities.length === 0) {
+			// 초기 로드 시에만 activities 설정
+			activities = recentActivities.activities;
+			total = recentActivities.total;
+			currentOffset = 5;
+			hasMore = activities.length < total;
+		} else if (recentActivities.total !== total) {
+			// total이 변경된 경우에만 업데이트
+			total = recentActivities.total;
+			hasMore = activities.length < total;
+		}
 	});
 
 	async function loadMoreActivities() {
-		if (isLoadingMore) return;
+		if (isLoadingMore || !hasMore) return;
 
 		try {
 			isLoadingMore = true;
-			const newLimit = currentLimit + 5;
-			const moreActivities = await apiClient.getRecentActivities(newLimit);
+			const data = await apiClient.getRecentActivities(5, currentOffset);
 
-			activities = moreActivities;
-			currentLimit = newLimit;
-
-			// 더 이상 로드할 활동이 없으면 hasMore를 false로 설정
-			if (moreActivities.length < newLimit) {
-				hasMore = false;
-			}
+			activities = [...activities, ...data.activities];
+			currentOffset += 5;
+			hasMore = currentOffset < total;
 		} catch (error) {
 			console.error('Failed to load more activities:', error);
 			toast.error('활동을 더 불러오는데 실패했습니다.');

@@ -32,8 +32,11 @@ export class DashboardApi extends BaseApi {
 		return this.request('/dashboard/stats');
 	}
 
-	async getRecentActivities(limit: number = 10): Promise<
-		{
+	async getRecentActivities(
+		limit: number = 10,
+		offset: number = 0
+	): Promise<{
+		activities: {
 			id: number;
 			type: string;
 			description: string;
@@ -61,9 +64,10 @@ export class DashboardApi extends BaseApi {
 					tokenId?: number;
 				};
 			};
-		}[]
-	> {
-		return this.request(`/dashboard/activities?limit=${limit}`);
+		}[];
+		total: number;
+	}> {
+		return this.request(`/dashboard/activities?limit=${limit}&offset=${offset}`);
 	}
 
 	// 새로운 고급 분석 API 메소드들
