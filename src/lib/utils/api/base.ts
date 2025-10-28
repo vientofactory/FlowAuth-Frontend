@@ -2,6 +2,7 @@ import { APP_CONSTANTS, ROUTES, MESSAGES } from '$lib/constants/app.constants';
 import { TOKEN_STORAGE_KEYS } from '$lib/constants/app.constants';
 import { env } from '$lib/config/env';
 import type { TokenType } from '$lib/types/authorization.types';
+import { parseBackendError } from '../error.utils';
 
 export interface ApiError {
 	message?: string;
@@ -147,8 +148,20 @@ export abstract class BaseApi {
 	}
 
 	protected createErrorFromResponse(errorData: ApiError, status: number): Error {
-		const message = errorData.message || errorData.error_description || `HTTP ${status}`;
+		// 백엔드의 error 필드가 있는 경우 이를 우선 사용
+		if (errorData.error) {
+			const backendError = parseBackendError(errorData);
+			const error = new Error(backendError.message);
+			(error as Error & { status?: number; code?: string; errorCode?: string }).status = status;
+			(error as Error & { status?: number; code?: string; errorCode?: string }).code =
+				errorData.code;
+			(error as Error & { status?: number; code?: string; errorCode?: string }).errorCode =
+				errorData.error;
+			return error;
+		}
 
+		// 기존 로직
+		const message = errorData.message || errorData.error_description || `HTTP ${status}`;
 		const error = new Error(message);
 		(error as Error & { status?: number; code?: string }).status = status;
 		(error as Error & { status?: number; code?: string }).code = errorData.code;
