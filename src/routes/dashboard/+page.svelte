@@ -66,13 +66,6 @@
 			returningUsers: 0,
 			sessionDuration: 0,
 			geographicDistribution: [] as Array<{ country: string; count: number; percentage: number }>
-		},
-		systemHealth: {
-			cacheHitRate: 0,
-			dbConnectionPool: { active: 0, idle: 0, pending: 0 },
-			apiResponseTime: 0,
-			errorRate: 0,
-			uptime: 0
 		}
 	});
 
@@ -361,13 +354,6 @@
 						returningUsers: 0,
 						sessionDuration: 0,
 						geographicDistribution: []
-					},
-					systemHealth: {
-						cacheHitRate: 0,
-						dbConnectionPool: { active: 0, idle: 0, pending: 0 },
-						apiResponseTime: 0,
-						errorRate: 0,
-						uptime: 0
 					}
 				};
 			}
@@ -462,13 +448,6 @@
 					returningUsers: 0,
 					sessionDuration: 0,
 					geographicDistribution: []
-				},
-				systemHealth: {
-					cacheHitRate: 0,
-					dbConnectionPool: { active: 0, idle: 0, pending: 0 },
-					apiResponseTime: 0,
-					errorRate: 0,
-					uptime: 0
 				}
 			};
 

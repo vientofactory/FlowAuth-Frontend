@@ -89,13 +89,6 @@ export class DashboardApi extends BaseApi {
 			sessionDuration: number;
 			geographicDistribution: Array<{ country: string; count: number; percentage: number }>;
 		};
-		systemHealth: {
-			cacheHitRate: number;
-			dbConnectionPool: { active: number; idle: number; pending: number };
-			apiResponseTime: number;
-			errorRate: number;
-			uptime: number;
-		};
 	}> {
 		return this.request('/dashboard/analytics/token');
 	}
