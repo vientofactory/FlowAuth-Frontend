@@ -541,7 +541,7 @@
 		</div>
 		{#if tokenAnalytics?.clientPerformance?.length > 0}
 			<div class="h-80 space-y-4 overflow-y-auto">
-				{#each tokenAnalytics?.clientPerformance?.slice(0, 5) ?? [] as client, index (client.clientId)}
+				{#each tokenAnalytics?.clientPerformance?.slice(0, 5) ?? [] as client, index (index)}
 					<div
 						class="flex items-center space-x-3 rounded-lg bg-gray-50 p-3 transition-colors hover:bg-gray-100"
 					>

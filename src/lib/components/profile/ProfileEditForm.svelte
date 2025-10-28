@@ -104,7 +104,7 @@
 		}
 
 		// 이름, 성 형식 검증
-		const namePattern = /^[a-zA-Z가-힣\s\-.']+$/;
+		const namePattern = new RegExp(/^[a-zA-Z가-힣\s\-.']+$/);
 		if (!namePattern.test(editForm.firstName.trim())) {
 			toast.error('이름은 한글, 영문, 공백, 하이픈, 점, 아포스트로피만 사용할 수 있습니다.');
 			return;
@@ -125,7 +125,8 @@
 			return;
 		}
 
-		if (!/^[a-zA-Z0-9_-]+$/.test(editForm.username)) {
+		const usernamePattern = new RegExp(/^[a-zA-Z0-9_-]+$/);
+		if (!usernamePattern.test(editForm.username)) {
 			toast.error('사용자명은 영문, 숫자, 하이픈, 언더스코어만 사용할 수 있습니다.');
 			return;
 		}
@@ -241,7 +242,7 @@
 				class={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 ${
 					editForm.firstName.trim() &&
 					(editForm.firstName.length > 100 ||
-						!/^[a-zA-Z가-힣\s\-.']+$/.test(editForm.firstName.trim()))
+						!new RegExp(/^[a-zA-Z가-힣\s\-.']+$/).test(editForm.firstName.trim()))
 						? 'border-red-500 focus:border-red-500'
 						: editForm.firstName.length > 90
 							? 'border-yellow-500 focus:border-yellow-500'
@@ -311,7 +312,7 @@
 					oninput={handleUsernameInput}
 					required
 					minlength="3"
-					pattern="^[a-zA-Z0-9_-]+$"
+					pattern="^[a-zA-Z0-9_\-]+$"
 					class="mt-1 block w-full rounded-md border-gray-300 pr-10 shadow-sm focus:border-blue-500 focus:ring-blue-500"
 					class:border-green-500={usernameStatus.isAvailable === true}
 					class:border-red-500={usernameStatus.isAvailable === false}
