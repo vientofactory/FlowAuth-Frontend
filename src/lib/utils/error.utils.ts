@@ -64,13 +64,35 @@ const ERROR_CODE_TYPES: Record<string, ErrorType> = {
 
 /**
  * 백엔드 에러 코드를 기반으로 구조화된 에러 정보를 반환합니다.
+ * RFC 7807 Problem Details와 OAuth2 에러 형식을 모두 지원합니다.
  */
 export function parseBackendError(error: {
 	error?: string;
 	error_description?: string;
 	message?: string;
 	status?: number;
+	// RFC 7807 fields
+	type?: string;
+	title?: string;
+	detail?: string;
+	instance?: string;
+	extensions?: Record<string, unknown>;
 }): AuthorizationError {
+	// RFC 7807 Problem Details 형식인 경우
+	if (error.type && error.title) {
+		const errorCode = (error.extensions?.error as string) || 'unknown_error';
+		const errorDescription = error.detail || error.title;
+
+		return {
+			type: ERROR_CODE_TYPES[errorCode] || ErrorType.UNKNOWN,
+			message: errorDescription,
+			retryable: RETRYABLE_ERROR_CODES.has(errorCode),
+			details: errorDescription,
+			errorCode: errorCode as ErrorCode
+		};
+	}
+
+	// 기존 OAuth2 형식
 	const errorCode = error.error;
 	const errorDescription = error.error_description || error.message;
 

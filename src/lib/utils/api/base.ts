@@ -8,8 +8,16 @@ export interface ApiError {
 	message?: string;
 	status?: number;
 	code?: string;
+	// RFC 7807 Problem Details fields
+	type?: string;
+	title?: string;
+	detail?: string;
+	instance?: string;
+	extensions?: Record<string, unknown>;
+	// Legacy OAuth2 fields for backward compatibility
 	error?: string;
 	error_description?: string;
+	state?: string;
 	timestamp?: string;
 	path?: string;
 }
