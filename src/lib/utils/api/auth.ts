@@ -11,6 +11,7 @@ import type {
 	TwoFactorVerifyResponse
 } from '$lib/types/2fa.types';
 import { BaseApi } from './base';
+import { parseBackendError } from '../error.utils';
 
 export class AuthApi extends BaseApi {
 	async register(data: CreateUserDto): Promise<User> {
@@ -332,9 +333,17 @@ export class AuthApi extends BaseApi {
 	}
 
 	// Private helper methods for auth-specific error handling
-	private async parseAuthErrorResponse(
-		response: Response
-	): Promise<{ message?: string; status?: number; error_description?: string }> {
+	private async parseAuthErrorResponse(response: Response): Promise<{
+		message?: string;
+		status?: number;
+		error_description?: string;
+		// RFC 7807 Problem Details fields
+		type?: string;
+		title?: string;
+		detail?: string;
+		instance?: string;
+		extensions?: Record<string, unknown>;
+	}> {
 		try {
 			return await response.json();
 		} catch {
@@ -346,9 +355,31 @@ export class AuthApi extends BaseApi {
 	}
 
 	private createAuthErrorFromResponse(
-		errorData: { message?: string; error_description?: string },
+		errorData: {
+			message?: string;
+			error_description?: string;
+			// RFC 7807 Problem Details fields
+			type?: string;
+			title?: string;
+			detail?: string;
+			instance?: string;
+			extensions?: Record<string, unknown>;
+		},
 		status: number
 	): Error {
+		// RFC 7807 Problem Details 형식을 우선적으로 처리
+		if (errorData.type && errorData.title) {
+			const backendError = parseBackendError(errorData);
+			const error = new Error(backendError.message);
+			(error as Error & { status?: number; code?: string; errorCode?: string }).status = status;
+			(error as Error & { status?: number; code?: string; errorCode?: string }).code = errorData
+				.extensions?.error as string;
+			(error as Error & { status?: number; code?: string; errorCode?: string }).errorCode =
+				errorData.extensions?.error as string;
+			return error;
+		}
+
+		// 기존 OAuth2 형식 (하위 호환성 유지)
 		const message = errorData.message || errorData.error_description || `HTTP ${status}`;
 		const error = new Error(message);
 		(error as Error & { status?: number }).status = status;

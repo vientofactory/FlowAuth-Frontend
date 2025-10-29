@@ -71,7 +71,7 @@ export function parseBackendError(error: {
 	error_description?: string;
 	message?: string;
 	status?: number;
-	// RFC 7807 fields
+	// RFC 7807 Problem Details fields
 	type?: string;
 	title?: string;
 	detail?: string;
@@ -81,7 +81,9 @@ export function parseBackendError(error: {
 	// RFC 7807 Problem Details 형식인 경우
 	if (error.type && error.title) {
 		const errorCode = (error.extensions?.error as string) || 'unknown_error';
-		const errorDescription = error.detail || error.title;
+		// extensions.error_description을 우선적으로 사용, 없으면 detail 사용
+		const errorDescription =
+			(error.extensions?.error_description as string) || error.detail || error.title;
 
 		return {
 			type: ERROR_CODE_TYPES[errorCode] || ErrorType.UNKNOWN,
@@ -92,7 +94,7 @@ export function parseBackendError(error: {
 		};
 	}
 
-	// 기존 OAuth2 형식
+	// 기존 OAuth2 형식 (하위 호환성 유지)
 	const errorCode = error.error;
 	const errorDescription = error.error_description || error.message;
 

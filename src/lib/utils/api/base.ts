@@ -156,7 +156,19 @@ export abstract class BaseApi {
 	}
 
 	protected createErrorFromResponse(errorData: ApiError, status: number): Error {
-		// 백엔드의 error 필드가 있는 경우 이를 우선 사용
+		// RFC 7807 Problem Details 형식을 우선적으로 처리
+		if (errorData.type && errorData.title) {
+			const backendError = parseBackendError(errorData);
+			const error = new Error(backendError.message);
+			(error as Error & { status?: number; code?: string; errorCode?: string }).status = status;
+			(error as Error & { status?: number; code?: string; errorCode?: string }).code =
+				errorData.code;
+			(error as Error & { status?: number; code?: string; errorCode?: string }).errorCode =
+				errorData.extensions?.error as string;
+			return error;
+		}
+
+		// 기존 OAuth2 형식 (하위 호환성 유지)
 		if (errorData.error) {
 			const backendError = parseBackendError(errorData);
 			const error = new Error(backendError.message);
