@@ -2,6 +2,8 @@
 	import { Button, apiClient, useToast } from '$lib';
 	import type { User } from '$lib';
 
+	const namePattern = /^[a-zA-Z가-힣\s\-.']+$/;
+
 	interface Props {
 		user: User;
 		onUpdate: (user: User) => Promise<void>;
@@ -104,7 +106,6 @@
 		}
 
 		// 이름, 성 형식 검증
-		const namePattern = new RegExp(/^[a-zA-Z가-힣\s\-.']+$/);
 		if (!namePattern.test(editForm.firstName.trim())) {
 			toast.error('이름은 한글, 영문, 공백, 하이픈, 점, 아포스트로피만 사용할 수 있습니다.');
 			return;
@@ -125,7 +126,7 @@
 			return;
 		}
 
-		const usernamePattern = new RegExp(/^[a-zA-Z0-9_-]+$/);
+		const usernamePattern = /^[a-zA-Z0-9_-]+$/;
 		if (!usernamePattern.test(editForm.username)) {
 			toast.error('사용자명은 영문, 숫자, 하이픈, 언더스코어만 사용할 수 있습니다.');
 			return;
@@ -241,15 +242,14 @@
 				pattern="^[a-zA-Z가-힣\s\-.']+$"
 				class={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 ${
 					editForm.firstName.trim() &&
-					(editForm.firstName.length > 100 ||
-						!new RegExp(/^[a-zA-Z가-힣\s\-.']+$/).test(editForm.firstName.trim()))
+					(editForm.firstName.length > 100 || !namePattern.test(editForm.firstName.trim()))
 						? 'border-red-500 focus:border-red-500'
 						: editForm.firstName.length > 90
 							? 'border-yellow-500 focus:border-yellow-500'
 							: 'border-gray-300 focus:border-blue-500'
 				}`}
 			/>
-			{#if editForm.firstName.trim() && (editForm.firstName.length > 100 || !/^[a-zA-Z가-힣\s\-.']+$/.test(editForm.firstName.trim()))}
+			{#if editForm.firstName.trim() && (editForm.firstName.length > 100 || !namePattern.test(editForm.firstName.trim()))}
 				<p class="mt-1 text-xs text-red-600">
 					{#if editForm.firstName.length > 100}
 						이름은 최대 100자까지 입력할 수 있습니다. ({editForm.firstName.length}/100)
@@ -276,15 +276,14 @@
 				pattern="^[a-zA-Z가-힣\s\-.']+$"
 				class={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 ${
 					editForm.lastName.trim() &&
-					(editForm.lastName.length > 100 ||
-						!/^[a-zA-Z가-힣\s\-.']+$/.test(editForm.lastName.trim()))
+					(editForm.lastName.length > 100 || !namePattern.test(editForm.lastName.trim()))
 						? 'border-red-500 focus:border-red-500'
 						: editForm.lastName.length > 90
 							? 'border-yellow-500 focus:border-yellow-500'
 							: 'border-gray-300 focus:border-blue-500'
 				}`}
 			/>
-			{#if editForm.lastName.trim() && (editForm.lastName.length > 100 || !/^[a-zA-Z가-힣\s\-.']+$/.test(editForm.lastName.trim()))}
+			{#if editForm.lastName.trim() && (editForm.lastName.length > 100 || !namePattern.test(editForm.lastName.trim()))}
 				<p class="mt-1 text-xs text-red-600">
 					{#if editForm.lastName.length > 100}
 						성은 최대 100자까지 입력할 수 있습니다. ({editForm.lastName.length}/100)

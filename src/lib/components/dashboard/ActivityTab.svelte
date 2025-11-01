@@ -59,11 +59,9 @@
 			activities = recentActivities.activities;
 			total = recentActivities.total;
 			currentOffset = 5;
-			hasMore = activities.length < total;
 		} else if (recentActivities.total !== total) {
 			// total이 변경된 경우에만 업데이트
 			total = recentActivities.total;
-			hasMore = activities.length < total;
 		}
 	});
 
