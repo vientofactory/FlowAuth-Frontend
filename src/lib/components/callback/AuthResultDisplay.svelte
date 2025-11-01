@@ -23,6 +23,14 @@
 			</div>
 			<p class="mt-1 text-red-700">{error}</p>
 		</div>
+	{:else if responseType === 'code id_token'}
+		<div class="mb-4 rounded-lg border border-green-200 bg-green-50 p-4">
+			<div class="flex items-center">
+				<i class="fas fa-check-circle mr-2 text-green-600"></i>
+				<span class="font-medium text-green-800">하이브리드 인증 성공 (Hybrid Grant)</span>
+			</div>
+			<p class="mt-1 text-green-700">인증 코드와 ID 토큰을 모두 받았습니다.</p>
+		</div>
 	{:else if authCode}
 		<div class="mb-4 rounded-lg border border-green-200 bg-green-50 p-4">
 			<div class="flex items-center">

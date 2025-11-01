@@ -13,6 +13,9 @@
 			activity?: string;
 			location?: string;
 			userId?: number;
+			ipAddress?: string;
+			userAgent?: string;
+			severity?: string;
 			details?: {
 				scopes?: string[];
 				expiresAt?: string;
@@ -29,15 +32,26 @@
 	interface Props {
 		activities: Activity[];
 		isLoading?: boolean;
+		hasMore?: boolean;
+		isLoadingMore?: boolean;
+		onLoadMore?: () => void;
 	}
 
-	let { activities, isLoading = false }: Props = $props();
+	let {
+		activities,
+		isLoading = false,
+		hasMore = false,
+		isLoadingMore = false,
+		onLoadMore
+	}: Props = $props();
 
 	// 활동 타입별 아이콘과 색상
 	function getActivityIcon(type: string): { icon: string; color: string } {
 		switch (type) {
 			case 'login':
 				return { icon: 'fas fa-sign-in-alt', color: 'bg-stone-100 text-stone-600' };
+			case 'login_failed':
+				return { icon: 'fas fa-exclamation-triangle', color: 'bg-red-100 text-red-600' };
 			case 'account_created':
 				return { icon: 'fas fa-user-plus', color: 'bg-neutral-100 text-neutral-600' };
 			case 'client_created':
@@ -58,7 +72,9 @@
 
 		switch (type) {
 			case 'login':
-				return metadata?.location ? `${description} (${metadata.location})` : description;
+				return description;
+			case 'login_failed':
+				return metadata?.reason ? `로그인 실패: ${metadata.reason}` : '로그인 실패';
 			case 'client_created':
 				return metadata?.clientName ? `클라이언트 "${metadata.clientName}" 생성됨` : description;
 			case 'client_updated':
@@ -89,6 +105,53 @@
 		if (diffInDays < 7) return `${diffInDays}일 전`;
 
 		return activityDate.toLocaleDateString('ko-KR');
+	}
+
+	function parseUserAgent(ua: string): { browser: string; os: string; device: string } {
+		if (!ua) return { browser: 'Unknown', os: 'Unknown', device: 'Unknown' };
+
+		let browser = 'Unknown';
+		let os = 'Unknown';
+		let device = 'Desktop';
+
+		// Browser detection
+		if (ua.includes('Chrome') && !ua.includes('Edg/')) {
+			browser = 'Chrome';
+		} else if (ua.includes('Firefox')) {
+			browser = 'Firefox';
+		} else if (ua.includes('Safari') && !ua.includes('Chrome')) {
+			browser = 'Safari';
+		} else if (ua.includes('Edg/')) {
+			browser = 'Edge';
+		} else if (ua.includes('Opera') || ua.includes('OPR/')) {
+			browser = 'Opera';
+		} else if (ua.includes('MSIE') || ua.includes('Trident/')) {
+			browser = 'Internet Explorer';
+		}
+
+		// OS detection
+		if (ua.includes('Windows NT')) {
+			os = 'Windows';
+		} else if (ua.includes('Mac OS X')) {
+			os = 'macOS';
+		} else if (ua.includes('Linux')) {
+			os = 'Linux';
+		} else if (ua.includes('Android')) {
+			os = 'Android';
+		} else if (ua.includes('iPhone') || ua.includes('iPad') || ua.includes('iPod')) {
+			os = 'iOS';
+		}
+
+		// Device detection
+		if (ua.includes('Mobile') || (ua.includes('Android') && !ua.includes('Tablet'))) {
+			device = 'Mobile';
+		} else if (ua.includes('Tablet') || ua.includes('iPad')) {
+			device = 'Tablet';
+		} else if (ua.includes('TV') || ua.includes('SmartTV')) {
+			device = 'TV';
+		}
+
+		return { browser, os, device };
 	}
 </script>
 
@@ -122,7 +185,7 @@
 			</div>
 		{:else}
 			<div class="space-y-4">
-				{#each activities.slice(0, 10) as activity (activity.createdAt)}
+				{#each activities as activity (activity.createdAt)}
 					{@const iconData = getActivityIcon(activity.type)}
 					<div class="flex items-start space-x-3 rounded-lg p-3 transition-colors hover:bg-gray-50">
 						<div class="flex-shrink-0">
@@ -134,6 +197,23 @@
 							<p class="text-sm font-medium text-gray-900">
 								{formatActivityDescription(activity)}
 							</p>
+							{#if (activity.type === 'login' || activity.type === 'login_failed') && (activity.metadata?.ipAddress || activity.metadata?.userAgent)}
+								<div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-600">
+									{#if activity.metadata.ipAddress}
+										<span class="flex items-center">
+											<i class="fas fa-map-marker-alt mr-1 text-gray-400"></i>
+											{activity.metadata.ipAddress}
+										</span>
+									{/if}
+									{#if activity.metadata.userAgent}
+										{@const uaInfo = parseUserAgent(activity.metadata.userAgent)}
+										<span class="flex items-center" title={activity.metadata.userAgent}>
+											<i class="fas fa-desktop mr-1 text-gray-400"></i>
+											{uaInfo.browser} • {uaInfo.os} • {uaInfo.device}
+										</span>
+									{/if}
+								</div>
+							{/if}
 							<p class="mt-1 text-xs text-gray-500">
 								{formatTimeAgo(activity.createdAt)}
 							</p>
@@ -142,16 +222,25 @@
 				{/each}
 			</div>
 
-			{#if activities.length > 10}
+			{#if hasMore}
 				<div class="mt-4 text-center">
 					<button
-						class="text-sm font-medium text-stone-600 hover:text-stone-800"
-						onclick={() => {
-							// TODO: 더 많은 활동 보기 페이지로 이동
-						}}
+						class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium text-stone-600 transition-colors hover:bg-stone-50 hover:text-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
+						onclick={onLoadMore}
+						disabled={isLoadingMore}
 					>
-						더 많은 활동 보기
+						{#if isLoadingMore}
+							<i class="fas fa-spinner fa-spin mr-2"></i>
+							불러오는 중...
+						{:else}
+							<i class="fas fa-plus mr-2"></i>
+							더 많은 활동 보기
+						{/if}
 					</button>
+				</div>
+			{:else if activities.length > 0}
+				<div class="mt-4 text-center">
+					<p class="text-sm text-gray-500">모든 활동을 불러왔습니다.</p>
 				</div>
 			{/if}
 		{/if}

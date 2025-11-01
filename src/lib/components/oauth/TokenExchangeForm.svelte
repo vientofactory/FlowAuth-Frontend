@@ -94,7 +94,7 @@
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({}));
 				throw new Error(
-					errorData.error_description || errorData.error || `HTTP ${response.status}`
+					errorData.detail || errorData.extensions?.error || `HTTP ${response.status}`
 				);
 			}
 

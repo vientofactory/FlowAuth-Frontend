@@ -1,5 +1,6 @@
 import type { Client } from '$lib/types/oauth.types';
 import type { User } from '$lib/types/user.types';
+import type { ErrorCode } from '@flowauth/shared';
 
 export const TOKEN_TYPES = {
 	LOGIN: 'login',
@@ -30,6 +31,7 @@ export interface AuthorizationError {
 	message: string;
 	retryable: boolean;
 	details?: string;
+	errorCode?: ErrorCode;
 }
 
 export enum ErrorType {
@@ -39,6 +41,11 @@ export enum ErrorType {
 	CLIENT_NOT_FOUND = 'client',
 	SCOPE_INVALID = 'scope',
 	SERVER_ERROR = 'server',
+	AUTHENTICATION_ERROR = 'auth',
+	AUTHORIZATION_ERROR = 'authorization',
+	NOT_FOUND = 'not_found',
+	CONFLICT = 'conflict',
+	RATE_LIMITED = 'rate_limited',
 	UNKNOWN = 'unknown'
 }
 

@@ -10,7 +10,10 @@
 		Title,
 		Tooltip,
 		Legend,
-		ArcElement
+		ArcElement,
+		LineController,
+		BarController,
+		DoughnutController
 	} from 'chart.js';
 
 	// Chart.js 등록
@@ -23,7 +26,10 @@
 		Title,
 		Tooltip,
 		Legend,
-		ArcElement
+		ArcElement,
+		LineController,
+		BarController,
+		DoughnutController
 	);
 
 	import type { ChartData, ChartOptions } from 'chart.js';

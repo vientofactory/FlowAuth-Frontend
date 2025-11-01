@@ -4,15 +4,29 @@
 	interface Props {
 		responseType: string;
 		implicitTokens: { access_token?: string; id_token?: string } | null;
+		authCode?: string;
 	}
 
-	let { responseType, implicitTokens }: Props = $props();
+	let { responseType, implicitTokens, authCode: _authCode }: Props = $props();
 </script>
 
 <Card class="p-6">
 	<h3 class="mb-4 text-lg font-semibold text-gray-900">사용 안내</h3>
 	<div class="space-y-4 text-sm text-gray-600">
-		{#if responseType === 'code'}
+		{#if responseType === 'code id_token'}
+			<div>
+				<h4 class="font-medium text-gray-900">1. ID 토큰 확인</h4>
+				<p>Hybrid Flow로 받은 ID 토큰을 먼저 확인하세요.</p>
+			</div>
+			<div>
+				<h4 class="font-medium text-gray-900">2. 인증 코드 교환</h4>
+				<p>인증 코드를 액세스 토큰으로 교환하여 추가 권한을 얻으세요.</p>
+			</div>
+			<div>
+				<h4 class="font-medium text-gray-900">3. 서버측 리소스 접근</h4>
+				<p>교환된 액세스 토큰으로 서버측 API에 접근하여 테스트할 수 있습니다.</p>
+			</div>
+		{:else if responseType === 'code'}
 			<div>
 				<h4 class="font-medium text-gray-900">1. 인증 코드 확인</h4>
 				<p>OAuth2 인증 서버로부터 받은 인증 코드를 확인하세요.</p>

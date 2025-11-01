@@ -2,13 +2,22 @@ import { APP_CONSTANTS, ROUTES, MESSAGES } from '$lib/constants/app.constants';
 import { TOKEN_STORAGE_KEYS } from '$lib/constants/app.constants';
 import { env } from '$lib/config/env';
 import type { TokenType } from '$lib/types/authorization.types';
+import { parseBackendError } from '../error.utils';
 
 export interface ApiError {
 	message?: string;
 	status?: number;
 	code?: string;
+	// RFC 7807 Problem Details fields
+	type?: string;
+	title?: string;
+	detail?: string;
+	instance?: string;
+	extensions?: Record<string, unknown>;
+	// Legacy OAuth2 fields for backward compatibility
 	error?: string;
 	error_description?: string;
+	state?: string;
 	timestamp?: string;
 	path?: string;
 }
@@ -147,8 +156,32 @@ export abstract class BaseApi {
 	}
 
 	protected createErrorFromResponse(errorData: ApiError, status: number): Error {
-		const message = errorData.message || errorData.error_description || `HTTP ${status}`;
+		// RFC 7807 Problem Details 형식을 우선적으로 처리
+		if (errorData.type && errorData.title) {
+			const backendError = parseBackendError(errorData);
+			const error = new Error(backendError.message);
+			(error as Error & { status?: number; code?: string; errorCode?: string }).status = status;
+			(error as Error & { status?: number; code?: string; errorCode?: string }).code =
+				errorData.code;
+			(error as Error & { status?: number; code?: string; errorCode?: string }).errorCode =
+				errorData.extensions?.error as string;
+			return error;
+		}
 
+		// 기존 OAuth2 형식 (하위 호환성 유지)
+		if (errorData.error) {
+			const backendError = parseBackendError(errorData);
+			const error = new Error(backendError.message);
+			(error as Error & { status?: number; code?: string; errorCode?: string }).status = status;
+			(error as Error & { status?: number; code?: string; errorCode?: string }).code =
+				errorData.code;
+			(error as Error & { status?: number; code?: string; errorCode?: string }).errorCode =
+				errorData.error;
+			return error;
+		}
+
+		// 기존 로직
+		const message = errorData.message || errorData.error_description || `HTTP ${status}`;
 		const error = new Error(message);
 		(error as Error & { status?: number; code?: string }).status = status;
 		(error as Error & { status?: number; code?: string }).code = errorData.code;

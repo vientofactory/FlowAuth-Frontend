@@ -1,23 +1,13 @@
 <script lang="ts">
-	import {
-		DashboardLayout,
-		Card,
-		Button,
-		Badge,
-		Tabs,
-		apiClient,
-		authState,
-		useToast,
-		PermissionUtils,
-		DashboardSkeleton
-	} from '$lib';
-	import Chart from '$lib/components/Chart.svelte';
+	import { DashboardLayout, Tabs, apiClient, authState, useToast, DashboardSkeleton } from '$lib';
 	import StatsCards from '$lib/components/dashboard/StatsCards.svelte';
-	import RecentActivities from '$lib/components/dashboard/RecentActivities.svelte';
+	import OverviewTab from '$lib/components/dashboard/OverviewTab.svelte';
+	import AnalyticsTab from '$lib/components/dashboard/AnalyticsTab.svelte';
+	import ActivityTab from '$lib/components/dashboard/ActivityTab.svelte';
+	import QuickActionsTab from '$lib/components/dashboard/QuickActionsTab.svelte';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import type { User } from '$lib';
-	import { USER_TYPES } from '$lib/types/user.types';
 	import { usePermissions } from '$lib/composables/usePermissions';
 
 	let user = $state<User | null>(null);
@@ -31,8 +21,8 @@
 		totalTokensIssued: 0,
 		expiredTokens: 0,
 		revokedTokens: 0,
-		lastLoginDate: null as string | null,
-		accountCreated: null as string | null,
+		lastLoginDate: undefined as Date | undefined,
+		accountCreated: undefined as Date | undefined,
 		tokenIssuanceByHour: [] as Array<{ hour: string; count: number }>,
 		tokenIssuanceByDay: [] as Array<{ date: string; count: number }>,
 		clientUsageStats: [] as Array<{
@@ -54,9 +44,88 @@
 		}
 	});
 
+	// 새로운 고급 분석 데이터 상태
+	let tokenAnalytics = $state({
+		usagePatterns: {
+			peakHours: [] as Array<{ hour: number; count: number; percentage: number }>,
+			weeklyPatterns: [] as Array<{ day: string; count: number; percentage: number }>,
+			monthlyTrends: [] as Array<{ month: string; count: number; growth: number }>
+		},
+		clientPerformance: [] as Array<{
+			clientId: number;
+			clientName: string;
+			totalTokens: number;
+			activeTokens: number;
+			avgResponseTime: number;
+			errorRate: number;
+			lastActivity: string;
+		}>,
+		userActivity: {
+			activeUsers: 0,
+			newUsers: 0,
+			returningUsers: 0,
+			sessionDuration: 0,
+			geographicDistribution: [] as Array<{ country: string; count: number; percentage: number }>
+		}
+	});
+
+	let securityMetrics = $state({
+		alerts: {
+			total: 0,
+			critical: 0,
+			high: 0,
+			medium: 0,
+			low: 0,
+			byType: [] as Array<{ type: string; count: number; severity: string }>
+		},
+		riskAnalysis: {
+			overallRiskScore: 0,
+			riskFactors: [] as Array<{ factor: string; score: number; impact: string }>,
+			recommendations: [] as string[]
+		},
+		threatDetection: {
+			suspiciousActivities: 0,
+			blockedAttempts: 0,
+			geographicThreats: [] as Array<{ country: string; threatLevel: string; incidents: number }>,
+			timeBasedPatterns: [] as Array<{ hour: number; threatCount: number }>
+		},
+		trends: {
+			alertTrend: [] as Array<{ date: string; count: number; severity: string }>,
+			riskTrend: [] as Array<{ date: string; score: number }>,
+			securityScore: 0
+		}
+	});
+
+	let advancedAnalytics = $state({
+		tokenLifecycle: {
+			creationToExpiration: [] as Array<{ stage: string; avgTime: number; percentage: number }>,
+			revocationReasons: [] as Array<{ reason: string; count: number; percentage: number }>,
+			lifetimeDistribution: [] as Array<{ range: string; count: number; percentage: number }>
+		},
+		clientAnalytics: {
+			topClients: [] as Array<{
+				clientId: number;
+				clientName: string;
+				metrics: { [key: string]: number };
+			}>,
+			clientHealth: [] as Array<{ clientId: number; healthScore: number; issues: string[] }>,
+			usageCorrelation: [] as Array<{ clientA: string; clientB: string; correlation: number }>
+		},
+		predictiveInsights: {
+			tokenDemand: { predicted: 0, confidence: 0, trend: '' },
+			riskPrediction: { level: '', factors: [] as string[], mitigation: [] as string[] },
+			systemCapacity: { current: 0, predicted: 0, bottleneck: '' }
+		}
+	});
+
 	// 권한 관련 상태
-	const { canManageSystem, isClientManager, isTokenManager, isUserManager, roleName } =
-		usePermissions();
+	const {
+		canManageSystem,
+		isClientManager,
+		isTokenManager,
+		isUserManager,
+		roleName: _roleName
+	} = usePermissions();
 
 	// 파생 상태
 	const _hasManageSystemPermission = $derived($canManageSystem);
@@ -66,18 +135,36 @@
 	const userTypeConfig = $derived.by(() => {
 		if (!user) return null;
 
+		// 사용자 유형에 따른 역할 이름 결정
+		let displayRoleName = '일반 사용자'; // 기본값
+		if (user.userType === 'developer') {
+			displayRoleName = '개발자';
+		} else if (user.userType === 'regular') {
+			displayRoleName = '일반 사용자';
+		}
+
+		// ADMIN 권한이 있는 경우 시스템 관리자로 표시
+		const userPermissions =
+			typeof user.permissions === 'string' ? parseInt(user.permissions, 10) : user.permissions;
+		if (userPermissions && (userPermissions & 1073741824) === 1073741824) {
+			// ADMIN_ACCESS 비트
+			displayRoleName = '시스템 관리자';
+		}
+
 		return {
-			title: isDeveloper ? '개발자 대시보드' : '사용자 대시보드',
-			description: isDeveloper
-				? 'OAuth2 클라이언트와 토큰을 관리하고 모니터링하세요.'
-				: '계정을 관리하고 OAuth2 로그인을 이용하세요.',
+			title: user.userType === 'developer' ? '개발자 대시보드' : '사용자 대시보드',
+			description:
+				user.userType === 'developer'
+					? 'OAuth2 클라이언트와 토큰을 관리하고 모니터링하세요.'
+					: '계정을 관리하고 OAuth2 로그인을 이용하세요.',
+			displayRoleName,
 			stats: [
 				{
 					label: '클라이언트',
 					value: dashboardStats.totalClients,
 					icon: 'fas fa-users',
 					color: 'from-stone-500 to-stone-600',
-					show: isDeveloper
+					show: user.userType === 'developer'
 				},
 				{
 					label: '토큰',
@@ -107,52 +194,53 @@
 				},
 				{
 					label: '권한',
-					value: $roleName,
+					value: displayRoleName,
 					icon: 'fas fa-shield-alt',
 					color: 'from-zinc-500 to-zinc-600',
 					show: true
 				}
 			].filter((stat) => stat.show),
-			quickActions: isDeveloper
-				? [
-						{
-							label: '클라이언트\n생성',
-							icon: 'fas fa-plus-circle',
-							color: 'blue',
-							action: navigateToClients
-						},
-						{
-							label: '토큰\n관리',
-							icon: 'fas fa-key',
-							color: 'green',
-							action: navigateToTokens
-						},
-						{
-							label: 'OAuth2\n테스터',
-							icon: 'fas fa-link',
-							color: 'orange',
-							action: navigateToOAuthTester
-						}
-					]
-				: [
-						{
-							label: '프로필\n편집',
-							icon: 'fas fa-user-edit',
-							color: 'blue',
-							action: navigateToProfile
-						},
-						{
-							label: '토큰\n관리',
-							icon: 'fas fa-key',
-							color: 'green',
-							action: navigateToTokens
-						}
-					]
+			quickActions:
+				user.userType === 'developer'
+					? [
+							{
+								label: '클라이언트\n생성',
+								icon: 'fas fa-plus-circle',
+								color: 'blue',
+								action: navigateToClients
+							},
+							{
+								label: '토큰\n관리',
+								icon: 'fas fa-key',
+								color: 'green',
+								action: navigateToTokens
+							},
+							{
+								label: 'OAuth2\n테스터',
+								icon: 'fas fa-link',
+								color: 'orange',
+								action: navigateToOAuthTester
+							}
+						]
+					: [
+							{
+								label: '프로필\n편집',
+								icon: 'fas fa-user-edit',
+								color: 'blue',
+								action: navigateToProfile
+							},
+							{
+								label: '토큰\n관리',
+								icon: 'fas fa-key',
+								color: 'green',
+								action: navigateToTokens
+							}
+						]
 		};
 	});
 
-	let recentActivities = $state<
-		{
+	let recentActivities = $state<{
+		activities: {
 			id: number;
 			type: string;
 			description: string;
@@ -166,6 +254,9 @@
 				activity?: string;
 				location?: string;
 				userId?: number;
+				ipAddress?: string;
+				userAgent?: string;
+				severity?: string;
 				details?: {
 					scopes?: string[];
 					expiresAt?: string;
@@ -177,8 +268,9 @@
 					tokenId?: number;
 				};
 			};
-		}[]
-	>([]);
+		}[];
+		total: number;
+	}>({ activities: [], total: 0 });
 
 	const toast = useToast();
 
@@ -210,8 +302,11 @@
 			}
 
 			// user가 로드되면 accountCreated 업데이트
-			if (user?.createdAt && dashboardStats.accountCreated !== user.createdAt) {
-				dashboardStats.accountCreated = user.createdAt;
+			if (
+				user?.createdAt &&
+				dashboardStats.accountCreated?.getTime() !== new Date(user.createdAt).getTime()
+			) {
+				dashboardStats.accountCreated = new Date(user.createdAt);
 			}
 		});
 
@@ -223,19 +318,99 @@
 		try {
 			isDashboardLoading = true;
 
-			// 실제 API 호출로 대시보드 통계 가져오기
-			const [stats, activities] = await Promise.all([
-				apiClient.getDashboardStats(),
-				apiClient.getRecentActivities(5)
-			]);
+			// 기본 통계와 새로운 분석 데이터들을 병렬로 로드
+			const [stats, activities, tokenAnalyticsData, securityMetricsData, advancedAnalyticsData] =
+				await Promise.all([
+					apiClient.getDashboardStats(),
+					apiClient.getRecentActivities(5),
+					apiClient.getTokenAnalytics().catch(() => null), // 새로운 API들은 실패해도 기본 기능 유지
+					apiClient.getSecurityMetrics().catch(() => null),
+					apiClient.getAdvancedAnalytics().catch(() => null)
+				]);
 
 			dashboardStats = {
 				...stats,
-				// user 객체에서 accountCreated가 없으면 API 응답 사용
-				accountCreated: user?.createdAt || stats.accountCreated
+				// API 응답의 날짜 문자열을 Date 객체로 변환, null은 undefined로
+				lastLoginDate: stats.lastLoginDate ? new Date(stats.lastLoginDate) : undefined,
+				accountCreated: stats.accountCreated ? new Date(stats.accountCreated) : undefined
 			};
 
 			recentActivities = activities;
+
+			// 새로운 분석 데이터들 설정 (API 호출이 성공한 경우에만)
+			if (tokenAnalyticsData) {
+				tokenAnalytics = tokenAnalyticsData;
+			} else {
+				// 기본값 설정
+				tokenAnalytics = {
+					usagePatterns: {
+						peakHours: [],
+						weeklyPatterns: [],
+						monthlyTrends: []
+					},
+					clientPerformance: [],
+					userActivity: {
+						activeUsers: 0,
+						newUsers: 0,
+						returningUsers: 0,
+						sessionDuration: 0,
+						geographicDistribution: []
+					}
+				};
+			}
+			if (securityMetricsData) {
+				securityMetrics = securityMetricsData;
+			} else {
+				// 기본값 설정
+				securityMetrics = {
+					alerts: {
+						total: 0,
+						critical: 0,
+						high: 0,
+						medium: 0,
+						low: 0,
+						byType: []
+					},
+					riskAnalysis: {
+						overallRiskScore: 0,
+						riskFactors: [],
+						recommendations: []
+					},
+					threatDetection: {
+						suspiciousActivities: 0,
+						blockedAttempts: 0,
+						geographicThreats: [],
+						timeBasedPatterns: []
+					},
+					trends: {
+						alertTrend: [],
+						riskTrend: [],
+						securityScore: 0
+					}
+				};
+			}
+			if (advancedAnalyticsData) {
+				advancedAnalytics = advancedAnalyticsData;
+			} else {
+				// 기본값 설정
+				advancedAnalytics = {
+					tokenLifecycle: {
+						creationToExpiration: [],
+						revocationReasons: [],
+						lifetimeDistribution: []
+					},
+					clientAnalytics: {
+						topClients: [],
+						clientHealth: [],
+						usageCorrelation: []
+					},
+					predictiveInsights: {
+						tokenDemand: { predicted: 0, confidence: 0, trend: '' },
+						riskPrediction: { level: '', factors: [], mitigation: [] },
+						systemCapacity: { current: 0, predicted: 0, bottleneck: '' }
+					}
+				};
+			}
 		} catch (error) {
 			console.error('Failed to load dashboard data:', error);
 			// API 호출 실패 시 user 객체에서 데이터 사용
@@ -245,8 +420,8 @@
 				totalTokensIssued: 0,
 				expiredTokens: 0,
 				revokedTokens: 0,
-				lastLoginDate: null,
-				accountCreated: user?.createdAt || null,
+				lastLoginDate: undefined,
+				accountCreated: user?.createdAt ? new Date(user.createdAt) : undefined,
 				tokenIssuanceByHour: [],
 				tokenIssuanceByDay: [],
 				clientUsageStats: [],
@@ -259,6 +434,71 @@
 					alerts: ''
 				}
 			};
+
+			// API 실패 시 다른 데이터들도 기본값으로 설정
+			tokenAnalytics = {
+				usagePatterns: {
+					peakHours: [],
+					weeklyPatterns: [],
+					monthlyTrends: []
+				},
+				clientPerformance: [],
+				userActivity: {
+					activeUsers: 0,
+					newUsers: 0,
+					returningUsers: 0,
+					sessionDuration: 0,
+					geographicDistribution: []
+				}
+			};
+
+			securityMetrics = {
+				alerts: {
+					total: 0,
+					critical: 0,
+					high: 0,
+					medium: 0,
+					low: 0,
+					byType: []
+				},
+				riskAnalysis: {
+					overallRiskScore: 0,
+					riskFactors: [],
+					recommendations: []
+				},
+				threatDetection: {
+					suspiciousActivities: 0,
+					blockedAttempts: 0,
+					geographicThreats: [],
+					timeBasedPatterns: []
+				},
+				trends: {
+					alertTrend: [],
+					riskTrend: [],
+					securityScore: 0
+				}
+			};
+
+			advancedAnalytics = {
+				tokenLifecycle: {
+					creationToExpiration: [],
+					revocationReasons: [],
+					lifetimeDistribution: []
+				},
+				clientAnalytics: {
+					topClients: [],
+					clientHealth: [],
+					usageCorrelation: []
+				},
+				predictiveInsights: {
+					tokenDemand: { predicted: 0, confidence: 0, trend: '' },
+					riskPrediction: { level: '', factors: [], mitigation: [] },
+					systemCapacity: { current: 0, predicted: 0, bottleneck: '' }
+				}
+			};
+
+			recentActivities = { activities: [], total: 0 };
+
 			toast.error('대시보드 데이터를 불러오는데 실패했습니다.');
 		} finally {
 			isDashboardLoading = false;
@@ -266,58 +506,9 @@
 		}
 	}
 
-	// 색상 설정 상수
-	const COLOR_CLASSES = {
-		blue: {
-			hover: 'hover:border-stone-400 hover:bg-stone-50',
-			background: 'bg-stone-100 group-hover:bg-stone-200',
-			text: 'text-stone-600'
-		},
-		green: {
-			hover: 'hover:border-neutral-400 hover:bg-neutral-50',
-			background: 'bg-neutral-100 group-hover:bg-neutral-200',
-			text: 'text-neutral-600'
-		},
-		purple: {
-			hover: 'hover:border-gray-400 hover:bg-gray-50',
-			background: 'bg-gray-100 group-hover:bg-gray-200',
-			text: 'text-gray-600'
-		},
-		orange: {
-			hover: 'hover:border-slate-400 hover:bg-slate-50',
-			background: 'bg-slate-100 group-hover:bg-slate-200',
-			text: 'text-slate-600'
-		}
-	} as const;
-
-	// 그리드 컬럼 수 계산 함수
-	function getGridColsClass(count: number, type: 'stats' | 'actions' = 'stats'): string {
-		if (type === 'actions') {
-			switch (count) {
-				case 1:
-					return 'grid-cols-1';
-				case 2:
-					return 'grid-cols-1 sm:grid-cols-2';
-				case 3:
-					return 'grid-cols-2 sm:grid-cols-3';
-				default:
-					return 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-4';
-			}
-		} else {
-			switch (count) {
-				case 1:
-					return 'grid-cols-1';
-				case 2:
-					return 'grid-cols-1 sm:grid-cols-2';
-				case 3:
-					return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
-				default:
-					return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4';
-			}
-		}
+	function navigateToOAuthTester() {
+		goto('/dashboard/oauth-tester');
 	}
-
-	// 빠른 액션 함수들
 	function navigateToProfile() {
 		goto('/dashboard/profile');
 	}
@@ -333,10 +524,6 @@
 	function _navigateToSettings() {
 		goto('/dashboard/settings');
 	}
-
-	function navigateToOAuthTester() {
-		goto('/dashboard/oauth-tester');
-	}
 </script>
 
 <DashboardLayout
@@ -347,774 +534,42 @@
 	{#if isDashboardLoading}
 		<DashboardSkeleton type="stats" />
 	{:else if userTypeConfig}
-		<StatsCards {dashboardStats} {user} {isDeveloper} roleName={$roleName} />
+		<StatsCards {dashboardStats} {user} {isDeveloper} roleName={userTypeConfig.displayRoleName} />
 	{/if}
 
 	<!-- 탭 인터페이스 -->
 	<div class="mb-6 overflow-hidden rounded-xl bg-white shadow-lg lg:mb-8">
-		<Tabs {tabs} bind:activeTab />
-
-		<!-- 탭 콘텐츠 -->
-		<div class="p-6">
-			{#if activeTab === 'overview'}
-				<!-- 개요 탭 -->
-				<div class="space-y-4 sm:space-y-6">
-					<!-- 사용자 정보 카드 -->
-					{#if isDashboardLoading}
-						<!-- 사용자 정보 카드 스켈레톤 -->
-						<div
-							class="relative overflow-hidden rounded-xl bg-gradient-to-r from-stone-50 to-gray-50 p-6 shadow-sm ring-1 ring-stone-100"
-						>
-							<div class="relative">
-								<div
-									class="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0"
-								>
-									<div class="flex-1">
-										<div class="mb-4 flex items-center text-lg font-semibold">
-											<div class="mr-3 h-8 w-8 animate-pulse rounded-lg bg-gray-200"></div>
-											<div class="h-6 w-24 animate-pulse rounded bg-gray-200"></div>
-										</div>
-										<div class="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
-											{#each Array(5) as _, i (i)}
-												<div
-													class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm"
-												>
-													<div class="h-8 w-8 animate-pulse rounded-lg bg-gray-200"></div>
-													<div>
-														<div class="mb-1 h-3 w-16 animate-pulse rounded bg-gray-200"></div>
-														<div class="h-4 w-20 animate-pulse rounded bg-gray-100"></div>
-													</div>
-												</div>
-											{/each}
-										</div>
-									</div>
-									<div class="mt-4 flex justify-center sm:mt-0 sm:justify-end">
-										<div class="h-10 w-24 animate-pulse rounded bg-gray-200"></div>
-									</div>
-								</div>
-							</div>
-						</div>
-					{:else if user}
-						<div
-							class="relative overflow-hidden rounded-xl bg-gradient-to-r from-stone-50 to-gray-50 p-6 shadow-sm ring-1 ring-stone-100"
-						>
-							<div class="relative">
-								<div
-									class="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0"
-								>
-									<div class="flex-1">
-										<h3 class="mb-4 flex items-center text-lg font-semibold text-gray-900">
-											<div
-												class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100"
-											>
-												<i class="fas fa-user text-stone-600"></i>
-											</div>
-											계정 정보
-										</h3>
-										<div class="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
-											<div
-												class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm"
-											>
-												<div
-													class="flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100"
-												>
-													<i class="fas fa-user text-stone-600"></i>
-												</div>
-												<div>
-													<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
-														사용자명
-													</p>
-													<p class="font-medium text-gray-900">{user.username}</p>
-												</div>
-											</div>
-											<div
-												class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm"
-											>
-												<div
-													class="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-100"
-												>
-													<i class="fas fa-envelope text-neutral-600"></i>
-												</div>
-												<div>
-													<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
-														이메일
-													</p>
-													<p class="font-medium text-gray-900">{user.email}</p>
-												</div>
-											</div>
-											<div
-												class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm sm:col-span-2 lg:col-span-1"
-											>
-												<div
-													class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100"
-												>
-													<i class="fas fa-id-card text-gray-600"></i>
-												</div>
-												<div>
-													<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
-														이름
-													</p>
-													<p class="font-medium text-gray-900">{user.firstName} {user.lastName}</p>
-												</div>
-											</div>
-											<div
-												class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm"
-											>
-												<div
-													class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100"
-												>
-													<i class="fas fa-shield-alt text-slate-600"></i>
-												</div>
-												<div>
-													<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
-														역할
-													</p>
-													<div class="flex items-center space-x-2">
-														{#if user.permissions !== undefined}
-															<Badge variant="info" size="sm" class="font-medium">
-																{PermissionUtils.getRoleName(Number(user.permissions))}
-															</Badge>
-														{:else}
-															<Badge variant="secondary" size="sm" class="font-medium"
-																>권한 없음</Badge
-															>
-														{/if}
-													</div>
-												</div>
-											</div>
-											<div
-												class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm"
-											>
-												<div
-													class="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100"
-												>
-													<i class="fas fa-user-tag text-zinc-600"></i>
-												</div>
-												<div>
-													<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
-														유형
-													</p>
-													<Badge
-														variant={user.userType === USER_TYPES.DEVELOPER ? 'secondary' : 'info'}
-														size="sm"
-														class="font-medium"
-													>
-														{user.userType === USER_TYPES.DEVELOPER ? '개발자' : '사용자'}
-													</Badge>
-												</div>
-											</div>
-										</div>
-									</div>
-									<div class="mt-4 flex justify-center sm:mt-0 sm:justify-end">
-										<Button
-											variant="outline"
-											onclick={navigateToProfile}
-											class="w-full transition-colors hover:border-stone-200 hover:bg-stone-50 sm:w-auto"
-										>
-											<i class="fas fa-edit mr-2"></i>
-											프로필 편집
-										</Button>
-									</div>
-								</div>
-							</div>
-						</div>
-					{/if}
-				</div>
-			{:else if activeTab === 'analytics'}
-				<!-- 분석 탭 -->
-				<div class="space-y-6">
-					<!-- 로딩 상태 -->
-					{#if isDashboardLoading}
-						<div class="space-y-6">
-							<DashboardSkeleton type="insights" />
-							<div class="grid gap-6 lg:grid-cols-2">
-								<DashboardSkeleton type="chart" />
-								<DashboardSkeleton type="chart" />
-								<DashboardSkeleton type="chart" />
-								<DashboardSkeleton type="chart" />
-							</div>
-							<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-								{#each Array(4) as _, i (i)}
-									<div
-										class="overflow-hidden rounded-xl border-gray-200 bg-gradient-to-br from-gray-200 to-gray-300 p-4 text-center shadow-lg"
-									>
-										<div class="mb-3 flex items-center justify-center">
-											<div class="h-8 w-8 animate-pulse rounded bg-white/40"></div>
-										</div>
-										<div class="mx-auto mb-1 h-8 w-16 animate-pulse rounded bg-white/40"></div>
-										<div class="mx-auto mb-1 h-4 w-20 animate-pulse rounded bg-white/40"></div>
-										<div class="mx-auto h-3 w-12 animate-pulse rounded bg-white/40"></div>
-									</div>
-								{/each}
-							</div>
-						</div>
-					{:else}
-						<!-- 인사이트 카드 -->
-						<Card class="border-l-4 border-l-stone-400 bg-gradient-to-r from-stone-50 to-gray-50">
-							<div class="flex items-start space-x-4">
-								<div class="flex-shrink-0">
-									<div class="flex h-12 w-12 items-center justify-center rounded-full bg-stone-100">
-										<i class="fas fa-lightbulb text-xl text-stone-600"></i>
-									</div>
-								</div>
-								<div class="flex-1">
-									<h3 class="mb-3 text-lg font-semibold text-gray-900">인사이트 분석</h3>
-									<div class="grid gap-4 md:grid-cols-3">
-										{#if dashboardStats.insights.trends}
-											<div
-												class="flex items-start space-x-3 rounded-lg border border-stone-200 bg-white p-3"
-											>
-												<div
-													class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-stone-100"
-												>
-													<i class="fas fa-chart-line text-stone-600"></i>
-												</div>
-												<div class="min-w-0">
-													<p class="text-sm font-medium text-gray-900">트렌드 분석</p>
-													<p class="mt-1 text-sm text-gray-600">{dashboardStats.insights.trends}</p>
-												</div>
-											</div>
-										{/if}
-										{#if dashboardStats.insights.recommendations}
-											<div
-												class="flex items-start space-x-3 rounded-lg border border-neutral-200 bg-white p-3"
-											>
-												<div
-													class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-neutral-100"
-												>
-													<i class="fas fa-check-circle text-neutral-600"></i>
-												</div>
-												<div class="min-w-0">
-													<p class="text-sm font-medium text-gray-900">권장사항</p>
-													<p class="mt-1 text-sm text-gray-600">
-														{dashboardStats.insights.recommendations}
-													</p>
-												</div>
-											</div>
-										{/if}
-										{#if dashboardStats.insights.alerts}
-											<div
-												class="flex items-start space-x-3 rounded-lg border border-gray-200 bg-white p-3"
-											>
-												<div
-													class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-100"
-												>
-													<i class="fas fa-exclamation-triangle text-gray-600"></i>
-												</div>
-												<div class="min-w-0">
-													<p class="text-sm font-medium text-gray-900">주의사항</p>
-													<p class="mt-1 text-sm text-gray-600">{dashboardStats.insights.alerts}</p>
-												</div>
-											</div>
-										{/if}
-									</div>
-									{#if !dashboardStats.insights.trends && !dashboardStats.insights.recommendations && !dashboardStats.insights.alerts}
-										<div class="py-8 text-center text-gray-500">
-											<i class="fas fa-info-circle mb-2 text-3xl"></i>
-											<p>분석할 데이터가 충분하지 않습니다.</p>
-											<p class="mt-1 text-sm">더 많은 활동 후 다시 확인해주세요.</p>
-										</div>
-									{/if}
-								</div>
-							</div>
-						</Card>
-
-						<!-- 메인 차트 그리드 -->
-						<div class="grid gap-6 lg:grid-cols-2">
-							<!-- 시간별 토큰 발급 차트 -->
-							<Card class="transition-shadow duration-300 hover:shadow-lg">
-								<div class="mb-4 flex items-center justify-between">
-									<h3 class="text-lg font-semibold text-gray-900">
-										<i class="fas fa-clock mr-2 text-stone-600"></i>
-										24시간 토큰 발급 추이
-									</h3>
-									<Badge variant="info" size="sm">실시간</Badge>
-								</div>
-								{#if dashboardStats.tokenIssuanceByHour.some((h) => h.count > 0)}
-									<div class="h-80">
-										<Chart
-											type="line"
-											data={{
-												labels: dashboardStats.tokenIssuanceByHour.map((h) => h.hour),
-												datasets: [
-													{
-														label: '토큰 발급 수',
-														data: dashboardStats.tokenIssuanceByHour.map((h) => h.count),
-														borderColor: 'rgb(59, 130, 246)',
-														backgroundColor: 'rgba(59, 130, 246, 0.1)',
-														tension: 0.4,
-														fill: true,
-														pointBackgroundColor: 'rgb(59, 130, 246)',
-														pointBorderColor: '#ffffff',
-														pointBorderWidth: 2,
-														pointRadius: 4,
-														pointHoverRadius: 6
-													}
-												]
-											}}
-											options={{
-												responsive: true,
-												maintainAspectRatio: false,
-												scales: {
-													y: {
-														beginAtZero: true,
-														ticks: {
-															stepSize: 1,
-															font: {
-																size: 12
-															}
-														},
-														grid: {
-															color: 'rgba(0, 0, 0, 0.1)'
-														}
-													},
-													x: {
-														ticks: {
-															font: {
-																size: 11
-															}
-														},
-														grid: {
-															display: false
-														}
-													}
-												},
-												plugins: {
-													legend: {
-														display: false
-													},
-													tooltip: {
-														backgroundColor: 'rgba(0, 0, 0, 0.8)',
-														titleColor: '#ffffff',
-														bodyColor: '#ffffff',
-														cornerRadius: 8,
-														displayColors: false
-													}
-												},
-												interaction: {
-													intersect: false,
-													mode: 'index'
-												},
-												animation: {
-													duration: 1000,
-													easing: 'easeInOutQuart'
-												}
-											}}
-										/>
-									</div>
-								{:else}
-									<div
-										class="flex h-80 items-center justify-center rounded-lg bg-gray-50 text-gray-500"
-									>
-										<div class="text-center">
-											<i class="fas fa-chart-line mb-3 text-4xl opacity-50"></i>
-											<p class="font-medium">최근 24시간 동안</p>
-											<p class="text-sm">토큰 발급 기록이 없습니다</p>
-										</div>
-									</div>
-								{/if}
-							</Card>
-
-							<!-- 일별 토큰 발급 차트 -->
-							<Card class="transition-shadow duration-300 hover:shadow-lg">
-								<div class="mb-4 flex items-center justify-between">
-									<h3 class="text-lg font-semibold text-gray-900">
-										<i class="fas fa-calendar mr-2 text-neutral-600"></i>
-										30일 토큰 발급 추이
-									</h3>
-									<Badge variant="info" size="sm">
-										{dashboardStats.tokenIssuanceByDay.filter((d) => d.count > 0).length}일 활동
-									</Badge>
-								</div>
-								{#if dashboardStats.tokenIssuanceByDay.some((d) => d.count > 0)}
-									<div class="h-80">
-										<Chart
-											type="bar"
-											data={{
-												labels: dashboardStats.tokenIssuanceByDay.map((d) => {
-													const date = new Date(d.date);
-													return date.toLocaleDateString('ko-KR', {
-														month: 'short',
-														day: 'numeric'
-													});
-												}),
-												datasets: [
-													{
-														label: '토큰 발급 수',
-														data: dashboardStats.tokenIssuanceByDay.map((d) => d.count),
-														backgroundColor: dashboardStats.tokenIssuanceByDay.map((d) =>
-															d.count > 0 ? 'rgba(34, 197, 94, 0.8)' : 'rgba(156, 163, 175, 0.3)'
-														),
-														borderColor: dashboardStats.tokenIssuanceByDay.map((d) =>
-															d.count > 0 ? 'rgb(34, 197, 94)' : 'rgb(156, 163, 175)'
-														),
-														borderWidth: 1,
-														borderRadius: 4,
-														borderSkipped: false
-													}
-												]
-											}}
-											options={{
-												responsive: true,
-												maintainAspectRatio: false,
-												scales: {
-													y: {
-														beginAtZero: true,
-														ticks: {
-															stepSize: 1,
-															font: {
-																size: 12
-															}
-														},
-														grid: {
-															color: 'rgba(0, 0, 0, 0.1)'
-														}
-													},
-													x: {
-														ticks: {
-															font: {
-																size: 10
-															},
-															maxRotation: 45
-														},
-														grid: {
-															display: false
-														}
-													}
-												},
-												plugins: {
-													legend: {
-														display: false
-													},
-													tooltip: {
-														backgroundColor: 'rgba(0, 0, 0, 0.8)',
-														titleColor: '#ffffff',
-														bodyColor: '#ffffff',
-														cornerRadius: 8,
-														displayColors: false,
-														callbacks: {
-															title: function (context) {
-																const date = new Date(
-																	dashboardStats.tokenIssuanceByDay[context[0].dataIndex].date
-																);
-																return date.toLocaleDateString('ko-KR', {
-																	year: 'numeric',
-																	month: 'long',
-																	day: 'numeric',
-																	weekday: 'long'
-																});
-															}
-														}
-													}
-												},
-												animation: {
-													duration: 1200,
-													easing: 'easeOutBounce'
-												}
-											}}
-										/>
-									</div>
-								{:else}
-									<div
-										class="flex h-80 items-center justify-center rounded-lg bg-gray-50 text-gray-500"
-									>
-										<div class="text-center">
-											<i class="fas fa-chart-bar mb-3 text-4xl opacity-50"></i>
-											<p class="font-medium">최근 30일 동안</p>
-											<p class="text-sm">토큰 발급 기록이 없습니다</p>
-										</div>
-									</div>
-								{/if}
-							</Card>
-
-							<!-- 클라이언트별 사용량 차트 -->
-							<Card class="transition-shadow duration-300 hover:shadow-lg">
-								<div class="mb-4 flex items-center justify-between">
-									<h3 class="text-lg font-semibold text-gray-900">
-										<i class="fas fa-users mr-2 text-gray-600"></i>
-										클라이언트별 토큰 사용량
-									</h3>
-									<Badge variant="secondary" size="sm">
-										{dashboardStats.clientUsageStats.length}개 클라이언트
-									</Badge>
-								</div>
-								{#if dashboardStats.clientUsageStats.length > 0}
-									<div class="h-80">
-										<Chart
-											type="doughnut"
-											data={{
-												labels: dashboardStats.clientUsageStats.map((c) => c.clientName),
-												datasets: [
-													{
-														data: dashboardStats.clientUsageStats.map((c) => c.tokenCount),
-														backgroundColor: [
-															'rgba(59, 130, 246, 0.9)',
-															'rgba(34, 197, 94, 0.9)',
-															'rgba(168, 85, 247, 0.9)',
-															'rgba(251, 191, 36, 0.9)',
-															'rgba(239, 68, 68, 0.9)',
-															'rgba(6, 182, 212, 0.9)',
-															'rgba(236, 72, 153, 0.9)',
-															'rgba(139, 69, 19, 0.9)',
-															'rgba(107, 114, 128, 0.9)',
-															'rgba(5, 150, 105, 0.9)'
-														],
-														borderWidth: 3,
-														borderColor: '#ffffff',
-														hoverBorderWidth: 4,
-														hoverBorderColor: '#ffffff',
-														hoverOffset: 8
-													}
-												]
-											}}
-											options={{
-												responsive: true,
-												maintainAspectRatio: false,
-												plugins: {
-													legend: {
-														position: 'bottom',
-														labels: {
-															boxWidth: 12,
-															padding: 20,
-															font: {
-																size: 11
-															},
-															usePointStyle: true
-														}
-													},
-													tooltip: {
-														backgroundColor: 'rgba(0, 0, 0, 0.8)',
-														titleColor: '#ffffff',
-														bodyColor: '#ffffff',
-														cornerRadius: 8,
-														callbacks: {
-															label: function (context) {
-																const label = context.label || '';
-																const value = context.parsed;
-																const percentage =
-																	dashboardStats.clientUsageStats[context.dataIndex].percentage;
-																return `${label}: ${value}회 (${percentage.toFixed(1)}%)`;
-															}
-														}
-													}
-												},
-												animation: {
-													duration: 1500,
-													easing: 'easeInOutQuart'
-												}
-											}}
-										/>
-									</div>
-								{:else}
-									<div
-										class="flex h-80 items-center justify-center rounded-lg bg-gray-50 text-gray-500"
-									>
-										<div class="text-center">
-											<i class="fas fa-chart-pie mb-3 text-4xl opacity-50"></i>
-											<p class="font-medium">등록된 클라이언트가</p>
-											<p class="text-sm">없거나 토큰 발급 기록이 없습니다</p>
-										</div>
-									</div>
-								{/if}
-							</Card>
-
-							<!-- 스코프별 사용량 차트 -->
-							<Card class="transition-shadow duration-300 hover:shadow-lg">
-								<div class="mb-4 flex items-center justify-between">
-									<h3 class="text-lg font-semibold text-gray-900">
-										<i class="fas fa-shield-alt mr-2 text-slate-600"></i>
-										스코프별 사용 통계
-									</h3>
-									<Badge variant="secondary" size="sm">
-										{dashboardStats.scopeUsageStats.length}개 스코프
-									</Badge>
-								</div>
-								{#if dashboardStats.scopeUsageStats.length > 0}
-									<div class="h-80 space-y-4 overflow-y-auto">
-										{#each dashboardStats.scopeUsageStats as scope, index (scope.scope)}
-											<div
-												class="flex items-center space-x-3 rounded-lg bg-gray-50 p-3 transition-colors hover:bg-gray-100"
-											>
-												<div
-													class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold"
-													style="background-color: {[
-														'rgba(59, 130, 246, 0.9)',
-														'rgba(168, 85, 247, 0.9)',
-														'rgba(34, 197, 94, 0.9)',
-														'rgba(251, 191, 36, 0.9)',
-														'rgba(239, 68, 68, 0.9)',
-														'rgba(6, 182, 212, 0.9)',
-														'rgba(236, 72, 153, 0.9)',
-														'rgba(139, 69, 19, 0.9)',
-														'rgba(107, 114, 128, 0.9)',
-														'rgba(5, 150, 105, 0.9)'
-													][index % 10]}; color: white;"
-												>
-													{index + 1}
-												</div>
-												<div class="min-w-0 flex-1">
-													<div class="mb-1 flex items-center justify-between">
-														<span class="truncate font-medium text-gray-900">{scope.scope}</span>
-														<div class="flex items-center space-x-2">
-															<Badge variant="secondary" size="sm">{scope.count}회</Badge>
-															<span class="text-sm font-medium text-gray-600"
-																>{scope.percentage}%</span
-															>
-														</div>
-													</div>
-													<div class="h-3 w-full rounded-full bg-gray-200">
-														<div
-															class="h-3 rounded-full bg-gradient-to-r from-stone-400 to-stone-600 transition-all duration-1000 ease-out"
-															style="width: {scope.percentage}%"
-														></div>
-													</div>
-												</div>
-											</div>
-										{/each}
-									</div>
-								{:else}
-									<div
-										class="flex h-80 items-center justify-center rounded-lg bg-gray-50 text-gray-500"
-									>
-										<div class="text-center">
-											<i class="fas fa-shield-alt mb-3 text-4xl opacity-50"></i>
-											<p class="font-medium">사용된 스코프가</p>
-											<p class="text-sm">없거나 토큰 발급 기록이 없습니다</p>
-										</div>
-									</div>
-								{/if}
-							</Card>
-						</div>
-
-						<!-- 통계 요약 카드들 -->
-						<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-							<Card
-								class="border-stone-200 bg-gradient-to-br from-stone-50 to-stone-100 text-center transition-shadow hover:shadow-md"
-							>
-								<div class="p-4">
-									<div class="mb-3 flex items-center justify-center">
-										<i class="fas fa-key text-3xl text-stone-600"></i>
-									</div>
-									<p class="mb-1 text-3xl font-bold text-stone-900">
-										{dashboardStats.totalTokensIssued.toLocaleString()}
-									</p>
-									<p class="text-sm font-medium text-stone-700">총 토큰 발급</p>
-									<p class="mt-1 text-xs text-stone-600">누적 발급량</p>
-								</div>
-							</Card>
-
-							<Card
-								class="border-neutral-200 bg-gradient-to-br from-neutral-50 to-neutral-100 text-center transition-shadow hover:shadow-md"
-							>
-								<div class="p-4">
-									<div class="mb-3 flex items-center justify-center">
-										<i class="fas fa-clock text-3xl text-neutral-600"></i>
-									</div>
-									<p class="mb-1 text-3xl font-bold text-neutral-900">
-										{dashboardStats.expiredTokens.toLocaleString()}
-									</p>
-									<p class="text-sm font-medium text-neutral-700">만료된 토큰</p>
-									<p class="mt-1 text-xs text-neutral-600">
-										{dashboardStats.tokenExpirationRate.toFixed(1)}% 만료율
-									</p>
-								</div>
-							</Card>
-
-							<Card
-								class="border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 text-center transition-shadow hover:shadow-md"
-							>
-								<div class="p-4">
-									<div class="mb-3 flex items-center justify-center">
-										<i class="fas fa-ban text-3xl text-gray-600"></i>
-									</div>
-									<p class="mb-1 text-3xl font-bold text-gray-900">
-										{dashboardStats.revokedTokens.toLocaleString()}
-									</p>
-									<p class="text-sm font-medium text-gray-700">취소된 토큰</p>
-									<p class="mt-1 text-xs text-gray-600">보안 조치</p>
-								</div>
-							</Card>
-
-							<Card
-								class="border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 text-center transition-shadow hover:shadow-md"
-							>
-								<div class="p-4">
-									<div class="mb-3 flex items-center justify-center">
-										<i class="fas fa-percentage text-3xl text-slate-600"></i>
-									</div>
-									<p class="mb-1 text-3xl font-bold text-slate-900">
-										{dashboardStats.tokenExpirationRate.toFixed(1)}%
-									</p>
-									<p class="text-sm font-medium text-slate-700">만료율</p>
-									<p class="mt-1 text-xs text-slate-600">전체 대비</p>
-								</div>
-							</Card>
-						</div>
-					{/if}
-				</div>
-			{:else if activeTab === 'activity'}
-				<!-- 최근 활동 탭 -->
-				{#if isDashboardLoading}
-					<DashboardSkeleton type="activity" count={5} />
-				{:else}
-					<RecentActivities activities={recentActivities} isLoading={isDashboardLoading} />
-				{/if}
-			{:else if activeTab === 'quick-actions'}
-				<!-- 빠른 작업 탭 -->
-				<div
-					class="relative overflow-hidden rounded-xl bg-gradient-to-r from-stone-50 to-gray-50 p-6 shadow-sm ring-1 ring-stone-100"
-				>
-					<div class="relative">
-						<div class="mb-6 text-center sm:text-left">
-							<h3
-								class="mb-2 flex items-center justify-center text-lg font-semibold text-gray-900 sm:justify-start"
-							>
-								<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100">
-									<i class="fas fa-bolt text-stone-600"></i>
-								</div>
-								빠른 작업
-							</h3>
-							<p class="text-sm text-gray-600">자주 사용하는 기능을 빠르게 실행하세요</p>
-						</div>
+		<Tabs {tabs} bind:activeTab>
+			{#snippet children({ activeTab })}
+				<!-- 탭 콘텐츠 -->
+				<div class="p-6">
+					{#if activeTab === 'overview'}
+						<!-- 개요 탭 -->
+						<OverviewTab
+							{user}
+							isLoading={isDashboardLoading}
+							onNavigateToProfile={navigateToProfile}
+						/>
+					{:else if activeTab === 'analytics'}
+						<!-- 분석 탭 -->
+						<AnalyticsTab
+							isLoading={isDashboardLoading}
+							{securityMetrics}
+							{tokenAnalytics}
+							{dashboardStats}
+							{advancedAnalytics}
+						/>
+					{:else if activeTab === 'activity'}
+						<!-- 최근 활동 탭 -->
+						<ActivityTab {recentActivities} {isDashboardLoading} />
+					{:else if activeTab === 'quick-actions'}
+						<!-- 빠른 작업 탭 -->
 						{#if userTypeConfig}
-							<div
-								class="grid gap-4 {getGridColsClass(userTypeConfig.quickActions.length, 'actions')}"
-							>
-								{#each userTypeConfig.quickActions as action, actionIndex (action.label || `action-${actionIndex}`)}
-									{@const colorClass = COLOR_CLASSES[action.color as keyof typeof COLOR_CLASSES]}
-									<div
-										class="group relative overflow-hidden rounded-xl border border-gray-100 bg-white/60 p-4 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white/80 hover:shadow-lg"
-									>
-										<Button
-											variant="ghost"
-											class="flex h-full w-full flex-col items-center justify-center space-y-3 p-0 hover:bg-transparent"
-											onclick={action.action}
-										>
-											<div class="relative">
-												<div
-													class="flex h-12 w-12 items-center justify-center rounded-xl transition-all duration-300 {colorClass?.background ||
-														'bg-gray-100'} group-hover:scale-110 group-hover:shadow-lg"
-												>
-													<i class="text-xl {colorClass?.text || 'text-gray-600'} {action.icon}"
-													></i>
-												</div>
-												<div
-													class="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-gradient-to-br from-stone-400 to-gray-500 opacity-0 transition-opacity group-hover:opacity-100"
-												></div>
-											</div>
-											<span
-												class="text-center text-sm leading-tight font-medium text-gray-700 transition-colors group-hover:text-gray-900"
-											>
-												{action.label}
-											</span>
-										</Button>
-									</div>
-								{/each}
-							</div>
+							<QuickActionsTab quickActions={userTypeConfig.quickActions} />
 						{/if}
-					</div>
+					{/if}
 				</div>
-			{/if}
-		</div>
+			{/snippet}
+		</Tabs>
 	</div>
 </DashboardLayout>
