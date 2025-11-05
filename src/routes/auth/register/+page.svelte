@@ -317,8 +317,8 @@
 			};
 
 			await apiClient.register(userData);
-			toast.success('회원가입이 완료되었습니다! 이메일을 확인해주세요.');
-			await goto('/auth/login');
+			toast.success('회원가입이 완료되었습니다! 이메일을 확인하여 계정을 인증해주세요.');
+			await goto('/auth/login?message=registration-complete');
 		} catch (error: unknown) {
 			const message = (error as Error)?.message || '회원가입 중 오류가 발생했습니다.';
 

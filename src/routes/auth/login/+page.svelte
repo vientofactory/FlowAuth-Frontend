@@ -44,6 +44,27 @@
 			// OAuth2 플로우인지 확인
 			isOAuth2Context = returnUrl.includes('/oauth2/authorize');
 
+			// URL 파라미터에서 메시지 확인
+			const message = $page.url.searchParams.get('message');
+			if (message) {
+				switch (message) {
+					case 'email-verified':
+						toast.success('이메일 인증이 완료되었습니다! 로그인해주세요.');
+						break;
+					case 'password-reset-success':
+						toast.success('비밀번호가 성공적으로 변경되었습니다! 새 비밀번호로 로그인해주세요.');
+						break;
+					case 'registration-complete':
+						toast.info('회원가입이 완료되었습니다. 이메일을 확인하여 계정을 인증해주세요.');
+						break;
+				}
+				
+				// URL에서 메시지 파라미터 제거 (브라우저 히스토리에서)
+				const url = new URL(window.location.href);
+				url.searchParams.delete('message');
+				window.history.replaceState({}, '', url.toString());
+			}
+
 			console.log('[Login] URL parameters:', {
 				returnUrl,
 				isOAuth2Context,
@@ -470,6 +491,15 @@
           </button>
         </div>
       </div> -->
+
+			<div class="mt-6 text-center">
+				<a
+					href="/auth/forgot-password"
+					class="text-sm text-blue-600 hover:text-blue-500 font-medium"
+				>
+					비밀번호를 잊으셨나요?
+				</a>
+			</div>
 
 			<div class="mt-8 space-y-2 text-center">
 				<p class="text-gray-600">

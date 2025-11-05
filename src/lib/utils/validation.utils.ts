@@ -27,15 +27,30 @@ export function validateEmail(email: string): ValidationResult {
 }
 
 /**
- * 비밀번호 검증 (백엔드 CreateUserDto와 동일)
+ * 비밀번호 검증 (백엔드 PASSWORD_VALIDATION과 동일)
  */
 export function validatePassword(password: string): ValidationResult {
 	if (!password || password.length === 0) {
 		return { isValid: false, message: '비밀번호를 입력해주세요.' };
 	}
 
-	if (password.length < 6) {
-		return { isValid: false, message: '비밀번호는 최소 6자 이상이어야 합니다.' };
+	if (password.length < 8) {
+		return { isValid: false, message: '비밀번호는 최소 8자 이상이어야 합니다.' };
+	}
+
+	// 소문자 포함 확인
+	if (!/(?=.*[a-z])/.test(password)) {
+		return { isValid: false, message: '비밀번호는 소문자를 포함해야 합니다.' };
+	}
+
+	// 대문자 포함 확인
+	if (!/(?=.*[A-Z])/.test(password)) {
+		return { isValid: false, message: '비밀번호는 대문자를 포함해야 합니다.' };
+	}
+
+	// 숫자 포함 확인
+	if (!/(?=.*\d)/.test(password)) {
+		return { isValid: false, message: '비밀번호는 숫자를 포함해야 합니다.' };
 	}
 
 	return { isValid: true };

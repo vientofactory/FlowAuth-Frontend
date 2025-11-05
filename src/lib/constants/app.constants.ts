@@ -25,7 +25,9 @@ export const ROUTES = {
 	LOGIN: '/auth/login',
 	REGISTER: '/auth/register',
 	DASHBOARD: '/dashboard',
-	FORGOT_PASSWORD: '/auth/forgot-password'
+	FORGOT_PASSWORD: '/auth/forgot-password',
+	RESET_PASSWORD: '/auth/reset-password',
+	VERIFY_EMAIL: '/auth/verify-email'
 } as const;
 
 // API 엔드포인트 상수들
