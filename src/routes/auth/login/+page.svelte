@@ -58,7 +58,7 @@
 						toast.info('회원가입이 완료되었습니다. 이메일을 확인하여 계정을 인증해주세요.');
 						break;
 				}
-				
+
 				// URL에서 메시지 파라미터 제거 (브라우저 히스토리에서)
 				const url = new URL(window.location.href);
 				url.searchParams.delete('message');
@@ -495,7 +495,7 @@
 			<div class="mt-6 text-center">
 				<a
 					href="/auth/forgot-password"
-					class="text-sm text-blue-600 hover:text-blue-500 font-medium"
+					class="text-sm font-medium text-blue-600 hover:text-blue-500"
 				>
 					비밀번호를 잊으셨나요?
 				</a>
