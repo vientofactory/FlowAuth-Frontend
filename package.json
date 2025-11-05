@@ -67,5 +67,8 @@
 		"chart.js": "^4.5.0",
 		"date-fns": "^4.1.0",
 		"recaptcha-v3": "^1.11.3"
+	},
+	"overrides": {
+		"cookie": "^0.7.2"
 	}
 }
