@@ -5,7 +5,8 @@
 	import { browser } from '$app/environment';
 	import { Card, Button, LoadingButton } from '$lib';
 	import { useToast } from '$lib';
-	import { APP_CONSTANTS, ROUTES } from '$lib/constants/app.constants';
+	import { ROUTES } from '$lib/constants/app.constants';
+	import { apiClient } from '$lib/utils/api';
 
 	let loading = $state(true);
 	let verifying = $state(false);
@@ -38,30 +39,28 @@
 		error = '';
 
 		try {
-			const response = await fetch(`${APP_CONSTANTS.API_BASE_URL}/auth/verify-email/${token}`, {
-				method: 'GET'
-			});
+			const data = await apiClient.auth.verifyEmail(token);
 
-			const data = await response.json();
+			verified = true;
+			email = data.email || '';
+			toast.success('이메일 인증이 성공적으로 완료되었습니다!');
 
-			if (response.ok) {
-				verified = true;
-				email = data.email || '';
-				toast.success('이메일 인증이 성공적으로 완료되었습니다!');
-
-				// 3초 후 로그인 페이지로 리다이렉트
-				setTimeout(() => {
-					goto(`${ROUTES.LOGIN}?message=email-verified`);
-				}, 3000);
-			} else {
-				error = data.message || '이메일 인증에 실패했습니다.';
-				email = data.email || '';
-				canResend = data.canResend || false;
-				toast.error(error);
-			}
+			// 3초 후 로그인 페이지로 리다이렉트
+			setTimeout(() => {
+				goto(`${ROUTES.LOGIN}?message=email-verified`);
+			}, 3000);
 		} catch (err) {
 			console.error('Email verification error:', err);
-			error = '네트워크 오류가 발생했습니다.';
+			const errorMessage = err instanceof Error ? err.message : '이메일 인증에 실패했습니다.';
+			error = errorMessage;
+
+			// API 에러 응답에서 추가 정보 추출 (에러가 API 에러일 때만)
+			if (err && typeof err === 'object' && 'status' in err) {
+				const apiError = err as Error & { status?: number; email?: string; canResend?: boolean };
+				email = apiError.email || '';
+				canResend = apiError.canResend || false;
+			}
+
 			toast.error(error);
 		} finally {
 			loading = false;
@@ -75,30 +74,19 @@
 		resendingEmail = true;
 
 		try {
-			const response = await fetch(`${APP_CONSTANTS.API_BASE_URL}/auth/resend-verification`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ email })
-			});
+			await apiClient.auth.resendVerificationEmail(email);
 
-			const data = await response.json();
+			toast.success('인증 이메일이 재전송되었습니다!');
+			canResend = false; // 임시로 재전송 비활성화
 
-			if (response.ok) {
-				toast.success('인증 이메일이 재전송되었습니다!');
-				canResend = false; // 임시로 재전송 비활성화
-
-				// 60초 후 다시 활성화
-				setTimeout(() => {
-					canResend = true;
-				}, 60000);
-			} else {
-				toast.error(data.message || '이메일 재전송에 실패했습니다.');
-			}
+			// 60초 후 다시 활성화
+			setTimeout(() => {
+				canResend = true;
+			}, 60000);
 		} catch (err) {
 			console.error('Email resend error:', err);
-			toast.error('네트워크 오류가 발생했습니다.');
+			const errorMessage = err instanceof Error ? err.message : '이메일 재전송에 실패했습니다.';
+			toast.error(errorMessage);
 		} finally {
 			resendingEmail = false;
 		}

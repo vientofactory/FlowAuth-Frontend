@@ -5,7 +5,8 @@
 	import { browser } from '$app/environment';
 	import { Card, Button, LoadingButton } from '$lib';
 	import { useToast, useFieldValidation, useFormValidation, validators } from '$lib';
-	import { APP_CONSTANTS, ROUTES } from '$lib/constants/app.constants';
+	import { ROUTES } from '$lib/constants/app.constants';
+	import { apiClient } from '$lib/utils/api';
 
 	let loading = $state(true);
 	let submitting = $state(false);
@@ -46,20 +47,17 @@
 
 		try {
 			// 토큰 유효성 확인
-			const response = await fetch(
-				`${APP_CONSTANTS.API_BASE_URL}/auth/validate-reset-token/${token}`
-			);
-			const data = await response.json();
+			const data = await apiClient.auth.validateResetToken(token);
 
 			if (data.valid) {
 				validToken = true;
-				email = data.email;
+				email = data.email || '';
 			} else {
 				error = '유효하지 않거나 만료된 토큰입니다.';
 			}
 		} catch (err) {
 			console.error('Token validation error:', err);
-			error = '네트워크 오류가 발생했습니다.';
+			error = err instanceof Error ? err.message : '네트워크 오류가 발생했습니다.';
 		} finally {
 			loading = false;
 		}
@@ -80,34 +78,21 @@
 		error = ''; // 이전 오류 메시지 클리어
 
 		try {
-			const response = await fetch(`${APP_CONSTANTS.API_BASE_URL}/auth/reset-password`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					token,
-					newPassword: passwordField.value
-				})
+			await apiClient.auth.resetPassword({
+				token,
+				newPassword: passwordField.value
 			});
 
-			const data = await response.json();
+			success = true;
+			toast.success('비밀번호가 성공적으로 변경되었습니다!');
 
-			if (response.ok) {
-				success = true;
-				toast.success('비밀번호가 성공적으로 변경되었습니다!');
-
-				// 3초 후 로그인 페이지로 리다이렉트
-				setTimeout(() => {
-					goto(`${ROUTES.LOGIN}?message=password-reset-success`);
-				}, 3000);
-			} else {
-				error = data.message || '비밀번호 재설정 중 오류가 발생했습니다.';
-				toast.error(error);
-			}
+			// 3초 후 로그인 페이지로 리다이렉트
+			setTimeout(() => {
+				goto(`${ROUTES.LOGIN}?message=password-reset-success`);
+			}, 3000);
 		} catch (err) {
 			console.error('Password reset error:', err);
-			error = '네트워크 오류가 발생했습니다.';
+			error = err instanceof Error ? err.message : '비밀번호 재설정 중 오류가 발생했습니다.';
 			toast.error(error);
 		} finally {
 			submitting = false;

@@ -3,7 +3,8 @@
 	import { onDestroy } from 'svelte';
 	import { Card, Button, LoadingButton } from '$lib';
 	import { useToast, useFieldValidation, validators } from '$lib';
-	import { APP_CONSTANTS, ROUTES } from '$lib/constants/app.constants';
+	import { ROUTES } from '$lib/constants/app.constants';
+	import { apiClient } from '$lib/utils/api';
 
 	let loading = $state(false);
 	let success = $state(false);
@@ -62,23 +63,20 @@
 		error = '';
 
 		try {
-			const response = await fetch(`${APP_CONSTANTS.API_BASE_URL}/auth/request-password-reset`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ email: emailField.value.trim() })
-			});
+			await apiClient.auth.requestPasswordReset(emailField.value.trim());
 
-			const data = await response.json();
+			success = true;
+			toast.success('비밀번호 재설정 링크가 전송되었습니다!');
+		} catch (err) {
+			console.error('Password reset request error:', err);
 
-			if (response.ok) {
-				success = true;
-				toast.success('비밀번호 재설정 링크가 전송되었습니다!');
-			} else {
+			// API 에러 처리
+			if (err && typeof err === 'object' && 'status' in err) {
+				const apiError = err as Error & { status?: number; type?: string; message: string };
+
 				// 레이트리밋 타입에 따른 더 구체적인 메시지 및 쿨다운 설정
-				if (response.status === 429) {
-					const errorType = data.type;
+				if (apiError.status === 429) {
+					const errorType = apiError.type;
 					_rateLimitType = errorType || 'GENERAL';
 
 					if (errorType === 'EMAIL_RATE_LIMIT') {
@@ -88,17 +86,16 @@
 						error = '너무 많은 요청을 보내셨습니다.';
 						startCooldown(60 * 60); // 1시간
 					} else {
-						error = data.message || '요청 제한에 도달했습니다.';
+						error = apiError.message || '요청 제한에 도달했습니다.';
 						startCooldown(60 * 60); // 기본 1시간
 					}
 				} else {
-					error = data.message || '요청 처리 중 오류가 발생했습니다.';
+					error = apiError.message || '요청 처리 중 오류가 발생했습니다.';
 				}
-				toast.error(error);
+			} else {
+				error =
+					err instanceof Error ? err.message : '네트워크 오류가 발생했습니다. 다시 시도해주세요.';
 			}
-		} catch (err) {
-			console.error('Password reset request error:', err);
-			error = '네트워크 오류가 발생했습니다. 다시 시도해주세요.';
 			toast.error(error);
 		} finally {
 			loading = false;

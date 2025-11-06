@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { createEventDispatcher } from 'svelte';
-	import { env } from '$lib/config/env';
+	import { apiClient } from '$lib/utils/api';
 
 	export let src: string = '';
 	export let alt: string = 'Logo';
@@ -28,14 +28,8 @@
 		try {
 			if (!src) {
 				// Try to get current logo from backend
-				const response = await fetch(`${env.API_BASE_URL}/uploads/logo/current`);
-				if (response.ok) {
-					const data = await response.json();
-					src = data.url;
-				} else {
-					// Fallback to default logo
-					src = fallbackSrc;
-				}
+				const data = await apiClient.uploads.getCurrentLogo();
+				src = data.url;
 			}
 		} catch (error) {
 			console.warn('Failed to load logo:', error);
