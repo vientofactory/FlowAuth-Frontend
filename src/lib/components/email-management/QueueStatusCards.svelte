@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { Card } from '$lib';
+
 	interface EmailQueueStats {
 		active: number;
 		waiting: number;
@@ -22,52 +24,58 @@
 		{
 			label: '처리 중',
 			value: queueStats.active,
-			color: 'from-blue-500 to-blue-600',
-			textColor: 'text-blue-100',
-			icon: 'fas fa-cog'
+			color: 'from-stone-500 to-stone-600',
+			icon: 'fas fa-cog',
+			bgColor: 'bg-stone-100',
+			iconColor: 'text-stone-600'
 		},
 		{
 			label: '대기 중',
 			value: queueStats.waiting,
-			color: 'from-yellow-500 to-yellow-600',
-			textColor: 'text-yellow-100',
-			icon: 'fas fa-clock'
+			color: 'from-neutral-500 to-neutral-600',
+			icon: 'fas fa-clock',
+			bgColor: 'bg-neutral-100',
+			iconColor: 'text-neutral-600'
 		},
 		{
 			label: '완료됨',
 			value: queueStats.completed,
-			color: 'from-green-500 to-green-600',
-			textColor: 'text-green-100',
-			icon: 'fas fa-check'
+			color: 'from-gray-500 to-gray-600',
+			icon: 'fas fa-check',
+			bgColor: 'bg-gray-100',
+			iconColor: 'text-gray-600'
 		},
 		{
 			label: '실패함',
 			value: queueStats.failed,
-			color: 'from-red-500 to-red-600',
-			textColor: 'text-red-100',
-			icon: 'fas fa-times'
+			color: 'from-slate-500 to-slate-600',
+			icon: 'fas fa-times',
+			bgColor: 'bg-slate-100',
+			iconColor: 'text-slate-600'
 		},
 		{
 			label: '지연됨',
 			value: queueStats.delayed,
-			color: 'from-purple-500 to-purple-600',
-			textColor: 'text-purple-100',
-			icon: 'fas fa-pause'
+			color: 'from-zinc-500 to-zinc-600',
+			icon: 'fas fa-pause',
+			bgColor: 'bg-zinc-100',
+			iconColor: 'text-zinc-600'
 		},
 		{
 			label: '큐 상태',
 			value: queueStats.paused > 0 ? '일시정지' : '실행 중',
 			color: queueStats.paused > 0 ? 'from-red-500 to-red-600' : 'from-green-500 to-green-600',
-			textColor: queueStats.paused > 0 ? 'text-red-100' : 'text-green-100',
-			icon: queueStats.paused > 0 ? 'fas fa-pause' : 'fas fa-play'
+			icon: queueStats.paused > 0 ? 'fas fa-pause' : 'fas fa-play',
+			bgColor: queueStats.paused > 0 ? 'bg-red-100' : 'bg-green-100',
+			iconColor: queueStats.paused > 0 ? 'text-red-600' : 'text-green-600'
 		}
 	]);
 </script>
 
-<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 	{#each statusCards as card (card.label)}
-		<div
-			class="rounded-lg bg-linear-to-r {card.color} relative overflow-hidden p-4 text-white {hasOptimisticUpdates
+		<Card
+			class="bg-linear-to-br p-6 {card.color} relative overflow-hidden text-white {hasOptimisticUpdates
 				? 'transition-all duration-300'
 				: ''}"
 		>
@@ -80,16 +88,16 @@
 
 			<div class="relative z-10 flex items-center justify-between">
 				<div>
-					<p class={card.textColor}>
+					<p class="text-sm font-medium opacity-90">
 						{card.label}
 						{#if hasOptimisticUpdates}
 							<span class="text-xs opacity-75">(업데이트 중)</span>
 						{/if}
 					</p>
-					<p class="text-2xl font-bold">{card.value}</p>
+					<p class="mt-1 text-2xl font-bold">{card.value}</p>
 				</div>
-				<i class="{card.icon} fa-2x {card.textColor.replace('100', '200')}"></i>
+				<i class="{card.icon} text-3xl opacity-80"></i>
 			</div>
-		</div>
+		</Card>
 	{/each}
 </div>

@@ -6,7 +6,8 @@
 		useToast,
 		LoadingSpinner,
 		ConfirmModal,
-		authState
+		authState,
+		Button
 	} from '$lib';
 	import { onMount } from 'svelte';
 	import { usePermissions } from '$lib/composables/usePermissions';
@@ -455,21 +456,22 @@
 		<!-- 상단 컨트롤 -->
 		<div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 			<div class="flex items-center gap-4">
-				<button
+				<Button
+					variant="outline"
 					onclick={loadEmailSystemData}
 					disabled={isProcessing}
-					class="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+					class="transition-colors hover:border-stone-200 hover:bg-stone-50"
 				>
-					<i class="fas fa-sync-alt"></i>
+					<i class="fas fa-sync-alt mr-2"></i>
 					새로고침
-				</button>
+				</Button>
 
 				<label class="flex cursor-pointer items-center gap-2 text-sm text-gray-600">
 					<input
 						type="checkbox"
 						bind:checked={autoRefresh}
 						onchange={toggleAutoRefresh}
-						class="rounded"
+						class="h-4 w-4 rounded border-gray-300 text-stone-600 focus:ring-stone-500"
 					/>
 					자동 새로고침 (30초)
 				</label>
@@ -478,11 +480,11 @@
 			<!-- SMTP 연결 상태 요약 -->
 			<div class="flex items-center gap-2 text-sm">
 				{#if smtpStatus}
-					<div class="flex items-center gap-2">
+					<div class="flex items-center gap-2 rounded-lg bg-white/60 px-3 py-2 backdrop-blur-sm">
 						<div
 							class="h-3 w-3 rounded-full {smtpStatus.connected ? 'bg-green-500' : 'bg-red-500'}"
 						></div>
-						<span class="font-medium">SMTP:</span>
+						<span class="font-medium text-gray-700">SMTP:</span>
 						<span class={smtpStatus.connected ? 'text-green-600' : 'text-red-600'}>
 							{smtpStatus.connected ? '연결됨' : '연결 실패'}
 						</span>
@@ -613,17 +615,31 @@
 								<h3 class="text-lg font-semibold text-gray-900">이메일 시스템 설정</h3>
 
 								<!-- 자동 새로고침 설정 -->
-								<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-									<h4 class="mb-3 text-lg font-medium text-gray-900">자동 새로고침</h4>
-									<label class="flex items-center gap-2">
-										<input
-											type="checkbox"
-											bind:checked={autoRefresh}
-											onchange={toggleAutoRefresh}
-											class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-										/>
-										<span class="text-sm text-gray-700">30초마다 자동으로 큐 상태 새로고침</span>
-									</label>
+								<div
+									class="relative overflow-hidden rounded-xl bg-linear-to-r from-stone-50 to-gray-50 p-6 shadow-sm ring-1 ring-stone-100"
+								>
+									<div class="relative">
+										<h4 class="mb-4 flex items-center text-lg font-semibold text-gray-900">
+											<div
+												class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100"
+											>
+												<i class="fas fa-cog text-stone-600"></i>
+											</div>
+											자동 새로고침 설정
+										</h4>
+										<div class="rounded-lg bg-white/60 p-4 backdrop-blur-sm">
+											<label class="flex items-center gap-3">
+												<input
+													type="checkbox"
+													bind:checked={autoRefresh}
+													onchange={toggleAutoRefresh}
+													class="h-4 w-4 rounded border-gray-300 text-stone-600 focus:ring-stone-500"
+												/>
+												<span class="text-sm text-gray-700">30초마다 자동으로 큐 상태 새로고침</span
+												>
+											</label>
+										</div>
+									</div>
 								</div>
 							</div>
 						{/if}
