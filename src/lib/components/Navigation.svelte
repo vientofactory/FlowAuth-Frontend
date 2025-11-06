@@ -156,14 +156,15 @@
 		];
 
 		// 시스템 관리 권한이 있는 경우에만 설정 메뉴 추가
-		const hasSystemManagePermission = (user.permissions & PERMISSIONS.MANAGE_SYSTEM) !== 0;
+		const hasSystemManagePermission = (user.permissions & PERMISSIONS.ADMIN_ACCESS) !== 0;
 		const systemItems = hasSystemManagePermission
 			? [
 					{
-						label: '설정',
-						icon: 'fas fa-cog',
-						href: '/dashboard/settings'
+						label: '이메일 관리',
+						icon: 'fas fa-envelope-open-text',
+						href: '/dashboard/email-management'
 					}
+					// 더 많은 시스템 관리 메뉴 항목들을 여기에 추가
 				]
 			: [];
 
@@ -490,6 +491,19 @@
 											연결된 앱
 										</a>
 									{/if}
+
+									<!-- 시스템 관리 메뉴 -->
+									{#if user && (user.permissions & PERMISSIONS.ADMIN_ACCESS) !== 0}
+										<a
+											href="/dashboard/email-management"
+											class="mx-1 flex items-center rounded-md px-4 py-2.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
+											onclick={() => (profileDropdownOpen = false)}
+										>
+											<i class="fas fa-envelope-open-text mr-3 w-4 text-center text-gray-400"></i>
+											이메일 관리
+										</a>
+									{/if}
+
 									<div class="my-1 border-t border-gray-100"></div>
 									<button
 										onclick={() => {
@@ -597,22 +611,25 @@
 							</a>
 						{/if}
 
-						<a
-							href="/dashboard/profile"
-							class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-							onclick={() => (mobileMenuOpen = false)}
-						>
-							<i class="fas fa-user mr-3 w-5 text-center"></i>
-							프로필
-						</a>
-						<a
-							href="/dashboard/settings"
-							class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-							onclick={() => (mobileMenuOpen = false)}
-						>
-							<i class="fas fa-cog mr-3 w-5 text-center"></i>
-							설정
-						</a>
+						<!-- 시스템 관리자만 보이는 메뉴 -->
+						{#if user && (user.permissions & PERMISSIONS.ADMIN_ACCESS) !== 0}
+							<a
+								href="/dashboard/email-management"
+								class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+								onclick={() => (mobileMenuOpen = false)}
+							>
+								<i class="fas fa-envelope-open-text mr-3 w-5 text-center"></i>
+								이메일 관리
+							</a>
+							<a
+								href="/dashboard/settings"
+								class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+								onclick={() => (mobileMenuOpen = false)}
+							>
+								<i class="fas fa-cog mr-3 w-5 text-center"></i>
+								설정
+							</a>
+						{/if}
 						<button
 							onclick={() => {
 								handleLogout();

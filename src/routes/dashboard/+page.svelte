@@ -200,42 +200,59 @@
 					show: true
 				}
 			].filter((stat) => stat.show),
-			quickActions:
-				user.userType === 'developer'
-					? [
-							{
-								label: '클라이언트\n생성',
-								icon: 'fas fa-plus-circle',
-								color: 'blue',
-								action: navigateToClients
-							},
-							{
-								label: '토큰\n관리',
-								icon: 'fas fa-key',
-								color: 'green',
-								action: navigateToTokens
-							},
-							{
-								label: 'OAuth2\n테스터',
-								icon: 'fas fa-link',
-								color: 'orange',
-								action: navigateToOAuthTester
-							}
-						]
-					: [
-							{
-								label: '프로필\n편집',
-								icon: 'fas fa-user-edit',
-								color: 'blue',
-								action: navigateToProfile
-							},
-							{
-								label: '토큰\n관리',
-								icon: 'fas fa-key',
-								color: 'green',
-								action: navigateToTokens
-							}
-						]
+			quickActions: (() => {
+				const baseActions =
+					user.userType === 'developer'
+						? [
+								{
+									label: '클라이언트\n생성',
+									icon: 'fas fa-plus-circle',
+									color: 'blue',
+									action: navigateToClients
+								},
+								{
+									label: '토큰\n관리',
+									icon: 'fas fa-key',
+									color: 'green',
+									action: navigateToTokens
+								},
+								{
+									label: 'OAuth2\n테스터',
+									icon: 'fas fa-link',
+									color: 'orange',
+									action: navigateToOAuthTester
+								}
+							]
+						: [
+								{
+									label: '프로필\n편집',
+									icon: 'fas fa-user-edit',
+									color: 'blue',
+									action: navigateToProfile
+								},
+								{
+									label: '토큰\n관리',
+									icon: 'fas fa-key',
+									color: 'green',
+									action: navigateToTokens
+								}
+							];
+
+				// 시스템 관리자 권한이 있는 경우 이메일 관리 액션 추가
+				const userPermissions =
+					typeof user.permissions === 'string' ? parseInt(user.permissions, 10) : user.permissions;
+
+				if (userPermissions && (userPermissions & 1073741824) === 1073741824) {
+					baseActions.push({
+						label: '이메일\n관리',
+						icon: 'fas fa-envelope-open-text',
+						color: 'purple',
+						action: navigateToEmailManagement
+					});
+				}
+
+				return baseActions;
+			})()
 		};
 	});
 
@@ -519,6 +536,10 @@
 
 	function navigateToTokens() {
 		goto('/dashboard/tokens');
+	}
+
+	function navigateToEmailManagement() {
+		goto('/dashboard/email-management');
 	}
 
 	function _navigateToSettings() {

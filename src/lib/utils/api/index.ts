@@ -5,6 +5,8 @@ import { SettingsApi } from './settings';
 import { DashboardApi } from './dashboard';
 import { UploadsApi } from './uploads';
 import { OAuthApi } from './oauth';
+import { EmailApi } from './email';
+import type { EmailQueueStats, EmailTestRequest, SMTPConnectionStatus, SMTPInfo } from './email';
 import type { ApiError } from './base';
 import type { User, LoginData, CreateUserDto } from '$lib';
 import type {
@@ -25,6 +27,7 @@ class ApiClient extends BaseApi {
 	public readonly dashboard: DashboardApi;
 	public readonly uploads: UploadsApi;
 	public readonly oauth: OAuthApi;
+	public readonly email: EmailApi;
 
 	constructor(baseURL?: string) {
 		super(baseURL);
@@ -34,6 +37,7 @@ class ApiClient extends BaseApi {
 		this.dashboard = new DashboardApi(baseURL);
 		this.uploads = new UploadsApi(baseURL);
 		this.oauth = new OAuthApi(baseURL);
+		this.email = new EmailApi(baseURL);
 	}
 
 	// Backward compatibility methods - delegate to respective APIs
@@ -381,6 +385,47 @@ class ApiClient extends BaseApi {
 		return this.oauth.getAvailableScopes();
 	}
 
+	// Email methods
+	async testSMTPConnection() {
+		return this.email.testConnection();
+	}
+
+	async getSmtpInfo() {
+		return this.email.getSmtpInfo();
+	}
+
+	async sendTestEmail(data: EmailTestRequest) {
+		return this.email.sendTestEmail(data);
+	}
+
+	async getEmailQueueStats() {
+		return this.email.getQueueStats();
+	}
+
+	async retryFailedEmailJobs(limit?: number) {
+		return this.email.retryFailedJobs(limit);
+	}
+
+	async cleanEmailQueue(grace?: number, limit?: number) {
+		return this.email.cleanQueue(grace, limit);
+	}
+
+	async pauseEmailQueue() {
+		return this.email.pauseQueue();
+	}
+
+	async resumeEmailQueue() {
+		return this.email.resumeQueue();
+	}
+
+	async removeEmailJob(jobId: string) {
+		return this.email.removeJob(jobId);
+	}
+
+	async purgeEmailQueue() {
+		return this.email.purgeQueue();
+	}
+
 	// Base methods (make protected methods public for backward compatibility)
 	async request<T>(
 		endpoint: string,
@@ -434,4 +479,11 @@ export const apiClient = new ApiClient();
 export default apiClient;
 
 // Re-export types for backward compatibility
-export type { ApiError, CreateClientData };
+export type {
+	ApiError,
+	CreateClientData,
+	EmailQueueStats,
+	EmailTestRequest,
+	SMTPConnectionStatus,
+	SMTPInfo
+};

@@ -30,6 +30,14 @@ export { default as ErrorMessage } from './components/ui/ErrorMessage.svelte';
 export { default as ErrorBoundary } from './components/ui/ErrorBoundary.svelte';
 export { default as ConfirmModal } from './components/ui/ConfirmModal.svelte';
 
+// Email Management Components
+export { default as QueueStatusCards } from './components/email-management/QueueStatusCards.svelte';
+export { default as QuickActions } from './components/email-management/QuickActions.svelte';
+export { default as QueueTable } from './components/email-management/QueueTable.svelte';
+export { default as TestSection } from './components/email-management/TestSection.svelte';
+export { default as SmtpStatusCard } from './components/email-management/SmtpStatusCard.svelte';
+export { default as TestEmailModal } from './components/email-management/TestEmailModal.svelte';
+
 // Auth Components
 export { default as TwoFactorLoadingSteps } from './components/auth/TwoFactorLoadingSteps.svelte';
 export { default as TwoFactorStepIndicator } from './components/auth/TwoFactorStepIndicator.svelte';
@@ -46,6 +54,7 @@ export { default as PasswordChangeSection } from './components/profile/PasswordC
 export { default as DashboardStatsSection } from './components/dashboard/DashboardStatsSection.svelte';
 export { default as QuickActionsSection } from './components/dashboard/QuickActionsSection.svelte';
 export { default as TokenAnalyticsSection } from './components/dashboard/TokenAnalyticsSection.svelte';
+export { default as EmailSystemStatus } from './components/dashboard/EmailSystemStatus.svelte';
 
 // Token Components
 export { default as TokensHeader } from './components/tokens/TokensHeader.svelte';
@@ -76,7 +85,12 @@ export { inputHandlers, formatters } from './utils/input.utils';
 
 // API
 export { apiClient } from './utils/api';
-export type { CreateClientData } from './utils/api';
+export type {
+	CreateClientData,
+	EmailQueueStats,
+	EmailTestRequest,
+	SMTPConnectionStatus
+} from './utils/api';
 
 // Permissions
 export {
