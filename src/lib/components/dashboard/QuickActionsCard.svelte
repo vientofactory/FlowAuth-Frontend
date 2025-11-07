@@ -54,7 +54,7 @@
 </script>
 
 <div
-	class="relative overflow-hidden rounded-xl bg-gradient-to-r from-stone-50 to-gray-50 p-6 shadow-sm ring-1 ring-stone-100"
+	class="relative overflow-hidden rounded-xl bg-linear-to-r from-stone-50 to-gray-50 p-6 shadow-sm ring-1 ring-stone-100"
 >
 	<div class="relative">
 		<div class="mb-6 text-center sm:text-left">
@@ -87,7 +87,7 @@
 								<i class="text-xl {colorClass?.text || 'text-gray-600'} {action.icon}"></i>
 							</div>
 							<div
-								class="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-gradient-to-br from-stone-400 to-gray-500 opacity-0 transition-opacity group-hover:opacity-100"
+								class="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-linear-to-br from-stone-400 to-gray-500 opacity-0 transition-opacity group-hover:opacity-100"
 							></div>
 						</div>
 						<span

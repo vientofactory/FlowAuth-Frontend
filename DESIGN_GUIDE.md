@@ -279,10 +279,10 @@
 ### 페이지 템플릿
 
 ```svelte
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+<div class="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-100">
 	<!-- 배경 패턴 -->
 	<div
-		class="bg-grid-slate-100 absolute inset-0 -z-10 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]"
+		class="bg-grid-slate-100 absolute inset-0 -z-10 mask-[linear-gradient(0deg,white,rgba(255,255,255,0.6))]"
 	></div>
 
 	<div class="container-responsive py-12">

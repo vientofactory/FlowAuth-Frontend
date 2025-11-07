@@ -273,13 +273,12 @@
 </svelte:head>
 
 <div
-	class="flex min-h-screen items-center justify-center bg-gradient-to-br from-stone-50 via-gray-50 to-neutral-100 px-4 py-12"
+	class="flex min-h-screen items-center justify-center bg-linear-to-br from-stone-50 via-gray-50 to-neutral-100 px-4 py-12"
 >
 	<!-- 배경 패턴 -->
 	<div
-		class="bg-grid-slate-100 absolute inset-0 -z-10 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]"
+		class="bg-grid-slate-100 absolute inset-0 -z-10 mask-[linear-gradient(0deg,white,rgba(255,255,255,0.6))]"
 	></div>
-
 	<div class="w-full max-w-md">
 		<!-- 로고 및 타이틀 -->
 		<div class="mb-8 text-center">

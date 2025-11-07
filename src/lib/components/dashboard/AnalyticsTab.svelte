@@ -38,7 +38,7 @@
 			<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 				{#each Array(4) as _, i (i)}
 					<div
-						class="overflow-hidden rounded-xl border-gray-200 bg-gradient-to-br from-gray-200 to-gray-300 p-4 text-center shadow-lg"
+						class="overflow-hidden rounded-xl border-gray-200 bg-linear-to-br from-gray-200 to-gray-300 p-4 text-center shadow-lg"
 					>
 						<div class="mb-3 flex items-center justify-center">
 							<div class="h-8 w-8 animate-pulse rounded bg-white/40"></div>
