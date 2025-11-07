@@ -52,6 +52,10 @@ export class UploadsApi extends BaseApi {
 		}
 	}
 
+	async getCurrentLogo(): Promise<{ url: string }> {
+		return this.request<{ url: string }>('/uploads/logo/current');
+	}
+
 	async getUploadConfig(type: string): Promise<{
 		allowedMimes: readonly string[];
 		maxSize: number;

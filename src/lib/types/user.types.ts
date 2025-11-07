@@ -147,6 +147,7 @@ export const USER_TYPE_PERMISSIONS = {
 
 export interface User {
 	id: number;
+	userId?: string;
 	username: string;
 	email: string;
 	firstName?: string;

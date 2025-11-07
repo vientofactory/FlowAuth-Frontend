@@ -220,12 +220,12 @@
 	<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 		<!-- 총 토큰 -->
 		<div
-			class="relative overflow-hidden rounded-xl bg-gradient-to-r from-stone-50 to-neutral-50 p-4 shadow-sm ring-1 ring-stone-100 transition-all duration-200 hover:shadow-md"
+			class="relative overflow-hidden rounded-xl bg-linear-to-r from-stone-50 to-neutral-50 p-4 shadow-sm ring-1 ring-stone-100 transition-all duration-200 hover:shadow-md"
 		>
 			<div class="relative flex items-center">
-				<div class="flex-shrink-0">
+				<div class="shrink-0">
 					<div
-						class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-stone-100 to-neutral-100"
+						class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-stone-100 to-neutral-100"
 					>
 						<i class="fas fa-key text-lg text-stone-600"></i>
 					</div>
@@ -239,12 +239,12 @@
 
 		<!-- 활성 토큰 -->
 		<div
-			class="relative overflow-hidden rounded-xl bg-gradient-to-r from-neutral-50 to-gray-50 p-4 shadow-sm ring-1 ring-neutral-100 transition-all duration-200 hover:shadow-md"
+			class="relative overflow-hidden rounded-xl bg-linear-to-r from-neutral-50 to-gray-50 p-4 shadow-sm ring-1 ring-neutral-100 transition-all duration-200 hover:shadow-md"
 		>
 			<div class="relative flex items-center">
-				<div class="flex-shrink-0">
+				<div class="shrink-0">
 					<div
-						class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-neutral-100 to-gray-100"
+						class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-neutral-100 to-gray-100"
 					>
 						<i class="fas fa-check-circle text-lg text-neutral-600"></i>
 					</div>
@@ -260,12 +260,12 @@
 
 		<!-- 만료된 토큰 -->
 		<div
-			class="relative overflow-hidden rounded-xl bg-gradient-to-r from-gray-50 to-stone-50 p-4 shadow-sm ring-1 ring-gray-100 transition-all duration-200 hover:shadow-md"
+			class="relative overflow-hidden rounded-xl bg-linear-to-r from-gray-50 to-stone-50 p-4 shadow-sm ring-1 ring-gray-100 transition-all duration-200 hover:shadow-md"
 		>
 			<div class="relative flex items-center">
-				<div class="flex-shrink-0">
+				<div class="shrink-0">
 					<div
-						class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-gray-100 to-stone-100"
+						class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-gray-100 to-stone-100"
 					>
 						<i class="fas fa-clock text-lg text-gray-600"></i>
 					</div>
@@ -281,12 +281,12 @@
 
 		<!-- 클라이언트 수 -->
 		<div
-			class="relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-zinc-50 p-4 shadow-sm ring-1 ring-slate-100 transition-all duration-200 hover:shadow-md"
+			class="relative overflow-hidden rounded-xl bg-linear-to-r from-slate-50 to-zinc-50 p-4 shadow-sm ring-1 ring-slate-100 transition-all duration-200 hover:shadow-md"
 		>
 			<div class="relative flex items-center">
-				<div class="flex-shrink-0">
+				<div class="shrink-0">
 					<div
-						class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-slate-100 to-zinc-100"
+						class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-slate-100 to-zinc-100"
 					>
 						<i class="fas fa-shield-alt text-lg text-slate-600"></i>
 					</div>
@@ -303,7 +303,7 @@
 
 	<!-- 토큰 목록 -->
 	<div
-		class="relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-gray-50 p-6 shadow-sm ring-1 ring-gray-100"
+		class="relative overflow-hidden rounded-xl bg-linear-to-r from-slate-50 to-gray-50 p-6 shadow-sm ring-1 ring-gray-100"
 	>
 		<div class="relative">
 			<div class="mb-6 flex items-center justify-between">
@@ -513,7 +513,7 @@
 	</div>
 	<!-- 토큰 관리 안내 -->
 	<div
-		class="relative mt-6 overflow-hidden rounded-xl bg-gradient-to-r from-stone-50 to-neutral-50 p-6 shadow-sm ring-1 ring-stone-100"
+		class="relative mt-6 overflow-hidden rounded-xl bg-linear-to-r from-stone-50 to-neutral-50 p-6 shadow-sm ring-1 ring-stone-100"
 	>
 		<div class="relative">
 			<h3 class="mb-6 flex items-center text-lg font-semibold text-gray-900">
@@ -527,7 +527,7 @@
 				<div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
 					<div class="flex items-start space-x-4 rounded-lg bg-white/60 p-4 backdrop-blur-sm">
 						<div
-							class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-stone-100"
+							class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-stone-100"
 						>
 							<i class="fas fa-user text-stone-600"></i>
 						</div>
@@ -540,9 +540,7 @@
 					</div>
 
 					<div class="flex items-start space-x-4 rounded-lg bg-white/60 p-4 backdrop-blur-sm">
-						<div
-							class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100"
-						>
+						<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100">
 							<i class="fas fa-redo text-gray-600"></i>
 						</div>
 						<div>
@@ -556,9 +554,7 @@
 			{:else}
 				<div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
 					<div class="flex items-start space-x-4 rounded-lg bg-white/60 p-4 backdrop-blur-sm">
-						<div
-							class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-zinc-100"
-						>
+						<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-zinc-100">
 							<i class="fas fa-code-branch text-zinc-600"></i>
 						</div>
 						<div>
@@ -571,7 +567,7 @@
 
 					<div class="flex items-start space-x-4 rounded-lg bg-white/60 p-4 backdrop-blur-sm">
 						<div
-							class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-neutral-100"
+							class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neutral-100"
 						>
 							<i class="fas fa-shield-alt text-neutral-600"></i>
 						</div>
@@ -588,9 +584,7 @@
 			<div
 				class="flex items-start space-x-4 rounded-lg border border-yellow-200 bg-white/60 p-4 backdrop-blur-sm"
 			>
-				<div
-					class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-yellow-100"
-				>
+				<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-yellow-100">
 					<i class="fas fa-exclamation-triangle text-yellow-600"></i>
 				</div>
 				<div>
@@ -628,7 +622,7 @@
 			{#if isCurrentSessionToken(selectedToken)}
 				<div class="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
 					<div class="flex">
-						<div class="flex-shrink-0">
+						<div class="shrink-0">
 							<svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
 								<path
 									fill-rule="evenodd"

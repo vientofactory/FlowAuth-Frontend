@@ -32,7 +32,7 @@
 	<meta name="description" content="OAuth 2.0 표준을 준수하는 개방형 인증 시스템" />
 </svelte:head>
 
-<div class="min-h-screen bg-gradient-to-br from-gray-50 via-stone-50 to-neutral-100">
+<div class="min-h-screen bg-linear-to-br from-gray-50 via-stone-50 to-neutral-100">
 	<div class="relative">
 		<!-- 배경 패턴 -->
 		<div
@@ -115,7 +115,7 @@
 					<h1 class="mb-6 text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
 						<span class="block">안전한 인증,</span>
 						<span
-							class="block bg-gradient-to-r from-stone-600 via-gray-600 to-slate-600 bg-clip-text text-transparent"
+							class="block bg-linear-to-r from-stone-600 via-gray-600 to-slate-600 bg-clip-text text-transparent"
 						>
 							간편한 통합
 						</span>
@@ -159,7 +159,7 @@
 						<div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
 							<div class="group text-center">
 								<div
-									class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-stone-500 to-stone-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
+									class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-r from-stone-500 to-stone-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
 								>
 									<i class="fas fa-shield-alt text-2xl text-white"></i>
 								</div>
@@ -181,7 +181,7 @@
 
 							<div class="group text-center">
 								<div
-									class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-neutral-500 to-neutral-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
+									class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-r from-neutral-500 to-neutral-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
 								>
 									<i class="fas fa-bolt text-2xl text-white"></i>
 								</div>
@@ -194,7 +194,7 @@
 
 							<div class="group text-center">
 								<div
-									class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-gray-500 to-gray-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
+									class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-r from-gray-500 to-gray-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
 								>
 									<i class="fas fa-chart-line text-2xl text-white"></i>
 								</div>
@@ -207,7 +207,7 @@
 
 							<div class="group text-center">
 								<div
-									class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-slate-500 to-slate-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
+									class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-r from-slate-500 to-slate-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
 								>
 									<i class="fas fa-code-branch text-2xl text-white"></i>
 								</div>
@@ -231,13 +231,13 @@
 
 						<div class="relative">
 							<div
-								class="absolute top-8 left-1/2 hidden h-0.5 w-full -translate-x-1/2 transform bg-gradient-to-r from-stone-200 via-gray-200 to-neutral-200 lg:block"
+								class="absolute top-8 left-1/2 hidden h-0.5 w-full -translate-x-1/2 transform bg-linear-to-r from-stone-200 via-gray-200 to-neutral-200 lg:block"
 							></div>
 
 							<div class="grid gap-12 lg:grid-cols-3">
 								<div class="relative text-center lg:text-left">
 									<div
-										class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-stone-500 to-stone-600 text-white shadow-lg lg:mx-0"
+										class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-r from-stone-500 to-stone-600 text-white shadow-lg lg:mx-0"
 									>
 										<span class="text-2xl font-bold">1</span>
 									</div>
@@ -250,7 +250,7 @@
 
 								<div class="relative text-center lg:text-left">
 									<div
-										class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-neutral-500 to-neutral-600 text-white shadow-lg lg:mx-0"
+										class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-r from-neutral-500 to-neutral-600 text-white shadow-lg lg:mx-0"
 									>
 										<span class="text-2xl font-bold">2</span>
 									</div>
@@ -272,7 +272,7 @@
 
 								<div class="relative text-center lg:text-left">
 									<div
-										class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-gray-500 to-gray-600 text-white shadow-lg lg:mx-0"
+										class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-r from-gray-500 to-gray-600 text-white shadow-lg lg:mx-0"
 									>
 										<span class="text-2xl font-bold">3</span>
 									</div>
@@ -297,7 +297,7 @@
 					<h1 class="mb-6 text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
 						<span class="block">안전한 인증,</span>
 						<span
-							class="block bg-gradient-to-r from-stone-600 via-gray-600 to-slate-600 bg-clip-text text-transparent"
+							class="block bg-linear-to-r from-stone-600 via-gray-600 to-slate-600 bg-clip-text text-transparent"
 						>
 							지속적인 관리
 						</span>
@@ -343,7 +343,7 @@
 								class="group flex cursor-pointer flex-col items-center rounded-2xl border-0 bg-white/80 p-8 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
 							>
 								<div
-									class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-r from-stone-500 to-stone-600 transition-transform duration-300 group-hover:scale-110"
+									class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-linear-to-r from-stone-500 to-stone-600 transition-transform duration-300 group-hover:scale-110"
 								>
 									<i class="fas fa-tachometer-alt text-2xl text-white"></i>
 								</div>
@@ -355,7 +355,7 @@
 								class="group flex cursor-pointer flex-col items-center rounded-2xl border-0 bg-white/80 p-8 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
 							>
 								<div
-									class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-r from-neutral-500 to-neutral-600 transition-transform duration-300 group-hover:scale-110"
+									class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-linear-to-r from-neutral-500 to-neutral-600 transition-transform duration-300 group-hover:scale-110"
 								>
 									<i class="fas fa-user text-2xl text-white"></i>
 								</div>
@@ -367,7 +367,7 @@
 								class="group flex cursor-pointer flex-col items-center rounded-2xl border-0 bg-white/80 p-8 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
 							>
 								<div
-									class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-r from-gray-500 to-gray-600 transition-transform duration-300 group-hover:scale-110"
+									class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-linear-to-r from-gray-500 to-gray-600 transition-transform duration-300 group-hover:scale-110"
 								>
 									<i class="fas fa-plug text-2xl text-white"></i>
 								</div>
@@ -380,7 +380,7 @@
 									class="group flex cursor-pointer flex-col items-center rounded-2xl border-0 bg-white/80 p-8 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
 								>
 									<div
-										class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-r from-slate-500 to-slate-600 transition-transform duration-300 group-hover:scale-110"
+										class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-linear-to-r from-slate-500 to-slate-600 transition-transform duration-300 group-hover:scale-110"
 									>
 										<i class="fas fa-cubes text-2xl text-white"></i>
 									</div>
@@ -392,7 +392,7 @@
 									class="group flex cursor-pointer flex-col items-center rounded-2xl border-0 bg-white/80 p-8 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
 								>
 									<div
-										class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-r from-zinc-500 to-zinc-600 transition-transform duration-300 group-hover:scale-110"
+										class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-linear-to-r from-zinc-500 to-zinc-600 transition-transform duration-300 group-hover:scale-110"
 									>
 										<i class="fas fa-cog text-2xl text-white"></i>
 									</div>

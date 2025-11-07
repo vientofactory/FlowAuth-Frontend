@@ -9,8 +9,8 @@
 	} from '$lib/components/callback';
 	import Footer from '$lib/components/Footer.svelte';
 	import TokenExchangeForm from '$lib/components/oauth/TokenExchangeForm.svelte';
-	import { createApiUrl } from '$lib/config/env';
 	import { useToast } from '$lib';
+	import { apiClient } from '$lib/utils/api';
 	import { onMount } from 'svelte';
 
 	interface TokenResponse {
@@ -382,21 +382,7 @@
 
 		isTestingToken = true;
 		try {
-			const apiUrl = createApiUrl('/oauth2/userinfo');
-
-			const response = await fetch(apiUrl, {
-				method: 'GET',
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-					'Content-Type': 'application/json'
-				}
-			});
-
-			const data = await response.json();
-
-			if (!response.ok) {
-				throw new Error(data.message || `HTTP error! status: ${response.status}`);
-			}
+			const data = await apiClient.oauth.getUserInfo(accessToken);
 
 			userProfile = data;
 			activeTab = 'profile';
@@ -489,7 +475,7 @@
 		<Loading variant="spinner" size="lg" text="처리 중..." />
 	</div>
 {:else}
-	<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+	<div class="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-100">
 		<CallbackHeader onNavigateBack={navigateBack} onGoToDashboard={goToDashboard} />
 
 		<!-- 메인 콘텐츠 -->

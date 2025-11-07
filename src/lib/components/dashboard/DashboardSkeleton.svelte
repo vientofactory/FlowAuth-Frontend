@@ -13,7 +13,7 @@
 	<div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 {className}">
 		{#each Array(count || 5) as _, i (i)}
 			<div
-				class="overflow-hidden rounded-xl bg-gradient-to-br from-gray-200 to-gray-300 p-6 shadow-lg"
+				class="overflow-hidden rounded-xl bg-linear-to-br from-gray-200 to-gray-300 p-6 shadow-lg"
 			>
 				<div class="flex items-center justify-between">
 					<div class="flex-1">
@@ -28,10 +28,10 @@
 {:else if type === 'insights'}
 	<!-- 인사이트 카드 스켈레톤 -->
 	<div
-		class="overflow-hidden rounded-xl border-l-4 border-l-gray-300 bg-gradient-to-r from-gray-50 to-gray-100 p-6 shadow-sm ring-1 ring-gray-200 {className}"
+		class="overflow-hidden rounded-xl border-l-4 border-l-gray-300 bg-linear-to-r from-gray-50 to-gray-100 p-6 shadow-sm ring-1 ring-gray-200 {className}"
 	>
 		<div class="flex items-start space-x-4">
-			<div class="flex-shrink-0">
+			<div class="shrink-0">
 				<div class="h-12 w-12 animate-pulse rounded-full bg-gray-200"></div>
 			</div>
 			<div class="flex-1">
@@ -39,7 +39,7 @@
 				<div class="grid gap-4 md:grid-cols-3">
 					{#each Array(3) as _, i (i)}
 						<div class="flex items-start space-x-3 rounded-lg border border-gray-200 bg-white p-3">
-							<div class="h-8 w-8 flex-shrink-0 animate-pulse rounded-full bg-gray-200"></div>
+							<div class="h-8 w-8 shrink-0 animate-pulse rounded-full bg-gray-200"></div>
 							<div class="min-w-0 flex-1">
 								<div class="mb-1 h-4 w-20 animate-pulse rounded bg-gray-200"></div>
 								<div class="h-3 w-full animate-pulse rounded bg-gray-100"></div>
@@ -78,7 +78,7 @@
 {:else if type === 'table'}
 	<!-- 실제 클라이언트 리스트/토큰 리스트와 일치하는 구조 -->
 	<div
-		class="relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-gray-50 p-6 shadow-sm ring-1 ring-gray-100 {className}"
+		class="relative overflow-hidden rounded-xl bg-linear-to-r from-slate-50 to-gray-50 p-6 shadow-sm ring-1 ring-gray-100 {className}"
 	>
 		<div class="relative">
 			<div class="mb-6 flex items-center justify-between">
@@ -142,9 +142,9 @@
 				class="group relative overflow-hidden rounded-xl border border-gray-100 bg-white/60 p-4 backdrop-blur-sm transition-all duration-200 hover:bg-white/80"
 			>
 				<div class="flex items-start space-x-4">
-					<div class="flex-shrink-0">
+					<div class="shrink-0">
 						<div
-							class="h-10 w-10 animate-pulse rounded-full bg-gradient-to-br from-gray-200 to-gray-300"
+							class="h-10 w-10 animate-pulse rounded-full bg-linear-to-br from-gray-200 to-gray-300"
 						></div>
 					</div>
 					<div class="min-w-0 flex-1">
@@ -234,7 +234,7 @@
 		{#each Array(count) as _, i (i)}
 			<div class="overflow-hidden rounded-xl bg-white p-6 shadow-lg">
 				<div class="flex items-start space-x-4">
-					<div class="h-12 w-12 flex-shrink-0 animate-pulse rounded-lg bg-gray-200"></div>
+					<div class="h-12 w-12 shrink-0 animate-pulse rounded-lg bg-gray-200"></div>
 					<div class="min-w-0 flex-1">
 						<div class="mb-3 h-5 w-3/4 animate-pulse rounded bg-gray-200"></div>
 						<div class="space-y-2">

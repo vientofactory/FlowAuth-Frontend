@@ -317,8 +317,8 @@
 			};
 
 			await apiClient.register(userData);
-			toast.success('회원가입이 완료되었습니다! 이메일을 확인해주세요.');
-			await goto('/auth/login');
+			toast.success('회원가입이 완료되었습니다! 이메일을 확인하여 계정을 인증해주세요.');
+			await goto('/auth/login?message=registration-complete');
 		} catch (error: unknown) {
 			const message = (error as Error)?.message || '회원가입 중 오류가 발생했습니다.';
 
@@ -365,13 +365,12 @@
 </svelte:head>
 
 <div
-	class="flex min-h-screen items-center justify-center bg-gradient-to-br from-stone-50 via-gray-50 to-neutral-100 px-4 py-12"
+	class="flex min-h-screen items-center justify-center bg-linear-to-br from-stone-50 via-gray-50 to-neutral-100 px-4 py-12"
 >
 	<!-- 배경 패턴 -->
 	<div
-		class="bg-grid-slate-100 absolute inset-0 -z-10 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]"
+		class="bg-grid-slate-100 absolute inset-0 -z-10 mask-[linear-gradient(0deg,white,rgba(255,255,255,0.6))]"
 	></div>
-
 	<div class="w-full max-w-md sm:max-w-lg lg:max-w-2xl">
 		<!-- 로고 및 타이틀 -->
 		<div class="mb-6 text-center sm:mb-8">

@@ -91,7 +91,7 @@
 		<div class="space-y-3">
 			<div>
 				<span class="text-sm text-gray-600">사용자 ID</span>
-				<p class="text-sm text-gray-900">#{user.id}</p>
+				<p class="text-sm text-gray-900">{user.userId ?? `#${user.id}`}</p>
 			</div>
 			<div>
 				<span class="text-sm text-gray-600">가입일</span>

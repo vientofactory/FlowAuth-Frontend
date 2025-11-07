@@ -332,6 +332,37 @@ export class AuthApi extends BaseApi {
 		this.removeRefreshToken();
 	}
 
+	// Password reset methods
+	async requestPasswordReset(email: string): Promise<{ message: string }> {
+		return this.request<{ message: string }>('/auth/request-password-reset', {
+			method: 'POST',
+			body: JSON.stringify({ email })
+		});
+	}
+
+	async validateResetToken(token: string): Promise<{ valid: boolean; email?: string }> {
+		return this.request<{ valid: boolean; email?: string }>(`/auth/validate-reset-token/${token}`);
+	}
+
+	async resetPassword(data: { token: string; newPassword: string }): Promise<{ message: string }> {
+		return this.request<{ message: string }>('/auth/reset-password', {
+			method: 'POST',
+			body: JSON.stringify(data)
+		});
+	}
+
+	// Email verification methods
+	async verifyEmail(token: string): Promise<{ message: string; email?: string }> {
+		return this.request<{ message: string; email?: string }>(`/auth/verify-email/${token}`);
+	}
+
+	async resendVerificationEmail(email: string): Promise<{ message: string }> {
+		return this.request<{ message: string }>('/auth/resend-verification', {
+			method: 'POST',
+			body: JSON.stringify({ email })
+		});
+	}
+
 	// Private helper methods for auth-specific error handling
 	private async parseAuthErrorResponse(response: Response): Promise<{
 		message?: string;

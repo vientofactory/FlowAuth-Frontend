@@ -213,7 +213,7 @@
 
 {#if isLoading}
 	<div
-		class="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50"
+		class="flex min-h-screen items-center justify-center bg-linear-to-br from-blue-50 via-white to-indigo-50"
 	>
 		<div class="text-center">
 			<!-- 로딩 애니메이션 컨테이너 -->
@@ -443,7 +443,7 @@
 									? 'bg-blue-100 text-blue-900 shadow-sm'
 									: 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}"
 							>
-								<i class="{item.icon} mr-3 h-5 w-5 flex-shrink-0"></i>
+								<i class="{item.icon} mr-3 h-5 w-5 shrink-0"></i>
 								<div class="flex-1">
 									<div class="font-medium">{item.label}</div>
 									<div class="text-xs text-gray-500">{item.description}</div>
@@ -525,7 +525,7 @@
 						<!-- 호버 효과 -->
 						{#if !isMenuActive(item.href)}
 							<div
-								class="absolute inset-0 rounded-xl bg-gradient-to-t from-gray-100 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+								class="absolute inset-0 rounded-xl bg-linear-to-t from-gray-100 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
 							></div>
 						{/if}
 					</a>

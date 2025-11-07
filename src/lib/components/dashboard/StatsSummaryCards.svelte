@@ -15,7 +15,7 @@
 
 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 	<Card
-		class="border-stone-200 bg-gradient-to-br from-stone-50 to-stone-100 text-center transition-shadow hover:shadow-md"
+		class="border-stone-200 bg-linear-to-br from-stone-50 to-stone-100 text-center transition-shadow hover:shadow-md"
 	>
 		<div class="p-4">
 			<div class="mb-3 flex items-center justify-center">
@@ -30,7 +30,7 @@
 	</Card>
 
 	<Card
-		class="border-neutral-200 bg-gradient-to-br from-neutral-50 to-neutral-100 text-center transition-shadow hover:shadow-md"
+		class="border-neutral-200 bg-linear-to-br from-neutral-50 to-neutral-100 text-center transition-shadow hover:shadow-md"
 	>
 		<div class="p-4">
 			<div class="mb-3 flex items-center justify-center">
@@ -47,7 +47,7 @@
 	</Card>
 
 	<Card
-		class="border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 text-center transition-shadow hover:shadow-md"
+		class="border-gray-200 bg-linear-to-br from-gray-50 to-gray-100 text-center transition-shadow hover:shadow-md"
 	>
 		<div class="p-4">
 			<div class="mb-3 flex items-center justify-center">
@@ -62,7 +62,7 @@
 	</Card>
 
 	<Card
-		class="border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 text-center transition-shadow hover:shadow-md"
+		class="border-slate-200 bg-linear-to-br from-slate-50 to-slate-100 text-center transition-shadow hover:shadow-md"
 	>
 		<div class="p-4">
 			<div class="mb-3 flex items-center justify-center">

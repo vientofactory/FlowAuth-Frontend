@@ -49,9 +49,9 @@ export abstract class BaseApi {
 			...options
 		};
 
-		// JWT 토큰이 있으면 헤더에 추가
+		// JWT 토큰이 있으면 헤더에 추가 (이미 Authorization 헤더가 없는 경우만)
 		const token = this.getToken();
-		if (token) {
+		if (token && !(config.headers as Record<string, string>)?.Authorization) {
 			config.headers = {
 				...config.headers,
 				Authorization: `Bearer ${token}`

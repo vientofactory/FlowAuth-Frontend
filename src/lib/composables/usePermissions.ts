@@ -82,7 +82,7 @@ export function usePermissions() {
 		canWriteToken: hasPermission(PERMISSIONS.WRITE_TOKEN),
 		canDeleteToken: hasPermission(PERMISSIONS.DELETE_TOKEN),
 		canManageUsers: hasPermission(PERMISSIONS.MANAGE_USERS),
-		canManageSystem: hasPermission(PERMISSIONS.MANAGE_SYSTEM),
+		canManageSystem: hasPermission(PERMISSIONS.ADMIN_ACCESS),
 		canReadDashboard: hasPermission(PERMISSIONS.READ_DASHBOARD),
 		canWriteDashboard: hasPermission(PERMISSIONS.WRITE_DASHBOARD),
 		canUploadFile: hasPermission(PERMISSIONS.UPLOAD_FILE),

@@ -190,7 +190,7 @@
 </svelte:head>
 
 <div
-	class="flex min-h-screen items-center justify-center bg-gradient-to-br from-stone-50 to-gray-50 p-4"
+	class="flex min-h-screen items-center justify-center bg-linear-to-br from-stone-50 to-gray-50 p-4"
 	role="main"
 	aria-labelledby="authorize-heading"
 >
@@ -286,7 +286,7 @@
 								{@const scopeInfo = getScopeInfo(scope)}
 								<div class="transition-hover flex items-center space-x-3 rounded-lg bg-gray-50 p-3">
 									<div
-										class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full {getScopeColorClasses(
+										class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full {getScopeColorClasses(
 											scopeInfo.color
 										)}"
 									>

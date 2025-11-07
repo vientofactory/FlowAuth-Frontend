@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Card, Button, Input, Loading } from '$lib';
-	import { createApiUrl } from '$lib/config/env';
 	import { useToast } from '$lib';
+	import { apiClient } from '$lib/utils/api';
 
 	interface TokenResponse {
 		access_token: string;
@@ -70,35 +70,14 @@
 		isExchanging = true;
 
 		try {
-			const tokenEndpoint = createApiUrl('/oauth2/token');
-
-			const params = new URLSearchParams();
-			params.append('grant_type', 'authorization_code');
-			params.append('client_id', clientId);
-			params.append('client_secret', clientSecret);
-			params.append('code', code);
-			params.append('redirect_uri', redirectUri);
-
-			if (codeVerifier) {
-				params.append('code_verifier', codeVerifier);
-			}
-
-			const response = await fetch(tokenEndpoint, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				},
-				body: params.toString()
+			const data = await apiClient.oauth.exchangeToken({
+				grant_type: 'authorization_code',
+				client_id: clientId,
+				client_secret: clientSecret,
+				code: code,
+				redirect_uri: redirectUri,
+				code_verifier: codeVerifier || undefined
 			});
-
-			if (!response.ok) {
-				const errorData = await response.json().catch(() => ({}));
-				throw new Error(
-					errorData.detail || errorData.extensions?.error || `HTTP ${response.status}`
-				);
-			}
-
-			const data = await response.json();
 
 			// 토큰 교환 성공 이벤트 발생
 			onTokenExchanged(data);
