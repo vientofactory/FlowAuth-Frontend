@@ -262,8 +262,8 @@
 								</div>
 
 								<div class="warning">
-									⚠️ <strong>중요:</strong> 백업 코드는 한 번만 사용할 수 있습니다. 모든 코드를 사용하면
-									2FA를 재설정해야 합니다.
+									⚠️ <strong>중요:</strong> 백업 코드는 한 번만 사용할 수 있습니다. 2FA 토큰과 백업 코드를
+									모두 분실한 경우 계정에 접근할 수 없게 됩니다.
 								</div>
 
 								<div class="actions">

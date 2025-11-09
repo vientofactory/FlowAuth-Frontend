@@ -3,6 +3,7 @@
 		DashboardLayout,
 		Card,
 		Button,
+		Modal,
 		apiClient,
 		twoFactorStore,
 		authState,
@@ -50,11 +51,11 @@
 	let showRemoveAvatarDialog = $state(false);
 
 	// 2FA 비활성화
-	let _showDisableTwoFactorDialog = $state(false);
+	let showDisableTwoFactorDialog = $state(false);
 	let disableTwoFactorForm = $state({
 		currentPassword: ''
 	});
-	let _isDisablingTwoFactor = $state(false);
+	let isDisablingTwoFactor = $state(false);
 
 	const toast = useToast();
 
@@ -102,35 +103,39 @@
 		goto('/auth/2fa/setup');
 	}
 
-	async function _disableTwoFactor() {
+	async function disableTwoFactor() {
 		if (!disableTwoFactorForm.currentPassword.trim()) {
 			toast.error('현재 비밀번호를 입력해주세요.');
 			return;
 		}
 
 		try {
-			_isDisablingTwoFactor = true;
+			isDisablingTwoFactor = true;
 			await twoFactorStore.disableTwoFactor(disableTwoFactorForm.currentPassword);
 			toast.success('2FA가 성공적으로 비활성화되었습니다.');
-			_showDisableTwoFactorDialog = false;
+			showDisableTwoFactorDialog = false;
 			disableTwoFactorForm.currentPassword = '';
 			await loadTwoFactorStatus(); // 상태 새로고침
 		} catch (error) {
 			console.error('Failed to disable 2FA:', error);
 			toast.error('2FA 비활성화에 실패했습니다.');
 		} finally {
-			_isDisablingTwoFactor = false;
+			isDisablingTwoFactor = false;
 		}
 	}
 
 	function openDisableTwoFactorDialog() {
-		_showDisableTwoFactorDialog = true;
+		showDisableTwoFactorDialog = true;
 		disableTwoFactorForm.currentPassword = '';
+		// 에러 상태 초기화
+		twoFactorStore.clearError();
 	}
 
-	function _closeDisableTwoFactorDialog() {
-		_showDisableTwoFactorDialog = false;
+	function closeDisableTwoFactorDialog() {
+		showDisableTwoFactorDialog = false;
 		disableTwoFactorForm.currentPassword = '';
+		// 에러 상태 초기화
+		twoFactorStore.clearError();
 	}
 
 	function handleAvatarFileSelect(event: Event) {
@@ -213,7 +218,7 @@
 		showRemoveAvatarDialog = true;
 	}
 
-	function _closeRemoveAvatarDialog() {
+	function closeRemoveAvatarDialog() {
 		showRemoveAvatarDialog = false;
 	}
 
@@ -301,7 +306,7 @@
 						onUpload={uploadAvatar}
 						onCancel={cancelAvatarUpload}
 						onRemoveDialogOpen={openRemoveAvatarDialog}
-						onRemoveDialogClose={_closeRemoveAvatarDialog}
+						onRemoveDialogClose={closeRemoveAvatarDialog}
 						onRemoveAvatar={removeAvatar}
 					/>
 
@@ -349,5 +354,91 @@
 				onGoToTwoFactorSetup={goToTwoFactorSetup}
 			/>
 		</div>
+
+		<!-- 2FA 비활성화 모달 -->
+		<Modal
+			open={showDisableTwoFactorDialog}
+			title="2FA 비활성화"
+			size="md"
+			onClose={closeDisableTwoFactorDialog}
+			showFooter={false}
+		>
+			<div class="mb-4 flex items-center rounded-md bg-yellow-50 p-3">
+				<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100">
+					<i class="fas fa-exclamation-triangle text-yellow-600"></i>
+				</div>
+				<p class="text-sm text-yellow-800">2단계 인증을 비활성화하면 계정 보안이 약해집니다.</p>
+			</div>
+
+			<p class="mb-4 text-sm text-gray-600">계속하려면 현재 비밀번호를 입력해주세요.</p>
+
+			<div class="mb-4">
+				<label for="current-password" class="block text-sm font-medium text-gray-700">
+					현재 비밀번호
+				</label>
+				<div class="relative mt-1">
+					<input
+						id="current-password"
+						type="password"
+						bind:value={disableTwoFactorForm.currentPassword}
+						class="block w-full rounded-md border border-gray-300 px-3 py-2 pr-10 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+						placeholder="현재 비밀번호를 입력하세요"
+						disabled={isDisablingTwoFactor}
+						onkeydown={(e) => {
+							if (
+								e.key === 'Enter' &&
+								disableTwoFactorForm.currentPassword.trim() &&
+								!isDisablingTwoFactor
+							) {
+								disableTwoFactor();
+							}
+						}}
+					/>
+					{#if disableTwoFactorForm.currentPassword.trim()}
+						<div class="absolute inset-y-0 right-0 flex items-center pr-3">
+							<i class="fas fa-check text-green-500"></i>
+						</div>
+					{/if}
+				</div>
+			</div>
+
+			{#if twoFactorState.error}
+				<div class="mb-4 rounded-md bg-red-50 p-3">
+					<div class="flex">
+						<div class="shrink-0">
+							<i class="fas fa-exclamation-circle text-red-400"></i>
+						</div>
+						<div class="ml-3">
+							<p class="text-sm text-red-800">{twoFactorState.error}</p>
+						</div>
+					</div>
+				</div>
+			{/if}
+
+			<div class="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3">
+				<Button
+					variant="outline"
+					onclick={closeDisableTwoFactorDialog}
+					class="flex-1"
+					disabled={isDisablingTwoFactor}
+				>
+					취소
+				</Button>
+				<Button
+					variant="danger"
+					onclick={disableTwoFactor}
+					class="flex-1"
+					disabled={isDisablingTwoFactor || !disableTwoFactorForm.currentPassword.trim()}
+				>
+					{#if isDisablingTwoFactor}
+						<i class="fas fa-spinner fa-spin mr-2"></i>
+						비활성화 중...
+					{:else}
+						<i class="fas fa-shield-alt mr-2"></i>
+						비활성화
+					{/if}
+				</Button>
+			</div>
+		</Modal>
 	{/if}
 </DashboardLayout>

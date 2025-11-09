@@ -369,7 +369,7 @@
 							label="백업 코드"
 							name="backupCode"
 							type="text"
-							placeholder="ABCD-1234-EFGH"
+							placeholder="ABCD-1234"
 							bind:value={backupCodeField.value}
 							error={backupCodeField.error}
 							icon="fas fa-key"
