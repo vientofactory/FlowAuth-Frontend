@@ -108,9 +108,32 @@ export class EmailApi extends BaseApi {
 	}
 
 	// 큐 완전 비우기
-	async purgeQueue(): Promise<{ message: string }> {
-		return this.request<{ message: string }>('/email/queue/purge', {
+	async purgeQueue(): Promise<{
+		message: string;
+		verification: {
+			isEmpty: boolean;
+			remainingJobs: Record<string, number | string>;
+		};
+	}> {
+		return this.request<{
+			message: string;
+			verification: {
+				isEmpty: boolean;
+				remainingJobs: Record<string, number | string>;
+			};
+		}>('/email/queue/purge', {
 			method: 'DELETE'
 		});
+	}
+
+	// 큐가 비어있는지 확인
+	async checkQueueEmpty(): Promise<{
+		isEmpty: boolean;
+		stats: EmailQueueStats;
+	}> {
+		return this.request<{
+			isEmpty: boolean;
+			stats: EmailQueueStats;
+		}>('/email/queue/empty-check');
 	}
 }
