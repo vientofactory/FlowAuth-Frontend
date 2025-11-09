@@ -130,45 +130,32 @@
 	onClose={onRemoveDialogClose}
 	showFooter={false}
 >
-	{#snippet children()}
-		<div class="mb-4 flex items-center rounded-md bg-red-50 p-3">
-			<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-red-100">
-				<i class="fas fa-exclamation-triangle text-red-600"></i>
-			</div>
-			<p class="text-sm text-red-800">
-				이 작업은 되돌릴 수 없습니다.
-			</p>
+	<div class="mb-4 flex items-center rounded-md bg-red-50 p-3">
+		<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-red-100">
+			<i class="fas fa-exclamation-triangle text-red-600"></i>
 		</div>
+		<p class="text-sm text-red-800">이 작업은 되돌릴 수 없습니다.</p>
+	</div>
 
-		<p class="mb-6 text-sm text-gray-600">
-			정말로 프로필 사진을 제거하시겠습니까?
-		</p>
+	<p class="mb-6 text-sm text-gray-600">정말로 프로필 사진을 제거하시겠습니까?</p>
 
-		<div class="flex flex-col space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
-			<Button
-				variant="outline"
-				onclick={onRemoveDialogClose}
-				disabled={isRemovingAvatar}
-				class="flex-1"
-			>
-				취소
-			</Button>
-			<Button 
-				variant="danger" 
-				onclick={onRemoveAvatar} 
-				disabled={isRemovingAvatar} 
-				class="flex-1"
-			>
-				{#if isRemovingAvatar}
-					<i class="fas fa-spinner fa-spin mr-2"></i>
-					제거 중...
-				{:else}
-					<i class="fas fa-trash mr-2"></i>
-					제거
-				{/if}
-			</Button>
-		</div>
-	{/snippet}
+	<div class="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3">
+		<Button
+			variant="outline"
+			onclick={onRemoveDialogClose}
+			disabled={isRemovingAvatar}
+			class="flex-1"
+		>
+			취소
+		</Button>
+		<Button variant="danger" onclick={onRemoveAvatar} disabled={isRemovingAvatar} class="flex-1">
+			{#if isRemovingAvatar}
+				<i class="fas fa-spinner fa-spin mr-2"></i>
+				제거 중...
+			{:else}
+				<i class="fas fa-trash mr-2"></i>
+				제거
+			{/if}
+		</Button>
+	</div>
 </Modal>
-
-
