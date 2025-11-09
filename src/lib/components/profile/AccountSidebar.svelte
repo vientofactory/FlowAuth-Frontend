@@ -130,14 +130,17 @@
 	<Card>
 		<h3 class="mb-4 text-lg font-medium text-gray-900">보안 설정</h3>
 		<div class="space-y-3">
-			<Button variant="outline" class="w-full justify-start" onclick={onGoToTwoFactorSetup}>
-				<i class="fas fa-mobile-alt mr-2"></i>
-				{#if twoFactorState.status?.enabled}
-					2단계 인증 관리
-				{:else}
+			{#if twoFactorState.status?.enabled}
+				<Button variant="outline" class="w-full justify-start" disabled>
+					<i class="fas fa-mobile-alt mr-2"></i>
 					2단계 인증 설정
-				{/if}
-			</Button>
+				</Button>
+			{:else}
+				<Button variant="outline" class="w-full justify-start" onclick={onGoToTwoFactorSetup}>
+					<i class="fas fa-mobile-alt mr-2"></i>
+					2단계 인증 설정
+				</Button>
+			{/if}
 		</div>
 	</Card>
 
