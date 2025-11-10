@@ -99,6 +99,9 @@
 	let logoPreviewUrl = $state<string | null>(null);
 	let logoCacheBuster = $state('');
 
+	// 로고 삭제 관련 (낙관적 업데이트용)
+	let logoMarkedForDeletion = $state(false);
+
 	// reCAPTCHA 관련
 	let recaptchaToken = $state('');
 	let recaptchaInstance: ReCaptchaInstance | null = null;
@@ -473,57 +476,32 @@
 			logoPreviewUrl = null;
 		}
 
+		// 로고 삭제 상태 초기화
+		logoMarkedForDeletion = false;
+
 		showEditModal = true;
 	}
 
-	async function removeClientLogo() {
+	function removeClientLogo() {
 		if (!clientToEdit) return;
 
-		// 원본 로고 URI를 함수 시작 시 저장
-		const originalLogoUri = editLogoUri;
+		// 낙관적 업데이트: UI에서만 로고 제거 표시
+		logoMarkedForDeletion = true;
 
-		try {
-			isUpdating = true;
-
-			// UI를 즉시 업데이트하기 위해 먼저 로고 URI를 제거
-			editLogoUri = '';
-
-			// 캐시 버스터 업데이트로 이미지 캐시 무효화
-			logoCacheBuster = Date.now().toString();
-
-			const updatedClient = (await apiClient.removeClientLogo(clientToEdit.id)) as Client;
-
-			// 클라이언트 정보 업데이트
-			clientToEdit = updatedClient;
-			editLogoUri = updatedClient.logoUri || '';
-
-			// 로고 업로드 상태 초기화
-			selectedLogoFile = null;
-			if (logoPreviewUrl) {
-				URL.revokeObjectURL(logoPreviewUrl);
-				logoPreviewUrl = null;
-			}
-
-			// 클라이언트 목록에서도 해당 클라이언트 업데이트
-			const clientIndex = clients.findIndex((c) => c.id === updatedClient.id);
-			if (clientIndex >= 0) {
-				clients[clientIndex] = updatedClient;
-			}
-
-			toast.success('로고가 성공적으로 제거되었습니다.');
-			await loadClients(); // 목록 새로고침
-		} catch (error) {
-			console.error('Failed to remove client logo:', error);
-
-			// 에러 발생 시 원래 로고 URI로 복원
-			if (originalLogoUri) {
-				editLogoUri = originalLogoUri;
-			}
-
-			toast.error('로고 제거에 실패했습니다.');
-		} finally {
-			isUpdating = false;
+		// 새 로고 파일이 선택되어 있다면 제거
+		selectedLogoFile = null;
+		if (logoPreviewUrl) {
+			URL.revokeObjectURL(logoPreviewUrl);
+			logoPreviewUrl = null;
 		}
+
+		toast.info('로고가 삭제 예약되었습니다. 저장을 눌러 변경사항을 적용하세요.');
+	}
+
+	function restoreClientLogo() {
+		// 로고 삭제를 취소
+		logoMarkedForDeletion = false;
+		toast.info('로고 삭제가 취소되었습니다.');
 	}
 
 	async function updateClient() {
@@ -556,12 +534,21 @@
 		isUpdating = true;
 
 		try {
-			// 로고 파일이 선택된 경우 먼저 업로드
+			let finalLogoUri = editLogoUri;
+
+			// 로고 삭제가 예약된 경우 빈 문자열로 설정 (updateClient에서 처리)
+			if (logoMarkedForDeletion && clientToEdit.logoUri) {
+				finalLogoUri = '';
+				logoMarkedForDeletion = false;
+			}
+
+			// 로고 파일이 선택된 경우 업로드
 			if (selectedLogoFile) {
 				try {
 					const uploadResult = await apiClient.uploadLogo(selectedLogoFile);
 					if (uploadResult.success) {
-						editLogoUri = uploadResult.data.url;
+						finalLogoUri = uploadResult.data.url;
+						logoMarkedForDeletion = false; // 새 로고 업로드 시 삭제 상태 해제
 						toast.success('로고가 업로드되었습니다.');
 					} else {
 						throw new Error('로고 업로드에 실패했습니다.');
@@ -589,7 +576,7 @@
 				description: editClientDescription || undefined,
 				redirectUris,
 				scopes,
-				logoUri: editLogoUri || '',
+				logoUri: finalLogoUri || '',
 				termsOfServiceUri: editTermsOfServiceUri || undefined,
 				policyUri: editPolicyUri || undefined
 			});
@@ -597,6 +584,7 @@
 			toast.success('클라이언트가 성공적으로 수정되었습니다.');
 			showEditModal = false;
 			clientToEdit = null;
+			logoMarkedForDeletion = false; // 상태 초기화
 			await loadClients(); // 목록 새로고침
 		} catch (error) {
 			console.error('Failed to update client:', error);
@@ -894,8 +882,11 @@
 	onClose={() => {
 		showEditModal = false;
 		clientToEdit = null;
+		logoMarkedForDeletion = false; // 모달 닫을 때 상태 초기화
 	}}
 	onUpdateClient={updateClient}
 	onRemoveClientLogo={removeClientLogo}
+	onRestoreClientLogo={restoreClientLogo}
+	{logoMarkedForDeletion}
 	onScopeToggle={handleEditScopeToggle}
 />

@@ -27,6 +27,8 @@
 		onClose: () => void;
 		onUpdateClient: () => void;
 		onRemoveClientLogo?: () => void;
+		onRestoreClientLogo?: () => void;
+		logoMarkedForDeletion?: boolean;
 		onScopeToggle: (scope: string) => void;
 	}
 
@@ -54,6 +56,8 @@
 		onClose,
 		onUpdateClient,
 		onRemoveClientLogo,
+		onRestoreClientLogo,
+		logoMarkedForDeletion = false,
 		onScopeToggle
 	}: Props = $props();
 
@@ -140,6 +144,8 @@
 						existingLogoUri={editLogoUri || ''}
 						onFileSelect={handleLogoFileSelect}
 						onRemoveExistingLogo={onRemoveClientLogo}
+						onRestoreExistingLogo={onRestoreClientLogo}
+						{logoMarkedForDeletion}
 						cacheBuster={logoCacheBuster}
 					/>
 					{#if editLogoUriError}

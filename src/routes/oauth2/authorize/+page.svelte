@@ -37,6 +37,9 @@
 	const DESCRIPTION_MAX_LENGTH = 80; // 모바일에서 약 3-4줄
 	const DESCRIPTION_PREVIEW_LENGTH = 20; // 미리보기 길이
 
+	// 로고 URL을 리액티브하게 계산
+	let logoUrl = $derived(getLogoUrl(currentState?.client?.logoUri));
+
 	// 스코프 아이콘 색상 클래스 가져오기 함수
 	function getScopeColorClasses(color: string) {
 		const colorMap = {
@@ -66,7 +69,9 @@
 
 	// Function to convert logo URI to absolute URL
 	function getLogoUrl(logoUri?: string): string | null {
-		if (!logoUri || !logoUri.trim()) return null;
+		if (!logoUri || !logoUri.trim()) {
+			return null;
+		}
 
 		const trimmedUri = logoUri.trim();
 
@@ -241,10 +246,12 @@
 						<!-- 앱 로고 표시 -->
 						<div class="relative">
 							<Logo
-								src={getLogoUrl(currentState.client?.logoUri) || '/logo_icon.png'}
+								src={logoUrl || ''}
 								alt="{currentState.client?.name || 'FlowAuth'} 로고"
 								size="lg"
 								fallbackSrc="/logo_icon.png"
+								fallbackIcon="fa-cube"
+								useIconFallback={logoUrl === null}
 								className="rounded-full border-2 border-white shadow-lg object-cover"
 							/>
 						</div>
