@@ -10,6 +10,8 @@
 		existingLogoUri?: string;
 		onFileSelect: (file: File | null) => void;
 		onRemoveExistingLogo?: () => void;
+		onRestoreExistingLogo?: () => void;
+		logoMarkedForDeletion?: boolean;
 		cacheBuster?: string; // 캐시 무효화를 위한 버전 문자열
 	}
 
@@ -20,6 +22,8 @@
 		existingLogoUri = '',
 		onFileSelect,
 		onRemoveExistingLogo,
+		onRestoreExistingLogo,
+		logoMarkedForDeletion = false,
 		cacheBuster = ''
 	}: Props = $props();
 
@@ -176,6 +180,12 @@
 		}
 	}
 
+	function handleRestoreExistingLogo() {
+		if (onRestoreExistingLogo) {
+			onRestoreExistingLogo();
+		}
+	}
+
 	// existingLogoUri가 유효한 URL인지 확인하는 헬퍼 함수
 	function isValidUrl(url: string): boolean {
 		try {
@@ -188,6 +198,9 @@
 
 	// 표시할 로고 URL를 계산하는 함수
 	function getDisplayLogoUrl(): string | null {
+		// 로고가 삭제 예정이면 null 반환
+		if (logoMarkedForDeletion) return null;
+
 		// 새로 선택된 파일의 미리보기가 있으면 우선 표시
 		if (previewUrl) return previewUrl;
 
@@ -246,7 +259,7 @@
 					variant="outline"
 					onclick={() => fileInput?.click()}
 					disabled={isUploading}
-					class="h-10 flex-shrink-0"
+					class="h-10 shrink-0"
 					aria-label="로고 파일 선택"
 				>
 					<i class="fas fa-upload mr-2"></i>
@@ -269,7 +282,7 @@
 							size="sm"
 							onclick={handleRemove}
 							disabled={isUploading}
-							class="flex-shrink-0"
+							class="shrink-0"
 						>
 							<i class="fas fa-times"></i>
 						</Button>
@@ -323,31 +336,45 @@
 			{/if}
 		</div>
 
-		{#if getDisplayLogoUrl() && !imageLoadError}
+		{#if (getDisplayLogoUrl() && !imageLoadError) || logoMarkedForDeletion}
 			<div class="flex items-center space-x-4">
 				<div class="relative">
-					<img
-						src={getDisplayLogoUrl()}
-						alt="로고 미리보기"
-						class="h-16 w-16 rounded-md border border-gray-300 object-contain"
-						onerror={(e) => {
-							console.log('이미지 로딩 실패:', getDisplayLogoUrl());
-							imageLoadError = true;
-							// 이미지 로딩 실패 시 해당 이미지 요소를 숨김
-							if (e.target instanceof HTMLImageElement) {
-								e.target.style.display = 'none';
-							}
-						}}
-						onload={() => {
-							imageLoadError = false;
-						}}
-					/>
-					{#if previewUrl && existingLogoUri && existingLogoUri.trim()}
-						<span
-							class="absolute -top-2 -right-2 rounded bg-blue-500 px-1 py-0.5 text-xs text-white"
+					{#if logoMarkedForDeletion}
+						<!-- 삭제 예정 상태 표시 -->
+						<div
+							class="flex h-16 w-16 items-center justify-center rounded-md border-2 border-dashed border-red-300 bg-red-50"
 						>
-							새 로고
+							<i class="fas fa-trash text-2xl text-red-400"></i>
+						</div>
+						<span
+							class="absolute -top-2 -right-2 rounded bg-red-500 px-1 py-0.5 text-xs text-white"
+						>
+							삭제 예정
 						</span>
+					{:else}
+						<img
+							src={getDisplayLogoUrl()}
+							alt="로고 미리보기"
+							class="h-16 w-16 rounded-md border border-gray-300 object-contain"
+							onerror={(e) => {
+								console.log('이미지 로딩 실패:', getDisplayLogoUrl());
+								imageLoadError = true;
+								// 이미지 로딩 실패 시 해당 이미지 요소를 숨김
+								if (e.target instanceof HTMLImageElement) {
+									e.target.style.display = 'none';
+								}
+							}}
+							onload={() => {
+								imageLoadError = false;
+							}}
+						/>
+						{#if previewUrl && existingLogoUri && existingLogoUri.trim()}
+							<span
+								class="absolute -top-2 -right-2 rounded bg-blue-500 px-1 py-0.5 text-xs text-white"
+							>
+								새 로고
+							</span>
+						{/if}
 					{/if}
 				</div>
 				<div class="flex-1">
@@ -355,6 +382,9 @@
 						{#if isUploading}
 							<i class="fas fa-spinner fa-spin mr-2 text-blue-500"></i>
 							<span class="font-medium text-blue-600">로고를 업로드하고 있습니다...</span>
+						{:else if logoMarkedForDeletion}
+							<i class="fas fa-exclamation-triangle mr-2 text-red-500"></i>
+							<span class="font-medium text-red-600">저장 시 로고가 삭제됩니다</span>
 						{:else if previewUrl}
 							<i class="fas fa-clock mr-2 text-orange-500"></i>
 							저장 시 자동으로 업로드됩니다.
@@ -363,10 +393,25 @@
 							등록된 로고
 						{/if}
 					</p>
-					{#if previewUrl && existingLogoUri && existingLogoUri.trim()}
+
+					{#if logoMarkedForDeletion}
+						<p class="mt-1 text-xs text-red-600">변경사항을 취소하려면 '삭제 취소'를 클릭하세요.</p>
+						<div class="mt-2 space-x-2">
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								onclick={handleRestoreExistingLogo}
+								disabled={isUploading}
+								class="text-green-600 hover:border-green-300 hover:text-green-700"
+							>
+								<i class="fas fa-undo mr-1"></i>
+								삭제 취소
+							</Button>
+						</div>
+					{:else if previewUrl && existingLogoUri && existingLogoUri.trim()}
 						<p class="mt-1 text-xs text-blue-600">새 로고로 교체됩니다.</p>
-					{/if}
-					{#if !previewUrl && existingLogoUri && existingLogoUri.trim() && onRemoveExistingLogo}
+					{:else if !previewUrl && existingLogoUri && existingLogoUri.trim() && onRemoveExistingLogo}
 						<div class="mt-2">
 							<Button
 								type="button"

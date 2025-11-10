@@ -7,6 +7,8 @@
 	export let alt: string = 'Logo';
 	export let size: 'sm' | 'md' | 'lg' | 'xl' = 'md';
 	export let fallbackSrc: string = '/logo_icon.png';
+	export let fallbackIcon: string = 'fa-cube';
+	export let useIconFallback: boolean = false;
 	export let clickable: boolean = false;
 	export let className: string = '';
 
@@ -14,6 +16,7 @@
 
 	let imgElement: HTMLImageElement;
 	let _hasError = false;
+	let _shouldShowIcon = false;
 
 	// Size classes
 	const sizeClasses = {
@@ -23,7 +26,15 @@
 		xl: 'w-24 h-24'
 	};
 
-	// Load logo from backend
+	// Icon size classes
+	const iconSizeClasses = {
+		sm: 'text-lg',
+		md: 'text-2xl',
+		lg: 'text-3xl',
+		xl: 'text-4xl'
+	};
+
+	// Load logo from backend (only for internal logo loading)
 	async function loadLogo() {
 		try {
 			if (!src) {
@@ -33,15 +44,28 @@
 			}
 		} catch (error) {
 			console.warn('Failed to load logo:', error);
-			src = fallbackSrc;
+			if (!useIconFallback) {
+				src = fallbackSrc;
+			}
 			_hasError = true;
 		}
 	}
 
 	function handleError() {
 		_hasError = true;
-		if (src !== fallbackSrc) {
+		if (useIconFallback) {
+			_shouldShowIcon = true;
+		} else if (src !== fallbackSrc) {
 			src = fallbackSrc;
+		}
+	}
+
+	$: {
+		if (useIconFallback) {
+			_shouldShowIcon =
+				!src || src.trim() === '' || src === 'null' || src === 'undefined' || _hasError;
+		} else {
+			_shouldShowIcon = false;
 		}
 	}
 
@@ -59,35 +83,61 @@
 	}
 
 	onMount(() => {
-		loadLogo();
+		if (!src && !useIconFallback) {
+			loadLogo();
+		}
 	});
 </script>
 
-{#if clickable}
-	<button
-		class="{sizeClasses[size]} {className}"
-		on:click={handleClick}
-		on:keydown={handleKeyDown}
-		aria-label={alt}
-	>
+{#if _shouldShowIcon}
+	{#if clickable}
+		<button
+			class="{sizeClasses[
+				size
+			]} {className} flex items-center justify-center rounded-full bg-linear-to-br from-stone-100 to-gray-200 text-gray-600 shadow-sm transition-all hover:from-stone-200 hover:to-gray-300"
+			on:click={handleClick}
+			on:keydown={handleKeyDown}
+			aria-label={alt}
+		>
+			<i class="fas {fallbackIcon} {iconSizeClasses[size]}"></i>
+		</button>
+	{:else}
+		<div
+			class="{sizeClasses[
+				size
+			]} {className} flex items-center justify-center rounded-full bg-linear-to-br from-stone-100 to-gray-200 text-gray-600 shadow-sm"
+			aria-label={alt}
+		>
+			<i class="fas {fallbackIcon} {iconSizeClasses[size]}"></i>
+		</div>
+	{/if}
+{:else}
+	{#if clickable}
+		<button
+			class="{sizeClasses[size]} {className}"
+			on:click={handleClick}
+			on:keydown={handleKeyDown}
+			aria-label={alt}
+		>
+			<img
+				bind:this={imgElement}
+				{src}
+				{alt}
+				class="h-full w-full object-contain"
+				on:error={handleError}
+				loading="lazy"
+			/>
+		</button>
+	{:else}
 		<img
 			bind:this={imgElement}
 			{src}
 			{alt}
-			class="h-full w-full object-contain"
+			class="{sizeClasses[size]} object-contain {className}"
 			on:error={handleError}
 			loading="lazy"
 		/>
-	</button>
-{:else}
-	<img
-		bind:this={imgElement}
-		{src}
-		{alt}
-		class="{sizeClasses[size]} object-contain {className}"
-		on:error={handleError}
-		loading="lazy"
-	/>
+	{/if}
 {/if}
 
 <style>
