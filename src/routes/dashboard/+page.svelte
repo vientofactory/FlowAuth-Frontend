@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { DashboardLayout, Tabs, apiClient, authState, useToast, DashboardSkeleton } from '$lib';
+	import { authStore } from '$lib/stores/auth';
 	import StatsCards from '$lib/components/dashboard/StatsCards.svelte';
 	import OverviewTab from '$lib/components/dashboard/OverviewTab.svelte';
 	import AnalyticsTab from '$lib/components/dashboard/AnalyticsTab.svelte';
@@ -302,6 +303,19 @@
 	let activeTab = $state('overview');
 
 	onMount(() => {
+		// URL 파라미터에서 이메일 인증 완료 메시지 확인
+		const urlParams = new URLSearchParams(window.location.search);
+		if (urlParams.get('message') === 'email-verified') {
+			toast.success('이메일 인증이 완료되었습니다!');
+			// URL에서 메시지 파라미터 제거
+			const newUrl = new URL(window.location.href);
+			newUrl.searchParams.delete('message');
+			window.history.replaceState({}, '', newUrl.toString());
+
+			// 사용자 정보 새로고침
+			authStore.refreshProfile().catch(console.error);
+		}
+
 		// store 구독
 		const unsubscribe = authState.subscribe((state) => {
 			user = state.user;

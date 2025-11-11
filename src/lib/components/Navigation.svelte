@@ -321,15 +321,36 @@
 														{user?.lastName}
 													</p>
 													<p class="mt-0.5 truncate text-xs text-gray-500">{user?.email}</p>
-													{#if user?.userType}
-														<div class="mt-1">
+													<div class="mt-1 flex items-center gap-1.5">
+														{#if user && !user.isEmailVerified}
 															<span
-																class="inline-flex items-center rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-800"
+																class="inline-flex items-center rounded-md bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-amber-200"
+															>
+																<i
+																	class="fas fa-exclamation-triangle mr-1 text-amber-600"
+																	style="font-size: 10px;"
+																></i>
+																미인증
+															</span>
+														{:else if user?.isEmailVerified}
+															<span
+																class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200"
+															>
+																<i
+																	class="fas fa-check-circle mr-1 text-emerald-600"
+																	style="font-size: 10px;"
+																></i>
+																인증됨
+															</span>
+														{/if}
+														{#if user?.userType}
+															<span
+																class="inline-flex items-center rounded-md bg-stone-50 px-1.5 py-0.5 text-xs font-medium text-stone-700 ring-1 ring-stone-200"
 															>
 																{user.userType === USER_TYPES.DEVELOPER ? '개발자' : '일반 사용자'}
 															</span>
-														</div>
-													{/if}
+														{/if}
+													</div>
 												</div>
 											</div>
 										</div>
@@ -452,6 +473,27 @@
 										{user?.lastName}
 									</p>
 									<p class="mt-0.5 text-xs text-gray-500">{user?.email}</p>
+									<div class="mt-1 flex items-center gap-1">
+										{#if user && !user.isEmailVerified}
+											<span
+												class="inline-flex items-center rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-700"
+											>
+												<i
+													class="fas fa-exclamation-triangle mr-1 text-amber-600"
+													style="font-size: 9px;"
+												></i>
+												미인증
+											</span>
+										{:else if user?.isEmailVerified}
+											<span
+												class="inline-flex items-center rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-xs font-medium text-emerald-700"
+											>
+												<i class="fas fa-check-circle mr-1 text-emerald-600" style="font-size: 9px;"
+												></i>
+												인증됨
+											</span>
+										{/if}
+									</div>
 								</div>
 								<div class="space-y-1">
 									<a
@@ -563,9 +605,33 @@
 									{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
 								</span>
 							</div>
-							<div>
-								<p class="text-sm font-medium text-gray-900">{user?.firstName} {user?.lastName}</p>
-								<p class="text-xs text-gray-500">{user?.email}</p>
+							<div class="min-w-0 flex-1">
+								<p class="truncate text-sm font-medium text-gray-900">
+									{user?.firstName}
+									{user?.lastName}
+								</p>
+								<p class="truncate text-xs text-gray-500">{user?.email}</p>
+								<div class="mt-1 flex items-center gap-1">
+									{#if user && !user.isEmailVerified}
+										<span
+											class="inline-flex items-center rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-700"
+										>
+											<i
+												class="fas fa-exclamation-triangle mr-1 text-amber-600"
+												style="font-size: 9px;"
+											></i>
+											미인증
+										</span>
+									{:else if user?.isEmailVerified}
+										<span
+											class="inline-flex items-center rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-xs font-medium text-emerald-700"
+										>
+											<i class="fas fa-check-circle mr-1 text-emerald-600" style="font-size: 9px;"
+											></i>
+											인증됨
+										</span>
+									{/if}
+								</div>
 							</div>
 						</div>
 					</div>

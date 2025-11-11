@@ -45,9 +45,16 @@
 			email = data.email || '';
 			toast.success('이메일 인증이 성공적으로 완료되었습니다!');
 
-			// 3초 후 로그인 페이지로 리다이렉트
+			// 인증된 사용자가 이미 로그인되어 있다면 대시보드로, 그렇지 않으면 로그인 페이지로
+			// 3초 후 리다이렉트
 			setTimeout(() => {
-				goto(`${ROUTES.LOGIN}?message=email-verified`);
+				// 현재 로그인 상태를 확인하여 적절한 페이지로 리다이렉트
+				const isLoggedIn = document.cookie.includes('token=');
+				if (isLoggedIn) {
+					goto('/dashboard?message=email-verified');
+				} else {
+					goto(`${ROUTES.LOGIN}?message=email-verified`);
+				}
 			}, 3000);
 		} catch (err) {
 			console.error('Email verification error:', err);
