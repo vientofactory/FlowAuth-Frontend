@@ -30,12 +30,7 @@
 		// 앱 목록 로드를 별도의 async 함수로 처리
 		async function loadApps() {
 			try {
-				const response = await apiClient.request<ConnectedAppsResponse>(
-					'/dashboard/connected-apps',
-					{
-						method: 'GET'
-					}
-				);
+				const response = await apiClient.getConnectedApps();
 				apps = response.apps;
 			} catch (err) {
 				console.error('연결된 앱 목록 조회 실패:', err);
@@ -66,12 +61,7 @@
 
 		revoking = true;
 		try {
-			await apiClient.request<RevokeConnectionResponse>(
-				`/dashboard/connected-apps/${revokingApp.id}`,
-				{
-					method: 'DELETE'
-				}
-			);
+			await apiClient.revokeConnectedApp(revokingApp.id);
 			// 연결 해제 성공 시 목록에서 제거
 			apps = apps.filter((app) => app.id !== revokingApp!.id);
 			closeRevokeModal();

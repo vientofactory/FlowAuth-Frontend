@@ -4,6 +4,7 @@
 	import LoadingState from '$lib/components/oauth2/LoadingState.svelte';
 	import ErrorState from '$lib/components/oauth2/ErrorState.svelte';
 	import AccountSwitcher from '$lib/components/oauth2/AccountSwitcher.svelte';
+	import { ROUTES } from '$lib/constants/app.constants';
 	import Logo from '$lib/components/Logo.svelte';
 	import { useAuthorization } from '$lib/hooks/useAuthorization';
 	import type { AuthorizationState } from '$lib/types/authorization.types';
@@ -147,7 +148,7 @@
 			// 토큰이 없으면 직접 로그인 페이지로 리디렉트
 			console.log('[Page] No authentication token found, redirecting to login');
 			const currentUrl = window.location.href;
-			const loginUrl = `/auth/login?returnUrl=${encodeURIComponent(currentUrl)}`;
+			const loginUrl = `${ROUTES.LOGIN}?returnUrl=${encodeURIComponent(currentUrl)}`;
 			window.location.href = loginUrl;
 			return;
 		}		// OIDC 파라미터가 있는 경우 nonce와 state 생성

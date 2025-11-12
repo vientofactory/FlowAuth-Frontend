@@ -1,4 +1,4 @@
-import { APP_CONSTANTS, ROUTES, MESSAGES } from '$lib/constants/app.constants';
+import { APP_CONSTANTS, ROUTES, MESSAGES, API_ENDPOINTS } from '$lib/constants/app.constants';
 import { TOKEN_STORAGE_KEYS } from '$lib/constants/app.constants';
 import { env } from '$lib/config/env';
 import type { TokenType } from '$lib/types/authorization.types';
@@ -335,7 +335,7 @@ export abstract class BaseApi {
 				return;
 			}
 
-			await this.request('/auth/me', {}, 0, true);
+			await this.request(API_ENDPOINTS.AUTH.ME, {}, 0, true);
 			console.log('[API] Session recovered successfully');
 
 			if (typeof window !== 'undefined' && 'dispatchEvent' in window) {

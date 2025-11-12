@@ -2,7 +2,7 @@ import { writable } from 'svelte/store';
 import { apiClient } from '$lib/utils/api';
 import { parseError } from '../utils/error.utils';
 import { ERROR_MESSAGES } from '../constants/authorization.constants';
-import type { Client } from '$lib/types/oauth.types';
+import { ROUTES } from '../constants/app.constants';
 import type { User } from '$lib/types/user.types';
 interface AuthorizePageData {
 	authorizeParams: {
@@ -104,21 +104,8 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 			updateProgress(60);
 			await new Promise((resolve) => setTimeout(resolve, 100)); // 최소 로딩 시간 보장
 
-			// 백엔드에서 동의 정보 조회
-			const params = new URLSearchParams({
-				client_id: authorizeParams.client_id,
-				redirect_uri: authorizeParams.redirect_uri,
-				response_type: authorizeParams.response_type,
-				...(authorizeParams.scope && { scope: authorizeParams.scope }),
-				...(authorizeParams.state && { state: authorizeParams.state }),
-				...(authorizeParams.code_challenge && { code_challenge: authorizeParams.code_challenge }),
-				...(authorizeParams.code_challenge_method && {
-					code_challenge_method: authorizeParams.code_challenge_method
-				})
-			});
-
-			const requestUrl = `/oauth2/authorize/info?${params.toString()}`;
-			console.log('[Authorization] Making API request to:', requestUrl);
+			// 백엔드에서 동의 정보 조회 - API 클라이언트 사용
+			console.log('[Authorization] Making API request to get authorization info');
 
 			updateProgress(85);
 
@@ -128,8 +115,17 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 				throw new Error('API 요청이 15초를 초과했습니다. 네트워크 연결을 확인해주세요.');
 			}, 15000);
 
-			const result = await apiClient.request<{ client: Client; scopes: string[] }>(requestUrl, {
-				method: 'GET'
+			const result = await apiClient.getAuthorizationInfo({
+				client_id: authorizeParams.client_id,
+				redirect_uri: authorizeParams.redirect_uri,
+				response_type: authorizeParams.response_type,
+				...(authorizeParams.scope && { scope: authorizeParams.scope }),
+				...(authorizeParams.state && { state: authorizeParams.state }),
+				...(authorizeParams.code_challenge && { code_challenge: authorizeParams.code_challenge }),
+				...(authorizeParams.code_challenge_method && {
+					code_challenge_method: authorizeParams.code_challenge_method
+				}),
+				...(authorizeParams.nonce && { nonce: authorizeParams.nonce })
 			});
 
 			clearTimeout(apiTimeoutId);
@@ -163,7 +159,7 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 
 				// 현재 OAuth2 authorize URL을 returnUrl로 설정
 				const currentUrl = window.location.href;
-				const loginUrl = `/auth/login?returnUrl=${encodeURIComponent(currentUrl)}`;
+				const loginUrl = `${ROUTES.LOGIN}?returnUrl=${encodeURIComponent(currentUrl)}`;
 
 				window.location.href = loginUrl;
 				return;
@@ -184,24 +180,16 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 	}
 
 	/**
-	 * 동의 처리 함수
+	 * 동의 처리 함수 - API 클라이언트 사용
 	 */
 	async function handleConsent(approved: boolean): Promise<void> {
 		state.update((current) => ({ ...current, submitting: true, error: null }));
 
 		try {
-			const consentData = {
+			const result = await apiClient.handleConsent({
 				...data.authorizeParams,
 				approved
-			};
-
-			const result = await apiClient.request<{ redirect_url: string }>(
-				'/oauth2/authorize/consent',
-				{
-					method: 'POST',
-					body: JSON.stringify(consentData)
-				}
-			);
+			});
 
 			// 리다이렉트
 			window.location.href = result.redirect_url;

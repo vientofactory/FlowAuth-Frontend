@@ -5,10 +5,12 @@ import { SettingsApi } from './settings';
 import { DashboardApi } from './dashboard';
 import { UploadsApi } from './uploads';
 import { OAuthApi } from './oauth';
+import type { AuthorizeParams, AuthorizationInfo, ConsentRequest, ConsentResponse } from './oauth';
 import { EmailApi } from './email';
 import type { EmailQueueStats, EmailTestRequest, SMTPConnectionStatus, SMTPInfo } from './email';
 import type { ApiError } from './base';
 import type { User, LoginData, CreateUserDto } from '$lib';
+import { API_ENDPOINTS } from '$lib/constants/app.constants';
 import type {
 	TwoFactorSetup,
 	TwoFactorStatus,
@@ -371,6 +373,14 @@ class ApiClient extends BaseApi {
 		return this.dashboard.getAdvancedAnalytics();
 	}
 
+	async getConnectedApps() {
+		return this.dashboard.getConnectedApps();
+	}
+
+	async revokeConnectedApp(appId: number) {
+		return this.dashboard.revokeConnectedApp(appId);
+	}
+
 	// Uploads methods
 	async uploadLogo(file: File) {
 		return this.uploads.uploadLogo(file);
@@ -383,6 +393,33 @@ class ApiClient extends BaseApi {
 	// OAuth methods
 	async getAvailableScopes() {
 		return this.oauth.getAvailableScopes();
+	}
+
+	async getAuthorizationInfo(params: {
+		client_id: string;
+		redirect_uri: string;
+		response_type: string;
+		scope?: string;
+		state?: string;
+		code_challenge?: string;
+		code_challenge_method?: string;
+		nonce?: string;
+	}) {
+		return this.oauth.getAuthorizationInfo(params);
+	}
+
+	async handleConsent(request: {
+		client_id: string;
+		redirect_uri: string;
+		response_type: string;
+		scope?: string;
+		state?: string;
+		code_challenge?: string;
+		code_challenge_method?: string;
+		nonce?: string;
+		approved: boolean;
+	}) {
+		return this.oauth.handleConsent(request);
 	}
 
 	// Email methods
@@ -437,7 +474,7 @@ class ApiClient extends BaseApi {
 	}
 
 	async logout(): Promise<{ message: string }> {
-		return this.request('/auth/logout', {
+		return this.request(API_ENDPOINTS.AUTH.LOGOUT, {
 			method: 'POST'
 		});
 	}
@@ -485,5 +522,9 @@ export type {
 	EmailQueueStats,
 	EmailTestRequest,
 	SMTPConnectionStatus,
-	SMTPInfo
+	SMTPInfo,
+	AuthorizeParams,
+	AuthorizationInfo,
+	ConsentRequest,
+	ConsentResponse
 };

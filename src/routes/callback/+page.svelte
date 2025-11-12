@@ -7,6 +7,7 @@
 		UsageGuideSection,
 		TokenModal
 	} from '$lib/components/callback';
+	import { ROUTES } from '$lib/constants/app.constants';
 	import Footer from '$lib/components/Footer.svelte';
 	import TokenExchangeForm from '$lib/components/oauth/TokenExchangeForm.svelte';
 	import { useToast } from '$lib';
@@ -339,11 +340,11 @@
 	}
 
 	function navigateBack() {
-		window.location.href = '/dashboard/oauth-tester';
+		window.location.href = ROUTES.DASHBOARD_OAUTH_TESTER;
 	}
 
 	function goToDashboard() {
-		window.location.href = '/dashboard';
+		window.location.href = ROUTES.DASHBOARD;
 	}
 
 	// 토큰 정보 디코딩
