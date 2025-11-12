@@ -1,5 +1,5 @@
 import type { Client } from '$lib/types/oauth.types';
-import type { LoadEvent } from '@sveltejs/kit';
+import type { PageLoad } from './$types';
 
 export interface ConsentPageData {
 	client: Client;
@@ -16,8 +16,7 @@ export interface ConsentPageData {
 	};
 }
 
-// 서버사이드에서는 URL 파라미터만 전달하고, 실제 API 호출은 클라이언트사이드에서 수행
-export const load = async ({ url }: LoadEvent) => {
+export const load: PageLoad = async ({ url }) => {
 	const client_id = url.searchParams.get('client_id');
 	const redirect_uri = url.searchParams.get('redirect_uri');
 	const response_type = url.searchParams.get('response_type');
@@ -31,6 +30,7 @@ export const load = async ({ url }: LoadEvent) => {
 		throw new Error('Missing required OAuth2 parameters');
 	}
 
+	// 인증 확인은 컴포넌트에서 처리하도록 변경 (중복 리디렉션 방지)
 	return {
 		authorizeParams: {
 			client_id,

@@ -2,8 +2,10 @@ import { writable } from 'svelte/store';
 import { apiClient } from '$lib/utils/api';
 import { parseError } from '../utils/error.utils';
 import { ERROR_MESSAGES } from '../constants/authorization.constants';
+import { env } from '$lib/config/env';
 import type { Client } from '$lib/types/oauth.types';
 import type { User } from '$lib/types/user.types';
+import { SESSION_STORAGE_KEYS } from '@flowauth/shared';
 interface AuthorizePageData {
 	authorizeParams: {
 		client_id: string;
@@ -157,16 +159,44 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 
 			console.error('[Authorization] Error occurred:', err);
 
-			// 401 에러 (인증 실패) 처리
+			// 401 에러 (인증 실패) 처리 - 백엔드 OAuth2 엔드포인트로 리디렉션
 			if (err instanceof Error && err.message.includes('Authentication required')) {
-				console.log('[Authorization] Authentication required, redirecting to login');
-				const error: AuthorizationError = {
-					type: ErrorType.NETWORK_ERROR,
-					message: '로그인이 필요합니다.',
-					retryable: false
-				};
-				state.update((current) => ({ ...current, error, loading: false }));
-				window.location.href = '/auth/login';
+				console.log(
+					'[Authorization] Authentication required, redirecting to backend OAuth2 authorize endpoint'
+				);
+
+				// 무한 리디렉션 방지: 이미 API 에러로 리디렉션했는지 확인
+				if (sessionStorage.getItem(SESSION_STORAGE_KEYS.OAUTH2_API_REDIRECTING) === 'true') {
+					console.error('[Authorization] Already tried API redirect, showing error instead');
+					const error: AuthorizationError = {
+						type: ErrorType.NETWORK_ERROR,
+						message: '인증에 실패했습니다. 다시 로그인해주세요.',
+						retryable: false
+					};
+					state.update((current) => ({ ...current, error, loading: false }));
+					return;
+				}
+
+				// 현재 URL 파라미터를 가져와서 백엔드로 리디렉션
+				const currentParams = new URLSearchParams();
+				const { authorizeParams } = data;
+
+				currentParams.set('response_type', authorizeParams.response_type);
+				currentParams.set('client_id', authorizeParams.client_id);
+				currentParams.set('redirect_uri', authorizeParams.redirect_uri);
+				if (authorizeParams.scope) currentParams.set('scope', authorizeParams.scope);
+				if (authorizeParams.state) currentParams.set('state', authorizeParams.state);
+				if (authorizeParams.code_challenge)
+					currentParams.set('code_challenge', authorizeParams.code_challenge);
+				if (authorizeParams.code_challenge_method)
+					currentParams.set('code_challenge_method', authorizeParams.code_challenge_method);
+				if (authorizeParams.nonce) currentParams.set('nonce', authorizeParams.nonce);
+
+				// 리디렉션 플래그 설정
+				sessionStorage.setItem(SESSION_STORAGE_KEYS.OAUTH2_API_REDIRECTING, 'true');
+
+				// 백엔드의 OAuth2 authorize 엔드포인트로 리디렉션
+				window.location.href = `${env.API_BASE_URL}/oauth2/authorize?${currentParams.toString()}`;
 				return;
 			}
 
@@ -255,13 +285,6 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 	// 		});
 	// 	}, 45000);
 	// });
-
-	return {
-		state,
-		loadAuthorizationData,
-		handleConsent,
-		retryAuthorization
-	};
 
 	return {
 		state,

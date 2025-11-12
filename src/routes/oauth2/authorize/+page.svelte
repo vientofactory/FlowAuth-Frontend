@@ -12,6 +12,8 @@
 	import { env } from '$lib/config/env';
 	import { getScopeInfo } from '$lib/utils/scope.utils';
 	import { oidcStore } from '$lib/stores/oidc';
+	import { LOCAL_STORAGE_KEYS, SESSION_STORAGE_KEYS, COOKIE_KEYS } from '@flowauth/shared';
+	import { getCookie } from '$lib/utils/cookie';
 	import './+page.css';
 
 	let { data }: { data: PageData } = $props();
@@ -134,7 +136,26 @@
 	}
 
 	onMount(() => {
-		// OIDC 파라미터가 있는 경우 nonce와 state 생성
+		// 리디렉션 플래그 정리 (로그인 성공 후 돌아온 경우)
+		sessionStorage.removeItem(SESSION_STORAGE_KEYS.OAUTH2_REDIRECTING);
+		sessionStorage.removeItem(SESSION_STORAGE_KEYS.OAUTH2_API_REDIRECTING);
+
+		// 인증 상태 확인 (shared 패키지의 상수 사용)
+		const hasToken = (
+			localStorage.getItem(LOCAL_STORAGE_KEYS.LOGIN_TOKEN) || 
+			localStorage.getItem(LOCAL_STORAGE_KEYS.OAUTH2_TOKEN) ||
+			getCookie(COOKIE_KEYS.TOKEN)
+		);
+
+		if (!hasToken) {
+			console.log('[Page] No valid token found, redirecting to backend authorize endpoint');
+			sessionStorage.setItem(SESSION_STORAGE_KEYS.OAUTH2_REDIRECTING, 'true');
+			const backendUrl = env.API_BASE_URL || 'http://localhost:3000';
+			const currentUrl = new URL(window.location.href);
+			const authorizeUrl = `${backendUrl}/oauth2/authorize?${currentUrl.searchParams.toString()}`;
+			window.location.href = authorizeUrl;
+			return;
+		}		// OIDC 파라미터가 있는 경우 nonce와 state 생성
 		const urlParams = new URLSearchParams(window.location.search);
 		const responseType = urlParams.get('response_type');
 

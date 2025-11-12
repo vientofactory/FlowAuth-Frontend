@@ -7,6 +7,7 @@
 	import { useToast } from '$lib';
 	import { ROUTES } from '$lib/constants/app.constants';
 	import { apiClient } from '$lib/utils/api';
+	import { getCookie } from '$lib/utils/cookie';
 
 	let loading = $state(true);
 	let verifying = $state(false);
@@ -49,7 +50,7 @@
 			// 3초 후 리다이렉트
 			setTimeout(() => {
 				// 현재 로그인 상태를 확인하여 적절한 페이지로 리다이렉트
-				const isLoggedIn = document.cookie.includes('token=');
+				const isLoggedIn = !!getCookie('token');
 				if (isLoggedIn) {
 					goto('/dashboard?message=email-verified');
 				} else {

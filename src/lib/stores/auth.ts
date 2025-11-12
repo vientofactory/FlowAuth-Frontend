@@ -1,6 +1,7 @@
 import { writable } from 'svelte/store';
 import { apiClient } from '$lib/utils/api';
-import { TOKEN_STORAGE_KEYS } from '$lib/constants/app.constants';
+import { LOCAL_STORAGE_KEYS } from '@flowauth/shared';
+import { setAuthTokenCookie, deleteAuthTokenCookie, clearAllAuthCookies } from '$lib/utils/cookie';
 import type { User } from '$lib';
 
 interface AuthState {
@@ -69,7 +70,7 @@ class AuthStore {
 				// 토큰만 제거하고 완전히 로그아웃하지는 않음
 				if (typeof window !== 'undefined') {
 					localStorage.removeItem('auth_token');
-					document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+					deleteAuthTokenCookie();
 				}
 			}
 
@@ -178,12 +179,12 @@ class AuthStore {
 	async setOAuth2Token(accessToken: string, refreshToken?: string) {
 		console.log('AuthStore: Setting OAuth2 token');
 		if (typeof window !== 'undefined') {
-			localStorage.setItem(TOKEN_STORAGE_KEYS.OAUTH2, accessToken);
+			localStorage.setItem(LOCAL_STORAGE_KEYS.OAUTH2_TOKEN, accessToken);
 			if (refreshToken) {
-				localStorage.setItem(TOKEN_STORAGE_KEYS.REFRESH_OAUTH2, refreshToken);
+				localStorage.setItem(LOCAL_STORAGE_KEYS.REFRESH_OAUTH2_TOKEN, refreshToken);
 			}
 			// 쿠키에도 저장
-			document.cookie = `token=${accessToken}; path=/; max-age=86400; samesite=lax`;
+			setAuthTokenCookie(accessToken);
 		}
 
 		// 사용자 정보 가져오기
@@ -218,30 +219,21 @@ class AuthStore {
 		// 클라이언트 측 토큰 제거
 		if (typeof window !== 'undefined') {
 			console.log('AuthStore: Removing tokens from localStorage');
-			localStorage.removeItem(TOKEN_STORAGE_KEYS.LOGIN);
-			localStorage.removeItem(TOKEN_STORAGE_KEYS.OAUTH2);
+			localStorage.removeItem(LOCAL_STORAGE_KEYS.LOGIN_TOKEN);
+			localStorage.removeItem(LOCAL_STORAGE_KEYS.OAUTH2_TOKEN);
 
-			// 모든 도메인 관련 쿠키 제거 (다양한 설정으로 시도)
-			const cookieSettings = [
-				'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT',
-				'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure',
-				'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; samesite=lax',
-				'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=lax'
-			];
-
-			cookieSettings.forEach((setting) => {
-				document.cookie = setting;
-			});
+			// 모든 인증 관련 쿠키 제거
+			clearAllAuthCookies();
 
 			// 모든 리프레시 토큰도 제거
-			localStorage.removeItem(TOKEN_STORAGE_KEYS.REFRESH_LOGIN);
-			localStorage.removeItem(TOKEN_STORAGE_KEYS.REFRESH_OAUTH2);
+			localStorage.removeItem(LOCAL_STORAGE_KEYS.REFRESH_LOGIN_TOKEN);
+			localStorage.removeItem(LOCAL_STORAGE_KEYS.REFRESH_OAUTH2_TOKEN);
 
-			// 세션 스토리지도 정리
-			sessionStorage.removeItem(TOKEN_STORAGE_KEYS.LOGIN);
-			sessionStorage.removeItem(TOKEN_STORAGE_KEYS.OAUTH2);
-			sessionStorage.removeItem(TOKEN_STORAGE_KEYS.REFRESH_LOGIN);
-			sessionStorage.removeItem(TOKEN_STORAGE_KEYS.REFRESH_OAUTH2);
+			// 세션 스토리지 정리
+			sessionStorage.removeItem(LOCAL_STORAGE_KEYS.LOGIN_TOKEN);
+			sessionStorage.removeItem(LOCAL_STORAGE_KEYS.OAUTH2_TOKEN);
+			sessionStorage.removeItem(LOCAL_STORAGE_KEYS.REFRESH_LOGIN_TOKEN);
+			sessionStorage.removeItem(LOCAL_STORAGE_KEYS.REFRESH_OAUTH2_TOKEN);
 
 			console.log('AuthStore: All tokens and cookies removed successfully');
 		}
@@ -314,9 +306,9 @@ class AuthStore {
 	private getToken(): string | null {
 		if (typeof window !== 'undefined') {
 			// 우선 login 토큰 확인, 없으면 oauth2 확인
-			let token = localStorage.getItem(TOKEN_STORAGE_KEYS.LOGIN);
+			let token = localStorage.getItem(LOCAL_STORAGE_KEYS.LOGIN_TOKEN);
 			if (!token) {
-				token = localStorage.getItem(TOKEN_STORAGE_KEYS.OAUTH2);
+				token = localStorage.getItem(LOCAL_STORAGE_KEYS.OAUTH2_TOKEN);
 			}
 			return token;
 		}
