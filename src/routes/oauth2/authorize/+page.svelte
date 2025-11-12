@@ -136,11 +136,7 @@
 	}
 
 	onMount(() => {
-		// 리디렉션 플래그 정리 (로그인 성공 후 돌아온 경우)
-		sessionStorage.removeItem(SESSION_STORAGE_KEYS.OAUTH2_REDIRECTING);
-		sessionStorage.removeItem(SESSION_STORAGE_KEYS.OAUTH2_API_REDIRECTING);
-
-		// 인증 상태 확인 (shared 패키지의 상수 사용)
+		// 인증 상태 확인
 		const hasToken = (
 			localStorage.getItem(LOCAL_STORAGE_KEYS.LOGIN_TOKEN) || 
 			localStorage.getItem(LOCAL_STORAGE_KEYS.OAUTH2_TOKEN) ||
@@ -148,12 +144,11 @@
 		);
 
 		if (!hasToken) {
-			console.log('[Page] No valid token found, redirecting to backend authorize endpoint');
-			sessionStorage.setItem(SESSION_STORAGE_KEYS.OAUTH2_REDIRECTING, 'true');
-			const backendUrl = env.API_BASE_URL || 'http://localhost:3000';
-			const currentUrl = new URL(window.location.href);
-			const authorizeUrl = `${backendUrl}/oauth2/authorize?${currentUrl.searchParams.toString()}`;
-			window.location.href = authorizeUrl;
+			// 토큰이 없으면 직접 로그인 페이지로 리디렉트
+			console.log('[Page] No authentication token found, redirecting to login');
+			const currentUrl = window.location.href;
+			const loginUrl = `/auth/login?returnUrl=${encodeURIComponent(currentUrl)}`;
+			window.location.href = loginUrl;
 			return;
 		}		// OIDC 파라미터가 있는 경우 nonce와 state 생성
 		const urlParams = new URLSearchParams(window.location.search);
