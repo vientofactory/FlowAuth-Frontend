@@ -92,35 +92,10 @@
 		}
 	}
 
-	async function _revokeToken(tokenId: number) {
-		try {
-			await apiClient.revokeToken(tokenId);
-			toast.success('토큰이 취소되었습니다.');
-			await loadTokens(); // 목록 새로고침
-		} catch (error) {
-			console.error('Failed to revoke token:', error);
-			toast.error('토큰 취소에 실패했습니다.');
-		}
-	}
-
-	async function _revokeAllTokensForType(tokenType: TokenType) {
-		const tokenTypeName = tokenType === TOKEN_TYPES.LOGIN ? '로그인' : 'OAuth2';
-
-		try {
-			await apiClient.revokeAllTokensForType(tokenType);
-			toast.success(`모든 ${tokenTypeName} 토큰이 취소되었습니다.`);
-			await loadTokens(); // 목록 새로고침
-		} catch (error) {
-			console.error('Failed to revoke tokens:', error);
-			toast.error(`${tokenTypeName} 토큰 취소에 실패했습니다.`);
-		}
-	}
-
 	// 모달에서 실제 취소 실행
 	async function confirmRevokeToken() {
 		if (!selectedToken) return;
 
-		_isRevoking = true;
 		try {
 			await apiClient.revokeToken(selectedToken.id);
 			toast.success('토큰이 취소되었습니다.');
@@ -138,7 +113,7 @@
 			console.error('Failed to revoke token:', error);
 			toast.error('토큰 취소에 실패했습니다.');
 		} finally {
-			_isRevoking = false;
+			/* empty */
 		}
 	}
 

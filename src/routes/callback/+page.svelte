@@ -26,7 +26,6 @@
 	// URL 파라미터에서 코드와 상태 추출 (Authorization Code Grant)
 	let authCode = $state('');
 	let oauthState = $state('');
-	let _oauthNonce = $state('');
 	let error = $state('');
 	let isLoading = $state(true);
 
@@ -39,7 +38,7 @@
 		clientId: '',
 		clientSecret: '',
 		code: '',
-		redirectUri: 'http://localhost:5173/callback',
+		redirectUri: '',
 		codeVerifier: '',
 		grantType: 'authorization_code' as const
 	});
@@ -282,7 +281,6 @@
 		// nonce 값 복원 (세션 스토리지에 설정)
 		if (mergedData.nonce) {
 			sessionStorage.setItem('oauth_nonce', mergedData.nonce);
-			_oauthNonce = mergedData.nonce;
 		}
 
 		// 토큰 폼 초기화

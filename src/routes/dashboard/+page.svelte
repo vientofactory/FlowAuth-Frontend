@@ -45,7 +45,6 @@
 		}
 	});
 
-	// 새로운 고급 분석 데이터 상태
 	let tokenAnalytics = $state({
 		usagePatterns: {
 			peakHours: [] as Array<{ hour: number; count: number; percentage: number }>,
@@ -120,16 +119,9 @@
 	});
 
 	// 권한 관련 상태
-	const {
-		canManageSystem,
-		isClientManager,
-		isTokenManager,
-		isUserManager,
-		roleName: _roleName
-	} = usePermissions();
+	const { isClientManager, isTokenManager, isUserManager, roleName: _roleName } = usePermissions();
 
 	// 파생 상태
-	const _hasManageSystemPermission = $derived($canManageSystem);
 	const isDeveloper = $derived($isClientManager || $isTokenManager || $isUserManager);
 
 	// 사용자 유형별 대시보드 설정

@@ -159,9 +159,9 @@ export class DashboardApi extends BaseApi {
 			logoUrl?: string;
 			website?: string;
 			status: 'active' | 'expired' | 'revoked';
-			authorizedAt: string | Date;
-			lastUsed?: string | Date;
-			expiresAt?: string | Date;
+			connectedAt: string | Date;
+			lastUsedAt?: string | Date;
+			expiresAt: string | Date;
 			scopes: string[];
 		}>;
 		total: number;

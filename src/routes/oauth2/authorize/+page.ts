@@ -16,6 +16,7 @@ export interface ConsentPageData {
 	};
 }
 
+// OAuth2 동의 페이지 파라미터 로드
 export const load: PageLoad = async ({ url }) => {
 	const client_id = url.searchParams.get('client_id');
 	const redirect_uri = url.searchParams.get('redirect_uri');
@@ -30,7 +31,6 @@ export const load: PageLoad = async ({ url }) => {
 		throw new Error('Missing required OAuth2 parameters');
 	}
 
-	// 인증 확인은 컴포넌트에서 처리하도록 변경 (중복 리디렉션 방지)
 	return {
 		authorizeParams: {
 			client_id,

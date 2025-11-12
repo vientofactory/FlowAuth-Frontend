@@ -13,7 +13,7 @@
 	import { env } from '$lib/config/env';
 	import { getScopeInfo } from '$lib/utils/scope.utils';
 	import { oidcStore } from '$lib/stores/oidc';
-	import { LOCAL_STORAGE_KEYS, SESSION_STORAGE_KEYS, COOKIE_KEYS } from '@flowauth/shared';
+	import { LOCAL_STORAGE_KEYS, COOKIE_KEYS } from '@flowauth/shared';
 	import { getCookie } from '$lib/utils/cookie';
 	import './+page.css';
 
@@ -138,11 +138,10 @@
 
 	onMount(() => {
 		// 인증 상태 확인
-		const hasToken = (
-			localStorage.getItem(LOCAL_STORAGE_KEYS.LOGIN_TOKEN) || 
+		const hasToken =
+			localStorage.getItem(LOCAL_STORAGE_KEYS.LOGIN_TOKEN) ||
 			localStorage.getItem(LOCAL_STORAGE_KEYS.OAUTH2_TOKEN) ||
-			getCookie(COOKIE_KEYS.TOKEN)
-		);
+			getCookie(COOKIE_KEYS.TOKEN);
 
 		if (!hasToken) {
 			// 토큰이 없으면 직접 로그인 페이지로 리디렉트
@@ -151,7 +150,7 @@
 			const loginUrl = `${ROUTES.LOGIN}?returnUrl=${encodeURIComponent(currentUrl)}`;
 			window.location.href = loginUrl;
 			return;
-		}		// OIDC 파라미터가 있는 경우 nonce와 state 생성
+		} // OIDC 파라미터가 있는 경우 nonce와 state 생성
 		const urlParams = new URLSearchParams(window.location.search);
 		const responseType = urlParams.get('response_type');
 

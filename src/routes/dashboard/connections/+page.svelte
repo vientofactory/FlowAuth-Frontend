@@ -4,11 +4,7 @@
 	import { DashboardLayout, Modal, authState, DashboardSkeleton } from '$lib';
 	import { USER_TYPES } from '$lib/types/user.types';
 	import { env } from '$lib/config/env';
-	import type {
-		ConnectedAppDto,
-		ConnectedAppsResponse,
-		RevokeConnectionResponse
-	} from '$lib/types/dashboard';
+	import type { ConnectedAppDto } from '$lib/types/dashboard';
 	import type { User } from '$lib';
 
 	let apps: ConnectedAppDto[] = [];
@@ -31,7 +27,29 @@
 		async function loadApps() {
 			try {
 				const response = await apiClient.getConnectedApps();
-				apps = response.apps;
+				
+				apps = response.apps.map((app) => {
+					// 안전한 날짜 변환
+					const safeDate = (dateValue: any): Date => {
+						if (!dateValue) {
+							console.warn('날짜 값이 없습니다:', dateValue);
+							return new Date();
+						}
+						const date = new Date(dateValue);
+						if (isNaN(date.getTime())) {
+							console.warn('유효하지 않은 날짜 형식:', dateValue);
+							return new Date();
+						}
+						return date;
+					};
+					
+					return {
+						...app,
+						connectedAt: safeDate(app.connectedAt),
+						expiresAt: safeDate(app.expiresAt),
+						lastUsedAt: app.lastUsedAt ? safeDate(app.lastUsedAt) : undefined
+					};
+				});
 			} catch (err) {
 				console.error('연결된 앱 목록 조회 실패:', err);
 				error = '연결된 앱 목록을 불러오는데 실패했습니다.';
