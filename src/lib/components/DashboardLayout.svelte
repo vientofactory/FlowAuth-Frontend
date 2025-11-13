@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { authState, Navigation } from '$lib';
+	import { authState, Navigation, EmailVerificationAlert } from '$lib';
 	import { onMount, onDestroy } from 'svelte';
 	import { page } from '$app/stores';
 	import Button from '$lib/components/Button.svelte';
@@ -460,6 +460,11 @@
 			<!-- 메인 콘텐츠 -->
 			<main class="min-h-screen flex-1">
 				<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+					<!-- 이메일 인증 알림 (모든 페이지 상단에 표시) -->
+					{#if user && !user.isEmailVerified}
+						<EmailVerificationAlert {user} />
+					{/if}
+
 					<!-- 데스크톱 페이지 헤더 -->
 					{#if showPageHeader && (title || description)}
 						<div class="mb-6 hidden lg:block">

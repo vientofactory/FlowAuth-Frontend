@@ -647,31 +647,6 @@
 		toast.success('클립보드에 복사되었습니다.');
 	}
 
-	function clearTokens() {
-		apiClient.clearAllTokens();
-		toast.success('모든 토큰이 제거되었습니다. 다시 로그인해주세요.');
-	}
-
-	function debugToken() {
-		console.log('=== Token Debug Info ===');
-		console.log('Access Token:', apiClient.getAccessToken());
-		console.log('Refresh Token:', apiClient.getRefreshToken());
-		console.log('ID Token:', apiClient.getIdToken());
-		console.log('Token Expiry:', apiClient.getTokenExpiry());
-		console.log('User:', user);
-		console.log('Auth State:', $authState);
-		toast.info('토큰 정보가 콘솔에 출력되었습니다.');
-	}
-
-	async function refreshAccount() {
-		try {
-			await apiClient.refreshAccount();
-			toast.success('계정 정보가 새로고침되었습니다.');
-		} catch {
-			toast.error('계정 정보 새로고침에 실패했습니다. 다시 로그인해주세요.');
-		}
-	}
-
 	function resetClientSecret(client: Client) {
 		clientToResetSecret = client;
 		showSecretResetModal = true;
@@ -735,25 +710,6 @@
 				<Button onclick={toggleCreateForm} class="min-w-0 flex-1 sm:flex-none">
 					<i class="fas fa-plus mr-1 sm:mr-2"></i>
 					<span class="truncate">{showCreateForm ? '취소' : '클라이언트 추가'}</span>
-				</Button>
-			</div>
-			<!-- 데스크톱에서는 모든 액션 표시 -->
-			<div class="hidden gap-2 lg:flex">
-				<Button variant="outline" onclick={debugToken}>
-					<i class="fas fa-bug mr-2"></i>
-					토큰 디버그
-				</Button>
-				<Button variant="outline" onclick={refreshAccount}>
-					<i class="fas fa-sync mr-2"></i>
-					계정 확인
-				</Button>
-				<Button variant="outline" onclick={clearTokens}>
-					<i class="fas fa-trash mr-2"></i>
-					토큰 초기화
-				</Button>
-				<Button onclick={toggleCreateForm} class="whitespace-nowrap">
-					<i class="fas fa-plus mr-2"></i>
-					{showCreateForm ? '취소' : '새 클라이언트 생성'}
 				</Button>
 			</div>
 		</div>

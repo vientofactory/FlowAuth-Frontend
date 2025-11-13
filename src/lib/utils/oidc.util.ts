@@ -20,6 +20,25 @@ interface JWKSResponse {
 }
 
 /**
+ * HTTP 요청을 위한 헬퍼 함수
+ */
+async function httpRequest(url: string, options: RequestInit = {}): Promise<Response> {
+	const response = await fetch(url, {
+		headers: {
+			'Content-Type': 'application/json',
+			...options.headers
+		},
+		...options
+	});
+
+	if (!response.ok) {
+		throw new Error(`HTTP request failed: ${response.status} ${response.statusText}`);
+	}
+
+	return response;
+}
+
+/**
  * OpenID Connect 클라이언트 유틸리티
  */
 export class OIDCUtils {
@@ -30,12 +49,7 @@ export class OIDCUtils {
 	 */
 	static async getDiscoveryDocument(issuer: string) {
 		const discoveryUrl = `${issuer}/.well-known/openid-configuration`;
-
-		const response = await fetch(discoveryUrl);
-		if (!response.ok) {
-			throw new Error(`Failed to fetch discovery document: ${response.status}`);
-		}
-
+		const response = await httpRequest(discoveryUrl);
 		return await response.json();
 	}
 
@@ -45,10 +59,7 @@ export class OIDCUtils {
 	 * @returns JWKS
 	 */
 	static async getJwks(jwksUri: string): Promise<JWKSResponse> {
-		const response = await fetch(jwksUri);
-		if (!response.ok) {
-			throw new Error(`Failed to fetch JWKS: ${response.status}`);
-		}
+		const response = await httpRequest(jwksUri);
 
 		return await response.json();
 	}
@@ -172,16 +183,11 @@ export class OIDCUtils {
 	 * @returns 사용자 정보
 	 */
 	static async getUserInfo(userinfoEndpoint: string, accessToken: string) {
-		const response = await fetch(userinfoEndpoint, {
+		const response = await httpRequest(userinfoEndpoint, {
 			headers: {
-				Authorization: `Bearer ${accessToken}`,
-				'Content-Type': 'application/json'
+				Authorization: `Bearer ${accessToken}`
 			}
 		});
-
-		if (!response.ok) {
-			throw new Error(`Failed to fetch user info: ${response.status}`);
-		}
 
 		return await response.json();
 	}

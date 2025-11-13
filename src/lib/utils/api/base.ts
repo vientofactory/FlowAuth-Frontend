@@ -1,8 +1,9 @@
-import { APP_CONSTANTS, ROUTES, MESSAGES } from '$lib/constants/app.constants';
+import { APP_CONSTANTS, ROUTES, MESSAGES, API_ENDPOINTS } from '$lib/constants/app.constants';
 import { TOKEN_STORAGE_KEYS } from '$lib/constants/app.constants';
 import { env } from '$lib/config/env';
 import type { TokenType } from '$lib/types/authorization.types';
 import { parseBackendError } from '../error.utils';
+import { setAuthTokenCookie, deleteAuthTokenCookie } from '../cookie';
 
 export interface ApiError {
 	message?: string;
@@ -220,7 +221,7 @@ export abstract class BaseApi {
 			const storageKey = type === 'login' ? TOKEN_STORAGE_KEYS.LOGIN : TOKEN_STORAGE_KEYS.OAUTH2;
 			console.log('ApiClient: Setting token to localStorage for type:', type);
 			localStorage.setItem(storageKey, token);
-			document.cookie = `token=${token}; path=/; max-age=86400; samesite=lax`;
+			setAuthTokenCookie(token);
 			console.log('ApiClient: Token set successfully');
 		}
 	}
@@ -269,7 +270,7 @@ export abstract class BaseApi {
 			console.log('ApiClient: Removing tokens from localStorage');
 			localStorage.removeItem(TOKEN_STORAGE_KEYS.LOGIN);
 			localStorage.removeItem(TOKEN_STORAGE_KEYS.OAUTH2);
-			document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+			deleteAuthTokenCookie();
 			console.log('ApiClient: Tokens removed successfully');
 		}
 	}
@@ -334,7 +335,7 @@ export abstract class BaseApi {
 				return;
 			}
 
-			await this.request('/auth/me', {}, 0, true);
+			await this.request(API_ENDPOINTS.AUTH.ME, {}, 0, true);
 			console.log('[API] Session recovered successfully');
 
 			if (typeof window !== 'undefined' && 'dispatchEvent' in window) {

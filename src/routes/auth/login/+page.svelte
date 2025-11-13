@@ -369,12 +369,12 @@
 							label="백업 코드"
 							name="backupCode"
 							type="text"
-							placeholder="ABCD-1234"
+							placeholder="ABCD-1234-EFGH-5678"
 							bind:value={backupCodeField.value}
 							error={backupCodeField.error}
 							icon="fas fa-key"
 							class="text-center font-mono text-lg tracking-wider"
-							hint="백업 코드는 한 번만 사용할 수 있습니다."
+							hint="백업 코드를 입력하세요 (한 번만 사용 가능)"
 							autocomplete="off"
 							oninput={handleBackupCodeInput}
 							disabled={isTwoFactorLoading}

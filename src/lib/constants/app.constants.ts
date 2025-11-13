@@ -25,9 +25,17 @@ export const ROUTES = {
 	LOGIN: '/auth/login',
 	REGISTER: '/auth/register',
 	DASHBOARD: '/dashboard',
+	DASHBOARD_PROFILE: '/dashboard/profile',
+	DASHBOARD_CLIENTS: '/dashboard/clients',
+	DASHBOARD_CONNECTIONS: '/dashboard/connections',
+	DASHBOARD_TOKENS: '/dashboard/tokens',
+	DASHBOARD_OAUTH_TESTER: '/dashboard/oauth-tester',
+	DASHBOARD_EMAIL_MANAGEMENT: '/dashboard/email-management',
 	FORGOT_PASSWORD: '/auth/forgot-password',
 	RESET_PASSWORD: '/auth/reset-password',
-	VERIFY_EMAIL: '/auth/verify-email'
+	VERIFY_EMAIL: '/auth/verify-email',
+	OAUTH_AUTHORIZE: '/oauth2/authorize',
+	CALLBACK: '/callback'
 } as const;
 
 // API 엔드포인트 상수들
@@ -36,13 +44,33 @@ export const API_ENDPOINTS = {
 		LOGIN: '/auth/login',
 		REGISTER: '/auth/register',
 		PROFILE: '/profile',
+		ME: '/auth/me',
 		CLIENTS: '/auth/clients',
 		LOGOUT: '/auth/logout',
-		REFRESH: '/auth/refresh'
+		REFRESH: '/auth/refresh',
+		TOKENS: '/auth/tokens'
 	},
 	OAUTH2: {
 		TOKEN: '/oauth2/token',
-		AUTHORIZE: '/oauth2/authorize'
+		AUTHORIZE: '/oauth2/authorize',
+		AUTHORIZE_INFO: '/oauth2/authorize/info',
+		AUTHORIZE_CONSENT: '/oauth2/authorize/consent',
+		SCOPES: '/oauth2/scopes',
+		USERINFO: '/oauth2/userinfo'
+	},
+	DASHBOARD: {
+		STATS: '/dashboard/stats',
+		ACTIVITIES: '/dashboard/activities',
+		CONNECTED_APPS: '/dashboard/connected-apps',
+		ANALYTICS: {
+			TOKEN: '/dashboard/analytics/token',
+			SECURITY: '/dashboard/analytics/security',
+			ADVANCED: '/dashboard/analytics/advanced'
+		}
+	},
+	UPLOADS: {
+		CONFIG: '/uploads/config',
+		LOGO: '/uploads/logo'
 	}
 } as const;
 

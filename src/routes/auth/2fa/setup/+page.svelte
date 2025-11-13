@@ -260,7 +260,6 @@
 										{/each}
 									</div>
 								</div>
-
 								<div class="warning">
 									⚠️ <strong>중요:</strong> 백업 코드는 한 번만 사용할 수 있습니다. 2FA 토큰과 백업 코드를
 									모두 분실한 경우 계정에 접근할 수 없게 됩니다.

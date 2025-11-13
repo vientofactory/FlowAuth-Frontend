@@ -5,7 +5,11 @@ export type {
 	CreateClientData,
 	EmailQueueStats,
 	EmailTestRequest,
-	SMTPConnectionStatus
+	SMTPConnectionStatus,
+	AuthorizeParams,
+	AuthorizationInfo,
+	ConsentRequest,
+	ConsentResponse
 } from './api/index';
 
 // Legacy exports for backward compatibility

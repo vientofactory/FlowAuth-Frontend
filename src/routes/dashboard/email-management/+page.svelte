@@ -12,8 +12,6 @@
 	import { onMount } from 'svelte';
 	import { usePermissions } from '$lib/composables/usePermissions';
 	import type { User } from '$lib';
-
-	// 새로운 컴포넌트들 import
 	import {
 		QueueStatusCards,
 		QuickActions,
@@ -39,6 +37,7 @@
 		username: string;
 	}
 
+	const refreshIntervalMs = 30000; // 30초
 	let _user = $state<User | null>(null);
 	let isLoading = $state(true);
 	let isProcessing = $state(false);
@@ -138,12 +137,12 @@
 			}
 		});
 
-		// 자동 새로고침 설정 (30초마다)
+		// 자동 새로고침 설정
 		if (autoRefresh) {
 			refreshInterval = setInterval(() => {
 				loadQueueStats();
 				refreshSmtpStatus();
-			}, 30000);
+			}, refreshIntervalMs);
 		}
 
 		return () => {
@@ -419,21 +418,6 @@
 		} else if (!autoRefresh && refreshInterval) {
 			clearInterval(refreshInterval);
 			refreshInterval = null;
-		}
-	}
-
-	async function _handleSettingsSave(settings: typeof _emailSettings) {
-		try {
-			isProcessing = true;
-			// 실제 설정 저장 API 호출
-			// await apiClient.saveEmailSettings(settings);
-			_emailSettings = { ...settings };
-			toast.success('설정이 저장되었습니다.');
-		} catch (error) {
-			console.error('Failed to save settings:', error);
-			toast.error('설정 저장에 실패했습니다.');
-		} finally {
-			isProcessing = false;
 		}
 	}
 </script>

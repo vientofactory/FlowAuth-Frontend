@@ -1,5 +1,5 @@
 import type { User, LoginData, CreateUserDto } from '$lib';
-import { API_ENDPOINTS } from '$lib/constants/app.constants';
+import { API_ENDPOINTS, ROUTES } from '$lib/constants/app.constants';
 import type {
 	TwoFactorSetup,
 	TwoFactorStatus,
@@ -148,7 +148,7 @@ export class AuthApi extends BaseApi {
 			if (response.status === 401) {
 				this.removeToken();
 				if (typeof window !== 'undefined') {
-					window.location.href = '/auth/login';
+					window.location.href = ROUTES.LOGIN;
 				}
 				throw new Error('Authentication required');
 			}

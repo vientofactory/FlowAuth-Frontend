@@ -111,33 +111,31 @@
 			<i class="fas {fallbackIcon} {iconSizeClasses[size]}"></i>
 		</div>
 	{/if}
-{:else}
-	{#if clickable}
-		<button
-			class="{sizeClasses[size]} {className}"
-			on:click={handleClick}
-			on:keydown={handleKeyDown}
-			aria-label={alt}
-		>
-			<img
-				bind:this={imgElement}
-				{src}
-				{alt}
-				class="h-full w-full object-contain"
-				on:error={handleError}
-				loading="lazy"
-			/>
-		</button>
-	{:else}
+{:else if clickable}
+	<button
+		class="{sizeClasses[size]} {className}"
+		on:click={handleClick}
+		on:keydown={handleKeyDown}
+		aria-label={alt}
+	>
 		<img
 			bind:this={imgElement}
 			{src}
 			{alt}
-			class="{sizeClasses[size]} object-contain {className}"
+			class="h-full w-full object-contain"
 			on:error={handleError}
 			loading="lazy"
 		/>
-	{/if}
+	</button>
+{:else}
+	<img
+		bind:this={imgElement}
+		{src}
+		{alt}
+		class="{sizeClasses[size]} object-contain {className}"
+		on:error={handleError}
+		loading="lazy"
+	/>
 {/if}
 
 <style>

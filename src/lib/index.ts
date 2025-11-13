@@ -52,6 +52,7 @@ export { default as PasswordChangeSection } from './components/profile/PasswordC
 
 // Dashboard Components
 export { default as DashboardStatsSection } from './components/dashboard/DashboardStatsSection.svelte';
+export { default as EmailVerificationAlert } from './components/EmailVerificationAlert.svelte';
 export { default as QuickActionsSection } from './components/dashboard/QuickActionsSection.svelte';
 export { default as TokenAnalyticsSection } from './components/dashboard/TokenAnalyticsSection.svelte';
 export { default as EmailSystemStatus } from './components/dashboard/EmailSystemStatus.svelte';

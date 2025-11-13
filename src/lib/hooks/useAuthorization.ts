@@ -2,7 +2,7 @@ import { writable } from 'svelte/store';
 import { apiClient } from '$lib/utils/api';
 import { parseError } from '../utils/error.utils';
 import { ERROR_MESSAGES } from '../constants/authorization.constants';
-import type { Client } from '$lib/types/oauth.types';
+import { ROUTES } from '../constants/app.constants';
 import type { User } from '$lib/types/user.types';
 interface AuthorizePageData {
 	authorizeParams: {
@@ -77,13 +77,12 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 			state.update((current) => ({ ...current, error, loading: false }));
 		}, 30000);
 
-		// 사용자 정보 변수를 try 블록 밖에서 선언하여 catch에서도 접근 가능
 		let currentUser: User | null = null;
 
 		try {
 			console.log('[Authorization] Starting authorization data load');
 			updateProgress(10);
-			await new Promise((resolve) => setTimeout(resolve, 100)); // 최소 로딩 시간 보장
+			await new Promise((resolve) => setTimeout(resolve, 100)); // 최소 로딩 시간(100ms)
 
 			updateProgress(20);
 			console.log('[Authorization] Loading current user profile');
@@ -93,7 +92,6 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 				console.log('[Authorization] Current user loaded:', currentUser);
 			} catch (userError) {
 				console.warn('[Authorization] Failed to load user profile:', userError);
-				// 사용자 정보 로드 실패는 치명적 오류가 아니므로 계속 진행
 			}
 
 			updateProgress(40);
@@ -102,10 +100,18 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 			apiClient.debugToken();
 
 			updateProgress(60);
-			await new Promise((resolve) => setTimeout(resolve, 100)); // 최소 로딩 시간 보장
+			await new Promise((resolve) => setTimeout(resolve, 100)); // 최소 로딩 시간(100ms)
 
-			// 백엔드에서 동의 정보 조회
-			const params = new URLSearchParams({
+			// 동의 정보 조회
+			updateProgress(85);
+
+			// API 요청 타임아웃
+			const apiTimeoutId = setTimeout(() => {
+				console.error('[Authorization] API request timeout after 15 seconds');
+				throw new Error('로딩이 예상보다 오래 걸립니다. 네트워크 연결을 확인해주세요.');
+			}, 15000);
+
+			const result = await apiClient.getAuthorizationInfo({
 				client_id: authorizeParams.client_id,
 				redirect_uri: authorizeParams.redirect_uri,
 				response_type: authorizeParams.response_type,
@@ -114,22 +120,8 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 				...(authorizeParams.code_challenge && { code_challenge: authorizeParams.code_challenge }),
 				...(authorizeParams.code_challenge_method && {
 					code_challenge_method: authorizeParams.code_challenge_method
-				})
-			});
-
-			const requestUrl = `/oauth2/authorize/info?${params.toString()}`;
-			console.log('[Authorization] Making API request to:', requestUrl);
-
-			updateProgress(85);
-
-			// API 요청에 타임아웃 추가 (15초로 단축)
-			const apiTimeoutId = setTimeout(() => {
-				console.error('[Authorization] API request timeout after 15 seconds');
-				throw new Error('API 요청이 15초를 초과했습니다. 네트워크 연결을 확인해주세요.');
-			}, 15000);
-
-			const result = await apiClient.request<{ client: Client; scopes: string[] }>(requestUrl, {
-				method: 'GET'
+				}),
+				...(authorizeParams.nonce && { nonce: authorizeParams.nonce })
 			});
 
 			clearTimeout(apiTimeoutId);
@@ -157,16 +149,16 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 
 			console.error('[Authorization] Error occurred:', err);
 
-			// 401 에러 (인증 실패) 처리
+			// 401 에러 (인증 실패) 처리 - 로그인 페이지로 리디렉션
 			if (err instanceof Error && err.message.includes('Authentication required')) {
-				console.log('[Authorization] Authentication required, redirecting to login');
-				const error: AuthorizationError = {
-					type: ErrorType.NETWORK_ERROR,
-					message: '로그인이 필요합니다.',
-					retryable: false
-				};
-				state.update((current) => ({ ...current, error, loading: false }));
-				window.location.href = '/auth/login';
+				console.log('[Authorization] Authentication required, redirecting to login page');
+
+				// 현재 OAuth2 authorize URL을 returnUrl로 설정
+				const currentUrl = window.location.href;
+				const loginUrl = new URL(ROUTES.LOGIN, window.location.origin);
+				loginUrl.searchParams.set('returnUrl', currentUrl);
+
+				window.location.href = loginUrl.toString();
 				return;
 			}
 
@@ -177,7 +169,6 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 				...current,
 				error: parsedError,
 				loading: false,
-				// 사용자 정보가 로드되었다면 보존
 				currentUser: currentUser || current.currentUser
 			}));
 			console.log('[Authorization] Error state updated');
@@ -191,18 +182,10 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 		state.update((current) => ({ ...current, submitting: true, error: null }));
 
 		try {
-			const consentData = {
+			const result = await apiClient.handleConsent({
 				...data.authorizeParams,
 				approved
-			};
-
-			const result = await apiClient.request<{ redirect_url: string }>(
-				'/oauth2/authorize/consent',
-				{
-					method: 'POST',
-					body: JSON.stringify(consentData)
-				}
-			);
+			});
 
 			// 리다이렉트
 			window.location.href = result.redirect_url;
@@ -230,38 +213,6 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 		}));
 		await loadAuthorizationData();
 	}
-
-	// 컴포넌트 마운트 시 데이터 로드 (호출하는 쪽에서 직접 호출하도록 변경)
-	// onMount(() => {
-	// 	console.log('[Authorization] Component mounted, starting data load');
-	// 	loadAuthorizationData();
-
-	// 	// 추가 안전장치: 45초 후에도 로딩 중이면 강제로 에러 상태로 전환
-	// 	setTimeout(() => {
-	// 		state.update((current) => {
-	// 			if (current.loading) {
-	// 				console.error('[Authorization] Force timeout: loading took too long');
-	// 				return {
-	// 					...current,
-	// 					loading: false,
-	// 					error: {
-	// 						type: ErrorType.TIMEOUT_ERROR,
-	// 						message: '보안 검증이 예상보다 오래 걸리고 있습니다. 페이지를 새로고침해주세요.',
-	// 						retryable: false
-	// 					}
-	// 				};
-	// 			}
-	// 			return current;
-	// 		});
-	// 	}, 45000);
-	// });
-
-	return {
-		state,
-		loadAuthorizationData,
-		handleConsent,
-		retryAuthorization
-	};
 
 	return {
 		state,

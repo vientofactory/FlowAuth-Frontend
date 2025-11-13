@@ -1,4 +1,5 @@
 import { BaseApi } from './base';
+import { API_ENDPOINTS } from '$lib/constants/app.constants';
 
 export class UploadsApi extends BaseApi {
 	async uploadLogo(file: File): Promise<{
@@ -9,47 +10,12 @@ export class UploadsApi extends BaseApi {
 		const formData = new FormData();
 		formData.append('logo', file);
 
-		const config: RequestInit = {
+		// FormData를 사용할 때는 Content-Type 헤더를 설정하지 않음 (브라우저가 자동으로 설정)
+		return this.request(API_ENDPOINTS.UPLOADS.LOGO, {
 			method: 'POST',
 			body: formData,
-			credentials: 'include'
-		};
-
-		const token = this.getToken();
-		if (token) {
-			config.headers = {
-				Authorization: `Bearer ${token}`
-			};
-		}
-
-		const url = `${this.baseURL}/uploads/logo`;
-
-		try {
-			const response = await fetch(url, config);
-
-			if (response.status === 401) {
-				this.removeToken();
-				if (typeof window !== 'undefined') {
-					window.location.href = '/auth/login';
-				}
-				throw new Error('Authentication required');
-			}
-
-			if (!response.ok) {
-				const errorData = await this.parseErrorResponse(response);
-				throw this.createErrorFromResponse(errorData, response.status);
-			}
-
-			return await response.json();
-		} catch (error) {
-			if (
-				error instanceof TypeError ||
-				(error as Error & { name?: string }).name === 'NetworkError'
-			) {
-				throw new Error('서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.');
-			}
-			throw error;
-		}
+			headers: {} // Content-Type을 제거하여 브라우저가 multipart/form-data로 자동 설정하도록 함
+		});
 	}
 
 	async getCurrentLogo(): Promise<{ url: string }> {
@@ -78,6 +44,6 @@ export class UploadsApi extends BaseApi {
 			};
 		};
 	}> {
-		return this.request(`/uploads/config/${type}`);
+		return this.request(`${API_ENDPOINTS.UPLOADS.CONFIG}/${type}`);
 	}
 }

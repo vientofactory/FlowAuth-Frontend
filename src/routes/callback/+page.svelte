@@ -7,6 +7,7 @@
 		UsageGuideSection,
 		TokenModal
 	} from '$lib/components/callback';
+	import { ROUTES } from '$lib/constants/app.constants';
 	import Footer from '$lib/components/Footer.svelte';
 	import TokenExchangeForm from '$lib/components/oauth/TokenExchangeForm.svelte';
 	import { useToast } from '$lib';
@@ -25,7 +26,6 @@
 	// URL 파라미터에서 코드와 상태 추출 (Authorization Code Grant)
 	let authCode = $state('');
 	let oauthState = $state('');
-	let _oauthNonce = $state('');
 	let error = $state('');
 	let isLoading = $state(true);
 
@@ -38,7 +38,7 @@
 		clientId: '',
 		clientSecret: '',
 		code: '',
-		redirectUri: 'http://localhost:5173/callback',
+		redirectUri: '',
 		codeVerifier: '',
 		grantType: 'authorization_code' as const
 	});
@@ -281,7 +281,6 @@
 		// nonce 값 복원 (세션 스토리지에 설정)
 		if (mergedData.nonce) {
 			sessionStorage.setItem('oauth_nonce', mergedData.nonce);
-			_oauthNonce = mergedData.nonce;
 		}
 
 		// 토큰 폼 초기화
@@ -339,11 +338,11 @@
 	}
 
 	function navigateBack() {
-		window.location.href = '/dashboard/oauth-tester';
+		window.location.href = ROUTES.DASHBOARD_OAUTH_TESTER;
 	}
 
 	function goToDashboard() {
-		window.location.href = '/dashboard';
+		window.location.href = ROUTES.DASHBOARD;
 	}
 
 	// 토큰 정보 디코딩

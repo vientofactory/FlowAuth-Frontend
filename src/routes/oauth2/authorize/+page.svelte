@@ -4,6 +4,7 @@
 	import LoadingState from '$lib/components/oauth2/LoadingState.svelte';
 	import ErrorState from '$lib/components/oauth2/ErrorState.svelte';
 	import AccountSwitcher from '$lib/components/oauth2/AccountSwitcher.svelte';
+	import { ROUTES } from '$lib/constants/app.constants';
 	import Logo from '$lib/components/Logo.svelte';
 	import { useAuthorization } from '$lib/hooks/useAuthorization';
 	import type { AuthorizationState } from '$lib/types/authorization.types';
@@ -12,6 +13,8 @@
 	import { env } from '$lib/config/env';
 	import { getScopeInfo } from '$lib/utils/scope.utils';
 	import { oidcStore } from '$lib/stores/oidc';
+	import { LOCAL_STORAGE_KEYS, COOKIE_KEYS } from '@flowauth/shared';
+	import { getCookie } from '$lib/utils/cookie';
 	import './+page.css';
 
 	let { data }: { data: PageData } = $props();
@@ -134,7 +137,20 @@
 	}
 
 	onMount(() => {
-		// OIDC 파라미터가 있는 경우 nonce와 state 생성
+		// 인증 상태 확인
+		const hasToken =
+			localStorage.getItem(LOCAL_STORAGE_KEYS.LOGIN_TOKEN) ||
+			localStorage.getItem(LOCAL_STORAGE_KEYS.OAUTH2_TOKEN) ||
+			getCookie(COOKIE_KEYS.TOKEN);
+
+		if (!hasToken) {
+			// 토큰이 없으면 직접 로그인 페이지로 리디렉트
+			console.log('[Page] No authentication token found, redirecting to login');
+			const currentUrl = window.location.href;
+			const loginUrl = `${ROUTES.LOGIN}?returnUrl=${encodeURIComponent(currentUrl)}`;
+			window.location.href = loginUrl;
+			return;
+		} // OIDC 파라미터가 있는 경우 nonce와 state 생성
 		const urlParams = new URLSearchParams(window.location.search);
 		const responseType = urlParams.get('response_type');
 

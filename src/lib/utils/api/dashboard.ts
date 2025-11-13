@@ -1,4 +1,5 @@
 import { BaseApi } from './base';
+import { API_ENDPOINTS } from '$lib/constants/app.constants';
 
 export class DashboardApi extends BaseApi {
 	async getDashboardStats(): Promise<{
@@ -29,7 +30,7 @@ export class DashboardApi extends BaseApi {
 			alerts: string;
 		};
 	}> {
-		return this.request('/dashboard/stats');
+		return this.request(API_ENDPOINTS.DASHBOARD.STATS);
 	}
 
 	async getRecentActivities(
@@ -67,7 +68,7 @@ export class DashboardApi extends BaseApi {
 		}[];
 		total: number;
 	}> {
-		return this.request(`/dashboard/activities?limit=${limit}&offset=${offset}`);
+		return this.request(`${API_ENDPOINTS.DASHBOARD.ACTIVITIES}?limit=${limit}&offset=${offset}`);
 	}
 
 	// 새로운 고급 분석 API 메소드들
@@ -94,7 +95,7 @@ export class DashboardApi extends BaseApi {
 			geographicDistribution: Array<{ country: string; count: number; percentage: number }>;
 		};
 	}> {
-		return this.request('/dashboard/analytics/token');
+		return this.request(API_ENDPOINTS.DASHBOARD.ANALYTICS.TOKEN);
 	}
 
 	async getSecurityMetrics(): Promise<{
@@ -123,7 +124,7 @@ export class DashboardApi extends BaseApi {
 			securityScore: number;
 		};
 	}> {
-		return this.request('/dashboard/analytics/security');
+		return this.request(API_ENDPOINTS.DASHBOARD.ANALYTICS.SECURITY);
 	}
 
 	async getAdvancedAnalytics(): Promise<{
@@ -147,6 +148,33 @@ export class DashboardApi extends BaseApi {
 			systemCapacity: { current: number; predicted: number; bottleneck: string };
 		};
 	}> {
-		return this.request('/dashboard/analytics/advanced');
+		return this.request(API_ENDPOINTS.DASHBOARD.ANALYTICS.ADVANCED);
+	}
+
+	async getConnectedApps(): Promise<{
+		apps: Array<{
+			id: number;
+			name: string;
+			description?: string;
+			logoUrl?: string;
+			website?: string;
+			status: 'active' | 'expired' | 'revoked';
+			connectedAt: string | Date;
+			lastUsedAt?: string | Date;
+			expiresAt: string | Date;
+			scopes: string[];
+		}>;
+		total: number;
+	}> {
+		return this.request(API_ENDPOINTS.DASHBOARD.CONNECTED_APPS);
+	}
+
+	async revokeConnectedApp(appId: number): Promise<{
+		success: boolean;
+		message: string;
+	}> {
+		return this.request(`${API_ENDPOINTS.DASHBOARD.CONNECTED_APPS}/${appId}`, {
+			method: 'DELETE'
+		});
 	}
 }

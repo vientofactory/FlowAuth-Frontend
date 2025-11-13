@@ -1,5 +1,6 @@
 import type { Client } from '$lib/types/oauth.types';
 import { BaseApi } from './base';
+import { API_ENDPOINTS } from '$lib/constants/app.constants';
 
 export interface CreateClientData {
 	name: string;
@@ -15,48 +16,48 @@ export interface CreateClientData {
 
 export class ClientsApi extends BaseApi {
 	async getClients(): Promise<Client[]> {
-		return this.request('/auth/clients');
+		return this.request(API_ENDPOINTS.AUTH.CLIENTS);
 	}
 
 	async createClient(data: CreateClientData) {
-		return this.request('/auth/clients', {
+		return this.request(API_ENDPOINTS.AUTH.CLIENTS, {
 			method: 'POST',
 			body: JSON.stringify(data)
 		});
 	}
 
 	async getClient(id: number): Promise<Client> {
-		return this.request(`/auth/clients/${id}`);
+		return this.request(`${API_ENDPOINTS.AUTH.CLIENTS}/${id}`);
 	}
 
 	async updateClient(id: number, data: Partial<CreateClientData>) {
-		return this.request(`/auth/clients/${id}`, {
+		return this.request(`${API_ENDPOINTS.AUTH.CLIENTS}/${id}`, {
 			method: 'PATCH',
 			body: JSON.stringify(data)
 		});
 	}
 
 	async updateClientStatus(id: number, isActive: boolean) {
-		return this.request(`/auth/clients/${id}/status`, {
+		return this.request(`${API_ENDPOINTS.AUTH.CLIENTS}/${id}/status`, {
 			method: 'PATCH',
 			body: JSON.stringify({ isActive })
 		});
 	}
 
 	async deleteClient(id: number) {
-		return this.request(`/auth/clients/${id}`, {
+		return this.request(`${API_ENDPOINTS.AUTH.CLIENTS}/${id}`, {
 			method: 'DELETE'
 		});
 	}
 
 	async resetClientSecret(id: number) {
-		return this.request(`/auth/clients/${id}/reset-secret`, {
+		return this.request(`${API_ENDPOINTS.AUTH.CLIENTS}/${id}/reset-secret`, {
 			method: 'PUT'
 		});
 	}
 
 	async removeClientLogo(id: number) {
-		return this.request(`/auth/clients/${id}/logo`, {
+		return this.request(`${API_ENDPOINTS.AUTH.CLIENTS}/${id}/logo`, {
 			method: 'DELETE'
 		});
 	}

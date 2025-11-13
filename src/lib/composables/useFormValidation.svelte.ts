@@ -219,9 +219,15 @@ export const validators = {
 		if (!value) {
 			return { isValid: false, message: '백업 코드를 입력해주세요.' };
 		}
-		if (!/^[A-Z0-9]{8,12}$/.test(value.replace(/-/g, ''))) {
-			return { isValid: false, message: '올바른 백업 코드를 입력해주세요.' };
+
+		// 하이픈 제거 후 검증 (새로운 16자리 형식 지원)
+		const normalizedCode = value.replace(/-/g, '').toUpperCase();
+
+		// Base32 문자셋 검증 (0,1,8,9,I,O 제외한 Crockford Base32)
+		if (!/^[0-9A-HJ-KM-NP-TV-Z]{16}$/.test(normalizedCode)) {
+			return { isValid: false, message: '올바른 백업 코드 형식을 입력해주세요 (16자리).' };
 		}
+
 		return { isValid: true };
 	},
 
