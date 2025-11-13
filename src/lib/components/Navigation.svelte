@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { authState, authStore, Button } from '$lib';
+	import { authState, authStore, Button, profileUser, isProfileInitialized } from '$lib';
 	import { onMount } from 'svelte';
 	import type { User } from '$lib';
 	import { USER_TYPES, PERMISSIONS } from '$lib/types/user.types';
@@ -31,22 +31,46 @@
 	let isAuthenticated = $state(false);
 	let _isLoading = $state(true); // 초기 상태를 로딩 중으로 설정
 	let mobileMenuOpen = $state(false);
+
+	// 프로필 스토어에서 사용자 정보 가져오기
+	let profileUserValue = $state<User | null>(null);
+	let profileInitialized = $state(false);
 	let profileDropdownOpen = $state(false);
 	let initialAuthCheckDone = $state(false); // 초기 인증 확인 완료 여부
 
-	// authState를 reactive하게 연결 - Svelte 5 store subscribe 방식
+	// 프로필 스토어 구독
+	$effect(() => {
+		const unsubscribeProfile = profileUser.subscribe((value) => {
+			profileUserValue = value;
+		});
+
+		const unsubscribeProfileInit = isProfileInitialized.subscribe((value) => {
+			profileInitialized = value;
+		});
+
+		return () => {
+			unsubscribeProfile();
+			unsubscribeProfileInit();
+		};
+	});
+
+	// AuthState 구독 및 초기화 로직
 	$effect(() => {
 		const unsubscribeEffect = authState.subscribe((state) => {
-			user = state.user;
+			// 프로필 스토어가 초기화되었으면 그쪽 데이터 사용, 아니면 auth state 사용
+			user = profileInitialized ? profileUserValue : state.user;
 			isAuthenticated = state.isAuthenticated;
 			_isLoading = state.isLoading;
-			initialAuthCheckDone = true;
+			// Auth State의 isInitialized와 동기화
+			initialAuthCheckDone = state.isInitialized;
 
 			console.log('Navigation: Auth state changed', {
-				user: state.user,
-				avatar: state.user?.avatar,
+				user: user,
+				avatar: user?.avatar,
 				isAuthenticated: state.isAuthenticated,
-				isInitialized: state.isInitialized
+				isInitialized: state.isInitialized,
+				profileInitialized,
+				initialAuthCheckDone
 			});
 		});
 

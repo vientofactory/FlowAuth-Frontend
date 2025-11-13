@@ -8,7 +8,10 @@
 		twoFactorStore,
 		authState,
 		useToast,
-		DashboardSkeleton
+		DashboardSkeleton,
+		profileStore,
+		profileUser,
+		isProfileLoading
 	} from '$lib';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -23,6 +26,10 @@
 
 	let user = $state<User | null>(null);
 	let _isLoading = $state(true);
+
+	// 프로필 스토어에서 데이터 가져오기
+	let profileUserValue = $state<User | null>(null);
+	let _profileLoading = $state(false);
 
 	// 2FA 스토어 상태
 	let twoFactorState = $state<TwoFactorState>({ status: null, isLoading: false, error: null });
@@ -59,19 +66,41 @@
 
 	const toast = useToast();
 
+	// 프로필 스토어 구독
+	$effect(() => {
+		const unsubscribeProfile = profileUser.subscribe((value) => {
+			profileUserValue = value;
+			// 프로필 스토어에 데이터가 있으면 사용
+			if (value) {
+				user = value;
+			}
+		});
+
+		const unsubscribeLoading = isProfileLoading.subscribe((value) => {
+			_profileLoading = value;
+			_isLoading = value;
+		});
+
+		return () => {
+			unsubscribeProfile();
+			unsubscribeLoading();
+		};
+	});
+
 	onMount(() => {
 		loadProfile();
 
 		// authState 변경 감지를 위한 구독 (업데이트 후 동기화용)
 		const unsubscribe = authState.subscribe((state) => {
-			if (state.user && !user) {
-				// 초기 로딩 시 authState에서 사용자 정보가 있다면 사용
+			// 프로필 스토어에 데이터가 없을 때만 authState 사용
+			if (state.user && !profileUserValue) {
 				user = state.user;
 			}
 
 			// 디버깅: 프로필 페이지 사용자 정보 로깅
 			console.log('Profile: authState updated', {
 				user: state.user,
+				profileUser: profileUserValue,
 				avatar: state.user?.avatar,
 				isAuthenticated: state.isAuthenticated
 			});
@@ -84,14 +113,20 @@
 
 	async function loadProfile() {
 		try {
-			_isLoading = true;
-			user = await apiClient.getProfile();
+			// 프로필 스토어에서 캐시된 데이터가 있으면 사용, 없으면 API 호출
+			const cachedProfile = profileStore.getCachedProfile();
+			if (cachedProfile && profileStore.isProfileValid()) {
+				console.log('Profile: Using cached profile data');
+				user = cachedProfile;
+				_isLoading = false;
+			} else {
+				console.log('Profile: Fetching fresh profile data');
+				user = await profileStore.getProfile();
+			}
 			await loadTwoFactorStatus();
 		} catch (error) {
 			console.error('Failed to load profile:', error);
 			toast.error('프로필 정보를 불러오는데 실패했습니다.');
-		} finally {
-			_isLoading = false;
 		}
 	}
 

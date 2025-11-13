@@ -123,6 +123,14 @@ export interface CreateUserDto {
 
 // Stores
 export { authState, authStore } from './stores/auth';
+export {
+	profileState,
+	profileStore,
+	profileUser,
+	isProfileLoading,
+	profileError,
+	isProfileInitialized
+} from './stores/profile';
 export { toast } from './stores/toast';
 export { twoFactorStore } from './stores/2fa';
 

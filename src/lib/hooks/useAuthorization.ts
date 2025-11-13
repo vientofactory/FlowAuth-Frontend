@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
 import { apiClient } from '$lib/utils/api';
+import { profileStore } from '$lib/stores/profile';
 import { parseError } from '../utils/error.utils';
 import { ERROR_MESSAGES } from '../constants/authorization.constants';
 import { ROUTES } from '../constants/app.constants';
@@ -88,7 +89,7 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 			console.log('[Authorization] Loading current user profile');
 			// 현재 사용자 정보 로드
 			try {
-				currentUser = await apiClient.getProfile();
+				currentUser = await profileStore.getProfile();
 				console.log('[Authorization] Current user loaded:', currentUser);
 			} catch (userError) {
 				console.warn('[Authorization] Failed to load user profile:', userError);

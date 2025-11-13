@@ -3,6 +3,7 @@ import { apiClient } from '$lib/utils/api';
 import { LOCAL_STORAGE_KEYS } from '@flowauth/shared';
 import { setAuthTokenCookie, deleteAuthTokenCookie, clearAllAuthCookies } from '$lib/utils/cookie';
 import type { User } from '$lib';
+import { profileStore } from './profile';
 
 interface AuthState {
 	user: User | null;
@@ -22,28 +23,25 @@ export const authState = writable<AuthState>({
 class AuthStore {
 	// 사용자 정보 초기화 (앱 시작 시 호출)
 	async initialize() {
-		authState.update((state) => ({ ...state, isLoading: true }));
+		console.log('AuthStore: Starting initialization...');
+		authState.update((state) => ({ ...state, isLoading: true, isInitialized: false }));
 
 		// 세션 복원 이벤트 리스너 등록
 		this.setupSessionRecoveryListener();
 
-		try {
-			const token = this.getToken();
+		// 현재 페이지가 인증이 필요하지 않은 페이지인지 확인
+		const isPublicPage =
+			typeof window !== 'undefined' ? this.isPublicPage(window.location.pathname) : false;
 
-			if (token && token.trim() !== '') {
-				// 토큰이 있으면 사용자 정보 가져오기
-				const user = await apiClient.getProfile();
-				authState.update((state) => ({
-					...state,
-					user,
-					isAuthenticated: true,
-					isLoading: false,
-					isInitialized: true
-				}));
-			} else {
-				// JWT 토큰이 없어도 쿠키 기반으로 사용자 정보 시도
+		try {
+			// 공개 페이지가 아닌 경우에만 인증 시도
+			if (!isPublicPage) {
+				// 먼저 세션 기반 인증 시도 (토큰 없이도 쿠키로 인증 가능)
+				console.log('AuthStore: Attempting session-based authentication...');
+
 				try {
-					const user = await apiClient.getProfile();
+					const user = await profileStore.getProfile();
+					console.log('AuthStore: Session authentication successful');
 					authState.update((state) => ({
 						...state,
 						user,
@@ -51,47 +49,82 @@ class AuthStore {
 						isLoading: false,
 						isInitialized: true
 					}));
-				} catch {
-					// 쿠키 기반 인증도 실패하면 로그아웃 처리
-					authState.update((state) => ({
-						...state,
-						user: null,
-						isAuthenticated: false,
-						isLoading: false,
-						isInitialized: true
-					}));
-				}
-			}
-		} catch (tokenError) {
-			// JWT 토큰 기반 인증 실패 시, 쿠키 기반 시도
-			// 토큰이 만료되었거나 유효하지 않은 경우 토큰 제거
-			const errorMessage = tokenError instanceof Error ? tokenError.message : String(tokenError);
-			if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
-				// 토큰만 제거하고 완전히 로그아웃하지는 않음
-				if (typeof window !== 'undefined') {
-					localStorage.removeItem('auth_token');
-					deleteAuthTokenCookie();
+					return;
+				} catch (sessionError) {
+					console.log(
+						'AuthStore: Session authentication failed, trying token-based auth...',
+						sessionError
+					);
+
+					// 세션 인증 실패 시 토큰 확인
+					const token = this.getToken();
+
+					if (token && token.trim() !== '') {
+						console.log('AuthStore: Found token, attempting token-based authentication...');
+						try {
+							const user = await profileStore.getProfile(true); // 강제 새로고침
+							console.log('AuthStore: Token authentication successful');
+							authState.update((state) => ({
+								...state,
+								user,
+								isAuthenticated: true,
+								isLoading: false,
+								isInitialized: true
+							}));
+							return;
+						} catch (tokenError) {
+							console.log('AuthStore: Token authentication failed:', tokenError);
+
+							// 토큰이 만료되었거나 유효하지 않은 경우 토큰 제거
+							const errorMessage =
+								tokenError instanceof Error ? tokenError.message : String(tokenError);
+							if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
+								console.log('AuthStore: Removing invalid token');
+								if (typeof window !== 'undefined') {
+									localStorage.removeItem(LOCAL_STORAGE_KEYS.LOGIN_TOKEN);
+									localStorage.removeItem(LOCAL_STORAGE_KEYS.OAUTH2_TOKEN);
+									deleteAuthTokenCookie();
+								}
+							}
+						}
+					} else {
+						console.log('AuthStore: No token found');
+					}
 				}
 			}
 
+			// 모든 인증 방법 실패 또는 공개 페이지
+			console.log('AuthStore: No authentication or public page');
+			authState.update((state) => ({
+				...state,
+				user: null,
+				isAuthenticated: false,
+				isLoading: false,
+				isInitialized: true
+			}));
+
+			// 프로필 스토어 안전하게 리셋
 			try {
-				const user = await apiClient.getProfile();
-				authState.update((state) => ({
-					...state,
-					user,
-					isAuthenticated: true,
-					isLoading: false,
-					isInitialized: true
-				}));
-			} catch {
-				// 모든 인증 방법 실패
-				authState.update((state) => ({
-					...state,
-					user: null,
-					isAuthenticated: false,
-					isLoading: false,
-					isInitialized: true
-				}));
+				profileStore.reset();
+			} catch (resetError) {
+				console.warn('AuthStore: Failed to reset profile store:', resetError);
+			}
+		} catch (error) {
+			console.error('AuthStore: Initialization error:', error);
+
+			// 초기화 실패 시에도 initialized 상태로 설정
+			authState.update((state) => ({
+				...state,
+				user: null,
+				isAuthenticated: false,
+				isLoading: false,
+				isInitialized: true
+			}));
+
+			try {
+				profileStore.reset();
+			} catch (resetError) {
+				console.warn('AuthStore: Failed to reset profile store:', resetError);
 			}
 		}
 	}
@@ -108,6 +141,9 @@ class AuthStore {
 			// 토큰이 제대로 저장되었는지 확인
 			const storedToken = this.getToken();
 			console.log('AuthStore: Token stored in localStorage:', !!storedToken);
+
+			// 프로필 스토어에 사용자 정보 설정
+			profileStore.setProfile(result.user);
 
 			authState.update((state) => ({
 				...state,
@@ -134,6 +170,9 @@ class AuthStore {
 			const result = await apiClient.verifyTwoFactorLogin(email, token);
 			console.log('AuthStore: 2FA login successful, token received:', !!result.accessToken);
 
+			// 프로필 스토어에 사용자 정보 설정
+			profileStore.setProfile(result.user);
+
 			authState.update((state) => ({
 				...state,
 				user: result.user,
@@ -158,6 +197,9 @@ class AuthStore {
 		try {
 			const result = await apiClient.verifyBackupCodeLogin(email, backupCode);
 			console.log('AuthStore: Backup code login successful, token received:', !!result.accessToken);
+
+			// 프로필 스토어에 사용자 정보 설정
+			profileStore.setProfile(result.user);
 
 			authState.update((state) => ({
 				...state,
@@ -187,9 +229,9 @@ class AuthStore {
 			setAuthTokenCookie(accessToken);
 		}
 
-		// 사용자 정보 가져오기
+		// 프로필 스토어에서 사용자 정보 가져오기 (캐시 무시)
 		try {
-			const user = await apiClient.getProfile();
+			const user = await profileStore.getProfile(true);
 			authState.update((state) => ({
 				...state,
 				user,
@@ -238,6 +280,13 @@ class AuthStore {
 			console.log('AuthStore: All tokens and cookies removed successfully');
 		}
 
+		// 프로필 스토어 초기화
+		try {
+			profileStore.reset();
+		} catch (resetError) {
+			console.warn('AuthStore: Failed to reset profile store during logout:', resetError);
+		}
+
 		// 상태 업데이트
 		authState.update(() => ({
 			user: null,
@@ -257,10 +306,10 @@ class AuthStore {
 		authState.update((state) => ({ ...state, isLoading: true }));
 
 		try {
-			const updatedUser = await apiClient.updateProfile(updates);
+			const updatedUser = await profileStore.updateProfile(updates);
 			authState.update((state) => ({
 				...state,
-				user: updatedUser as User,
+				user: updatedUser,
 				isLoading: false
 			}));
 			return updatedUser;
@@ -276,7 +325,7 @@ class AuthStore {
 		authState.update((state) => ({ ...state, isLoading: true }));
 
 		try {
-			const user = await apiClient.getProfile();
+			const user = await profileStore.refreshProfile();
 			authState.update((state) => ({
 				...state,
 				user,
@@ -313,6 +362,22 @@ class AuthStore {
 			return token;
 		}
 		return null;
+	}
+
+	// 공개 페이지인지 확인 (인증이 필요하지 않은 페이지)
+	private isPublicPage(pathname: string): boolean {
+		const publicPaths = [
+			'/',
+			'/auth/login',
+			'/auth/register',
+			'/auth/forgot-password',
+			'/auth/reset-password',
+			'/auth/verify-email',
+			'/callback',
+			'/oauth2/authorize'
+		];
+
+		return publicPaths.some((path) => pathname === path || pathname.startsWith(path + '/'));
 	}
 
 	// 현재 세션 토큰의 JTI 가져오기
@@ -353,7 +418,7 @@ class AuthStore {
 			console.log('AuthStore: Session recovery event received, refreshing auth state...');
 
 			try {
-				const user = await apiClient.getProfile();
+				const user = await profileStore.refreshProfile();
 				authState.update((state) => ({
 					...state,
 					user,

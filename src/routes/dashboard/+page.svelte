@@ -1,5 +1,13 @@
 <script lang="ts">
-	import { DashboardLayout, Tabs, apiClient, authState, useToast, DashboardSkeleton } from '$lib';
+	import {
+		DashboardLayout,
+		Tabs,
+		apiClient,
+		authState,
+		useToast,
+		DashboardSkeleton,
+		profileUser
+	} from '$lib';
 	import { authStore } from '$lib/stores/auth';
 	import StatsCards from '$lib/components/dashboard/StatsCards.svelte';
 	import OverviewTab from '$lib/components/dashboard/OverviewTab.svelte';
@@ -15,6 +23,9 @@
 	let _isLoading = $state(true);
 	let isDashboardLoading = $state(false);
 	let isDashboardDataLoaded = $state(false);
+
+	// 프로필 스토어에서 사용자 정보 가져오기
+	let profileUserValue = $state<User | null>(null);
 
 	let dashboardStats = $state({
 		totalClients: 0,
@@ -294,6 +305,21 @@
 
 	let activeTab = $state('overview');
 
+	// 프로필 스토어 구독
+	$effect(() => {
+		const unsubscribeProfile = profileUser.subscribe((value) => {
+			profileUserValue = value;
+			// 프로필 스토어에 데이터가 있으면 우선 사용
+			if (value) {
+				user = value;
+			}
+		});
+
+		return () => {
+			unsubscribeProfile();
+		};
+	});
+
 	onMount(() => {
 		// URL 파라미터에서 이메일 인증 완료 메시지 확인
 		const urlParams = new URLSearchParams(window.location.search);
@@ -310,14 +336,18 @@
 
 		// store 구독
 		const unsubscribe = authState.subscribe((state) => {
-			user = state.user;
+			// 프로필 스토어에 데이터가 없을 때만 authState 사용
+			if (!profileUserValue) {
+				user = state.user;
+			}
 			_isLoading = state.isLoading;
 
-			// authState 초기화가 완료되고 로딩이 끝나고 user가 있고 아직 대시보드 데이터를 로드하지 않은 경우에만 로드
+			// 사용자 정보가 있고 (프로필 스토어 또는 auth state) 대시보드 데이터가 아직 로드되지 않은 경우
+			const currentUser = profileUserValue || state.user;
 			if (
 				state.isInitialized &&
 				!state.isLoading &&
-				user &&
+				currentUser &&
 				!isDashboardLoading &&
 				!isDashboardDataLoaded
 			) {
@@ -326,10 +356,10 @@
 
 			// user가 로드되면 accountCreated 업데이트
 			if (
-				user?.createdAt &&
-				dashboardStats.accountCreated?.getTime() !== new Date(user.createdAt).getTime()
+				currentUser?.createdAt &&
+				dashboardStats.accountCreated?.getTime() !== new Date(currentUser.createdAt).getTime()
 			) {
-				dashboardStats.accountCreated = new Date(user.createdAt);
+				dashboardStats.accountCreated = new Date(currentUser.createdAt);
 			}
 		});
 
