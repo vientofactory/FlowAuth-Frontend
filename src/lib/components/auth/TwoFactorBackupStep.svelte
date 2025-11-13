@@ -79,13 +79,16 @@
 		<!-- 백업 코드 목록 -->
 		<div class="mb-6 rounded-lg bg-gray-100 p-4">
 			<h3 class="mb-3 font-semibold text-gray-900">백업 코드</h3>
-			<div class="grid grid-cols-2 gap-2 font-mono text-sm">
+			<div class="grid grid-cols-1 gap-2 font-mono text-sm sm:grid-cols-2">
 				{#each backupCodes as code, index (index)}
 					<div class="rounded bg-white p-2 text-center font-semibold">
 						{code}
 					</div>
 				{/each}
 			</div>
+			<p class="mt-2 text-xs text-gray-600">
+				💡 각 코드는 XXXX-XXXX-XXXX-XXXX 형식의 16자리입니다.
+			</p>
 		</div>
 
 		<!-- 액션 버튼들 -->

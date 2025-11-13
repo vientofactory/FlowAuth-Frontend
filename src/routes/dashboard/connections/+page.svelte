@@ -27,10 +27,10 @@
 		async function loadApps() {
 			try {
 				const response = await apiClient.getConnectedApps();
-				
+
 				apps = response.apps.map((app) => {
 					// 안전한 날짜 변환
-					const safeDate = (dateValue: any): Date => {
+					const safeDate = (dateValue: string | number | Date | null | undefined): Date => {
 						if (!dateValue) {
 							console.warn('날짜 값이 없습니다:', dateValue);
 							return new Date();
@@ -42,7 +42,7 @@
 						}
 						return date;
 					};
-					
+
 					return {
 						...app,
 						connectedAt: safeDate(app.connectedAt),

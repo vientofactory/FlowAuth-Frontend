@@ -101,11 +101,13 @@ export const inputHandlers = {
 
 	/**
 	 * Handler for backup codes (uppercase alphanumeric with hyphens)
+	 * Format: XXXX-XXXX-XXXX-XXXX (16 characters + 3 hyphens = 19 total)
 	 */
 	backupCode: (field: { value: string; clear: () => void }) =>
 		createAlphanumericInputHandler(field, {
 			allowHyphens: true,
-			toUpperCase: true
+			toUpperCase: true,
+			maxLength: 19 // 16자리 + 3개의 하이픈
 		}),
 
 	/**
@@ -143,10 +145,10 @@ export const formatters = {
 	},
 
 	/**
-	 * Format a backup code with hyphens (XXXX-XXXX-XXXX)
+	 * Format a backup code with hyphens (XXXX-XXXX-XXXX-XXXX)
 	 */
 	backupCode: (value: string): string => {
-		const clean = value.replace(/[^A-Z0-9]/g, '');
+		const clean = value.replace(/[^A-Z0-9]/g, '').slice(0, 16); // 16자리로 제한
 		return clean.replace(/(.{4})/g, '$1-').replace(/-$/, '');
 	},
 
