@@ -221,6 +221,12 @@
 			// 사용자 정보 업데이트
 			if (user) {
 				user.avatar = response.avatarUrl;
+				
+				// authState 업데이트로 네비게이션에도 즉시 반영
+				authState.update((state) => ({
+					...state,
+					user: { ...state.user!, avatar: response.avatarUrl }
+				}));
 			}
 
 			toast.success('아바타가 성공적으로 업로드되었습니다.');
@@ -268,6 +274,12 @@
 			// 사용자 정보 업데이트
 			if (user) {
 				user.avatar = null;
+				
+				// authState 업데이트로 네비게이션에도 즉시 반영
+				authState.update((state) => ({
+					...state,
+					user: { ...state.user!, avatar: null }
+				}));
 			}
 
 			toast.success('아바타가 성공적으로 제거되었습니다.');
@@ -294,6 +306,7 @@
 	// ProfileEditForm에서 호출될 콜백 함수
 	async function handleProfileUpdate(updatedUser: User) {
 		user = updatedUser;
+		// authState 업데이트로 네비게이션에도 즉시 반영
 		authState.update((state) => ({ ...state, user: updatedUser }));
 		isEditing = false;
 		toast.success('프로필이 성공적으로 업데이트되었습니다.');
