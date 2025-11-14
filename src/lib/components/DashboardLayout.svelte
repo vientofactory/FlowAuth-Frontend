@@ -2,7 +2,6 @@
 	import { authState, Navigation, EmailVerificationAlert } from '$lib';
 	import { onMount, onDestroy } from 'svelte';
 	import { page } from '$app/stores';
-	import Button from '$lib/components/Button.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import type { User } from '$lib';
 	import { USER_TYPES, PERMISSIONS } from '$lib/types/user.types';
@@ -306,13 +305,32 @@
 		}
 	</style>
 {:else if !isAuthenticated}
+	<script>
+		// 인증되지 않은 상태에서 현재 경로를 return URL로 설정하여 리다이렉트
+		if (typeof window !== 'undefined') {
+			const currentPath = window.location.pathname + window.location.search;
+			const loginUrl = new URL('/auth/login', window.location.origin);
+
+			// 대시보드 페이지인 경우 return URL 설정
+			if (currentPath !== '/' && !currentPath.startsWith('/auth')) {
+				loginUrl.searchParams.set('returnUrl', currentPath);
+			}
+
+			console.log('DashboardLayout: Redirecting to login', loginUrl.toString());
+			window.location.href = loginUrl.toString();
+		}
+	</script>
+
 	<div class="flex min-h-screen items-center justify-center bg-gray-50">
 		<div class="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
 			<div class="text-center">
-				<i class="fas fa-exclamation-triangle mb-4 text-4xl text-red-500"></i>
-				<h2 class="mb-2 text-xl font-semibold text-gray-900">인증 필요</h2>
-				<p class="mb-4 text-gray-600">로그인이 필요합니다.</p>
-				<Button onclick={() => (window.location.href = '/auth/login')}>로그인하기</Button>
+				<div class="mb-4">
+					<div
+						class="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"
+					></div>
+				</div>
+				<h2 class="mb-2 text-xl font-semibold text-gray-900">로그인 페이지로 이동 중...</h2>
+				<p class="mb-4 text-gray-600">잠시만 기다려주세요.</p>
 			</div>
 		</div>
 	</div>

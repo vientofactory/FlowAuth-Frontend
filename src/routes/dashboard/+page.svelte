@@ -336,7 +336,7 @@
 
 		// store 구독
 		const unsubscribe = authState.subscribe((state) => {
-			// 프로필 스토어에 데이터가 없을 때만 authState 사용
+			// 프로필 스토어에 데이터가 없거나 auth에서 새로운 데이터가 온 경우
 			if (!profileUserValue) {
 				user = state.user;
 			}

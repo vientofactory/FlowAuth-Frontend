@@ -70,9 +70,14 @@
 	$effect(() => {
 		const unsubscribeProfile = profileUser.subscribe((value) => {
 			profileUserValue = value;
-			// 프로필 스토어에 데이터가 있으면 사용
+			// 프로필 스토어에 데이터가 있으면 우선 사용
 			if (value) {
 				user = value;
+				console.log('Profile: Using profile store data', {
+					userId: value.id,
+					isActive: value.isActive,
+					timestamp: new Date().toISOString()
+				});
 			}
 		});
 
@@ -90,20 +95,23 @@
 	onMount(() => {
 		loadProfile();
 
-		// authState 변경 감지를 위한 구독 (업데이트 후 동기화용)
+		// authState 변경 감지를 위한 구독
 		const unsubscribe = authState.subscribe((state) => {
-			// 프로필 스토어에 데이터가 없을 때만 authState 사용
-			if (state.user && !profileUserValue) {
-				user = state.user;
+			// 프로필 스토어에 데이터가 없거나 auth에서 새로운 데이터가 온 경우
+			if (
+				state.user &&
+				(!profileUserValue || state.user.updatedAt !== profileUserValue?.updatedAt)
+			) {
+				// 최신 데이터로 업데이트
+				if (!profileUserValue) {
+					user = state.user;
+					console.log('Profile: Using auth state fallback data', {
+						userId: state.user.id,
+						isActive: state.user.isActive,
+						reason: 'no_profile_data'
+					});
+				}
 			}
-
-			// 디버깅: 프로필 페이지 사용자 정보 로깅
-			console.log('Profile: authState updated', {
-				user: state.user,
-				profileUser: profileUserValue,
-				avatar: state.user?.avatar,
-				isAuthenticated: state.isAuthenticated
-			});
 		});
 
 		return () => {
@@ -113,16 +121,11 @@
 
 	async function loadProfile() {
 		try {
-			// 프로필 스토어에서 캐시된 데이터가 있으면 사용, 없으면 API 호출
-			const cachedProfile = profileStore.getCachedProfile();
-			if (cachedProfile && profileStore.isProfileValid()) {
-				console.log('Profile: Using cached profile data');
-				user = cachedProfile;
-				_isLoading = false;
-			} else {
-				console.log('Profile: Fetching fresh profile data');
-				user = await profileStore.getProfile();
-			}
+			// 페이지 로드 시 항상 최신 데이터 확인
+			console.log('Profile: Fetching fresh profile data');
+			user = await profileStore.getProfile(true);
+
+			// 2FA 상태도 로드
 			await loadTwoFactorStatus();
 		} catch (error) {
 			console.error('Failed to load profile:', error);

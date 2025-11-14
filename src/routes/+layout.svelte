@@ -8,11 +8,19 @@
 	let { children } = $props();
 
 	onMount(async () => {
-		// 인증 상태 초기화 (세션 복원)
-		await authStore.initialize();
+		console.log('App: Starting initialization...');
+
+		try {
+			// 인증 상태 초기화 (세션 복원)
+			await authStore.initialize();
+			console.log('App: Auth initialization completed');
+		} catch (error) {
+			console.error('App: Auth initialization failed:', error);
+		}
 
 		// 네트워크 모니터링 시작
 		apiClient.startNetworkMonitoring();
+		console.log('App: Network monitoring started');
 	});
 
 	onDestroy(() => {

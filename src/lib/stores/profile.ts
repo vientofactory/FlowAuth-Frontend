@@ -54,7 +54,7 @@ class ProfileStore {
 			return currentRequest;
 		}
 
-		console.log('ProfileStore: Fetching fresh profile data');
+		console.log('ProfileStore: Fetching fresh profile data', { forceRefresh });
 
 		// 로딩 상태 시작
 		profileState.update((state) => ({
@@ -79,20 +79,41 @@ class ProfileStore {
 				isInitialized: true
 			}));
 
-			console.log('ProfileStore: Profile fetched successfully');
+			console.log('ProfileStore: Profile fetched successfully', {
+				userId: user.id,
+				email: user.email,
+				isActive: user.isActive
+			});
 			return user;
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Failed to fetch profile';
+
+			// 네트워크 오류 vs 인증 오류 구분
+			const isNetworkError =
+				errorMessage.includes('fetch') ||
+				errorMessage.includes('network') ||
+				errorMessage.includes('offline');
+			const isAuthError =
+				errorMessage.includes('401') ||
+				errorMessage.includes('403') ||
+				errorMessage.includes('Unauthorized');
 
 			// 실패 시 상태 업데이트
 			profileState.update((state) => ({
 				...state,
 				isLoading: false,
 				error: errorMessage,
-				isInitialized: true
+				isInitialized: true,
+				// 네트워크 오류인 경우 기존 사용자 데이터 유지
+				user: isNetworkError ? state.user : null
 			}));
 
-			console.error('ProfileStore: Profile fetch failed:', errorMessage);
+			console.error('ProfileStore: Profile fetch failed', {
+				error: errorMessage,
+				isNetworkError,
+				isAuthError
+			});
+
 			throw error;
 		} finally {
 			// 요청 완료 후 Promise 제거
@@ -196,7 +217,7 @@ class ProfileStore {
 	}
 
 	/**
-	 * 외부에서 프로필 데이터를 설정합니다. (로그인 후 등)
+	 * 외부에서 프로필 데이터를 설정합니다.
 	 */
 	setProfile(user: User): void {
 		profileState.update((state) => ({
@@ -207,7 +228,6 @@ class ProfileStore {
 			lastFetched: Date.now(),
 			isInitialized: true
 		}));
-		console.log('ProfileStore: Profile set externally');
 	}
 
 	/**

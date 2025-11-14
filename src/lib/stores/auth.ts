@@ -9,7 +9,7 @@ interface AuthState {
 	user: User | null;
 	isAuthenticated: boolean;
 	isLoading: boolean;
-	isInitialized: boolean; // 초기화 완료 여부 추가
+	isInitialized: boolean;
 }
 
 // Svelte writable store 생성
@@ -17,7 +17,7 @@ export const authState = writable<AuthState>({
 	user: null,
 	isAuthenticated: false,
 	isLoading: false,
-	isInitialized: false // 초기값 false
+	isInitialized: false
 });
 
 class AuthStore {
@@ -34,14 +34,24 @@ class AuthStore {
 			typeof window !== 'undefined' ? this.isPublicPage(window.location.pathname) : false;
 
 		try {
-			// 공개 페이지가 아닌 경우에만 인증 시도
-			if (!isPublicPage) {
-				// 먼저 세션 기반 인증 시도 (토큰 없이도 쿠키로 인증 가능)
-				console.log('AuthStore: Attempting session-based authentication...');
+			// 토큰 또는 쿠키가 있는지 먼저 확인
+			const token = this.getToken();
+			const hasAuthData = !!(token && token.trim() !== '');
+
+			console.log('AuthStore: Auth data check', { hasAuthData, isPublicPage });
+
+			// 공개 페이지가 아니거나 인증 데이터가 있는 경우에만 인증 시도
+			if (!isPublicPage || hasAuthData) {
+				console.log('AuthStore: Attempting authentication...');
 
 				try {
-					const user = await profileStore.getProfile();
-					console.log('AuthStore: Session authentication successful');
+					// 토큰이 있으면 강제 새로고침, 없으면 세션 쿠키 기반
+					const user = await profileStore.getProfile(hasAuthData);
+					console.log('AuthStore: Authentication successful');
+
+					// 프로필 스토어에 최신 데이터 설정
+					profileStore.setProfile(user);
+
 					authState.update((state) => ({
 						...state,
 						user,
@@ -50,45 +60,34 @@ class AuthStore {
 						isInitialized: true
 					}));
 					return;
-				} catch (sessionError) {
-					console.log(
-						'AuthStore: Session authentication failed, trying token-based auth...',
-						sessionError
-					);
+				} catch (authError) {
+					console.log('AuthStore: Authentication failed:', authError);
 
-					// 세션 인증 실패 시 토큰 확인
-					const token = this.getToken();
-
-					if (token && token.trim() !== '') {
-						console.log('AuthStore: Found token, attempting token-based authentication...');
-						try {
-							const user = await profileStore.getProfile(true); // 강제 새로고침
-							console.log('AuthStore: Token authentication successful');
-							authState.update((state) => ({
-								...state,
-								user,
-								isAuthenticated: true,
-								isLoading: false,
-								isInitialized: true
-							}));
-							return;
-						} catch (tokenError) {
-							console.log('AuthStore: Token authentication failed:', tokenError);
-
-							// 토큰이 만료되었거나 유효하지 않은 경우 토큰 제거
-							const errorMessage =
-								tokenError instanceof Error ? tokenError.message : String(tokenError);
-							if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
-								console.log('AuthStore: Removing invalid token');
-								if (typeof window !== 'undefined') {
-									localStorage.removeItem(LOCAL_STORAGE_KEYS.LOGIN_TOKEN);
-									localStorage.removeItem(LOCAL_STORAGE_KEYS.OAUTH2_TOKEN);
-									deleteAuthTokenCookie();
-								}
-							}
+					// 토큰이 만료되었거나 유효하지 않은 경우 토큰 제거
+					const errorMessage = authError instanceof Error ? authError.message : String(authError);
+					if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
+						console.log('AuthStore: Removing invalid tokens');
+						if (typeof window !== 'undefined') {
+							localStorage.removeItem(LOCAL_STORAGE_KEYS.LOGIN_TOKEN);
+							localStorage.removeItem(LOCAL_STORAGE_KEYS.OAUTH2_TOKEN);
+							localStorage.removeItem(LOCAL_STORAGE_KEYS.REFRESH_LOGIN_TOKEN);
+							localStorage.removeItem(LOCAL_STORAGE_KEYS.REFRESH_OAUTH2_TOKEN);
+							deleteAuthTokenCookie();
 						}
-					} else {
-						console.log('AuthStore: No token found');
+					}
+
+					// 공개 페이지가 아닌 경우에만 리다이렉트 필요
+					if (!isPublicPage) {
+						console.log('AuthStore: Protected page without valid auth, will redirect');
+						// DashboardLayout에서 처리하도록 상태만 업데이트
+						authState.update((state) => ({
+							...state,
+							user: null,
+							isAuthenticated: false,
+							isLoading: false,
+							isInitialized: true
+						}));
+						return;
 					}
 				}
 			}
@@ -142,15 +141,28 @@ class AuthStore {
 			const storedToken = this.getToken();
 			console.log('AuthStore: Token stored in localStorage:', !!storedToken);
 
-			// 프로필 스토어에 사용자 정보 설정
+			// 프로필 스토어에 사용자 정보 설정 (강제 새로고침하여 최신 데이터 보장)
 			profileStore.setProfile(result.user);
 
+			// auth 상태 업데이트
 			authState.update((state) => ({
 				...state,
 				user: result.user,
 				isAuthenticated: true,
 				isLoading: false
 			}));
+
+			// 로그인 후 최신 프로필 데이터로 동기화
+			try {
+				const freshProfile = await profileStore.getProfile(true);
+				authState.update((state) => ({
+					...state,
+					user: freshProfile
+				}));
+				console.log('AuthStore: Profile synchronized after login');
+			} catch (syncError) {
+				console.warn('AuthStore: Failed to sync profile after login:', syncError);
+			}
 
 			console.log('AuthStore: Auth state updated successfully');
 			return result;
@@ -173,12 +185,25 @@ class AuthStore {
 			// 프로필 스토어에 사용자 정보 설정
 			profileStore.setProfile(result.user);
 
+			// auth 상태 업데이트
 			authState.update((state) => ({
 				...state,
 				user: result.user,
 				isAuthenticated: true,
 				isLoading: false
 			}));
+
+			// 로그인 후 최신 프로필 데이터로 동기화
+			try {
+				const freshProfile = await profileStore.getProfile(true);
+				authState.update((state) => ({
+					...state,
+					user: freshProfile
+				}));
+				console.log('AuthStore: Profile synchronized after 2FA login');
+			} catch (syncError) {
+				console.warn('AuthStore: Failed to sync profile after 2FA login:', syncError);
+			}
 
 			console.log('AuthStore: 2FA auth state updated successfully');
 			return result;
@@ -201,12 +226,25 @@ class AuthStore {
 			// 프로필 스토어에 사용자 정보 설정
 			profileStore.setProfile(result.user);
 
+			// auth 상태 업데이트
 			authState.update((state) => ({
 				...state,
 				user: result.user,
 				isAuthenticated: true,
 				isLoading: false
 			}));
+
+			// 로그인 후 최신 프로필 데이터로 동기화
+			try {
+				const freshProfile = await profileStore.getProfile(true);
+				authState.update((state) => ({
+					...state,
+					user: freshProfile
+				}));
+				console.log('AuthStore: Profile synchronized after backup code login');
+			} catch (syncError) {
+				console.warn('AuthStore: Failed to sync profile after backup code login:', syncError);
+			}
 
 			console.log('AuthStore: Backup code auth state updated successfully');
 			return result;
@@ -232,6 +270,9 @@ class AuthStore {
 		// 프로필 스토어에서 사용자 정보 가져오기 (캐시 무시)
 		try {
 			const user = await profileStore.getProfile(true);
+			// 프로필 스토어에 최신 데이터 설정
+			profileStore.setProfile(user);
+
 			authState.update((state) => ({
 				...state,
 				user,
@@ -356,12 +397,33 @@ class AuthStore {
 		if (typeof window !== 'undefined') {
 			// 우선 login 토큰 확인, 없으면 oauth2 확인
 			let token = localStorage.getItem(LOCAL_STORAGE_KEYS.LOGIN_TOKEN);
-			if (!token) {
+			if (!token || token.trim() === '') {
 				token = localStorage.getItem(LOCAL_STORAGE_KEYS.OAUTH2_TOKEN);
 			}
-			return token;
+
+			// 토큰이 있는 경우 간단한 형식 검증
+			if (token && token.trim() !== '' && this.isValidJWTFormat(token)) {
+				return token;
+			}
+
+			// 잘못된 토큰이면 정리
+			if (token) {
+				console.log('AuthStore: Invalid token format detected, cleaning up');
+				localStorage.removeItem(LOCAL_STORAGE_KEYS.LOGIN_TOKEN);
+				localStorage.removeItem(LOCAL_STORAGE_KEYS.OAUTH2_TOKEN);
+			}
 		}
 		return null;
+	}
+
+	// JWT 토큰 형식 검증 (간단한 검증)
+	private isValidJWTFormat(token: string): boolean {
+		try {
+			const parts = token.split('.');
+			return parts.length === 3 && parts.every((part) => part.length > 0);
+		} catch {
+			return false;
+		}
 	}
 
 	// 공개 페이지인지 확인 (인증이 필요하지 않은 페이지)
@@ -373,11 +435,20 @@ class AuthStore {
 			'/auth/forgot-password',
 			'/auth/reset-password',
 			'/auth/verify-email',
+			'/auth/2fa/setup',
 			'/callback',
 			'/oauth2/authorize'
 		];
 
-		return publicPaths.some((path) => pathname === path || pathname.startsWith(path + '/'));
+		// 정확한 경로 매치 또는 하위 경로 매치
+		return publicPaths.some((path) => {
+			if (path === '/') {
+				return pathname === '/';
+			}
+			return (
+				pathname === path || pathname.startsWith(path + '/') || pathname.startsWith(path + '?')
+			);
+		});
 	}
 
 	// 현재 세션 토큰의 JTI 가져오기
