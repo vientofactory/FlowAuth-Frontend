@@ -221,7 +221,7 @@
 			// 사용자 정보 업데이트
 			if (user) {
 				user.avatar = response.avatarUrl;
-				
+
 				// authState 업데이트로 네비게이션에도 즉시 반영
 				authState.update((state) => ({
 					...state,
@@ -274,7 +274,7 @@
 			// 사용자 정보 업데이트
 			if (user) {
 				user.avatar = null;
-				
+
 				// authState 업데이트로 네비게이션에도 즉시 반영
 				authState.update((state) => ({
 					...state,
