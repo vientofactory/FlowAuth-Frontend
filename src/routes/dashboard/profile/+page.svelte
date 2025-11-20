@@ -8,7 +8,10 @@
 		twoFactorStore,
 		authState,
 		useToast,
-		DashboardSkeleton
+		DashboardSkeleton,
+		profileStore,
+		profileUser,
+		isProfileLoading
 	} from '$lib';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -23,6 +26,10 @@
 
 	let user = $state<User | null>(null);
 	let _isLoading = $state(true);
+
+	// 프로필 스토어에서 데이터 가져오기
+	let profileUserValue = $state<User | null>(null);
+	let _profileLoading = $state(false);
 
 	// 2FA 스토어 상태
 	let twoFactorState = $state<TwoFactorState>({ status: null, isLoading: false, error: null });
@@ -59,22 +66,52 @@
 
 	const toast = useToast();
 
+	// 프로필 스토어 구독
+	$effect(() => {
+		const unsubscribeProfile = profileUser.subscribe((value) => {
+			profileUserValue = value;
+			// 프로필 스토어에 데이터가 있으면 우선 사용
+			if (value) {
+				user = value;
+				console.log('Profile: Using profile store data', {
+					userId: value.id,
+					isActive: value.isActive,
+					timestamp: new Date().toISOString()
+				});
+			}
+		});
+
+		const unsubscribeLoading = isProfileLoading.subscribe((value) => {
+			_profileLoading = value;
+			_isLoading = value;
+		});
+
+		return () => {
+			unsubscribeProfile();
+			unsubscribeLoading();
+		};
+	});
+
 	onMount(() => {
 		loadProfile();
 
-		// authState 변경 감지를 위한 구독 (업데이트 후 동기화용)
+		// authState 변경 감지를 위한 구독
 		const unsubscribe = authState.subscribe((state) => {
-			if (state.user && !user) {
-				// 초기 로딩 시 authState에서 사용자 정보가 있다면 사용
-				user = state.user;
+			// 프로필 스토어에 데이터가 없거나 auth에서 새로운 데이터가 온 경우
+			if (
+				state.user &&
+				(!profileUserValue || state.user.updatedAt !== profileUserValue?.updatedAt)
+			) {
+				// 최신 데이터로 업데이트
+				if (!profileUserValue) {
+					user = state.user;
+					console.log('Profile: Using auth state fallback data', {
+						userId: state.user.id,
+						isActive: state.user.isActive,
+						reason: 'no_profile_data'
+					});
+				}
 			}
-
-			// 디버깅: 프로필 페이지 사용자 정보 로깅
-			console.log('Profile: authState updated', {
-				user: state.user,
-				avatar: state.user?.avatar,
-				isAuthenticated: state.isAuthenticated
-			});
 		});
 
 		return () => {
@@ -84,14 +121,15 @@
 
 	async function loadProfile() {
 		try {
-			_isLoading = true;
-			user = await apiClient.getProfile();
+			// 페이지 로드 시 항상 최신 데이터 확인
+			console.log('Profile: Fetching fresh profile data');
+			user = await profileStore.getProfile(true);
+
+			// 2FA 상태도 로드
 			await loadTwoFactorStatus();
 		} catch (error) {
 			console.error('Failed to load profile:', error);
 			toast.error('프로필 정보를 불러오는데 실패했습니다.');
-		} finally {
-			_isLoading = false;
 		}
 	}
 
@@ -183,6 +221,12 @@
 			// 사용자 정보 업데이트
 			if (user) {
 				user.avatar = response.avatarUrl;
+
+				// authState 업데이트로 네비게이션에도 즉시 반영
+				authState.update((state) => ({
+					...state,
+					user: { ...state.user!, avatar: response.avatarUrl }
+				}));
 			}
 
 			toast.success('아바타가 성공적으로 업로드되었습니다.');
@@ -230,6 +274,12 @@
 			// 사용자 정보 업데이트
 			if (user) {
 				user.avatar = null;
+
+				// authState 업데이트로 네비게이션에도 즉시 반영
+				authState.update((state) => ({
+					...state,
+					user: { ...state.user!, avatar: null }
+				}));
 			}
 
 			toast.success('아바타가 성공적으로 제거되었습니다.');
@@ -256,6 +306,7 @@
 	// ProfileEditForm에서 호출될 콜백 함수
 	async function handleProfileUpdate(updatedUser: User) {
 		user = updatedUser;
+		// authState 업데이트로 네비게이션에도 즉시 반영
 		authState.update((state) => ({ ...state, user: updatedUser }));
 		isEditing = false;
 		toast.success('프로필이 성공적으로 업데이트되었습니다.');

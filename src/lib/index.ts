@@ -17,6 +17,7 @@ export { default as DashboardLayout } from './components/DashboardLayout.svelte'
 export { default as AuthLayout } from './components/AuthLayout.svelte';
 export { default as PageHeader } from './components/PageHeader.svelte';
 export { default as Navigation } from './components/Navigation.svelte';
+export { default as Footer } from './components/Footer.svelte';
 export { default as LogoUpload } from './components/LogoUpload.svelte';
 
 // Form Components
@@ -123,6 +124,14 @@ export interface CreateUserDto {
 
 // Stores
 export { authState, authStore } from './stores/auth';
+export {
+	profileState,
+	profileStore,
+	profileUser,
+	isProfileLoading,
+	profileError,
+	isProfileInitialized
+} from './stores/profile';
 export { toast } from './stores/toast';
 export { twoFactorStore } from './stores/2fa';
 
@@ -142,6 +151,19 @@ export {
 	createSuccessHint,
 	createLoadingHint
 } from './constants/icons';
+
+// Error handling
+export { errorManager } from './stores/error';
+export type { ErrorToast } from './stores/error';
+export {
+	createApiError,
+	getErrorMessage,
+	handleFetchError,
+	handleJavaScriptError,
+	getErrorType,
+	getErrorActions
+} from './utils/error-handler';
+export type { ApiError } from './utils/error-handler';
 
 // Types
 export type { ToastMessage } from './stores/toast';

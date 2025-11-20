@@ -91,10 +91,8 @@ export class AuthApi extends BaseApi {
 	}
 
 	async getProfile(): Promise<User> {
-		const token = this.getToken();
-		if (!token) {
-			throw new Error('No authentication token found');
-		}
+		// 토큰이 없어도 세션 기반 인증(쿠키)으로 시도
+		// BaseApi의 request 메서드에서 토큰이 있으면 Authorization 헤더를 자동으로 추가함
 		return this.request<User>(API_ENDPOINTS.AUTH.PROFILE);
 	}
 
