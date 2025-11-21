@@ -217,9 +217,7 @@ export class AuthApi extends BaseApi {
 				refreshToken?: string;
 			}>('/auth/refresh', {
 				method: 'POST',
-				headers: {
-					Authorization: `Bearer ${this.getToken()}`
-				}
+				body: JSON.stringify({ refreshToken })
 			});
 
 			this.setToken(response.accessToken);
