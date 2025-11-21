@@ -232,8 +232,29 @@ export abstract class BaseApi {
 
 	public getRefreshToken(): string | null {
 		if (typeof window !== 'undefined') {
-			return localStorage.getItem(APP_CONSTANTS.REFRESH_TOKEN_STORAGE_KEY);
+			// 토큰 타입에 따라 올바른 리프레시 토큰 키 사용
+			const refreshKey =
+				this.currentTokenType === 'login'
+					? TOKEN_STORAGE_KEYS.REFRESH_LOGIN
+					: TOKEN_STORAGE_KEYS.REFRESH_OAUTH2;
+			let refreshToken = localStorage.getItem(refreshKey);
+
+			// 대안 키에서도 확인 (호환성 유지)
+			if (!refreshToken) {
+				const altKey =
+					this.currentTokenType === 'login'
+						? TOKEN_STORAGE_KEYS.REFRESH_OAUTH2
+						: TOKEN_STORAGE_KEYS.REFRESH_LOGIN;
+				refreshToken = localStorage.getItem(altKey);
+				if (refreshToken) {
+					console.log('ApiClient: Found refresh token in alternative storage key:', altKey);
+				}
+			}
+
+			console.log('ApiClient: Getting refresh token from localStorage:', !!refreshToken);
+			return refreshToken;
 		}
+		console.log('ApiClient: Window not available, returning null');
 		return null;
 	}
 
@@ -259,13 +280,25 @@ export abstract class BaseApi {
 
 	protected setRefreshToken(refreshToken: string): void {
 		if (typeof window !== 'undefined') {
-			localStorage.setItem(APP_CONSTANTS.REFRESH_TOKEN_STORAGE_KEY, refreshToken);
+			const refreshKey =
+				this.currentTokenType === 'login'
+					? TOKEN_STORAGE_KEYS.REFRESH_LOGIN
+					: TOKEN_STORAGE_KEYS.REFRESH_OAUTH2;
+			console.log(
+				'ApiClient: Setting refresh token to localStorage for type:',
+				this.currentTokenType
+			);
+			localStorage.setItem(refreshKey, refreshToken);
+			console.log('ApiClient: Refresh token set successfully');
 		}
 	}
 
 	protected removeRefreshToken(): void {
 		if (typeof window !== 'undefined') {
-			localStorage.removeItem(APP_CONSTANTS.REFRESH_TOKEN_STORAGE_KEY);
+			console.log('ApiClient: Removing refresh tokens from localStorage');
+			localStorage.removeItem(TOKEN_STORAGE_KEYS.REFRESH_LOGIN);
+			localStorage.removeItem(TOKEN_STORAGE_KEYS.REFRESH_OAUTH2);
+			console.log('ApiClient: Refresh tokens removed successfully');
 		}
 	}
 
