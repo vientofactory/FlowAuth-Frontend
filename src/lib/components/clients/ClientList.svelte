@@ -20,6 +20,7 @@
 	interface Props {
 		clients: Client[];
 		isLoading: boolean;
+		showCreateForm: boolean;
 		onToggleCreateForm: () => void;
 		onEditClient: (client: Client) => void;
 		onToggleClientStatus: (client: Client) => void;
@@ -31,6 +32,7 @@
 	let {
 		clients,
 		isLoading,
+		showCreateForm,
 		onToggleCreateForm,
 		onEditClient,
 		onToggleClientStatus,
@@ -54,12 +56,11 @@
 			</h3>
 			<Button
 				onclick={onToggleCreateForm}
-				variant="outline"
 				size="sm"
 				class="hidden lg:inline-flex"
 			>
 				<FontAwesomeIcon icon={faPlus} class="mr-2" />
-				클라이언트 추가
+				{showCreateForm ? '취소' : '클라이언트 추가'}
 			</Button>
 		</div>
 

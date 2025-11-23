@@ -772,6 +772,7 @@
 	<ClientList
 		{clients}
 		{isLoading}
+		{showCreateForm}
 		onToggleCreateForm={toggleCreateForm}
 		onEditClient={editClient}
 		onToggleClientStatus={toggleClientStatus}
