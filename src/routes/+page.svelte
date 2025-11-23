@@ -7,6 +7,23 @@
 	import { USER_TYPES } from '$lib/types/user.types';
 	import type { User } from '$lib';
 	import './+page.css';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faShieldAlt,
+		faRocket,
+		faBook,
+		faExternalLinkAlt,
+		faBolt,
+		faChartLine,
+		faCodeBranch,
+		faCheckCircle,
+		faTachometerAlt,
+		faUser,
+		faPlug,
+		faCubes,
+		faCog
+	} from '@fortawesome/free-solid-svg-icons';
+	import { faGithub } from '@fortawesome/free-brands-svg-icons';
 
 	let user: User | null = null;
 	let isAuthenticated = false;
@@ -108,7 +125,7 @@
 					<div
 						class="mb-6 inline-flex items-center rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-700"
 					>
-						<i class="fas fa-shield-alt mr-2"></i>
+						<FontAwesomeIcon icon={faShieldAlt} class="mr-2" />
 						OAuth 2.0 & OpenID Connect
 					</div>
 
@@ -132,7 +149,10 @@
 							onclick={() => goto('/auth/register')}
 							class="group w-full px-8 py-4 text-lg font-semibold shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl sm:w-auto"
 						>
-							<i class="fas fa-rocket mr-2 transition-transform group-hover:translate-x-1"></i>
+							<FontAwesomeIcon
+								icon={faRocket}
+								class="mr-2 transition-transform group-hover:translate-x-1"
+							/>
 							무료 시작하기
 						</Button>
 						<Button
@@ -140,7 +160,7 @@
 							onclick={() => (window.location.href = 'https://op0.gitbook.io/flowauth')}
 							class="w-full border-2 px-8 py-4 text-lg font-semibold transition-all duration-300 hover:bg-slate-50 sm:w-auto"
 						>
-							<i class="fas fa-book mr-2"></i>
+							<FontAwesomeIcon icon={faBook} class="mr-2" />
 							문서 보기
 						</Button>
 					</div>
@@ -161,7 +181,7 @@
 								<div
 									class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-r from-stone-500 to-stone-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
 								>
-									<i class="fas fa-shield-alt text-2xl text-white"></i>
+									<FontAwesomeIcon icon={faShieldAlt} class="text-2xl text-white" />
 								</div>
 								<h3 class="mb-3 text-xl font-bold text-slate-900">다중화된 보안 계층</h3>
 								<p class="mb-2 text-slate-600">
@@ -174,7 +194,7 @@
 									rel="noopener"
 									class="inline-flex items-center gap-2 text-sm font-medium text-stone-600 hover:text-stone-700 hover:underline"
 								>
-									<i class="fas fa-external-link-alt"></i>
+									<FontAwesomeIcon icon={faExternalLinkAlt} />
 									보안 문서 보기
 								</a>
 							</div>
@@ -183,7 +203,7 @@
 								<div
 									class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-r from-neutral-500 to-neutral-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
 								>
-									<i class="fas fa-bolt text-2xl text-white"></i>
+									<FontAwesomeIcon icon={faBolt} class="text-2xl text-white" />
 								</div>
 								<h3 class="mb-3 text-xl font-bold text-slate-900">번개 같은 속도</h3>
 								<p class="text-slate-600">
@@ -196,7 +216,7 @@
 								<div
 									class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-r from-gray-500 to-gray-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
 								>
-									<i class="fas fa-chart-line text-2xl text-white"></i>
+									<FontAwesomeIcon icon={faChartLine} class="text-2xl text-white" />
 								</div>
 								<h3 class="mb-3 text-xl font-bold text-slate-900">실시간 모니터링</h3>
 								<p class="text-slate-600">
@@ -209,7 +229,7 @@
 								<div
 									class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-r from-slate-500 to-slate-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl"
 								>
-									<i class="fas fa-code-branch text-2xl text-white"></i>
+									<FontAwesomeIcon icon={faCodeBranch} class="text-2xl text-white" />
 								</div>
 								<h3 class="mb-3 text-xl font-bold text-slate-900">오픈소스 자유</h3>
 								<p class="text-slate-600">
@@ -265,7 +285,7 @@
 										rel="noopener"
 										class="inline-flex items-center gap-2 text-sm font-medium text-slate-700 hover:underline"
 									>
-										<i class="fab fa-github"></i>
+										<FontAwesomeIcon icon={faGithub} />
 										클라이언트 SDK
 									</a>
 								</div>
@@ -290,7 +310,7 @@
 					<div
 						class="mb-6 inline-flex items-center rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-700"
 					>
-						<i class="fas fa-check-circle mr-2"></i>
+						<FontAwesomeIcon icon={faCheckCircle} class="mr-2" />
 						환영합니다, {user?.username || '사용자'}님
 					</div>
 
@@ -314,8 +334,10 @@
 							onclick={() => goto('/dashboard')}
 							class="group w-full px-8 py-4 text-lg font-semibold shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl sm:w-auto"
 						>
-							<i class="fas fa-tachometer-alt mr-2 transition-transform group-hover:translate-x-1"
-							></i>
+							<FontAwesomeIcon
+								icon={faTachometerAlt}
+								class="mr-2 transition-transform group-hover:translate-x-1"
+							/>
 							대시보드 바로가기
 						</Button>
 						<Button
@@ -323,7 +345,7 @@
 							onclick={() => (window.location.href = 'https://op0.gitbook.io/flowauth')}
 							class="w-full border-2 px-8 py-4 text-lg font-semibold transition-all duration-300 hover:bg-slate-50 sm:w-auto"
 						>
-							<i class="fas fa-book mr-2"></i>
+							<FontAwesomeIcon icon={faBook} class="mr-2" />
 							문서 보기
 						</Button>
 					</div>
@@ -345,7 +367,7 @@
 								<div
 									class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-linear-to-r from-stone-500 to-stone-600 transition-transform duration-300 group-hover:scale-110"
 								>
-									<i class="fas fa-tachometer-alt text-2xl text-white"></i>
+									<FontAwesomeIcon icon={faTachometerAlt} class="text-2xl text-white" />
 								</div>
 								<span class="text-lg font-semibold text-slate-900">대시보드</span>
 							</button>
@@ -357,7 +379,7 @@
 								<div
 									class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-linear-to-r from-neutral-500 to-neutral-600 transition-transform duration-300 group-hover:scale-110"
 								>
-									<i class="fas fa-user text-2xl text-white"></i>
+									<FontAwesomeIcon icon={faUser} class="text-2xl text-white" />
 								</div>
 								<span class="text-lg font-semibold text-slate-900">프로필</span>
 							</button>
@@ -369,7 +391,7 @@
 								<div
 									class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-linear-to-r from-gray-500 to-gray-600 transition-transform duration-300 group-hover:scale-110"
 								>
-									<i class="fas fa-plug text-2xl text-white"></i>
+									<FontAwesomeIcon icon={faPlug} class="text-2xl text-white" />
 								</div>
 								<span class="text-lg font-semibold text-slate-900">연결</span>
 							</button>
@@ -382,7 +404,7 @@
 									<div
 										class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-linear-to-r from-slate-500 to-slate-600 transition-transform duration-300 group-hover:scale-110"
 									>
-										<i class="fas fa-cubes text-2xl text-white"></i>
+										<FontAwesomeIcon icon={faCubes} class="text-2xl text-white" />
 									</div>
 									<span class="text-lg font-semibold text-slate-900">클라이언트</span>
 								</button>
@@ -394,7 +416,7 @@
 									<div
 										class="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-linear-to-r from-zinc-500 to-zinc-600 transition-transform duration-300 group-hover:scale-110"
 									>
-										<i class="fas fa-cog text-2xl text-white"></i>
+										<FontAwesomeIcon icon={faCog} class="text-2xl text-white" />
 									</div>
 									<span class="text-lg font-semibold text-slate-900">설정</span>
 								</button>

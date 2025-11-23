@@ -2,6 +2,22 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { Button, Navigation, Footer } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faLock,
+		faBan,
+		faSearch,
+		faClock,
+		faServer,
+		faExclamationTriangle,
+		faSignInAlt,
+		faHome,
+		faTachometerAlt,
+		faArrowLeft,
+		faRefresh,
+		faCog
+	} from '@fortawesome/free-solid-svg-icons';
+	import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 	// 에러 상태 관련 변수들
 	let errorCode = $state(404);
@@ -63,22 +79,22 @@
 	}
 
 	// 에러 코드에 따른 아이콘 반환
-	function getErrorIcon(code: number): string {
+	function getErrorIcon(code: number): IconDefinition {
 		switch (code) {
 			case 401:
-				return 'fas fa-lock';
+				return faLock;
 			case 403:
-				return 'fas fa-ban';
+				return faBan;
 			case 404:
-				return 'fas fa-search';
+				return faSearch;
 			case 429:
-				return 'fas fa-clock';
+				return faClock;
 			case 500:
 			case 502:
 			case 503:
-				return 'fas fa-server';
+				return faServer;
 			default:
-				return 'fas fa-exclamation-triangle';
+				return faExclamationTriangle;
 		}
 	}
 
@@ -126,13 +142,13 @@
 		label: string;
 		action: () => void;
 		variant: 'primary' | 'outline' | 'secondary' | 'ghost' | 'success' | 'danger';
-		icon: string;
+		icon: IconDefinition;
 	}> {
 		const actions: Array<{
 			label: string;
 			action: () => void;
 			variant: 'primary' | 'outline' | 'secondary' | 'ghost' | 'success' | 'danger';
-			icon: string;
+			icon: IconDefinition;
 		}> = [];
 
 		switch (code) {
@@ -141,13 +157,13 @@
 					label: '로그인',
 					action: goToLogin,
 					variant: 'primary' as const,
-					icon: 'fas fa-sign-in-alt'
+					icon: faSignInAlt
 				});
 				actions.push({
 					label: '홈으로',
 					action: goHome,
 					variant: 'outline' as const,
-					icon: 'fas fa-home'
+					icon: faHome
 				});
 				break;
 			case 403:
@@ -155,13 +171,13 @@
 					label: '대시보드로',
 					action: goToDashboard,
 					variant: 'primary' as const,
-					icon: 'fas fa-tachometer-alt'
+					icon: faTachometerAlt
 				});
 				actions.push({
 					label: '홈으로',
 					action: goHome,
 					variant: 'outline' as const,
-					icon: 'fas fa-home'
+					icon: faHome
 				});
 				break;
 			case 404:
@@ -169,13 +185,13 @@
 					label: '홈으로',
 					action: goHome,
 					variant: 'primary' as const,
-					icon: 'fas fa-home'
+					icon: faHome
 				});
 				actions.push({
 					label: '이전 페이지',
 					action: goBack,
 					variant: 'outline' as const,
-					icon: 'fas fa-arrow-left'
+					icon: faArrowLeft
 				});
 				break;
 			case 500:
@@ -185,13 +201,13 @@
 					label: '새로고침',
 					action: refreshPage,
 					variant: 'primary' as const,
-					icon: 'fas fa-refresh'
+					icon: faRefresh
 				});
 				actions.push({
 					label: '홈으로',
 					action: goHome,
 					variant: 'outline' as const,
-					icon: 'fas fa-home'
+					icon: faHome
 				});
 				break;
 			default:
@@ -199,13 +215,13 @@
 					label: '홈으로',
 					action: goHome,
 					variant: 'primary' as const,
-					icon: 'fas fa-home'
+					icon: faHome
 				});
 				actions.push({
 					label: '이전 페이지',
 					action: goBack,
 					variant: 'outline' as const,
-					icon: 'fas fa-arrow-left'
+					icon: faArrowLeft
 				});
 		}
 
@@ -232,7 +248,10 @@
 				<div
 					class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gray-100 shadow-lg"
 				>
-					<i class="{getErrorIcon(errorCode)} {getErrorColor(errorCode)} text-3xl"></i>
+					<FontAwesomeIcon
+						icon={getErrorIcon(errorCode)}
+						class="{getErrorColor(errorCode)} text-3xl"
+					/>
 				</div>
 				<div class="mb-4">
 					<span
@@ -257,7 +276,7 @@
 			<div class="mb-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
 				{#each recommendedActions as action (action.label)}
 					<Button variant={action.variant} size="lg" onclick={action.action} class="sm:w-auto">
-						<i class="{action.icon} mr-2"></i>
+						<FontAwesomeIcon icon={action.icon} class="mr-2" />
 						{action.label}
 					</Button>
 				{/each}
@@ -270,7 +289,7 @@
 						onclick={toggleTechnicalDetails}
 						class="cursor-pointer text-sm text-gray-500 transition-colors duration-200 hover:text-gray-700"
 					>
-						<i class="fas fa-cog mr-1"></i>
+						<FontAwesomeIcon icon={faCog} class="mr-1" />
 						세부사항 {showTechnicalDetails ? '숨기기' : '보기'}
 					</button>
 

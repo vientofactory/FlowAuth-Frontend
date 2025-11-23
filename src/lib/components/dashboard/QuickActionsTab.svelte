@@ -1,9 +1,10 @@
 <script lang="ts">
 	import QuickActionsCard from './QuickActionsCard.svelte';
+	import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 	interface QuickAction {
 		label: string;
-		icon: string;
+		icon: IconDefinition | string;
 		color: string;
 		action: () => void;
 	}

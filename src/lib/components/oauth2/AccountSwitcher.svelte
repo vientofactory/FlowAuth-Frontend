@@ -3,6 +3,14 @@
 	import type { User } from '$lib/types/user.types';
 	import Logo from '$lib/components/Logo.svelte';
 	import { env } from '$lib/config/env';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faExclamationTriangle,
+		faShieldAlt,
+		faRepeat,
+		faUser,
+		faSignInAlt
+	} from '@fortawesome/free-solid-svg-icons';
 
 	// Props
 	export let currentUser: User | null = null;
@@ -114,7 +122,7 @@
 	{:else if error}
 		<div class="animate-fadeIn px-6 py-4">
 			<div class="flex items-center space-x-3 text-red-600">
-				<i class="fas fa-exclamation-triangle"></i>
+				<FontAwesomeIcon icon={faExclamationTriangle} />
 				<span class="text-sm">{error}</span>
 			</div>
 		</div>
@@ -163,10 +171,18 @@
 								{getDisplayName(currentUser)}
 							</p>
 							{#if currentUser.isTwoFactorEnabled}
-								<i class="fas fa-shield-alt text-green-600" title="2단계 인증 활성화됨"></i>
+								<FontAwesomeIcon
+									icon={faShieldAlt}
+									class="text-green-600"
+									title="2단계 인증 활성화됨"
+								/>
 							{/if}
 							{#if !currentUser.isEmailVerified}
-								<i class="fas fa-exclamation-triangle text-amber-500" title="이메일 미인증"></i>
+								<FontAwesomeIcon
+									icon={faExclamationTriangle}
+									class="text-amber-500"
+									title="이메일 미인증"
+								/>
 							{/if}
 						</div>
 						<p class="text-xs text-gray-600">{currentUser.email}</p>
@@ -180,7 +196,7 @@
 						class="rounded-md bg-stone-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-stone-700 focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:outline-none"
 						title="다른 계정으로 로그인"
 					>
-						<i class="fas fa-repeat mr-1"></i>
+						<FontAwesomeIcon icon={faRepeat} class="mr-1" />
 						계정 전환
 					</button>
 				</div>
@@ -192,7 +208,7 @@
 			<div class="flex items-center justify-between">
 				<div class="flex items-center space-x-3">
 					<div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100">
-						<i class="fas fa-user text-gray-400"></i>
+						<FontAwesomeIcon icon={faUser} class="text-gray-400" />
 					</div>
 					<div>
 						<p class="text-sm font-medium text-gray-900">로그인이 필요합니다</p>
@@ -203,7 +219,7 @@
 					onclick={handleSwitchAccount}
 					class="rounded-md bg-neutral-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-neutral-700 focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 focus:outline-none"
 				>
-					<i class="fas fa-sign-in-alt mr-1"></i>
+					<FontAwesomeIcon icon={faSignInAlt} class="mr-1" />
 					로그인
 				</button>
 			</div>

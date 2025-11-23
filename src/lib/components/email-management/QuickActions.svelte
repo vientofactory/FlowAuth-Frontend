@@ -1,5 +1,15 @@
 <script lang="ts">
 	import { Button } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faRedo,
+		faBroom,
+		faPlay,
+		faPause,
+		faTrash,
+		faBolt,
+		faSpinner
+	} from '@fortawesome/free-solid-svg-icons';
 
 	interface EmailQueueStats {
 		active: number;
@@ -46,7 +56,7 @@
 				id: 'retryFailed',
 				label: `실패한 작업 재시도 (${queueStats.failed})`,
 				loadingLabel: '재시도 중...',
-				icon: 'fas fa-redo',
+				icon: faRedo,
 				color: 'stone',
 				disabled: queueStats.failed === 0,
 				action: onRetryFailed
@@ -55,7 +65,7 @@
 				id: 'cleanQueue',
 				label: '큐 정리',
 				loadingLabel: '정리 중...',
-				icon: 'fas fa-broom',
+				icon: faBroom,
 				color: 'neutral',
 				disabled: false,
 				action: onCleanQueue
@@ -67,7 +77,7 @@
 				id: 'resumeQueue',
 				label: '큐 재개',
 				loadingLabel: '재개 중...',
-				icon: 'fas fa-play',
+				icon: faPlay,
 				color: 'gray',
 				disabled: false,
 				action: onResumeQueue
@@ -77,7 +87,7 @@
 				id: 'pauseQueue',
 				label: '큐 일시정지',
 				loadingLabel: '일시정지 중...',
-				icon: 'fas fa-pause',
+				icon: faPause,
 				color: 'slate',
 				disabled: false,
 				action: onPauseQueue
@@ -89,7 +99,7 @@
 				id: 'purgeQueue',
 				label: '큐 완전 비우기',
 				loadingLabel: '비우는 중...',
-				icon: 'fas fa-trash',
+				icon: faTrash,
 				color: 'zinc',
 				disabled: false,
 				action: onPurgeQueue
@@ -152,7 +162,7 @@
 				class="mb-2 flex items-center justify-center text-lg font-semibold text-gray-900 sm:justify-start"
 			>
 				<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100">
-					<i class="fas fa-bolt text-stone-600"></i>
+					<FontAwesomeIcon icon={faBolt} class="text-stone-600" />
 				</div>
 				빠른 작업
 			</h3>
@@ -178,11 +188,17 @@
 								class="flex h-12 w-12 items-center justify-center rounded-xl transition-all duration-300 {colorClass?.background ||
 									'bg-gray-100'} {isPending ? '' : 'group-hover:scale-110 group-hover:shadow-lg'}"
 							>
-								<i
-									class="text-xl {colorClass?.text || 'text-gray-600'} {isPending
-										? 'fas fa-spinner fa-spin'
-										: action.icon}"
-								></i>
+								{#if isPending}
+									<FontAwesomeIcon
+										icon={faSpinner}
+										class="text-xl {colorClass?.text || 'text-gray-600'} animate-spin"
+									/>
+								{:else}
+									<FontAwesomeIcon
+										icon={action.icon}
+										class="text-xl {colorClass?.text || 'text-gray-600'}"
+									/>
+								{/if}
 							</div>
 							{#if !isPending}
 								<div

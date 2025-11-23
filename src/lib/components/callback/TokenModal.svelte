@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 	import { Modal } from '$lib';
 	import TokenInfoTab from './TokenInfoTab.svelte';
 	import ProfileInfoTab from './ProfileInfoTab.svelte';
@@ -86,7 +88,7 @@
 			<!-- 성공 메시지 -->
 			<div class="rounded-lg border border-green-200 bg-green-50 p-4">
 				<div class="flex items-center">
-					<i class="fas fa-check-circle mr-2 text-green-600"></i>
+					<FontAwesomeIcon icon={faCheckCircle} class="mr-2 text-green-600" />
 					<span class="font-medium text-green-800">토큰 교환 성공</span>
 				</div>
 			</div>

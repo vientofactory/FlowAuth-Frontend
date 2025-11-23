@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 	interface Props {
 		label: string;
 		name: string;
@@ -79,7 +81,7 @@
 
 	{#if hasError}
 		<p class="mt-1 text-sm text-red-600" role="alert">
-			<i class="fas fa-exclamation-circle mr-1"></i>
+			<FontAwesomeIcon icon={faExclamationCircle} class="mr-1" />
 			{error}
 		</p>
 	{:else if showHint}

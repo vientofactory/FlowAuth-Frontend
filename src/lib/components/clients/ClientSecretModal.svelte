@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Modal, Button } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faCopy } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		showSecretModal: boolean;
@@ -36,7 +38,7 @@
 						variant="outline"
 						size="sm"
 					>
-						<i class="fas fa-copy mr-1"></i>
+						<FontAwesomeIcon icon={faCopy} class="mr-1" />
 						복사
 					</Button>
 				</div>

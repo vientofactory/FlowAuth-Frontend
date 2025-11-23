@@ -1,5 +1,12 @@
 <script lang="ts">
 	import type { Client } from '$lib/types/oauth.types';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faUsers,
+		faCheckCircle,
+		faTimesCircle,
+		faShieldAlt
+	} from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		clients: Client[];
@@ -18,7 +25,7 @@
 				<div
 					class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-stone-100 to-gray-100"
 				>
-					<i class="fas fa-users text-lg text-stone-600"></i>
+					<FontAwesomeIcon icon={faUsers} class="text-lg text-stone-600" />
 				</div>
 			</div>
 			<div class="ml-3 flex-1">
@@ -37,7 +44,7 @@
 				<div
 					class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-neutral-100 to-slate-100"
 				>
-					<i class="fas fa-check-circle text-lg text-neutral-600"></i>
+					<FontAwesomeIcon icon={faCheckCircle} class="text-lg text-neutral-600" />
 				</div>
 			</div>
 			<div class="ml-3 flex-1">
@@ -58,7 +65,7 @@
 				<div
 					class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-gray-100 to-zinc-100"
 				>
-					<i class="fas fa-times-circle text-lg text-gray-600"></i>
+					<FontAwesomeIcon icon={faTimesCircle} class="text-lg text-gray-600" />
 				</div>
 			</div>
 			<div class="ml-3 flex-1">
@@ -79,7 +86,7 @@
 				<div
 					class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-slate-100 to-stone-100"
 				>
-					<i class="fas fa-shield-alt text-lg text-slate-600"></i>
+					<FontAwesomeIcon icon={faShieldAlt} class="text-lg text-slate-600" />
 				</div>
 			</div>
 			<div class="ml-3 flex-1">

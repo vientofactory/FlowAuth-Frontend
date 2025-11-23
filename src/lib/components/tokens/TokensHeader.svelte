@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { Button, Tabs } from '$lib';
 	import { TOKEN_TYPES, type TokenType } from '$lib/types/authorization.types';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		activeTab: TokenType;
@@ -39,7 +41,7 @@
 					onclick={() => onRevokeAll(TOKEN_TYPES.LOGIN)}
 					class="border-red-300 text-red-600 hover:bg-red-50"
 				>
-					<i class="fas fa-trash mr-2"></i>
+					<FontAwesomeIcon icon={faTrash} class="mr-2" />
 					모든 로그인 토큰 폐기
 				</Button>
 			{/if}
@@ -50,7 +52,7 @@
 					onclick={() => onRevokeAll(TOKEN_TYPES.OAUTH2)}
 					class="border-red-300 text-red-600 hover:bg-red-50"
 				>
-					<i class="fas fa-trash mr-2"></i>
+					<FontAwesomeIcon icon={faTrash} class="mr-2" />
 					모든 OAuth2 토큰 폐기
 				</Button>
 			{/if}

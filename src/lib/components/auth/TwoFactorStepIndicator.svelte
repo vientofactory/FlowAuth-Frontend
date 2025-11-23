@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faCheck } from '@fortawesome/free-solid-svg-icons';
+
 	interface Props {
 		currentStep: number;
 		steps: Array<{ number: number; label: string }>;
@@ -18,7 +21,7 @@
 					: 'border-gray-300 bg-white text-gray-500'}"
 			>
 				{#if currentStep > step.number}
-					<i class="fas fa-check"></i>
+					<FontAwesomeIcon icon={faCheck} />
 				{:else}
 					{step.number}
 				{/if}

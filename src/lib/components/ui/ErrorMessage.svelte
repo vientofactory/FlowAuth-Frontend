@@ -1,8 +1,17 @@
 <script lang="ts">
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faExclamationCircle,
+		faExclamationTriangle,
+		faInfoCircle,
+		faTimes
+	} from '@fortawesome/free-solid-svg-icons';
+	import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+
 	interface Props {
 		message: string;
 		type?: 'error' | 'warning' | 'info';
-		icon?: string;
+		icon?: IconDefinition | string;
 		class?: string;
 		dismissible?: boolean;
 		onDismiss?: () => void;
@@ -11,7 +20,7 @@
 	let {
 		message,
 		type = 'error',
-		icon = '',
+		icon,
 		class: className = '',
 		dismissible = false,
 		onDismiss
@@ -22,19 +31,19 @@
 			bgColor: 'bg-red-50',
 			textColor: 'text-red-600',
 			borderColor: 'border-red-200',
-			defaultIcon: 'fas fa-exclamation-circle'
+			defaultIcon: faExclamationCircle
 		},
 		warning: {
 			bgColor: 'bg-yellow-50',
 			textColor: 'text-yellow-600',
 			borderColor: 'border-yellow-200',
-			defaultIcon: 'fas fa-exclamation-triangle'
+			defaultIcon: faExclamationTriangle
 		},
 		info: {
 			bgColor: 'bg-blue-50',
 			textColor: 'text-blue-600',
 			borderColor: 'border-blue-200',
-			defaultIcon: 'fas fa-info-circle'
+			defaultIcon: faInfoCircle
 		}
 	};
 
@@ -48,8 +57,12 @@
 	aria-live="assertive"
 >
 	<div class="flex items-start">
-		<div class="flex-shrink-0">
-			<i class="{displayIcon} {config.textColor}"></i>
+		<div class="shrink-0">
+			{#if typeof displayIcon === 'string'}
+				<i class="{displayIcon} {config.textColor}"></i>
+			{:else}
+				<FontAwesomeIcon icon={displayIcon} class={config.textColor} />
+			{/if}
 		</div>
 		<div class="ml-3 flex-1">
 			<p class="text-sm {config.textColor}">{message}</p>
@@ -62,7 +75,7 @@
 					onclick={onDismiss}
 					aria-label="닫기"
 				>
-					<i class="fas fa-times text-sm"></i>
+					<FontAwesomeIcon icon={faTimes} class="text-sm" />
 				</button>
 			</div>
 		{/if}

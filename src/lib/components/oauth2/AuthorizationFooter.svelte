@@ -1,6 +1,8 @@
 <script lang="ts">
 	import Button from '$lib/components/Button.svelte';
 	import Loading from '$lib/components/Loading.svelte';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faTimes, faCheck, faLock } from '@fortawesome/free-solid-svg-icons';
 
 	export let submitting = false;
 	export let onApprove: () => void;
@@ -23,7 +25,7 @@
 				{#if submitting}
 					<Loading size="sm" />
 				{:else}
-					<i class="fas fa-times mr-1 sm:mr-2" aria-hidden="true"></i>
+					<span aria-hidden="true"><FontAwesomeIcon icon={faTimes} class="mr-1 sm:mr-2" /></span>
 				{/if}
 				거부하기
 			</Button>
@@ -37,7 +39,7 @@
 				{#if submitting}
 					<Loading size="sm" />
 				{:else}
-					<i class="fas fa-check mr-1 sm:mr-2" aria-hidden="true"></i>
+					<span aria-hidden="true"><FontAwesomeIcon icon={faCheck} class="mr-1 sm:mr-2" /></span>
 				{/if}
 				인가하기
 			</Button>
@@ -53,7 +55,7 @@
 	<!-- Footer Info -->
 	<div class="text-center">
 		<p class="mb-2 text-xs text-gray-500">
-			<i class="fas fa-lock mr-1" aria-hidden="true"></i>
+			<span aria-hidden="true"><FontAwesomeIcon icon={faLock} class="mr-1" /></span>
 			Powered by <strong class="text-indigo-600">FlowAuth</strong>
 		</p>
 		<div class="flex justify-center space-x-2 text-xs text-gray-400 sm:space-x-3">

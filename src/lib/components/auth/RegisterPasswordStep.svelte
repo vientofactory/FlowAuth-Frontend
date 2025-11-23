@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { FormField, getRequirementIcon, getRequirementStatus } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import type { FieldValidation } from '$lib/composables/useFormValidation.svelte';
 	import type { PasswordRequirements } from '$lib';
 
@@ -45,7 +46,7 @@
 				{#each requirements as { key, label } (key)}
 					<div class={getRequirementStatus(passwordRequirements[key])}>
 						<span class="inline-block w-4">
-							{@html getRequirementIcon(passwordRequirements[key])}
+							<FontAwesomeIcon icon={getRequirementIcon(passwordRequirements[key])} />
 						</span>
 						{label}
 					</div>

@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { Modal, Button } from '$lib';
 	import type { Client } from '$lib/types/oauth.types';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faExclamationTriangle, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		showDeleteModal: boolean;
@@ -23,8 +25,8 @@
 	<Modal open={showDeleteModal} title="클라이언트 삭제 확인" {onClose}>
 		<div class="space-y-4">
 			<div class="flex items-start space-x-3">
-				<div class="flex-shrink-0">
-					<i class="fas fa-exclamation-triangle text-xl text-red-500"></i>
+				<div class="shrink-0">
+					<FontAwesomeIcon icon={faExclamationTriangle} class="text-xl text-red-500" />
 				</div>
 				<div class="flex-1">
 					<h3 class="mb-2 text-lg font-medium text-gray-900">
@@ -60,10 +62,10 @@
 					class="h-10 w-full bg-red-600 text-white hover:bg-red-700 sm:h-11 sm:w-auto"
 				>
 					{#if isDeleting}
-						<i class="fas fa-spinner fa-spin mr-2"></i>
+						<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
 						삭제 중...
 					{:else}
-						<i class="fas fa-trash mr-2"></i>
+						<FontAwesomeIcon icon={faTrash} class="mr-2" />
 						삭제
 					{/if}
 				</Button>

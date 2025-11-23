@@ -1,6 +1,16 @@
 <script lang="ts">
 	import { Modal, Button } from '$lib';
 	import type { Client } from '$lib/types/oauth.types';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faPauseCircle,
+		faPlayCircle,
+		faExclamationTriangle,
+		faCheckCircle,
+		faSpinner,
+		faPause,
+		faPlay
+	} from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		show: boolean;
@@ -22,8 +32,10 @@
 			<div class="rounded-md border border-gray-200 bg-gray-50 p-4">
 				<div class="flex">
 					<div class="flex-shrink-0">
-						<i class="fas {client.isActive ? 'fa-pause-circle' : 'fa-play-circle'} text-gray-400"
-						></i>
+						<FontAwesomeIcon
+							icon={client.isActive ? faPauseCircle : faPlayCircle}
+							class="text-gray-400"
+						/>
 					</div>
 					<div class="ml-3">
 						<h3 class="text-sm font-medium text-gray-800">
@@ -41,7 +53,7 @@
 				<div class="rounded-md border border-yellow-200 bg-yellow-50 p-4">
 					<div class="flex">
 						<div class="flex-shrink-0">
-							<i class="fas fa-exclamation-triangle text-yellow-400"></i>
+							<FontAwesomeIcon icon={faExclamationTriangle} class="text-yellow-400" />
 						</div>
 						<div class="ml-3">
 							<h3 class="text-sm font-medium text-yellow-800">비활성화 시 영향</h3>
@@ -61,7 +73,7 @@
 				<div class="rounded-md border border-green-200 bg-green-50 p-4">
 					<div class="flex">
 						<div class="flex-shrink-0">
-							<i class="fas fa-check-circle text-green-400"></i>
+							<FontAwesomeIcon icon={faCheckCircle} class="text-green-400" />
 						</div>
 						<div class="ml-3">
 							<h3 class="text-sm font-medium text-green-800">활성화 시 효과</h3>
@@ -88,10 +100,10 @@
 						: 'bg-green-600 hover:bg-green-700'}
 				>
 					{#if isLoading}
-						<i class="fas fa-spinner fa-spin mr-2"></i>
+						<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
 						{actionText} 중...
 					{:else}
-						<i class="fas {client.isActive ? 'fa-pause' : 'fa-play'} mr-2"></i>
+						<FontAwesomeIcon icon={client.isActive ? faPause : faPlay} class="mr-2" />
 						{actionText}
 					{/if}
 				</Button>

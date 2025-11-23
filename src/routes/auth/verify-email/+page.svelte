@@ -8,6 +8,14 @@
 	import { ROUTES } from '$lib/constants/app.constants';
 	import { apiClient } from '$lib/utils/api';
 	import { getCookie } from '$lib/utils/cookie';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faSignInAlt,
+		faEnvelope,
+		faArrowLeft,
+		faInfoCircle,
+		faHome
+	} from '@fortawesome/free-solid-svg-icons';
 
 	let loading = $state(true);
 	let verifying = $state(false);
@@ -183,7 +191,7 @@
 								class="w-full"
 								onclick={() => goto(`${ROUTES.LOGIN}?message=email-verified`)}
 							>
-								<i class="fas fa-sign-in-alt mr-2"></i>
+								<FontAwesomeIcon icon={faSignInAlt} class="mr-2" />
 								로그인하기
 							</Button>
 						</div>
@@ -223,13 +231,13 @@
 									loadingText="전송 중..."
 									onclick={handleResendEmail}
 								>
-									<i class="fas fa-envelope mr-2"></i>
+									<FontAwesomeIcon icon={faEnvelope} class="mr-2" />
 									인증 이메일 재전송
 								</LoadingButton>
 							{/if}
 
 							<Button variant="outline" class="w-full" onclick={() => goto(ROUTES.LOGIN)}>
-								<i class="fas fa-arrow-left mr-2"></i>
+								<FontAwesomeIcon icon={faArrowLeft} class="mr-2" />
 								로그인 페이지로 이동
 							</Button>
 						</div>
@@ -237,7 +245,7 @@
 						{#if canResend}
 							<div class="rounded-lg bg-blue-50 p-4">
 								<p class="text-xs text-blue-700">
-									<i class="fas fa-info-circle mr-1"></i>
+									<FontAwesomeIcon icon={faInfoCircle} class="mr-1" />
 									<strong>도움말:</strong><br />
 									• 인증 링크는 24시간 후 만료됩니다<br />
 									• 스팸함을 확인해보세요<br />
@@ -254,7 +262,7 @@
 							href={ROUTES.HOME}
 							class="inline-flex items-center text-sm text-gray-500 transition-colors duration-200 hover:text-gray-700"
 						>
-							<i class="fas fa-home mr-1"></i>
+							<FontAwesomeIcon icon={faHome} class="mr-1" />
 							홈으로 돌아가기
 						</a>
 					</div>

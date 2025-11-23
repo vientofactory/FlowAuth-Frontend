@@ -1,5 +1,7 @@
 <script lang="ts">
 	import LoadingSpinner from '$lib/components/ui/LoadingSpinner.svelte';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faShieldAlt, faCheck, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 
 	interface LoadingStep {
 		icon: string;
@@ -19,7 +21,7 @@
 <div class="flex flex-col items-center justify-center space-y-6 p-8">
 	<div class="text-center">
 		<div class="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
-			<i class="fas fa-shield-alt text-2xl text-blue-600"></i>
+			<FontAwesomeIcon icon={faShieldAlt} class="text-2xl text-blue-600" />
 		</div>
 		<h2 class="mb-2 text-lg font-semibold text-gray-900">2FA 설정 준비</h2>
 		<p class="text-sm text-gray-600">{title}</p>
@@ -36,7 +38,7 @@
 					{#if currentStep > index}
 						<!-- 완료 상태 -->
 						<div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
-							<i class="fas fa-check text-sm text-green-600"></i>
+							<FontAwesomeIcon icon={faCheck} class="text-sm text-green-600" />
 						</div>
 					{:else if step.active && currentStep === index}
 						<!-- 진행 중 상태 -->
@@ -68,7 +70,7 @@
 
 				{#if currentStep > index}
 					<div class="flex-shrink-0">
-						<i class="fas fa-check-circle text-green-500"></i>
+						<FontAwesomeIcon icon={faCheckCircle} class="text-green-500" />
 					</div>
 				{/if}
 			</div>

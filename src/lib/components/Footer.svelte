@@ -1,6 +1,8 @@
 <script lang="ts">
 	// Footer 컴포넌트 - 모든 페이지에서 일관된 푸터 표시
 	import { env } from '$lib/config/env';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faGithub } from '@fortawesome/free-brands-svg-icons';
 </script>
 
 <!-- 푸터 -->
@@ -20,7 +22,7 @@
 						class="text-stone-600 transition-colors duration-200 hover:text-stone-900"
 						aria-label="GitHub"
 					>
-						<i class="fab fa-github text-xl"></i>
+						<FontAwesomeIcon icon={faGithub} class="text-xl" />
 					</a>
 				</div>
 			</div>

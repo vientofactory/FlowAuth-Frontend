@@ -3,6 +3,18 @@
 	import type { ApiError } from '$lib/utils/error-handler';
 	import { getErrorActions } from '$lib/utils/error-handler';
 	import { Button } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faLock,
+		faBan,
+		faSearch,
+		faExclamationCircle,
+		faServer,
+		faExclamationTriangle,
+		faTimes,
+		faWifi
+	} from '@fortawesome/free-solid-svg-icons';
+	import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 	interface Props {
 		error: ApiError;
@@ -39,14 +51,14 @@
 	}
 
 	// 에러 타입에 따른 아이콘 반환
-	function getErrorIcon(status: number): string {
-		if (status === 0) return 'fas fa-wifi-slash'; // 네트워크 오류
-		if (status === 401) return 'fas fa-lock';
-		if (status === 403) return 'fas fa-ban';
-		if (status === 404) return 'fas fa-search';
-		if (status === 422 || status === 400) return 'fas fa-exclamation-circle';
-		if (status >= 500) return 'fas fa-server';
-		return 'fas fa-exclamation-triangle';
+	function getErrorIcon(status: number): IconDefinition {
+		if (status === 0) return faWifi; // 네트워크 오류
+		if (status === 401) return faLock;
+		if (status === 403) return faBan;
+		if (status === 404) return faSearch;
+		if (status === 422 || status === 400) return faExclamationCircle;
+		if (status >= 500) return faServer;
+		return faExclamationTriangle;
 	}
 
 	// 에러 타입에 따른 색상 클래스 반환
@@ -79,7 +91,7 @@
 							error.status
 						)} flex h-10 w-10 items-center justify-center rounded-full"
 					>
-						<i class="{getErrorIcon(error.status)} text-white"></i>
+						<FontAwesomeIcon icon={getErrorIcon(error.status)} class="text-white" />
 					</div>
 				</div>
 				<div class="ml-3 flex-1">
@@ -96,7 +108,7 @@
 						class="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
 						aria-label="닫기"
 					>
-						<i class="fas fa-times h-5 w-5"></i>
+						<FontAwesomeIcon icon={faTimes} class="h-5 w-5" />
 					</button>
 				</div>
 			</div>

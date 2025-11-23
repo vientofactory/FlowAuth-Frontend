@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Card, Button } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faInfoCircle, faEye, faUser } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		implicitTokens: {
@@ -19,7 +21,7 @@
 	<h3 class="mb-4 text-lg font-semibold text-gray-900">받은 토큰 정보</h3>
 	<div class="mb-4 rounded-lg border border-stone-200 bg-stone-50 p-4">
 		<div class="flex items-center">
-			<i class="fas fa-info-circle mr-2 text-stone-600"></i>
+			<FontAwesomeIcon icon={faInfoCircle} class="mr-2 text-stone-600" />
 			<span class="font-medium text-stone-800">Implicit Grant</span>
 		</div>
 		<p class="mt-1 text-stone-700">
@@ -52,11 +54,11 @@
 
 	<div class="mt-4 flex space-x-2">
 		<Button onclick={onShowTokenModal} variant="primary">
-			<i class="fas fa-eye mr-2"></i>
+			<FontAwesomeIcon icon={faEye} class="mr-2" />
 			토큰 상세 보기
 		</Button>
 		<Button onclick={onFetchUserProfile} disabled={isTestingToken} variant="outline">
-			<i class="fas fa-user mr-2"></i>
+			<FontAwesomeIcon icon={faUser} class="mr-2" />
 			프로필 가져오기
 		</Button>
 	</div>

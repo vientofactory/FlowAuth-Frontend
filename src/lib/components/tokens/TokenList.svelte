@@ -1,5 +1,7 @@
 <script lang="ts">
 	import TokenCard from './TokenCard.svelte';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faKey, faCheckCircle, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 
 	interface TokenData {
 		id: number;
@@ -70,7 +72,7 @@
 	</div>
 {:else if tokens.length === 0}
 	<div class="rounded-lg border bg-white py-12 text-center shadow-sm">
-		<i class="fas fa-key mb-4 text-4xl text-gray-400"></i>
+		<FontAwesomeIcon icon={faKey} class="mb-4 text-4xl text-gray-400" />
 		<h3 class="mb-2 text-lg font-medium text-gray-900">토큰이 없습니다</h3>
 		<p class="text-gray-500">
 			현재 발급된 토큰이 없습니다. 로그인하거나 OAuth2 앱을 통해 토큰이 생성됩니다.
@@ -82,7 +84,7 @@
 		{#if activeTokens.length > 0}
 			<div>
 				<h3 class="mb-4 flex items-center text-lg font-semibold text-gray-900">
-					<i class="fas fa-check-circle mr-2 text-neutral-500"></i>
+					<FontAwesomeIcon icon={faCheckCircle} class="mr-2 text-neutral-500" />
 					활성 토큰 ({activeTokens.length}개)
 				</h3>
 				<div class="space-y-4">
@@ -97,7 +99,7 @@
 		{#if expiredTokens.length > 0}
 			<div>
 				<h3 class="mb-4 flex items-center text-lg font-semibold text-gray-900">
-					<i class="fas fa-exclamation-circle mr-2 text-red-500"></i>
+					<FontAwesomeIcon icon={faExclamationCircle} class="mr-2 text-red-500" />
 					만료/폐기된 토큰 ({expiredTokens.length}개)
 				</h3>
 				<div class="space-y-4">

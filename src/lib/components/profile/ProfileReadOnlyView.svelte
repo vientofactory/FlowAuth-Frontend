@@ -1,5 +1,7 @@
 <script lang="ts">
 	import type { User } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		user: User;
@@ -43,7 +45,7 @@
 				class="mt-1 text-sm break-all text-blue-600 hover:text-blue-800"
 			>
 				{user.website}
-				<i class="fas fa-external-link-alt ml-1 text-xs"></i>
+				<FontAwesomeIcon icon={faExternalLinkAlt} class="ml-1 text-xs" />
 			</a>
 		{:else}
 			<p class="mt-1 text-sm text-gray-900">웹사이트가 없습니다.</p>

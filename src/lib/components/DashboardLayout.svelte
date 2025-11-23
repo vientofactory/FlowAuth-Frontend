@@ -5,6 +5,20 @@
 	import Footer from '$lib/components/Footer.svelte';
 	import type { User } from '$lib';
 	import { USER_TYPES, PERMISSIONS } from '$lib/types/user.types';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faTachometerAlt,
+		faUsers,
+		faKey,
+		faLink,
+		faPlug,
+		faUser,
+		faCog,
+		faArrowLeft,
+		faBars,
+		faCheck,
+		faChevronRight
+	} from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		children: import('svelte').Snippet;
@@ -139,7 +153,7 @@
 			{
 				id: 'dashboard',
 				label: '개요',
-				icon: 'fas fa-tachometer-alt',
+				icon: faTachometerAlt,
 				href: '/dashboard',
 				description: '전체 현황 보기'
 			}
@@ -149,21 +163,21 @@
 			{
 				id: 'clients',
 				label: '클라이언트 관리',
-				icon: 'fas fa-users',
+				icon: faUsers,
 				href: '/dashboard/clients',
 				description: 'OAuth 클라이언트 관리'
 			},
 			{
 				id: 'tokens',
 				label: '토큰 관리',
-				icon: 'fas fa-key',
+				icon: faKey,
 				href: '/dashboard/tokens',
 				description: '액세스 토큰 관리'
 			},
 			{
 				id: 'oauth-tester',
 				label: 'OAuth 테스터',
-				icon: 'fas fa-link',
+				icon: faLink,
 				href: '/dashboard/oauth-tester',
 				description: 'OAuth 플로우 테스트'
 			}
@@ -173,14 +187,14 @@
 			{
 				id: 'connections',
 				label: '연결된 앱',
-				icon: 'fas fa-plug',
+				icon: faPlug,
 				href: '/dashboard/connections',
 				description: '연결된 애플리케이션 관리'
 			},
 			{
 				id: 'profile',
 				label: '프로필',
-				icon: 'fas fa-user',
+				icon: faUser,
 				href: '/dashboard/profile',
 				description: '사용자 프로필 관리'
 			}
@@ -193,7 +207,7 @@
 					{
 						id: 'settings',
 						label: '설정',
-						icon: 'fas fa-cog',
+						icon: faCog,
 						href: '/dashboard/settings',
 						description: '시스템 설정'
 					}
@@ -349,7 +363,7 @@
 							class="flex h-8 w-8 items-center justify-center rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900"
 							aria-label="뒤로 가기"
 						>
-							<i class="fas fa-arrow-left text-sm"></i>
+							<FontAwesomeIcon icon={faArrowLeft} class="text-sm" />
 						</button>
 					{/if}
 					<div>
@@ -369,7 +383,7 @@
 						aria-label="메뉴 열기"
 						aria-expanded={mobileMenuOpen}
 					>
-						<i class="fas fa-bars text-lg"></i>
+						<FontAwesomeIcon icon={faBars} class="text-lg" />
 					</button>
 				</div>
 			</div>
@@ -415,9 +429,10 @@
 											? 'bg-blue-100 text-blue-600 shadow-sm'
 											: 'bg-gray-100 text-gray-600 group-hover:bg-blue-50 group-hover:text-blue-600'}"
 									>
-										<i
-											class="{item.icon} text-lg transition-transform duration-200 group-hover:scale-110"
-										></i>
+										<FontAwesomeIcon
+											icon={item.icon}
+											class="text-lg transition-transform duration-200 group-hover:scale-110"
+										/>
 									</div>
 									<div class="flex-1">
 										<div class="font-semibold">{item.label}</div>
@@ -427,12 +442,13 @@
 										<div
 											class="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 shadow-sm"
 										>
-											<i class="fas fa-check text-xs text-blue-600"></i>
+											<FontAwesomeIcon icon={faCheck} class="text-xs text-blue-600" />
 										</div>
 									{:else}
-										<i
-											class="fas fa-chevron-right text-sm text-gray-400 transition-all duration-200 group-hover:translate-x-1 group-hover:text-gray-600"
-										></i>
+										<FontAwesomeIcon
+											icon={faChevronRight}
+											class="text-sm text-gray-400 transition-all duration-200 group-hover:translate-x-1 group-hover:text-gray-600"
+										/>
 									{/if}
 								</a>
 							{/each}
@@ -461,7 +477,7 @@
 									? 'bg-blue-100 text-blue-900 shadow-sm'
 									: 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}"
 							>
-								<i class="{item.icon} mr-3 h-5 w-5 shrink-0"></i>
+								<FontAwesomeIcon icon={item.icon} class="mr-3 h-5 w-5 shrink-0" />
 								<div class="flex-1">
 									<div class="font-medium">{item.label}</div>
 									<div class="text-xs text-gray-500">{item.description}</div>
@@ -530,8 +546,10 @@
 
 						<!-- 아이콘 -->
 						<div class="relative mb-1">
-							<i class="{item.icon} h-5 w-5 transition-transform duration-200 group-hover:scale-110"
-							></i>
+							<FontAwesomeIcon
+								icon={item.icon}
+								class="h-5 w-5 transition-transform duration-200 group-hover:scale-110"
+							/>
 							{#if isMenuActive(item.href)}
 								<div
 									class="absolute -top-1 -right-1 h-2 w-2 animate-ping rounded-full bg-white"

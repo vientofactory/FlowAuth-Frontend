@@ -6,6 +6,14 @@
 	import { env } from '$lib/config/env';
 	import type { ConnectedAppDto } from '$lib/types/dashboard';
 	import type { User } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faExclamationTriangle,
+		faPlug,
+		faFlask,
+		faUnlink,
+		faSpinner
+	} from '@fortawesome/free-solid-svg-icons';
 
 	let apps: ConnectedAppDto[] = [];
 	let loading = true;
@@ -146,7 +154,7 @@
 			<!-- 에러 상태 -->
 			<div class="rounded-lg border border-red-200 bg-red-50 p-6">
 				<div class="flex items-center">
-					<i class="fas fa-exclamation-triangle mr-3 text-red-500"></i>
+					<FontAwesomeIcon icon={faExclamationTriangle} class="mr-3 text-red-500" />
 					<div>
 						<h3 class="text-sm font-medium text-red-800">오류 발생</h3>
 						<p class="mt-1 text-sm text-red-700">{error}</p>
@@ -156,7 +164,7 @@
 		{:else if apps.length === 0}
 			<!-- 빈 상태 -->
 			<div class="py-12 text-center">
-				<i class="fas fa-plug mb-4 text-6xl text-gray-400"></i>
+				<FontAwesomeIcon icon={faPlug} class="mb-4 text-6xl text-gray-400" />
 				<h3 class="mb-2 text-lg font-medium text-gray-900">연결된 앱이 없습니다</h3>
 				<p class="mb-6 text-gray-600">
 					아직 어떤 앱에도 연결되지 않았습니다.<br />
@@ -167,7 +175,7 @@
 						href="/dashboard/oauth-tester"
 						class="inline-flex items-center rounded-md border border-transparent bg-stone-600 px-4 py-2 text-sm font-medium text-white hover:bg-stone-700"
 					>
-						<i class="fas fa-flask mr-2"></i>
+						<FontAwesomeIcon icon={faFlask} class="mr-2" />
 						OAuth2 테스터로 이동
 					</a>
 				{/if}
@@ -191,7 +199,7 @@
 										/>
 									{:else}
 										<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
-											<i class="fas fa-plug text-gray-400"></i>
+											<FontAwesomeIcon icon={faPlug} class="text-gray-400" />
 										</div>
 									{/if}
 									<div>
@@ -239,7 +247,7 @@
 									class="inline-flex w-full items-center justify-center rounded-md border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
 									disabled={app.status === 'revoked'}
 								>
-									<i class="fas fa-unlink mr-2"></i>
+									<FontAwesomeIcon icon={faUnlink} class="mr-2" />
 									연결 해제
 								</button>
 							</div>
@@ -263,7 +271,7 @@
 						/>
 					{:else}
 						<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
-							<i class="fas fa-plug text-gray-400"></i>
+							<FontAwesomeIcon icon={faPlug} class="text-gray-400" />
 						</div>
 					{/if}
 					<div>
@@ -276,7 +284,7 @@
 
 				<div class="rounded-md bg-yellow-50 p-4">
 					<div class="flex">
-						<i class="fas fa-exclamation-triangle text-yellow-400"></i>
+						<FontAwesomeIcon icon={faExclamationTriangle} class="text-yellow-400" />
 						<div class="ml-3">
 							<h3 class="text-sm font-medium text-yellow-800">주의</h3>
 							<div class="mt-2 text-sm text-yellow-700">
@@ -309,10 +317,10 @@
 					class="inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
 				>
 					{#if revoking}
-						<i class="fas fa-spinner fa-spin mr-2"></i>
+						<FontAwesomeIcon icon={faSpinner} spin class="mr-2" />
 						해제 중...
 					{:else}
-						<i class="fas fa-unlink mr-2"></i>
+						<FontAwesomeIcon icon={faUnlink} class="mr-2" />
 						연결 해제
 					{/if}
 				</button>

@@ -1,4 +1,13 @@
 <script lang="ts">
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+	import {
+		faInfoCircle,
+		faExclamationTriangle,
+		faExclamationCircle,
+		faExternalLinkAlt
+	} from '@fortawesome/free-solid-svg-icons';
+
 	interface Props {
 		variant?: 'primary' | 'secondary' | 'info' | 'warning' | 'error';
 		title: string;
@@ -6,9 +15,9 @@
 		links?: Array<{
 			text: string;
 			url: string;
-			icon?: string;
+			icon?: IconDefinition;
 		}>;
-		icon?: string;
+		icon?: IconDefinition;
 	}
 
 	let { variant = 'info', title, description, links = [], icon }: Props = $props();
@@ -53,12 +62,12 @@
 	};
 
 	// Variant별 기본 아이콘
-	const defaultIcons = {
-		primary: 'fas fa-info-circle',
-		secondary: 'fas fa-info-circle',
-		info: 'fas fa-info-circle',
-		warning: 'fas fa-exclamation-triangle',
-		error: 'fas fa-exclamation-circle'
+	const defaultIcons: Record<string, IconDefinition> = {
+		primary: faInfoCircle,
+		secondary: faInfoCircle,
+		info: faInfoCircle,
+		warning: faExclamationTriangle,
+		error: faExclamationCircle
 	};
 
 	const styles = variantStyles[variant];
@@ -68,8 +77,8 @@
 
 <div class="{styles.container} mb-6 rounded-lg border p-4">
 	<div class="flex items-start">
-		<div class="flex-shrink-0">
-			<i class="{displayIcon} {styles.icon} text-lg"></i>
+		<div class="shrink-0">
+			<FontAwesomeIcon icon={displayIcon} class="{styles.icon} text-lg" />
 		</div>
 		<div class="ml-3 flex-1">
 			<h3 class="text-sm font-medium {styles.title} mb-2">{title}</h3>
@@ -88,10 +97,10 @@
 							class="inline-flex items-center text-sm {styles.link} hover:underline"
 						>
 							{#if link.icon}
-								<i class="{link.icon} mr-1"></i>
+								<FontAwesomeIcon icon={link.icon} class="mr-1" />
 							{/if}
 							{link.text}
-							<i class="fas fa-external-link-alt ml-1 text-xs"></i>
+							<FontAwesomeIcon icon={faExternalLinkAlt} class="ml-1 text-xs" />
 						</a>
 					{/each}
 				</div>

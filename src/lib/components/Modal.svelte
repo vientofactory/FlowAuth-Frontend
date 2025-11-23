@@ -1,6 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { Button } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 	interface ModalProps {
 		open?: boolean;
@@ -101,7 +103,7 @@
 										onclick={onClose}
 									>
 										<span class="sr-only">Close</span>
-										<i class="fas fa-times h-4 w-4 sm:h-5 sm:w-5"></i>
+										<FontAwesomeIcon icon={faTimes} class="h-4 w-4 sm:h-5 sm:w-5" />
 									</button>
 								{/if}
 							</div>

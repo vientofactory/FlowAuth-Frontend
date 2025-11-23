@@ -2,6 +2,8 @@
 	import { Card, Button, Badge, PermissionUtils } from '$lib';
 	import type { User } from '$lib';
 	import type { TwoFactorState } from '$lib/stores/2fa';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faSpinner, faMobileAlt, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		user: User;
@@ -53,7 +55,7 @@
 				<span class="text-sm text-gray-600">2FA</span>
 				{#if twoFactorState.isLoading}
 					<div class="flex items-center space-x-2">
-						<i class="fas fa-spinner fa-spin text-gray-400"></i>
+						<FontAwesomeIcon icon={faSpinner} class="animate-spin text-gray-400" />
 						<span class="text-sm text-gray-500">확인 중...</span>
 					</div>
 				{:else if twoFactorState.status?.enabled}
@@ -132,12 +134,12 @@
 		<div class="space-y-3">
 			{#if twoFactorState.status?.enabled}
 				<Button variant="outline" class="w-full justify-start" disabled>
-					<i class="fas fa-mobile-alt mr-2"></i>
+					<FontAwesomeIcon icon={faMobileAlt} class="mr-2" />
 					2단계 인증 설정
 				</Button>
 			{:else}
 				<Button variant="outline" class="w-full justify-start" onclick={onGoToTwoFactorSetup}>
-					<i class="fas fa-mobile-alt mr-2"></i>
+					<FontAwesomeIcon icon={faMobileAlt} class="mr-2" />
 					2단계 인증 설정
 				</Button>
 			{/if}
@@ -157,7 +159,7 @@
 				variant="outline"
 				class="w-full justify-start border-red-300 text-red-600 hover:bg-red-50"
 			>
-				<i class="fas fa-trash mr-2"></i>
+				<FontAwesomeIcon icon={faTrash} class="mr-2" />
 				계정 삭제
 			</Button>
 		</div>

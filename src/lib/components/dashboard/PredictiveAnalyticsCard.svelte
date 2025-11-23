@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Card } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faBrain, faChartLine, faShieldAlt, faServer } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		advancedAnalytics: {
@@ -17,9 +19,9 @@
 {#if advancedAnalytics?.predictiveInsights?.tokenDemand?.predicted > 0}
 	<Card class="border-l-4 border-l-indigo-400 bg-gradient-to-r from-indigo-50 to-purple-50">
 		<div class="flex items-start space-x-4">
-			<div class="flex-shrink-0">
+			<div class="shrink-0">
 				<div class="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100">
-					<i class="fas fa-crystal-ball text-xl text-indigo-600"></i>
+					<FontAwesomeIcon icon={faBrain} class="text-xl text-indigo-600" />
 				</div>
 			</div>
 			<div class="flex-1">
@@ -27,7 +29,7 @@
 				<div class="grid gap-4 md:grid-cols-3">
 					<div class="flex items-center space-x-3 rounded-lg border border-indigo-200 bg-white p-3">
 						<div class="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100">
-							<i class="fas fa-chart-line text-indigo-600"></i>
+							<FontAwesomeIcon icon={faChartLine} class="text-indigo-600" />
 						</div>
 						<div class="min-w-0">
 							<p class="text-sm font-medium text-gray-900">토큰 수요 예측</p>
@@ -44,7 +46,7 @@
 					</div>
 					<div class="flex items-center space-x-3 rounded-lg border border-purple-200 bg-white p-3">
 						<div class="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100">
-							<i class="fas fa-shield-alt text-purple-600"></i>
+							<FontAwesomeIcon icon={faShieldAlt} class="text-purple-600" />
 						</div>
 						<div class="min-w-0">
 							<p class="text-sm font-medium text-gray-900">리스크 레벨</p>
@@ -58,7 +60,7 @@
 					</div>
 					<div class="flex items-center space-x-3 rounded-lg border border-cyan-200 bg-white p-3">
 						<div class="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-100">
-							<i class="fas fa-server text-cyan-600"></i>
+							<FontAwesomeIcon icon={faServer} class="text-cyan-600" />
 						</div>
 						<div class="min-w-0">
 							<p class="text-sm font-medium text-gray-900">시스템 용량</p>

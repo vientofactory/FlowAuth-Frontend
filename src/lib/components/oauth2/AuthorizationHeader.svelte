@@ -1,5 +1,7 @@
 <script lang="ts">
 	import type { Client } from '$lib/types/oauth.types';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faShieldAlt } from '@fortawesome/free-solid-svg-icons';
 
 	export let client: Client;
 </script>
@@ -15,7 +17,9 @@
 			<div
 				class="relative mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-lg sm:h-20 sm:w-20"
 			>
-				<i class="fas fa-shield-alt text-2xl text-indigo-600 sm:text-3xl" aria-hidden="true"></i>
+				<span aria-hidden="true">
+					<FontAwesomeIcon icon={faShieldAlt} class="text-2xl text-indigo-600 sm:text-3xl" />
+				</span>
 			</div>
 		</div>
 

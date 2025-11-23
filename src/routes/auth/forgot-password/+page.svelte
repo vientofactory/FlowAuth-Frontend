@@ -5,6 +5,16 @@
 	import { useToast, useFieldValidation, validators } from '$lib';
 	import { ROUTES } from '$lib/constants/app.constants';
 	import { apiClient } from '$lib/utils/api';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faEnvelope,
+		faArrowLeft,
+		faInfoCircle,
+		faExclamationCircle,
+		faPaperPlane,
+		faShieldAlt,
+		faHome
+	} from '@fortawesome/free-solid-svg-icons';
 
 	let loading = $state(false);
 	let success = $state(false);
@@ -175,12 +185,12 @@
 
 						<div class="space-y-3">
 							<Button variant="primary" class="w-full" onclick={resetForm}>
-								<i class="fas fa-envelope mr-2"></i>
+								<FontAwesomeIcon icon={faEnvelope} class="mr-2" />
 								다른 이메일로 재요청
 							</Button>
 
 							<Button variant="outline" class="w-full" onclick={() => goto(ROUTES.LOGIN)}>
-								<i class="fas fa-arrow-left mr-2"></i>
+								<FontAwesomeIcon icon={faArrowLeft} class="mr-2" />
 								로그인 페이지로 돌아가기
 							</Button>
 						</div>
@@ -188,7 +198,7 @@
 						<!-- 도움말 정보 -->
 						<div class="rounded-lg bg-blue-50 p-4">
 							<p class="text-xs text-blue-700">
-								<i class="fas fa-info-circle mr-1"></i>
+								<FontAwesomeIcon icon={faInfoCircle} class="mr-1" />
 								<strong>이메일이 오지 않나요?</strong><br />
 								스팸함을 확인하거나 몇 분 후 다시 시도해주세요.<br />
 								재설정 링크는 보안상 1시간 후 만료됩니다.
@@ -201,7 +211,7 @@
 							<!-- 이메일 입력 -->
 							<div>
 								<label for="email" class="mb-2 block text-sm font-medium text-gray-700">
-									<i class="fas fa-envelope mr-2 text-blue-500"></i>이메일 주소<span
+									<FontAwesomeIcon icon={faEnvelope} class="mr-2 text-blue-500" />이메일 주소<span
 										class="text-red-500">*</span
 									>
 								</label>
@@ -218,7 +228,7 @@
 								/>
 								{#if emailField.error}
 									<p class="mt-1 text-sm text-red-600">
-										<i class="fas fa-exclamation-circle mr-1"></i>
+										<FontAwesomeIcon icon={faExclamationCircle} class="mr-1" />
 										{emailField.error}
 									</p>
 								{/if}
@@ -288,7 +298,7 @@
 									class="w-full"
 									disabled={!emailField.value || !!emailField.error || loading || rateLimited}
 								>
-									<i class="fas fa-paper-plane mr-2"></i>
+									<FontAwesomeIcon icon={faPaperPlane} class="mr-2" />
 									{#if rateLimited && cooldownSeconds > 0}
 										{#if cooldownSeconds >= 3600}
 											{Math.floor(cooldownSeconds / 3600)}시간 {Math.floor(
@@ -305,7 +315,7 @@
 								</LoadingButton>
 
 								<Button variant="outline" class="w-full" onclick={() => goto(ROUTES.LOGIN)}>
-									<i class="fas fa-arrow-left mr-2"></i>
+									<FontAwesomeIcon icon={faArrowLeft} class="mr-2" />
 									로그인 페이지로 돌아가기
 								</Button>
 							</div>
@@ -314,7 +324,7 @@
 						<!-- 보안 안내 -->
 						<div class="mt-6 rounded-lg bg-gray-50 p-4">
 							<p class="text-xs text-gray-600">
-								<i class="fas fa-shield-alt mr-1 text-blue-500"></i>
+								<FontAwesomeIcon icon={faShieldAlt} class="mr-1 text-blue-500" />
 								<strong>보안 정보</strong><br />
 								• 비밀번호 재설정 링크는 보안을 위해 1시간 후 자동으로 만료됩니다<br />
 								• 과도한 요청 방지를 위해 IP당 1시간에 2회, 이메일당 24시간에 5회로 제한됩니다<br />
@@ -330,7 +340,7 @@
 							href={ROUTES.HOME}
 							class="inline-flex items-center text-sm text-gray-500 transition-colors duration-200 hover:text-gray-700"
 						>
-							<i class="fas fa-home mr-1"></i>
+							<FontAwesomeIcon icon={faHome} class="mr-1" />
 							홈으로 돌아가기
 						</a>
 					</div>

@@ -20,6 +20,15 @@
 		SmtpStatusCard,
 		TestEmailModal
 	} from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faTachometerAlt,
+		faList,
+		faEnvelope,
+		faCog,
+		faExclamationTriangle,
+		faSyncAlt
+	} from '@fortawesome/free-solid-svg-icons';
 
 	// 이메일 시스템 상태 타입 정의
 	interface EmailQueueStats {
@@ -106,10 +115,10 @@
 
 	// 탭 설정
 	const tabs = [
-		{ id: 'overview', label: '개요', icon: 'fas fa-tachometer-alt' },
-		{ id: 'queue', label: '큐 관리', icon: 'fas fa-list' },
-		{ id: 'test', label: '테스트', icon: 'fas fa-envelope' },
-		{ id: 'settings', label: '설정', icon: 'fas fa-cog' }
+		{ id: 'overview', label: '개요', icon: faTachometerAlt },
+		{ id: 'queue', label: '큐 관리', icon: faList },
+		{ id: 'test', label: '테스트', icon: faEnvelope },
+		{ id: 'settings', label: '설정', icon: faCog }
 	];
 
 	let activeTab = $state('overview');
@@ -428,7 +437,7 @@
 >
 	{#if !$canManageSystem}
 		<div class="rounded-lg bg-red-50 p-6 text-center">
-			<i class="fas fa-exclamation-triangle mb-2 text-4xl text-red-500"></i>
+			<FontAwesomeIcon icon={faExclamationTriangle} class="mb-2 text-4xl text-red-500" />
 			<h2 class="mb-2 text-xl font-semibold text-red-800">접근 권한이 없습니다</h2>
 			<p class="text-red-600">이 페이지에 접근하려면 시스템 관리자 권한이 필요합니다.</p>
 		</div>
@@ -446,7 +455,7 @@
 					disabled={isProcessing}
 					class="transition-colors hover:border-stone-200 hover:bg-stone-50"
 				>
-					<i class="fas fa-sync-alt mr-2"></i>
+					<FontAwesomeIcon icon={faSyncAlt} class="mr-2" />
 					새로고침
 				</Button>
 
@@ -607,7 +616,7 @@
 											<div
 												class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100"
 											>
-												<i class="fas fa-cog text-stone-600"></i>
+												<FontAwesomeIcon icon={faCog} class="text-stone-600" />
 											</div>
 											자동 새로고침 설정
 										</h4>

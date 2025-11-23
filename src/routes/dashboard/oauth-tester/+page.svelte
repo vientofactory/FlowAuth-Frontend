@@ -10,6 +10,25 @@
 	import { authState } from '$lib';
 	import type { User } from '$lib';
 	import { SCOPE_MAPPINGS, OAUTH2_SCOPES } from '$lib/utils/scope.utils';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faExclamationCircle,
+		faInfoCircle,
+		faTimes,
+		faSpinner,
+		faSync,
+		faExclamationTriangle,
+		faPlay,
+		faRedo,
+		faFlask,
+		faCheckCircle,
+		faCheck,
+		faCopy,
+		faArrowRight,
+		faExternalLinkAlt,
+		faChevronUp,
+		faChevronDown
+	} from '@fortawesome/free-solid-svg-icons';
 
 	// 상태 변수들
 	let user = $state<User | null>(null);
@@ -307,7 +326,7 @@
 						</div>
 					{:else if clients.length === 0}
 						<div class="py-4 text-center text-gray-500">
-							<i class="fas fa-exclamation-circle mr-2"></i>
+							<FontAwesomeIcon icon={faExclamationCircle} class="mr-2" />
 							활성화된 클라이언트가 없습니다.
 							<button
 								onclick={() => goto('/dashboard/clients')}
@@ -371,7 +390,7 @@
 					</select>
 					{#if responseType.includes('id_token')}
 						<p class="mt-1 text-xs text-blue-600">
-							<i class="fas fa-info-circle mr-1"></i>
+							<FontAwesomeIcon icon={faInfoCircle} class="mr-1" />
 							OIDC 응답 타입입니다. openid 스코프가 필요합니다.
 						</p>
 					{/if}
@@ -398,7 +417,7 @@
 										title="제거"
 										aria-label="스코프 제거"
 									>
-										<i class="fas fa-times text-xs"></i>
+										<FontAwesomeIcon icon={faTimes} class="text-xs" />
 									</button>
 								</span>
 							{/if}
@@ -410,7 +429,7 @@
 
 					<!-- 스코프 선택 토글 버튼 -->
 					<Button variant="outline" size="sm" onclick={toggleScopeSelector} class="mb-2">
-						<i class="fas {showScopeSelector ? 'fa-chevron-up' : 'fa-chevron-down'} mr-2"></i>
+						<FontAwesomeIcon icon={showScopeSelector ? faChevronUp : faChevronDown} class="mr-2" />
 						{showScopeSelector ? '스코프 선택기 숨기기' : '스코프 선택하기'}
 					</Button>
 
@@ -439,9 +458,9 @@
 										class="text-xs"
 									>
 										{#if scopesLoading}
-											<i class="fas fa-spinner fa-spin mr-1"></i>
+											<FontAwesomeIcon icon={faSpinner} spin class="mr-1" />
 										{:else}
-											<i class="fas fa-sync mr-1"></i>
+											<FontAwesomeIcon icon={faSync} class="mr-1" />
 										{/if}
 										새로고침
 									</Button>
@@ -450,12 +469,15 @@
 
 							{#if scopesLoading}
 								<div class="py-8 text-center">
-									<i class="fas fa-spinner fa-spin mb-2 text-2xl text-gray-400"></i>
+									<FontAwesomeIcon icon={faSpinner} spin class="mb-2 text-2xl text-gray-400" />
 									<p class="text-sm text-gray-500">스코프를 불러오는 중...</p>
 								</div>
 							{:else if scopesError}
 								<div class="py-8 text-center">
-									<i class="fas fa-exclamation-triangle mb-2 text-2xl text-red-400"></i>
+									<FontAwesomeIcon
+										icon={faExclamationTriangle}
+										class="mb-2 text-2xl text-red-400"
+									/>
 									<p class="text-sm text-red-600">{scopesError}</p>
 									<Button variant="outline" size="sm" onclick={loadAvailableScopes} class="mt-2">
 										다시 시도
@@ -463,7 +485,7 @@
 								</div>
 							{:else if availableScopes.length === 0}
 								<div class="py-8 text-center">
-									<i class="fas fa-info-circle mb-2 text-2xl text-gray-400"></i>
+									<FontAwesomeIcon icon={faInfoCircle} class="mb-2 text-2xl text-gray-400" />
 									<p class="text-sm text-gray-500">사용 가능한 스코프가 없습니다.</p>
 								</div>
 							{:else}
@@ -528,11 +550,11 @@
 				<div class="border-t border-gray-200 pt-4">
 					<div class="flex space-x-2">
 						<Button onclick={generateAuthorizationUrl} class="flex-1">
-							<i class="fas fa-play mr-2"></i>
+							<FontAwesomeIcon icon={faPlay} class="mr-2" />
 							URL 생성
 						</Button>
 						<Button variant="outline" onclick={resetTest}>
-							<i class="fas fa-redo mr-2"></i>
+							<FontAwesomeIcon icon={faRedo} class="mr-2" />
 							초기화
 						</Button>
 					</div>
@@ -546,7 +568,7 @@
 
 			{#if !showResult}
 				<div class="py-8 text-center">
-					<i class="fas fa-flask mb-4 text-4xl text-gray-400"></i>
+					<FontAwesomeIcon icon={faFlask} class="mb-4 text-4xl text-gray-400" />
 					<p class="text-gray-500">설정을 완료하고 "URL 생성" 버튼을 클릭하세요.</p>
 				</div>
 			{:else}
@@ -557,7 +579,7 @@
 							<h4 class="block text-sm font-medium text-gray-700">생성된 인증 URL</h4>
 							{#if copySuccess}
 								<span class="animate-pulse text-xs font-medium text-green-600">
-									<i class="fas fa-check-circle mr-1"></i>
+									<FontAwesomeIcon icon={faCheckCircle} class="mr-1" />
 									복사 완료
 								</span>
 							{/if}
@@ -582,22 +604,22 @@
 									: 'bg-blue-600 hover:bg-blue-700'}"
 							>
 								{#if isCopying}
-									<i class="fas fa-spinner fa-spin mr-2"></i>
+									<FontAwesomeIcon icon={faSpinner} spin class="mr-2" />
 									복사 중...
 								{:else if copySuccess}
-									<i class="fas fa-check mr-2"></i>
+									<FontAwesomeIcon icon={faCheck} class="mr-2" />
 									복사됨!
 								{:else}
-									<i class="fas fa-copy mr-2"></i>
+									<FontAwesomeIcon icon={faCopy} class="mr-2" />
 									복사
 								{/if}
 							</Button>
 							<Button size="sm" variant="outline" onclick={openUrlSameTab}>
-								<i class="fas fa-arrow-right mr-2"></i>
+								<FontAwesomeIcon icon={faArrowRight} class="mr-2" />
 								이동하기
 							</Button>
 							<Button size="sm" variant="outline" onclick={openUrl}>
-								<i class="fas fa-external-link-alt mr-2"></i>
+								<FontAwesomeIcon icon={faExternalLinkAlt} class="mr-2" />
 								새 탭에서 열기
 							</Button>
 						</div>
@@ -623,7 +645,7 @@
 					<!-- 다음 단계 안내 -->
 					<div class="rounded-md border border-blue-200 bg-blue-50 p-4">
 						<div class="flex">
-							<i class="fas fa-info-circle text-blue-400"></i>
+							<FontAwesomeIcon icon={faInfoCircle} class="text-blue-400" />
 							<div class="ml-3">
 								<h4 class="text-sm font-medium text-blue-800">다음 단계</h4>
 								<div class="mt-2 text-sm text-blue-700">

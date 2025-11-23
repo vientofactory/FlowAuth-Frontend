@@ -1,5 +1,16 @@
 <script lang="ts">
 	import { Modal, Button } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faExclamationTriangle,
+		faExclamationCircle,
+		faInfoCircle,
+		faSpinner,
+		faSyncAlt,
+		faCheckCircle,
+		faShieldAlt,
+		faCopy
+	} from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		show: boolean;
@@ -23,7 +34,7 @@
 					<div class="rounded-md border border-yellow-200 bg-yellow-50 p-4">
 						<div class="flex">
 							<div class="flex-shrink-0">
-								<i class="fas fa-exclamation-triangle text-yellow-400"></i>
+								<FontAwesomeIcon icon={faExclamationTriangle} class="text-yellow-400" />
 							</div>
 							<div class="ml-3">
 								<h3 class="text-sm font-medium text-yellow-800">클라이언트 시크릿 재설정 경고</h3>
@@ -37,7 +48,7 @@
 					<div class="rounded-md border border-red-200 bg-red-50 p-4">
 						<div class="flex">
 							<div class="flex-shrink-0">
-								<i class="fas fa-exclamation-circle text-red-400"></i>
+								<FontAwesomeIcon icon={faExclamationCircle} class="text-red-400" />
 							</div>
 							<div class="ml-3">
 								<h3 class="text-sm font-medium text-red-800">중요: 기존 시크릿 무효화</h3>
@@ -56,7 +67,7 @@
 					<div class="rounded-md border border-stone-200 bg-stone-50 p-4">
 						<div class="flex">
 							<div class="flex-shrink-0">
-								<i class="fas fa-info-circle text-stone-400"></i>
+								<FontAwesomeIcon icon={faInfoCircle} class="text-stone-400" />
 							</div>
 							<div class="ml-3">
 								<h3 class="text-sm font-medium text-stone-800">재설정 후 해야 할 일</h3>
@@ -79,10 +90,10 @@
 						class="bg-red-600 hover:bg-red-700 focus:ring-red-500"
 					>
 						{#if isLoading}
-							<i class="fas fa-spinner fa-spin mr-2"></i>
+							<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
 							재설정 중...
 						{:else}
-							<i class="fas fa-sync-alt mr-2"></i>
+							<FontAwesomeIcon icon={faSyncAlt} class="mr-2" />
 							네, 시크릿을 재설정합니다
 						{/if}
 					</Button>
@@ -92,7 +103,7 @@
 					<div class="rounded-md border border-green-200 bg-green-50 p-4">
 						<div class="flex">
 							<div class="flex-shrink-0">
-								<i class="fas fa-check-circle text-green-400"></i>
+								<FontAwesomeIcon icon={faCheckCircle} class="text-green-400" />
 							</div>
 							<div class="ml-3">
 								<h3 class="text-sm font-medium text-green-800">클라이언트 시크릿 재설정 완료</h3>
@@ -108,7 +119,7 @@
 					<div class="rounded-md border border-orange-200 bg-orange-50 p-4">
 						<div class="flex">
 							<div class="flex-shrink-0">
-								<i class="fas fa-shield-alt text-orange-400"></i>
+								<FontAwesomeIcon icon={faShieldAlt} class="text-orange-400" />
 							</div>
 							<div class="ml-3">
 								<h3 class="text-sm font-medium text-orange-800">보안 알림</h3>
@@ -141,7 +152,7 @@
 								size="sm"
 								class="px-4"
 							>
-								<i class="fas fa-copy mr-1"></i>
+								<FontAwesomeIcon icon={faCopy} class="mr-1" />
 								복사
 							</Button>
 						</div>

@@ -2,6 +2,18 @@
 <script lang="ts">
 	import { Button, Card, errorManager } from '$lib';
 	import { goto } from '$app/navigation';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faLock,
+		faBan,
+		faSearch,
+		faExclamationCircle,
+		faServer,
+		faCode,
+		faTrash,
+		faHome,
+		faExclamationTriangle
+	} from '@fortawesome/free-solid-svg-icons';
 
 	// 다양한 에러 상황 시뮬레이션
 	function simulateNetworkError() {
@@ -66,19 +78,19 @@
 			<h2 class="mb-4 text-xl font-semibold text-gray-900">클라이언트 에러 (4xx)</h2>
 			<div class="space-y-3">
 				<Button onclick={simulateAuthError} variant="outline" class="w-full">
-					<i class="fas fa-lock mr-2"></i>
+					<FontAwesomeIcon icon={faLock} class="mr-2" />
 					인증 오류 (401)
 				</Button>
 				<Button onclick={simulatePermissionError} variant="outline" class="w-full">
-					<i class="fas fa-ban mr-2"></i>
+					<FontAwesomeIcon icon={faBan} class="mr-2" />
 					권한 오류 (403)
 				</Button>
 				<Button onclick={simulate404Error} variant="outline" class="w-full">
-					<i class="fas fa-search mr-2"></i>
+					<FontAwesomeIcon icon={faSearch} class="mr-2" />
 					페이지 없음 (404)
 				</Button>
 				<Button onclick={simulateValidationError} variant="outline" class="w-full">
-					<i class="fas fa-exclamation-circle mr-2"></i>
+					<FontAwesomeIcon icon={faExclamationCircle} class="mr-2" />
 					검증 오류 (422)
 				</Button>
 			</div>
@@ -89,11 +101,11 @@
 			<h2 class="mb-4 text-xl font-semibold text-gray-900">서버 에러 (5xx)</h2>
 			<div class="space-y-3">
 				<Button onclick={simulateServerError} variant="outline" class="w-full">
-					<i class="fas fa-server mr-2"></i>
+					<FontAwesomeIcon icon={faServer} class="mr-2" />
 					서버 오류 (500)
 				</Button>
 				<Button onclick={simulateApiError} variant="outline" class="w-full">
-					<i class="fas fa-code mr-2"></i>
+					<FontAwesomeIcon icon={faCode} class="mr-2" />
 					실제 API 오류
 				</Button>
 			</div>
@@ -104,7 +116,7 @@
 			<h2 class="mb-4 text-xl font-semibold text-gray-900">네트워크 에러</h2>
 			<div class="space-y-3">
 				<Button onclick={simulateNetworkError} variant="outline" class="w-full">
-					<i class="fas fa-wifi-slash mr-2"></i>
+					<FontAwesomeIcon icon={faExclamationTriangle} class="mr-2" />
 					네트워크 연결 오류
 				</Button>
 			</div>
@@ -115,11 +127,11 @@
 			<h2 class="mb-4 text-xl font-semibold text-gray-900">에러 관리</h2>
 			<div class="space-y-3">
 				<Button onclick={clearAllErrors} variant="danger" class="w-full">
-					<i class="fas fa-trash mr-2"></i>
+					<FontAwesomeIcon icon={faTrash} class="mr-2" />
 					모든 에러 토스트 제거
 				</Button>
 				<Button onclick={() => goto('/')} variant="primary" class="w-full">
-					<i class="fas fa-home mr-2"></i>
+					<FontAwesomeIcon icon={faHome} class="mr-2" />
 					홈으로 돌아가기
 				</Button>
 			</div>

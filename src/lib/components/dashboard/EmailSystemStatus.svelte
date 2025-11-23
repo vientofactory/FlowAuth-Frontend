@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { apiClient } from '$lib';
 	import { onMount } from 'svelte';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faExclamationTriangle, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
 	interface EmailSystemStatus {
 		queueStats: {
@@ -73,7 +75,7 @@
 {:else if hasError}
 	<div class="rounded-lg border border-red-200 bg-red-50 p-4">
 		<div class="flex items-center space-x-3">
-			<i class="fas fa-exclamation-triangle text-red-500"></i>
+			<FontAwesomeIcon icon={faExclamationTriangle} class="text-red-500" />
 			<span class="text-sm text-red-700">이메일 시스템 상태를 불러올 수 없습니다.</span>
 		</div>
 	</div>
@@ -82,7 +84,7 @@
 		<div class="flex items-center justify-between">
 			<div class="flex items-center space-x-3">
 				<div class="rounded-full p-2 {getStatusBgColor(isSystemHealthy())}">
-					<i class="fas fa-envelope text-sm {getStatusColor(isSystemHealthy())}"></i>
+					<FontAwesomeIcon icon={faEnvelope} class="text-sm {getStatusColor(isSystemHealthy())}" />
 				</div>
 				<div>
 					<h4 class="text-sm font-medium text-gray-900">이메일 시스템</h4>
@@ -116,7 +118,7 @@
 		{#if !isSystemHealthy()}
 			<div class="mt-3 rounded bg-yellow-50 p-2">
 				<p class="text-xs text-yellow-800">
-					<i class="fas fa-exclamation-triangle mr-1"></i>
+					<FontAwesomeIcon icon={faExclamationTriangle} class="mr-1" />
 					시스템 관리자에게 문의하거나
 					<a href="/dashboard/email-management" class="font-medium underline hover:no-underline">
 						이메일 관리

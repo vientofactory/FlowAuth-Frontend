@@ -1,6 +1,16 @@
 <script lang="ts">
 	import { Card, Button, Badge } from '$lib';
 	import { TOKEN_TYPES } from '$lib/types/authorization.types';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faSignInAlt,
+		faKey,
+		faPuzzlePiece,
+		faList,
+		faCalendarPlus,
+		faCalendarTimes
+	} from '@fortawesome/free-solid-svg-icons';
+	import { faClock, faHistory, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 	interface TokenCardData {
 		id: number;
@@ -85,10 +95,10 @@
 			<div class="mb-2 flex items-center gap-2">
 				<h3 class="text-lg font-semibold text-gray-900">
 					{#if token.tokenType === TOKEN_TYPES.LOGIN}
-						<i class="fas fa-sign-in-alt mr-2 text-stone-500"></i>
+						<FontAwesomeIcon icon={faSignInAlt} class="mr-2 text-stone-500" />
 						로그인 토큰
 					{:else}
-						<i class="fas fa-key mr-2 text-neutral-500"></i>
+						<FontAwesomeIcon icon={faKey} class="mr-2 text-neutral-500" />
 						OAuth2 토큰
 					{/if}
 				</h3>
@@ -102,7 +112,7 @@
 
 			{#if clientName}
 				<p class="mb-2 text-sm text-gray-600">
-					<i class="fas fa-puzzle-piece mr-1"></i>
+					<FontAwesomeIcon icon={faPuzzlePiece} class="mr-1" />
 					클라이언트: {clientName}
 				</p>
 			{/if}
@@ -110,7 +120,7 @@
 			{#if scopesArray.length > 0}
 				<div class="mb-3">
 					<p class="mb-1 text-sm text-gray-600">
-						<i class="fas fa-list mr-1"></i>
+						<FontAwesomeIcon icon={faList} class="mr-1" />
 						스코프:
 					</p>
 					<div class="flex flex-wrap gap-1">
@@ -123,22 +133,22 @@
 
 			<div class="grid grid-cols-1 gap-3 text-sm text-gray-600 sm:grid-cols-2">
 				<div>
-					<i class="fas fa-calendar-plus mr-1"></i>
+					<FontAwesomeIcon icon={faCalendarPlus} class="mr-1" />
 					발급: {formatDate(token.createdAt)}
 				</div>
 				<div>
-					<i class="fas fa-calendar-times mr-1"></i>
+					<FontAwesomeIcon icon={faCalendarTimes} class="mr-1" />
 					만료: {formatDate(token.expiresAt)}
 				</div>
 				<div class="sm:col-span-2">
-					<i class="fas fa-clock mr-1"></i>
+					<FontAwesomeIcon icon={faClock} class="mr-1" />
 					{timeRemaining}
 				</div>
 			</div>
 
 			{#if token.lastUsedAt}
 				<p class="mt-2 text-sm text-gray-600">
-					<i class="fas fa-history mr-1"></i>
+					<FontAwesomeIcon icon={faHistory} class="mr-1" />
 					마지막 사용: {formatDate(token.lastUsedAt)}
 				</p>
 			{/if}
@@ -153,7 +163,7 @@
 					class="border-red-300 text-red-600 hover:bg-red-50"
 					disabled={isCurrentSession}
 				>
-					<i class="fas fa-trash mr-1"></i>
+					<FontAwesomeIcon icon={faTrash} class="mr-1" />
 					폐기
 				</Button>
 

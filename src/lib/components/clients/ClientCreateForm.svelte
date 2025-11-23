@@ -5,6 +5,8 @@
 	import { onMount } from 'svelte';
 	import { env } from '$lib/config/env';
 	import { load } from 'recaptcha-v3';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		showCreateForm: boolean;
@@ -215,7 +217,7 @@
 							<Loading class="mr-2" />
 							생성 중...
 						{:else}
-							<i class="fas fa-plus mr-2"></i>
+							<FontAwesomeIcon icon={faPlus} class="mr-2" />
 							생성
 						{/if}
 					</Button>

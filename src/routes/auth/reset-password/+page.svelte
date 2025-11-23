@@ -7,6 +7,17 @@
 	import { useToast, useFieldValidation, useFormValidation, validators } from '$lib';
 	import { ROUTES } from '$lib/constants/app.constants';
 	import { apiClient } from '$lib/utils/api';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faSignInAlt,
+		faArrowLeft,
+		faLock,
+		faExclamationCircle,
+		faKey,
+		faHome,
+		faEye,
+		faEyeSlash
+	} from '@fortawesome/free-solid-svg-icons';
 
 	let loading = $state(true);
 	let submitting = $state(false);
@@ -193,7 +204,7 @@
 								class="w-full"
 								onclick={() => goto(`${ROUTES.LOGIN}?message=password-reset-success`)}
 							>
-								<i class="fas fa-sign-in-alt mr-2"></i>
+								<FontAwesomeIcon icon={faSignInAlt} class="mr-2" />
 								로그인하기
 							</Button>
 						</div>
@@ -228,7 +239,7 @@
 								onclick={() => goto(ROUTES.LOGIN)}
 								disabled={submitting}
 							>
-								<i class="fas fa-arrow-left mr-2"></i>
+								<FontAwesomeIcon icon={faArrowLeft} class="mr-2" />
 								로그인 페이지로 이동
 							</Button>
 
@@ -256,7 +267,7 @@
 							<!-- 새 비밀번호 입력 -->
 							<div class="relative">
 								<label for="password" class="mb-2 block text-sm font-medium text-gray-700">
-									<i class="fas fa-lock mr-2 text-blue-500"></i>새 비밀번호<span
+									<FontAwesomeIcon icon={faLock} class="mr-2 text-blue-500" />새 비밀번호<span
 										class="text-red-500">*</span
 									>
 								</label>
@@ -283,15 +294,14 @@
 										: ''}"
 									aria-label={passwordVisible ? '비밀번호 숨기기' : '비밀번호 보기'}
 								>
-									<i
-										class="fas {passwordVisible ? 'fa-eye-slash' : 'fa-eye'} h-5 w-5 {submitting
-											? 'text-gray-300'
-											: 'text-gray-400'}"
-									></i>
+									<FontAwesomeIcon
+										icon={passwordVisible ? faEyeSlash : faEye}
+										class="h-5 w-5 {submitting ? 'text-gray-300' : 'text-gray-400'}"
+									/>
 								</button>
 								{#if passwordField.error}
 									<p class="mt-1 text-sm text-red-600">
-										<i class="fas fa-exclamation-circle mr-1"></i>
+										<FontAwesomeIcon icon={faExclamationCircle} class="mr-1" />
 										{passwordField.error}
 									</p>
 								{/if}
@@ -300,7 +310,7 @@
 							<!-- 비밀번호 확인 -->
 							<div class="relative">
 								<label for="confirmPassword" class="mb-2 block text-sm font-medium text-gray-700">
-									<i class="fas fa-lock mr-2 text-blue-500"></i>비밀번호 확인<span
+									<FontAwesomeIcon icon={faLock} class="mr-2 text-blue-500" />비밀번호 확인<span
 										class="text-red-500">*</span
 									>
 								</label>
@@ -329,15 +339,14 @@
 										? '비밀번호 확인 숨기기'
 										: '비밀번호 확인 보기'}
 								>
-									<i
-										class="fas {confirmPasswordVisible
-											? 'fa-eye-slash'
-											: 'fa-eye'} h-5 w-5 {submitting ? 'text-gray-300' : 'text-gray-400'}"
-									></i>
+									<FontAwesomeIcon
+										icon={confirmPasswordVisible ? faEyeSlash : faEye}
+										class="h-5 w-5 {submitting ? 'text-gray-300' : 'text-gray-400'}"
+									/>
 								</button>
 								{#if confirmPasswordField.error}
 									<p class="mt-1 text-sm text-red-600">
-										<i class="fas fa-exclamation-circle mr-1"></i>
+										<FontAwesomeIcon icon={faExclamationCircle} class="mr-1" />
 										{confirmPasswordField.error}
 									</p>
 								{/if}
@@ -391,7 +400,7 @@
 									class="w-full"
 									disabled={!form.isValid || submitting}
 								>
-									<i class="fas fa-key mr-2"></i>
+									<FontAwesomeIcon icon={faKey} class="mr-2" />
 									비밀번호 재설정
 								</LoadingButton>
 
@@ -401,7 +410,7 @@
 									onclick={() => goto(ROUTES.LOGIN)}
 									disabled={submitting}
 								>
-									<i class="fas fa-arrow-left mr-2"></i>
+									<FontAwesomeIcon icon={faArrowLeft} class="mr-2" />
 									로그인 페이지로 돌아가기
 								</Button>
 							</div>
@@ -417,7 +426,7 @@
 								? 'pointer-events-none cursor-not-allowed text-gray-300'
 								: 'text-gray-500 transition-colors duration-200 hover:text-gray-700'}"
 						>
-							<i class="fas fa-home mr-1"></i>
+							<FontAwesomeIcon icon={faHome} class="mr-1" />
 							홈으로 돌아가기
 						</a>
 					</div>

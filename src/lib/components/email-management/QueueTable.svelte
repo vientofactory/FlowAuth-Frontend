@@ -1,4 +1,13 @@
 <script lang="ts">
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faCog,
+		faClock,
+		faCheck,
+		faTimes,
+		faPause,
+		faList
+	} from '@fortawesome/free-solid-svg-icons';
 	interface EmailQueueStats {
 		active: number;
 		waiting: number;
@@ -23,7 +32,7 @@
 			status: 'active' as const,
 			label: '처리 중',
 			count: queueStats.active,
-			icon: 'fas fa-cog',
+			icon: faCog,
 			description: '현재 처리되고 있는 이메일 작업',
 			bgColor: 'bg-stone-100',
 			iconColor: 'text-stone-600',
@@ -33,7 +42,7 @@
 			status: 'waiting' as const,
 			label: '대기 중',
 			count: queueStats.waiting,
-			icon: 'fas fa-clock',
+			icon: faClock,
 			description: '처리 대기 중인 이메일 작업',
 			bgColor: 'bg-neutral-100',
 			iconColor: 'text-neutral-600',
@@ -43,7 +52,7 @@
 			status: 'completed' as const,
 			label: '완료됨',
 			count: queueStats.completed,
-			icon: 'fas fa-check',
+			icon: faCheck,
 			description: '성공적으로 전송된 이메일',
 			bgColor: 'bg-gray-100',
 			iconColor: 'text-gray-600',
@@ -53,7 +62,7 @@
 			status: 'failed' as const,
 			label: '실패함',
 			count: queueStats.failed,
-			icon: 'fas fa-times',
+			icon: faTimes,
 			description: '전송 실패한 이메일 작업',
 			bgColor: 'bg-slate-100',
 			iconColor: 'text-slate-600',
@@ -63,7 +72,7 @@
 			status: 'delayed' as const,
 			label: '지연됨',
 			count: queueStats.delayed,
-			icon: 'fas fa-pause',
+			icon: faPause,
 			description: '지연된 이메일 작업 (예약 전송)',
 			bgColor: 'bg-zinc-100',
 			iconColor: 'text-zinc-600',
@@ -79,7 +88,7 @@
 		<div class="border-b border-gray-200 px-6 py-4">
 			<h4 class="flex items-center text-lg font-semibold text-gray-900">
 				<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100">
-					<i class="fas fa-list text-stone-600"></i>
+					<FontAwesomeIcon icon={faList} class="text-stone-600" />
 				</div>
 				큐 상세 현황
 			</h4>
@@ -95,7 +104,7 @@
 							: 'hover:bg-white/80'}"
 					>
 						<div class="flex h-12 w-12 items-center justify-center rounded-lg {row.bgColor}">
-							<i class="{row.icon} text-xl {row.iconColor}"></i>
+							<FontAwesomeIcon icon={row.icon} class="text-xl {row.iconColor}" />
 						</div>
 						<div class="flex-1">
 							<div class="flex items-center gap-2">

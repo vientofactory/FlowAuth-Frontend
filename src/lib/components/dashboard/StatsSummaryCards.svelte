@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Card } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faKey, faClock, faBan, faPercentage } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		dashboardStats: {
@@ -19,7 +21,7 @@
 	>
 		<div class="p-4">
 			<div class="mb-3 flex items-center justify-center">
-				<i class="fas fa-key text-3xl text-stone-600"></i>
+				<FontAwesomeIcon icon={faKey} class="text-3xl text-stone-600" />
 			</div>
 			<p class="mb-1 text-3xl font-bold text-stone-900">
 				{dashboardStats.totalTokensIssued.toLocaleString()}
@@ -34,7 +36,7 @@
 	>
 		<div class="p-4">
 			<div class="mb-3 flex items-center justify-center">
-				<i class="fas fa-clock text-3xl text-neutral-600"></i>
+				<FontAwesomeIcon icon={faClock} class="text-3xl text-neutral-600" />
 			</div>
 			<p class="mb-1 text-3xl font-bold text-neutral-900">
 				{dashboardStats.expiredTokens.toLocaleString()}
@@ -51,7 +53,7 @@
 	>
 		<div class="p-4">
 			<div class="mb-3 flex items-center justify-center">
-				<i class="fas fa-ban text-3xl text-gray-600"></i>
+				<FontAwesomeIcon icon={faBan} class="text-3xl text-gray-600" />
 			</div>
 			<p class="mb-1 text-3xl font-bold text-gray-900">
 				{dashboardStats.revokedTokens.toLocaleString()}
@@ -66,7 +68,7 @@
 	>
 		<div class="p-4">
 			<div class="mb-3 flex items-center justify-center">
-				<i class="fas fa-percentage text-3xl text-slate-600"></i>
+				<FontAwesomeIcon icon={faPercentage} class="text-3xl text-slate-600" />
 			</div>
 			<p class="mb-1 text-3xl font-bold text-slate-900">
 				{dashboardStats.tokenExpirationRate.toFixed(1)}%

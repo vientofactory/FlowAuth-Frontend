@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { Button, apiClient, useToast } from '$lib';
 	import type { User } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faSpinner, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 	const namePattern = /^[a-zA-Z가-힣\s\-.']+$/;
 
@@ -318,15 +320,15 @@
 				/>
 				{#if usernameStatus.isChecking}
 					<div class="absolute inset-y-0 right-0 flex items-center pr-3">
-						<i class="fas fa-spinner fa-spin text-gray-400"></i>
+						<FontAwesomeIcon icon={faSpinner} class="animate-spin text-gray-400" />
 					</div>
 				{:else if usernameStatus.isAvailable === true}
 					<div class="absolute inset-y-0 right-0 flex items-center pr-3">
-						<i class="fas fa-check text-green-500"></i>
+						<FontAwesomeIcon icon={faCheck} class="text-green-500" />
 					</div>
 				{:else if usernameStatus.isAvailable === false}
 					<div class="absolute inset-y-0 right-0 flex items-center pr-3">
-						<i class="fas fa-times text-red-500"></i>
+						<FontAwesomeIcon icon={faTimes} class="text-red-500" />
 					</div>
 				{/if}
 			</div>
@@ -468,7 +470,7 @@
 		<Button variant="outline" onclick={onCancel}>취소</Button>
 		<Button type="submit" disabled={isUpdating}>
 			{#if isUpdating}
-				<i class="fas fa-spinner fa-spin mr-2"></i>
+				<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
 				업데이트 중...
 			{:else}
 				업데이트

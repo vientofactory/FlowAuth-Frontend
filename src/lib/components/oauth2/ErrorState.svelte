@@ -2,6 +2,8 @@
 	import Button from '$lib/components/Button.svelte';
 	import { isRetryableError } from '$lib/utils/error.utils';
 	import type { AuthorizationError } from '$lib/types/authorization.types';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faExclamationTriangle, faRedo, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 	export let error: AuthorizationError;
 	export let onRetry: (() => void) | null = null;
@@ -16,7 +18,7 @@
 	<div
 		class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-red-500 to-pink-600 shadow-lg"
 	>
-		<i class="fas fa-exclamation-triangle text-2xl text-white"></i>
+		<FontAwesomeIcon icon={faExclamationTriangle} class="text-2xl text-white" />
 	</div>
 
 	<div class="space-y-2 text-center">
@@ -34,7 +36,7 @@
 	<div class="flex space-x-3">
 		{#if isRetryableError(error) && onRetry}
 			<Button variant="primary" onclick={onRetry} class="px-4 py-2 text-sm">
-				<i class="fas fa-redo mr-2"></i>
+				<FontAwesomeIcon icon={faRedo} class="mr-2" />
 				다시 시도
 			</Button>
 		{/if}
@@ -44,7 +46,7 @@
 			onclick={onGoBack || (() => window.history.back())}
 			class="px-4 py-2 text-sm"
 		>
-			<i class="fas fa-arrow-left mr-2"></i>
+			<FontAwesomeIcon icon={faArrowLeft} class="mr-2" />
 			뒤로 가기
 		</Button>
 	</div>

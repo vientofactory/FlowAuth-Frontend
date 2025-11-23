@@ -4,11 +4,31 @@
 	import type { User } from '$lib';
 	import { USER_TYPES, PERMISSIONS } from '$lib/types/user.types';
 	import { env } from '$lib/config/env';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faUser,
+		faCubes,
+		faFlask,
+		faBook,
+		faLink,
+		faHistory,
+		faSignOutAlt,
+		faEnvelopeOpenText,
+		faTachometerAlt,
+		faChevronDown,
+		faExclamationTriangle,
+		faCheckCircle,
+		faBars,
+		faSignInAlt,
+		faUserPlus,
+		faCog
+	} from '@fortawesome/free-solid-svg-icons';
+	import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 	// 프로필 메뉴 아이템 타입 정의
 	type ProfileMenuItem = {
 		label: string;
-		icon: string;
+		icon: IconDefinition | string;
 		href?: string;
 		action?: () => Promise<void>;
 		danger?: boolean;
@@ -133,7 +153,7 @@
 		const baseItems = [
 			{
 				label: '프로필',
-				icon: 'fas fa-user',
+				icon: faUser,
 				href: '/dashboard/profile'
 			}
 		];
@@ -141,17 +161,17 @@
 		const developerItems = [
 			{
 				label: '내 애플리케이션',
-				icon: 'fas fa-cubes',
+				icon: faCubes,
 				href: '/dashboard/clients'
 			},
 			{
 				label: 'OAuth2 테스터',
-				icon: 'fas fa-flask',
+				icon: faFlask,
 				href: '/dashboard/oauth-tester'
 			},
 			{
 				label: 'API 문서',
-				icon: 'fas fa-book',
+				icon: faBook,
 				href: 'https://op0.gitbook.io/flowauth/reference/flowauth-oauth2-authentication-system',
 				external: true
 			}
@@ -160,12 +180,12 @@
 		const regularUserItems = [
 			{
 				label: '연결된 앱',
-				icon: 'fas fa-link',
+				icon: faLink,
 				href: '/dashboard/connections'
 			},
 			{
 				label: '활동 로그',
-				icon: 'fas fa-history',
+				icon: faHistory,
 				href: '/dashboard/activity'
 			}
 		];
@@ -173,7 +193,7 @@
 		const commonItems = [
 			{
 				label: '로그아웃',
-				icon: 'fas fa-sign-out-alt',
+				icon: faSignOutAlt,
 				action: handleLogout,
 				danger: true
 			}
@@ -185,7 +205,7 @@
 			? [
 					{
 						label: '이메일 관리',
-						icon: 'fas fa-envelope-open-text',
+						icon: faEnvelopeOpenText,
 						href: '/dashboard/email-management'
 					}
 					// 더 많은 시스템 관리 메뉴 항목들을 여기에 추가
@@ -245,7 +265,7 @@
 								class="border-gray-300 text-gray-700 hover:bg-gray-50"
 								title="내 애플리케이션"
 							>
-								<i class="fas fa-cubes mr-2"></i>
+								<FontAwesomeIcon icon={faCubes} class="mr-2" />
 								<span class="hidden lg:inline">앱</span>
 							</Button>
 							<Button
@@ -255,7 +275,7 @@
 								class="border-gray-300 text-gray-700 hover:bg-gray-50"
 								title="OAuth2 테스터"
 							>
-								<i class="fas fa-flask mr-2"></i>
+								<FontAwesomeIcon icon={faFlask} class="mr-2" />
 								<span class="hidden lg:inline">테스터</span>
 							</Button>
 						</div>
@@ -268,7 +288,7 @@
 							class="border-gray-300 text-gray-700 hover:bg-gray-50"
 							title="프로필 설정"
 						>
-							<i class="fas fa-user mr-2"></i>
+							<FontAwesomeIcon icon={faUser} class="mr-2" />
 							<span class="hidden lg:inline">프로필</span>
 						</Button>
 					{/if}
@@ -281,7 +301,7 @@
 							onclick={() => (window.location.href = '/dashboard')}
 							class="border-gray-300 text-gray-700 hover:bg-gray-50"
 						>
-							<i class="fas fa-tachometer-alt mr-2"></i>
+							<FontAwesomeIcon icon={faTachometerAlt} class="mr-2" />
 							대시보드
 						</Button>
 					{/if}
@@ -311,7 +331,7 @@
 										</div>
 									{/if}
 									<span class="hidden lg:block">{user?.firstName} {user?.lastName}</span>
-									<i class="fas fa-chevron-down text-xs"></i>
+									<FontAwesomeIcon icon={faChevronDown} class="text-xs" />
 								</button>
 
 								<!-- 프로필 드롭다운 메뉴 -->
@@ -350,20 +370,22 @@
 															<span
 																class="inline-flex items-center rounded-md bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-amber-200"
 															>
-																<i
-																	class="fas fa-exclamation-triangle mr-1 text-amber-600"
+																<FontAwesomeIcon
+																	icon={faExclamationTriangle}
+																	class="mr-1 text-amber-600"
 																	style="font-size: 10px;"
-																></i>
+																/>
 																미인증
 															</span>
 														{:else if user?.isEmailVerified}
 															<span
 																class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200"
 															>
-																<i
-																	class="fas fa-check-circle mr-1 text-emerald-600"
+																<FontAwesomeIcon
+																	icon={faCheckCircle}
+																	class="mr-1 text-emerald-600"
 																	style="font-size: 10px;"
-																></i>
+																/>
 																인증됨
 															</span>
 														{/if}
@@ -386,7 +408,14 @@
 														class="mx-1 flex items-center rounded-md px-4 py-2.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
 														onclick={() => (profileDropdownOpen = false)}
 													>
-														<i class="{item.icon} mr-3 w-4 text-center text-gray-400"></i>
+														{#if typeof item.icon === 'string'}
+															<i class="{item.icon} mr-3 w-4 text-center text-gray-400"></i>
+														{:else}
+															<FontAwesomeIcon
+																icon={item.icon}
+																class="mr-3 w-4 text-center text-gray-400"
+															/>
+														{/if}
 														{item.label}
 													</a>
 												{:else if item.action}
@@ -399,11 +428,18 @@
 															? 'text-red-600 hover:bg-red-50 hover:text-red-700'
 															: 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}"
 													>
-														<i
-															class="{item.icon} mr-3 w-4 text-center {item.danger
-																? ''
-																: 'text-gray-400'}"
-														></i>
+														{#if typeof item.icon === 'string'}
+															<i
+																class="{item.icon} mr-3 w-4 text-center {item.danger
+																	? ''
+																	: 'text-gray-400'}"
+															></i>
+														{:else}
+															<FontAwesomeIcon
+																icon={item.icon}
+																class="mr-3 w-4 text-center {item.danger ? '' : 'text-gray-400'}"
+															/>
+														{/if}
 														{item.label}
 													</button>
 												{/if}
@@ -502,18 +538,22 @@
 											<span
 												class="inline-flex items-center rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-700"
 											>
-												<i
-													class="fas fa-exclamation-triangle mr-1 text-amber-600"
+												<FontAwesomeIcon
+													icon={faExclamationTriangle}
+													class="mr-1 text-amber-600"
 													style="font-size: 9px;"
-												></i>
+												/>
 												미인증
 											</span>
 										{:else if user?.isEmailVerified}
 											<span
 												class="inline-flex items-center rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-xs font-medium text-emerald-700"
 											>
-												<i class="fas fa-check-circle mr-1 text-emerald-600" style="font-size: 9px;"
-												></i>
+												<FontAwesomeIcon
+													icon={faCheckCircle}
+													class="mr-1 text-emerald-600"
+													style="font-size: 9px;"
+												/>
 												인증됨
 											</span>
 										{/if}
@@ -525,7 +565,7 @@
 										class="mx-1 flex items-center rounded-md px-4 py-2.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
 										onclick={() => (profileDropdownOpen = false)}
 									>
-										<i class="fas fa-user mr-3 w-4 text-center text-gray-400"></i>
+										<FontAwesomeIcon icon={faUser} class="mr-3 w-4 text-center text-gray-400" />
 										프로필
 									</a>
 
@@ -536,7 +576,7 @@
 											class="mx-1 flex items-center rounded-md px-4 py-2.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
 											onclick={() => (profileDropdownOpen = false)}
 										>
-											<i class="fas fa-cubes mr-3 w-4 text-center text-gray-400"></i>
+											<FontAwesomeIcon icon={faCubes} class="mr-3 w-4 text-center text-gray-400" />
 											내 애플리케이션
 										</a>
 										<a
@@ -544,7 +584,7 @@
 											class="mx-1 flex items-center rounded-md px-4 py-2.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
 											onclick={() => (profileDropdownOpen = false)}
 										>
-											<i class="fas fa-flask mr-3 w-4 text-center text-gray-400"></i>
+											<FontAwesomeIcon icon={faFlask} class="mr-3 w-4 text-center text-gray-400" />
 											OAuth2 테스터
 										</a>
 									{:else}
@@ -553,7 +593,7 @@
 											class="mx-1 flex items-center rounded-md px-4 py-2.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
 											onclick={() => (profileDropdownOpen = false)}
 										>
-											<i class="fas fa-link mr-3 w-4 text-center text-gray-400"></i>
+											<FontAwesomeIcon icon={faLink} class="mr-3 w-4 text-center text-gray-400" />
 											연결된 앱
 										</a>
 									{/if}
@@ -565,7 +605,10 @@
 											class="mx-1 flex items-center rounded-md px-4 py-2.5 text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900"
 											onclick={() => (profileDropdownOpen = false)}
 										>
-											<i class="fas fa-envelope-open-text mr-3 w-4 text-center text-gray-400"></i>
+											<FontAwesomeIcon
+												icon={faEnvelopeOpenText}
+												class="mr-3 w-4 text-center text-gray-400"
+											/>
 											이메일 관리
 										</a>
 									{/if}
@@ -578,7 +621,7 @@
 										}}
 										class="mx-1 flex w-full items-center rounded-md px-4 py-2.5 text-sm text-red-600 transition-colors duration-150 hover:bg-red-50 hover:text-red-700"
 									>
-										<i class="fas fa-sign-out-alt mr-3 w-4 text-center"></i>
+										<FontAwesomeIcon icon={faSignOutAlt} class="mr-3 w-4 text-center" />
 										로그아웃
 									</button>
 								</div>
@@ -592,7 +635,7 @@
 						aria-label="메뉴 열기"
 						onclick={() => (mobileMenuOpen = !mobileMenuOpen)}
 					>
-						<i class="fas fa-bars text-xl"></i>
+						<FontAwesomeIcon icon={faBars} class="text-xl" />
 					</button>
 				{/if}
 			</div>
@@ -640,18 +683,22 @@
 										<span
 											class="inline-flex items-center rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-700"
 										>
-											<i
-												class="fas fa-exclamation-triangle mr-1 text-amber-600"
+											<FontAwesomeIcon
+												icon={faExclamationTriangle}
+												class="mr-1 text-amber-600"
 												style="font-size: 9px;"
-											></i>
+											/>
 											미인증
 										</span>
 									{:else if user?.isEmailVerified}
 										<span
 											class="inline-flex items-center rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-xs font-medium text-emerald-700"
 										>
-											<i class="fas fa-check-circle mr-1 text-emerald-600" style="font-size: 9px;"
-											></i>
+											<FontAwesomeIcon
+												icon={faCheckCircle}
+												class="mr-1 text-emerald-600"
+												style="font-size: 9px;"
+											/>
 											인증됨
 										</span>
 									{/if}
@@ -666,7 +713,7 @@
 							class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
 							onclick={() => (mobileMenuOpen = false)}
 						>
-							<i class="fas fa-tachometer-alt mr-3 w-5 text-center"></i>
+							<FontAwesomeIcon icon={faTachometerAlt} class="mr-3 w-5 text-center" />
 							대시보드
 						</a>
 
@@ -678,7 +725,7 @@
 								class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
 								onclick={() => (mobileMenuOpen = false)}
 							>
-								<i class="fas fa-cubes mr-3 w-5 text-center"></i>
+								<FontAwesomeIcon icon={faCubes} class="mr-3 w-5 text-center" />
 								내 애플리케이션
 							</a>
 							<a
@@ -686,7 +733,7 @@
 								class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
 								onclick={() => (mobileMenuOpen = false)}
 							>
-								<i class="fas fa-flask mr-3 w-5 text-center"></i>
+								<FontAwesomeIcon icon={faFlask} class="mr-3 w-5 text-center" />
 								OAuth2 테스터
 							</a>
 						{:else}
@@ -696,7 +743,7 @@
 								class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
 								onclick={() => (mobileMenuOpen = false)}
 							>
-								<i class="fas fa-user mr-3 w-5 text-center"></i>
+								<FontAwesomeIcon icon={faUser} class="mr-3 w-5 text-center" />
 								프로필
 							</a>
 						{/if}
@@ -708,7 +755,7 @@
 								class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
 								onclick={() => (mobileMenuOpen = false)}
 							>
-								<i class="fas fa-envelope-open-text mr-3 w-5 text-center"></i>
+								<FontAwesomeIcon icon={faEnvelopeOpenText} class="mr-3 w-5 text-center" />
 								이메일 관리
 							</a>
 							<a
@@ -716,7 +763,7 @@
 								class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
 								onclick={() => (mobileMenuOpen = false)}
 							>
-								<i class="fas fa-cog mr-3 w-5 text-center"></i>
+								<FontAwesomeIcon icon={faCog} class="mr-3 w-5 text-center" />
 								설정
 							</a>
 						{/if}
@@ -727,7 +774,7 @@
 							}}
 							class="flex w-full items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
 						>
-							<i class="fas fa-sign-out-alt mr-3 w-5 text-center"></i>
+							<FontAwesomeIcon icon={faSignOutAlt} class="mr-3 w-5 text-center" />
 							로그아웃
 						</button>
 					</div>
@@ -739,7 +786,7 @@
 							class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
 							onclick={() => (mobileMenuOpen = false)}
 						>
-							<i class="fas fa-sign-in-alt mr-3 w-5 text-center"></i>
+							<FontAwesomeIcon icon={faSignInAlt} class="mr-3 w-5 text-center" />
 							로그인
 						</a>
 						<a
@@ -747,7 +794,7 @@
 							class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
 							onclick={() => (mobileMenuOpen = false)}
 						>
-							<i class="fas fa-user-plus mr-3 w-5 text-center"></i>
+							<FontAwesomeIcon icon={faUserPlus} class="mr-3 w-5 text-center" />
 							회원가입
 						</a>
 					</div>

@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { Card, Badge } from '$lib';
 	import type { TokenInfo } from '$lib/utils/jwt-utils';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faUser, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		tokenInfo: TokenInfo | null;
@@ -58,7 +60,7 @@
 					/>
 				{:else}
 					<div class="mr-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-300">
-						<i class="fas fa-user text-gray-600"></i>
+						<FontAwesomeIcon icon={faUser} class="text-gray-600" />
 					</div>
 				{/if}
 				<div>
@@ -67,7 +69,7 @@
 					</h3>
 					{#if userInfo.email}
 						<p class="flex items-center text-sm text-gray-600">
-							<i class="fas fa-envelope mr-1"></i>
+							<FontAwesomeIcon icon={faEnvelope} class="mr-1" />
 							{userInfo.email}
 							{#if userInfo.email_verified}
 								<Badge variant="success" class="ml-2 text-xs">인증됨</Badge>

@@ -3,6 +3,8 @@
 	import Button from '$lib/components/Button.svelte';
 	import QRCode from '$lib/components/QRCode.svelte';
 	import type { TwoFactorSetup } from '$lib/types/2fa.types';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faMobileAlt, faTimes, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		setupData: TwoFactorSetup;
@@ -17,7 +19,7 @@
 	<div class="p-6">
 		<div class="text-center">
 			<div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-				<i class="fas fa-mobile-alt text-xl text-blue-600"></i>
+				<FontAwesomeIcon icon={faMobileAlt} class="text-xl text-blue-600" />
 			</div>
 			<h2 class="mb-2 text-xl font-bold text-gray-900">1단계: 인증 앱 설정</h2>
 			<p class="mb-6 text-gray-600">
@@ -58,11 +60,11 @@
 
 		<div class="flex justify-between">
 			<Button variant="outline" onclick={onCancel}>
-				<i class="fas fa-times mr-2"></i>
+				<FontAwesomeIcon icon={faTimes} class="mr-2" />
 				취소
 			</Button>
 			<Button onclick={onNext}>
-				<i class="fas fa-arrow-right mr-2"></i>
+				<FontAwesomeIcon icon={faArrowRight} class="mr-2" />
 				다음
 			</Button>
 		</div>

@@ -1,5 +1,14 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faCheckCircle,
+		faExclamationCircle,
+		faExclamationTriangle,
+		faInfoCircle,
+		faTimes
+	} from '@fortawesome/free-solid-svg-icons';
+	import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 	let {
 		message = '',
@@ -44,16 +53,16 @@
 		}
 	});
 
-	function getIcon() {
+	function getIcon(): IconDefinition {
 		switch (type) {
 			case 'success':
-				return 'fas fa-check-circle';
+				return faCheckCircle;
 			case 'error':
-				return 'fas fa-exclamation-circle';
+				return faExclamationCircle;
 			case 'warning':
-				return 'fas fa-exclamation-triangle';
+				return faExclamationTriangle;
 			default:
-				return 'fas fa-info-circle';
+				return faInfoCircle;
 		}
 	}
 
@@ -110,7 +119,7 @@
 	}
 
 	let colors = $derived(getColors());
-	let iconClass = $derived(getIcon());
+	let icon = $derived(getIcon());
 	let positionClasses = $derived(getPositionClasses());
 </script>
 
@@ -121,7 +130,7 @@
 			{colors.border} {colors.background}
 			mx-4 w-full max-w-sm sm:mx-0 sm:max-w-md"
 		>
-			<i class="mr-2 flex-shrink-0 sm:mr-3 {iconClass} {colors.icon} text-lg sm:text-xl"></i>
+			<FontAwesomeIcon {icon} class="mr-2 flex-shrink-0 sm:mr-3 {colors.icon} text-lg sm:text-xl" />
 			<p class="font-medium {colors.text} flex-1 pr-2 text-sm sm:text-base">{message}</p>
 			<button
 				onclick={() => {
@@ -134,7 +143,7 @@
 				class="ml-2 flex-shrink-0 p-1 text-gray-400 transition-colors duration-200 hover:text-gray-600"
 				aria-label="알림 닫기"
 			>
-				<i class="fas fa-times text-sm sm:text-base"></i>
+				<FontAwesomeIcon icon={faTimes} class="text-sm sm:text-base" />
 			</button>
 		</div>
 	</div>

@@ -1,5 +1,13 @@
 <script lang="ts">
 	import { Card } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faLightbulb,
+		faChartLine,
+		faCheckCircle,
+		faExclamationTriangle,
+		faInfoCircle
+	} from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		dashboardStats: {
@@ -18,7 +26,7 @@
 	<div class="flex items-start space-x-4">
 		<div class="flex-shrink-0">
 			<div class="flex h-12 w-12 items-center justify-center rounded-full bg-stone-100">
-				<i class="fas fa-lightbulb text-xl text-stone-600"></i>
+				<FontAwesomeIcon icon={faLightbulb} class="text-xl text-stone-600" />
 			</div>
 		</div>
 		<div class="flex-1">
@@ -29,7 +37,7 @@
 						<div
 							class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-stone-100"
 						>
-							<i class="fas fa-chart-line text-stone-600"></i>
+							<FontAwesomeIcon icon={faChartLine} class="text-stone-600" />
 						</div>
 						<div class="min-w-0">
 							<p class="text-sm font-medium text-gray-900">트렌드 분석</p>
@@ -42,7 +50,7 @@
 						<div
 							class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-neutral-100"
 						>
-							<i class="fas fa-check-circle text-neutral-600"></i>
+							<FontAwesomeIcon icon={faCheckCircle} class="text-neutral-600" />
 						</div>
 						<div class="min-w-0">
 							<p class="text-sm font-medium text-gray-900">권장사항</p>
@@ -57,7 +65,7 @@
 						<div
 							class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-100"
 						>
-							<i class="fas fa-exclamation-triangle text-gray-600"></i>
+							<FontAwesomeIcon icon={faExclamationTriangle} class="text-gray-600" />
 						</div>
 						<div class="min-w-0">
 							<p class="text-sm font-medium text-gray-900">주의사항</p>
@@ -68,7 +76,7 @@
 			</div>
 			{#if !dashboardStats.insights.trends && !dashboardStats.insights.recommendations && !dashboardStats.insights.alerts}
 				<div class="py-8 text-center text-gray-500">
-					<i class="fas fa-info-circle mb-2 text-3xl"></i>
+					<FontAwesomeIcon icon={faInfoCircle} class="mb-2 text-3xl" />
 					<p>분석할 데이터가 충분하지 않습니다.</p>
 					<p class="mt-1 text-sm">더 많은 활동 후 다시 확인해주세요.</p>
 				</div>

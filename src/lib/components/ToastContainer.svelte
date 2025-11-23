@@ -2,6 +2,15 @@
 	import { toastStore, toast } from '$lib/stores/toast';
 	import type { ToastMessage } from '$lib/stores/toast';
 	import { fly } from 'svelte/transition';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faCheckCircle,
+		faExclamationCircle,
+		faExclamationTriangle,
+		faInfoCircle,
+		faTimes
+	} from '@fortawesome/free-solid-svg-icons';
+	import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 	let toasts: ToastMessage[] = [];
 	let timers: Map<string, number> = new Map();
@@ -33,16 +42,16 @@
 		toasts = value;
 	});
 
-	function getIcon(type: ToastMessage['type']): string {
+	function getIcon(type: ToastMessage['type']): IconDefinition {
 		switch (type) {
 			case 'success':
-				return 'fas fa-check-circle';
+				return faCheckCircle;
 			case 'error':
-				return 'fas fa-exclamation-circle';
+				return faExclamationCircle;
 			case 'warning':
-				return 'fas fa-exclamation-triangle';
+				return faExclamationTriangle;
 			default:
-				return 'fas fa-info-circle';
+				return faInfoCircle;
 		}
 	}
 
@@ -106,14 +115,14 @@
 	>
 		{#each toasts as toastItem (toastItem.id)}
 			{@const colors = getColors(toastItem.type)}
-			{@const iconClass = getIcon(toastItem.type)}
+			{@const icon = getIcon(toastItem.type)}
 
 			<div
 				class="toast-item animate-slide-in-right flex items-center rounded-lg border-l-4 px-4 py-3 shadow-lg backdrop-blur-sm {colors.border} {colors.background}"
 				transition:fly={{ x: 300, duration: 300 }}
 				style="pointer-events: auto !important;"
 			>
-				<i class="mr-3 {iconClass} {colors.icon}"></i>
+				<FontAwesomeIcon {icon} class="mr-3 {colors.icon}" />
 				<p class="flex-1 font-medium {colors.text}">{toastItem.message}</p>
 				<button
 					onclick={(event) => {
@@ -135,7 +144,7 @@
 					type="button"
 					style="pointer-events: auto !important; cursor: pointer !important;"
 				>
-					<i class="fas fa-times"></i>
+					<FontAwesomeIcon icon={faTimes} />
 				</button>
 			</div>
 		{/each}
