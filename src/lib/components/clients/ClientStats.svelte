@@ -5,7 +5,6 @@
 		faUsers,
 		faCheckCircle,
 		faTimesCircle,
-		faShieldAlt
 	} from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {

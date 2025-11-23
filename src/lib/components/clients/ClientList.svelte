@@ -54,11 +54,7 @@
 				</div>
 				클라이언트 목록
 			</h3>
-			<Button
-				onclick={onToggleCreateForm}
-				size="sm"
-				class="hidden lg:inline-flex"
-			>
+			<Button onclick={onToggleCreateForm} size="sm" class="hidden lg:inline-flex">
 				<FontAwesomeIcon icon={faPlus} class="mr-2" />
 				{showCreateForm ? '취소' : '클라이언트 추가'}
 			</Button>
