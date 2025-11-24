@@ -22,19 +22,29 @@
 
 	let { data }: { data: PageData } = $props();
 
-	// 권한 부여 훅 사용
-	const {
-		state: authState,
-		handleConsent,
-		retryAuthorization,
-		loadAuthorizationData
-	} = useAuthorization(data);
+	// OAuth2 파라미터 누락 에러 처리
+	const oauth2ParamError = data && 'error' in data && data.error;
 
-	// 상태 구독
+	// 권한 부여 훅 및 상태: 파라미터가 정상일 때만 사용
+	import type { Writable } from 'svelte/store';
+	let authState: Writable<AuthorizationState> | null = null;
+	let handleConsent: ((approved: boolean) => void) | null = null;
+	let retryAuthorization: (() => void) | null = null;
+	let loadAuthorizationData: (() => void) | null = null;
 	let currentState = $state<AuthorizationState | null>(null);
-	const unsubscribe = authState.subscribe((value) => {
-		currentState = value;
-	});
+	let unsubscribe: (() => void) | null = null;
+
+	if (!oauth2ParamError && data && 'authorizeParams' in data) {
+		({
+			state: authState,
+			handleConsent,
+			retryAuthorization,
+			loadAuthorizationData
+		} = useAuthorization(data));
+		unsubscribe = authState.subscribe((value: AuthorizationState) => {
+			currentState = value;
+		});
+	}
 
 	// 설명 표시 상태 관리
 	let isDescriptionExpanded = $state(false);
@@ -43,8 +53,10 @@
 	const DESCRIPTION_MAX_LENGTH = 80; // 모바일에서 약 3-4줄
 	const DESCRIPTION_PREVIEW_LENGTH = 20; // 미리보기 길이
 
-	// 로고 URL을 리액티브하게 계산
-	let logoUrl = $derived(getLogoUrl(currentState?.client?.logoUri));
+	// 로고 URL을 리액티브하게 계산 (파라미터 에러 시 null)
+	let logoUrl = $derived(
+		!oauth2ParamError && currentState?.client ? getLogoUrl(currentState.client.logoUri) : null
+	);
 
 	// 스코프 아이콘 색상 클래스 가져오기 함수
 	function getScopeColorClasses(color: string) {
@@ -162,25 +174,28 @@
 		}
 
 		console.log('[Page] Component mounted, starting authorization data load');
-		loadAuthorizationData();
+		if (loadAuthorizationData) loadAuthorizationData();
 
 		// 추가 안전장치: 45초 후에도 로딩 중이면 강제로 에러 상태로 전환
 		setTimeout(() => {
-			authState.update((current) => {
-				if (current.loading) {
-					console.error('[Page] Force timeout: loading took too long');
-					return {
-						...current,
-						loading: false,
-						error: {
-							type: ErrorType.TIMEOUT_ERROR,
-							message: '보안 검증이 예상보다 오래 걸리고 있습니다. 페이지를 새로고침해주세요.',
-							retryable: false
-						}
-					};
-				}
-				return current;
-			});
+			if (authState) {
+				authState.update((current) => {
+					const curr = current as AuthorizationState;
+					if (curr.loading) {
+						console.error('[Page] Force timeout: loading took too long');
+						return {
+							...curr,
+							loading: false,
+							error: {
+								type: ErrorType.TIMEOUT_ERROR,
+								message: '보안 검증이 예상보다 오래 걸리고 있습니다. 페이지를 새로고침해주세요.',
+								retryable: false
+							}
+						};
+					}
+					return curr;
+				});
+			}
 		}, 45000);
 
 		return unsubscribe;
@@ -188,15 +203,15 @@
 
 	// 이벤트 핸들러
 	function handleApprove() {
-		handleConsent(true);
+		if (handleConsent) handleConsent(true);
 	}
 
 	function handleDeny() {
-		handleConsent(false);
+		if (handleConsent) handleConsent(false);
 	}
 
 	function handleRetry() {
-		retryAuthorization();
+		if (retryAuthorization) retryAuthorization();
 	}
 
 	function handleGoBack() {
@@ -219,7 +234,21 @@
 	aria-labelledby="authorize-heading"
 >
 	<div class="w-full max-w-md">
-		{#if currentState?.loading}
+		{#if oauth2ParamError}
+			<Card class="border-red-200 bg-white/95 shadow-xl backdrop-blur-sm">
+				<div class="p-8 text-center">
+					<FontAwesomeIcon icon={faInfoCircle} class="mb-4 text-3xl text-red-400" />
+					<h2 class="mb-2 text-lg font-bold text-red-700">잘못된 요청</h2>
+					<p class="mb-4 text-sm text-gray-700">{oauth2ParamError.message}</p>
+					<button
+						class="mt-2 rounded bg-stone-600 px-4 py-2 text-white hover:bg-stone-700"
+						onclick={() => (window.location.href = '/')}
+					>
+						홈으로 이동
+					</button>
+				</div>
+			</Card>
+		{:else if currentState?.loading}
 			<Card class="border-0 bg-white/95 shadow-xl backdrop-blur-sm">
 				<!-- 로딩 중에도 계정 정보 표시 -->
 				<AccountSwitcher

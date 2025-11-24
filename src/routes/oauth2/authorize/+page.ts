@@ -28,7 +28,12 @@ export const load: PageLoad = async ({ url }) => {
 	const nonce = url.searchParams.get('nonce');
 
 	if (!client_id || !redirect_uri || !response_type) {
-		throw new Error('Missing required OAuth2 parameters');
+		return {
+			error: {
+				status: 400,
+				message: '필수 OAuth2 파라미터가 누락되었습니다. (client_id, redirect_uri, response_type)'
+			}
+		};
 	}
 
 	return {
