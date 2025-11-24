@@ -6,6 +6,7 @@
 	import favicon from '$lib/assets/favicon.ico';
 	import { ToastContainer, apiClient } from '$lib';
 	import { authStore } from '$lib/stores/auth';
+	import { apiRequestStore } from '$lib/stores/api';
 	import { onMount, onDestroy } from 'svelte';
 
 	let { children } = $props();
@@ -14,12 +15,24 @@
 		minimum: 0.16
 	});
 
+	// Navigation 이벤트로 NProgress 제어
+	beforeNavigate(() => NProgress.start());
+	afterNavigate(() => NProgress.done());
+
+	// API 요청 상태로 NProgress 제어
+	$effect(() => {
+		const unsubscribe = apiRequestStore.subscribe((state) => {
+			if (state.isLoading) {
+				NProgress.start();
+			} else {
+				NProgress.done();
+			}
+		});
+		return unsubscribe;
+	});
+
 	onMount(async () => {
 		console.log('App: Starting initialization...');
-
-		// NProgress navigation 이벤트 설정
-		beforeNavigate(() => NProgress.start());
-		afterNavigate(() => NProgress.done());
 
 		try {
 			// 인증 상태 초기화 (세션 복원)

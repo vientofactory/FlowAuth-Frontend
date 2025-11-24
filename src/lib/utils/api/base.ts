@@ -4,6 +4,7 @@ import { env } from '$lib/config/env';
 import type { TokenType } from '$lib/types/authorization.types';
 import { parseBackendError } from '../error.utils';
 import { setAuthTokenCookie, deleteAuthTokenCookie } from '../cookie';
+import { apiRequestStore } from '$lib/stores/api';
 
 export interface ApiError {
 	message?: string;
@@ -39,27 +40,29 @@ export abstract class BaseApi {
 		retryCount = 0,
 		skipAuthRedirect = false
 	): Promise<T> {
-		const url = `${this.baseURL}${endpoint}`;
-
-		const config: RequestInit = {
-			headers: {
-				'Content-Type': 'application/json',
-				...options.headers
-			},
-			credentials: 'include',
-			...options
-		};
-
-		// JWT 토큰이 있으면 헤더에 추가 (이미 Authorization 헤더가 없는 경우만)
-		const token = this.getToken();
-		if (token && !(config.headers as Record<string, string>)?.Authorization) {
-			config.headers = {
-				...config.headers,
-				Authorization: `Bearer ${token}`
-			};
-		}
+		apiRequestStore.startRequest();
 
 		try {
+			const url = `${this.baseURL}${endpoint}`;
+
+			const config: RequestInit = {
+				headers: {
+					'Content-Type': 'application/json',
+					...options.headers
+				},
+				credentials: 'include',
+				...options
+			};
+
+			// JWT 토큰이 있으면 헤더에 추가 (이미 Authorization 헤더가 없는 경우만)
+			const token = this.getToken();
+			if (token && !(config.headers as Record<string, string>)?.Authorization) {
+				config.headers = {
+					...config.headers,
+					Authorization: `Bearer ${token}`
+				};
+			}
+
 			const response = await fetch(url, config);
 
 			// Handle token expiration
@@ -135,6 +138,8 @@ export abstract class BaseApi {
 			}
 
 			throw error;
+		} finally {
+			apiRequestStore.endRequest();
 		}
 	}
 
