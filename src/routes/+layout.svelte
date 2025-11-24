@@ -1,5 +1,8 @@
 <script lang="ts">
 	import '../app.css';
+	import 'nprogress/nprogress.css';
+	import NProgress from 'nprogress';
+	import { beforeNavigate, afterNavigate } from '$app/navigation';
 	import favicon from '$lib/assets/favicon.ico';
 	import { ToastContainer, apiClient } from '$lib';
 	import { authStore } from '$lib/stores/auth';
@@ -7,8 +10,16 @@
 
 	let { children } = $props();
 
+	NProgress.configure({
+		minimum: 0.16
+	});
+
 	onMount(async () => {
 		console.log('App: Starting initialization...');
+
+		// NProgress navigation 이벤트 설정
+		beforeNavigate(() => NProgress.start());
+		afterNavigate(() => NProgress.done());
 
 		try {
 			// 인증 상태 초기화 (세션 복원)

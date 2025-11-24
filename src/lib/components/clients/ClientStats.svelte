@@ -1,11 +1,7 @@
 <script lang="ts">
 	import type { Client } from '$lib/types/oauth.types';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-	import {
-		faUsers,
-		faCheckCircle,
-		faTimesCircle,
-	} from '@fortawesome/free-solid-svg-icons';
+	import { faUsers, faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		clients: Client[];
