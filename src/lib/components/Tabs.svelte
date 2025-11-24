@@ -1,10 +1,12 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 	interface Tab {
 		id: string;
 		label: string;
-		icon?: string;
+		icon?: IconDefinition;
 		disabled?: boolean;
 		badge?: string | number;
 	}
@@ -85,7 +87,7 @@
 				>
 					<div class="flex items-center space-x-1 sm:space-x-2">
 						{#if tab.icon}
-							<i class={tab.icon}></i>
+							<FontAwesomeIcon icon={tab.icon} />
 						{/if}
 						<span>{tab.label}</span>
 						{#if tab.badge}

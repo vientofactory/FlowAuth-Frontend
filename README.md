@@ -27,7 +27,7 @@ FlowAuth의 프론트엔드 애플리케이션입니다. SvelteKit을 기반으�
 npm install
 ```
 
-### 2. 환경 변수 설정 (선택사항)
+### 2. 환경 변수 설정
 
 ```env
 # Backend API URL (기본값: http://localhost:3000)
@@ -140,29 +140,67 @@ frontend/
 - **Table**: 데이터 테이블
 - **Toast**: 알림 메시지 시스템
 
-## 테스트 및 품질
+## API 문서
 
-### 코드 품질 검사
+### 주요 엔드포인트
 
-```bash
-# 타입 체크
-npm run check
+프론트엔드는 백엔드 API를 통해 데이터를 교환합니다. 주요 API 엔드포인트는 다음과 같습니다:
 
-# 린팅 및 포맷팅
-npm run lint
+#### 인증 관련
 
-# 타입 체크 (워치 모드)
-npm run check:watch
+- `POST /auth/login` - 사용자 로그인
+- `POST /auth/register` - 사용자 등록
+- `GET /auth/profile` - 프로필 조회
+
+#### OAuth2 관련
+
+- `GET /oauth2/authorize` - 인가 요청
+- `POST /oauth2/token` - 토큰 발급
+- `GET /oauth2/userinfo` - 사용자 정보 조회
+- `POST /oauth2/authorize/consent` - 동의 처리
+
+#### 클라이언트 관리
+
+- `GET /clients` - 클라이언트 목록 조회
+- `POST /clients` - 새 클라이언트 생성
+- `PUT /clients/:id` - 클라이언트 수정
+- `DELETE /clients/:id` - 클라이언트 삭제
+
+#### 헬스체크
+
+- `GET /health` - 애플리케이션 헬스체크
+
+### API 통신
+
+타입 안전한 API 클라이언트를 통해 백엔드와 통신합니다:
+
+```typescript
+// lib/utils/api.ts
+export class ApiClient {
+	async getClients() {
+		return this.request('/clients');
+	}
+
+	async createClient(data: CreateClientDto) {
+		return this.request('/clients', {
+			method: 'POST',
+			body: JSON.stringify(data)
+		});
+	}
+}
 ```
 
-### 개발 도구
+## 테스트
 
 ```bash
-# 코드 포맷팅
-npm run format
+# 단위 테스트 실행
+npm run test
 
-# SvelteKit 동기화
-npm run prepare
+# 테스트 커버리지 확인
+npm run test:cov
+
+# E2E 테스트 실행
+npm run test:e2e
 ```
 
 ## 사용 가능한 스크립트
@@ -182,7 +220,7 @@ npm run lint          # 린팅
 npm run format        # 포맷팅
 ```
 
-## 환경별 설정
+## 환경 설정
 
 ### 개발 환경
 
@@ -199,25 +237,87 @@ npm run preview
 # 최적화된 빌드, 정적 파일 제공
 ```
 
-## API 통신
+### 추가 환경 변수
 
-타입 안전한 API 클라이언트를 통해 백엔드와 통신합니다:
-
-```typescript
-// lib/utils/api.ts
-export class ApiClient {
-	async getClients() {
-		return this.request('/clients');
-	}
-
-	async createClient(data: CreateClientDto) {
-		return this.request('/clients', {
-			method: 'POST',
-			body: JSON.stringify(data)
-		});
-	}
-}
+```env
+# Backend API URL (기본값: http://localhost:3000)
+VITE_API_URL=http://localhost:3000
 ```
+
+## 보안 기능
+
+- **JWT 토큰 기반 인증**: 백엔드와의 안전한 통신
+- **PKCE 지원**: OAuth2 인증 플로우의 보안 강화
+- **CORS 설정**: 백엔드와의 안전한 교차 출처 요청
+- **입력 검증**: 클라이언트 측 폼 유효성 검사
+- **XSS 방지**: Svelte의 자동 이스케이핑 및 보안 헤더
+
+## 문제 해결
+
+### 빌드 오류
+
+**문제**: 빌드 실패 또는 타입 오류
+
+**해결 방법**:
+
+1. 의존성 재설치:
+
+   ```bash
+   rm -rf node_modules package-lock.json
+   npm install
+   ```
+
+2. 타입 체크 실행:
+
+   ```bash
+   npm run check
+   ```
+
+3. 캐시 클리어:
+
+   ```bash
+   npm run prepare
+   ```
+
+### API 연결 오류
+
+**문제**: 백엔드 API와의 통신 실패
+
+**해결 방법**:
+
+1. 백엔드 서버 실행 확인:
+
+   ```bash
+   # 백엔드 디렉토리에서
+   npm run start:dev
+   ```
+
+2. 환경 변수 확인:
+
+   ```bash
+   cat .env
+   # VITE_API_URL이 올바른지 확인
+   ```
+
+3. CORS 설정 확인: 백엔드의 CORS 설정이 프론트엔드 도메인을 허용하는지 확인
+
+### 스타일링 문제
+
+**문제**: TailwindCSS 스타일이 적용되지 않음
+
+**해결 방법**:
+
+1. Tailwind 설정 확인:
+
+   ```bash
+   npx tailwindcss --help
+   ```
+
+2. 빌드 재실행:
+
+   ```bash
+   npm run build
+   ```
 
 ## 배포
 

@@ -1,6 +1,8 @@
 <script lang="ts">
 	import Button from '$lib/components/Button.svelte';
 	import LoadingSpinner from './LoadingSpinner.svelte';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 	interface Props {
 		variant?: 'primary' | 'secondary' | 'outline' | 'danger';
@@ -8,7 +10,7 @@
 		disabled?: boolean;
 		loading?: boolean;
 		loadingText?: string;
-		icon?: string;
+		icon?: IconDefinition | string;
 		type?: 'button' | 'submit' | 'reset';
 		class?: string;
 		onclick?: () => void;
@@ -45,7 +47,11 @@
 		{loadingText}
 	{:else}
 		{#if icon}
-			<i class="{icon} mr-2"></i>
+			{#if typeof icon === 'string'}
+				<i class="{icon} mr-2"></i>
+			{:else}
+				<FontAwesomeIcon {icon} class="mr-2" />
+			{/if}
 		{/if}
 		{#if children}
 			{@render children()}

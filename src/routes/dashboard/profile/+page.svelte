@@ -23,6 +23,17 @@
 	import ProfileEditForm from '$lib/components/profile/ProfileEditForm.svelte';
 	import PasswordChangeSection from '$lib/components/profile/PasswordChangeSection.svelte';
 	import './+page.css';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faEdit,
+		faTimes,
+		faKey,
+		faShieldAlt,
+		faExclamationTriangle,
+		faCheck,
+		faExclamationCircle,
+		faSpinner
+	} from '@fortawesome/free-solid-svg-icons';
 
 	let user = $state<User | null>(null);
 	let _isLoading = $state(true);
@@ -340,7 +351,7 @@
 					>
 						<h3 class="text-base font-medium text-gray-900 sm:text-lg">기본 정보</h3>
 						<Button variant="outline" onclick={toggleEdit} class="h-10 w-full sm:h-11 sm:w-auto">
-							<i class="fas fa-edit mr-2"></i>
+							<FontAwesomeIcon icon={faEdit} class="mr-2" />
 							{isEditing ? '취소' : '편집'}
 						</Button>
 					</div>
@@ -374,7 +385,7 @@
 						<PasswordChangeSection onPasswordChanged={handlePasswordChanged} />
 						<div class="mt-4">
 							<Button variant="outline" onclick={togglePasswordForm} class="w-full">
-								<i class="fas fa-times mr-2"></i>
+								<FontAwesomeIcon icon={faTimes} class="mr-2" />
 								비밀번호 변경 취소
 							</Button>
 						</div>
@@ -383,12 +394,12 @@
 							<div class="mb-6 flex items-center justify-between">
 								<h3 class="text-lg font-medium text-gray-900">비밀번호 변경</h3>
 								<Button variant="outline" onclick={togglePasswordForm}>
-									<i class="fas fa-key mr-2"></i>
+									<FontAwesomeIcon icon={faKey} class="mr-2" />
 									비밀번호 변경
 								</Button>
 							</div>
 							<div class="py-8 text-center">
-								<i class="fas fa-shield-alt mb-4 text-4xl text-gray-400"></i>
+								<FontAwesomeIcon icon={faShieldAlt} class="mb-4 text-4xl text-gray-400" />
 								<p class="mb-4 text-gray-500">보안을 위해 주기적으로 비밀번호를 변경하세요.</p>
 								<Button onclick={togglePasswordForm}>비밀번호 변경하기</Button>
 							</div>
@@ -416,7 +427,7 @@
 		>
 			<div class="mb-4 flex items-center rounded-md bg-yellow-50 p-3">
 				<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100">
-					<i class="fas fa-exclamation-triangle text-yellow-600"></i>
+					<FontAwesomeIcon icon={faExclamationTriangle} class="text-yellow-600" />
 				</div>
 				<p class="text-sm text-yellow-800">2단계 인증을 비활성화하면 계정 보안이 약해집니다.</p>
 			</div>
@@ -447,7 +458,7 @@
 					/>
 					{#if disableTwoFactorForm.currentPassword.trim()}
 						<div class="absolute inset-y-0 right-0 flex items-center pr-3">
-							<i class="fas fa-check text-green-500"></i>
+							<FontAwesomeIcon icon={faCheck} class="text-green-500" />
 						</div>
 					{/if}
 				</div>
@@ -457,7 +468,7 @@
 				<div class="mb-4 rounded-md bg-red-50 p-3">
 					<div class="flex">
 						<div class="shrink-0">
-							<i class="fas fa-exclamation-circle text-red-400"></i>
+							<FontAwesomeIcon icon={faExclamationCircle} class="text-red-400" />
 						</div>
 						<div class="ml-3">
 							<p class="text-sm text-red-800">{twoFactorState.error}</p>
@@ -482,10 +493,10 @@
 					disabled={isDisablingTwoFactor || !disableTwoFactorForm.currentPassword.trim()}
 				>
 					{#if isDisablingTwoFactor}
-						<i class="fas fa-spinner fa-spin mr-2"></i>
+						<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
 						비활성화 중...
 					{:else}
-						<i class="fas fa-shield-alt mr-2"></i>
+						<FontAwesomeIcon icon={faShieldAlt} class="mr-2" />
 						비활성화
 					{/if}
 				</Button>

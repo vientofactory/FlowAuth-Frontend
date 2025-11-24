@@ -2,6 +2,8 @@
 	import { Modal, Button, LogoUpload } from '$lib';
 	import ScopeSelector from '$lib/components/ScopeSelector.svelte';
 	import type { Client } from '$lib/types/oauth.types';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faSpinner, faSave } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		showEditModal: boolean;
@@ -201,10 +203,10 @@
 					</Button>
 					<Button type="submit" disabled={isUpdating} class="h-10 w-full sm:h-11 sm:w-auto">
 						{#if isUpdating}
-							<i class="fas fa-spinner fa-spin mr-2"></i>
+							<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
 							수정 중...
 						{:else}
-							<i class="fas fa-save mr-2"></i>
+							<FontAwesomeIcon icon={faSave} class="mr-2" />
 							수정
 						{/if}
 					</Button>

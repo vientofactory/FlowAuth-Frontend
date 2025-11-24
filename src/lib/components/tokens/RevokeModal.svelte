@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Modal, Button } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faExclamationTriangle, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 	interface TokenData {
 		id: number;
@@ -38,7 +40,7 @@
 
 {#snippet headerSnippet()}
 	<div class="flex items-center">
-		<i class="fas fa-exclamation-triangle mr-2 text-red-500"></i>
+		<FontAwesomeIcon icon={faExclamationTriangle} class="mr-2 text-red-500" />
 		<h3 class="text-lg font-semibold text-gray-900">토큰 폐기 확인</h3>
 	</div>
 {/snippet}
@@ -48,7 +50,7 @@
 		<div class="space-y-4">
 			<div class="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
 				<div class="flex">
-					<i class="fas fa-exclamation-triangle mt-0.5 mr-2 text-yellow-400"></i>
+					<FontAwesomeIcon icon={faExclamationTriangle} class="mt-0.5 mr-2 text-yellow-400" />
 					<div class="text-sm text-yellow-800">
 						<p class="mb-1 font-medium">주의사항</p>
 						<p>
@@ -90,10 +92,10 @@
 	<Button variant="outline" onclick={onCancel} disabled={isRevoking}>취소</Button>
 	<Button variant="danger" onclick={onConfirm} disabled={isRevoking} class="min-w-[80px]">
 		{#if isRevoking}
-			<i class="fas fa-spinner fa-spin mr-1"></i>
+			<FontAwesomeIcon icon={faSpinner} spin class="mr-1" />
 			폐기 중...
 		{:else}
-			<i class="fas fa-trash mr-1"></i>
+			<FontAwesomeIcon icon={faTrash} class="mr-1" />
 			폐기
 		{/if}
 	</Button>

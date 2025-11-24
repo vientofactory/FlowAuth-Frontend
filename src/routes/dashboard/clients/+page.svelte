@@ -32,6 +32,9 @@
 	import ClientEditModal from '$lib/components/clients/ClientEditModal.svelte';
 	import ClientStatusModal from '$lib/components/clients/ClientStatusModal.svelte';
 	import AlertCard from '$lib/components/AlertCard.svelte';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faPlus, faCode, faBook } from '@fortawesome/free-solid-svg-icons';
+	import { faGithub } from '@fortawesome/free-brands-svg-icons';
 
 	let user = $state<User | null>(null);
 	let clients = $state<Client[]>([]);
@@ -708,7 +711,7 @@
 			<!-- 모바일에서는 기본 액션만 표시 -->
 			<div class="flex gap-2 lg:hidden">
 				<Button onclick={toggleCreateForm} class="min-w-0 flex-1 sm:flex-none">
-					<i class="fas fa-plus mr-1 sm:mr-2"></i>
+					<FontAwesomeIcon icon={faPlus} class="mr-1 sm:mr-2" />
 					<span class="truncate">{showCreateForm ? '취소' : '클라이언트 추가'}</span>
 				</Button>
 			</div>
@@ -725,17 +728,17 @@
 		variant="info"
 		title="SDK를 활용한 통합 안내"
 		description="FlowAuth와의 통합을 위해 SDK를 활용해보세요. 아래 링크에서 자세한 사용법을 확인할 수 있습니다."
-		icon="fas fa-code"
+		icon={faCode}
 		links={[
 			{
 				text: 'GitHub 저장소',
 				url: 'https://github.com/vientofactory/FlowAuth-SDK',
-				icon: 'fab fa-github'
+				icon: faGithub
 			},
 			{
 				text: '공식 문서',
 				url: 'https://op0.gitbook.io/flowauth/oauth2-oidc-sdk',
-				icon: 'fas fa-book'
+				icon: faBook
 			}
 		]}
 	/>
@@ -769,6 +772,7 @@
 	<ClientList
 		{clients}
 		{isLoading}
+		{showCreateForm}
 		onToggleCreateForm={toggleCreateForm}
 		onEditClient={editClient}
 		onToggleClientStatus={toggleClientStatus}

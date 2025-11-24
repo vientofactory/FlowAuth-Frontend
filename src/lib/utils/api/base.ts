@@ -4,6 +4,7 @@ import { env } from '$lib/config/env';
 import type { TokenType } from '$lib/types/authorization.types';
 import { parseBackendError } from '../error.utils';
 import { setAuthTokenCookie, deleteAuthTokenCookie } from '../cookie';
+import { apiRequestStore } from '$lib/stores/api';
 
 export interface ApiError {
 	message?: string;
@@ -39,27 +40,29 @@ export abstract class BaseApi {
 		retryCount = 0,
 		skipAuthRedirect = false
 	): Promise<T> {
-		const url = `${this.baseURL}${endpoint}`;
-
-		const config: RequestInit = {
-			headers: {
-				'Content-Type': 'application/json',
-				...options.headers
-			},
-			credentials: 'include',
-			...options
-		};
-
-		// JWT 토큰이 있으면 헤더에 추가 (이미 Authorization 헤더가 없는 경우만)
-		const token = this.getToken();
-		if (token && !(config.headers as Record<string, string>)?.Authorization) {
-			config.headers = {
-				...config.headers,
-				Authorization: `Bearer ${token}`
-			};
-		}
+		apiRequestStore.startRequest();
 
 		try {
+			const url = `${this.baseURL}${endpoint}`;
+
+			const config: RequestInit = {
+				headers: {
+					'Content-Type': 'application/json',
+					...options.headers
+				},
+				credentials: 'include',
+				...options
+			};
+
+			// JWT 토큰이 있으면 헤더에 추가 (이미 Authorization 헤더가 없는 경우만)
+			const token = this.getToken();
+			if (token && !(config.headers as Record<string, string>)?.Authorization) {
+				config.headers = {
+					...config.headers,
+					Authorization: `Bearer ${token}`
+				};
+			}
+
 			const response = await fetch(url, config);
 
 			// Handle token expiration
@@ -135,6 +138,8 @@ export abstract class BaseApi {
 			}
 
 			throw error;
+		} finally {
+			apiRequestStore.endRequest();
 		}
 	}
 
@@ -232,8 +237,29 @@ export abstract class BaseApi {
 
 	public getRefreshToken(): string | null {
 		if (typeof window !== 'undefined') {
-			return localStorage.getItem(APP_CONSTANTS.REFRESH_TOKEN_STORAGE_KEY);
+			// 토큰 타입에 따라 올바른 리프레시 토큰 키 사용
+			const refreshKey =
+				this.currentTokenType === 'login'
+					? TOKEN_STORAGE_KEYS.REFRESH_LOGIN
+					: TOKEN_STORAGE_KEYS.REFRESH_OAUTH2;
+			let refreshToken = localStorage.getItem(refreshKey);
+
+			// 대안 키에서도 확인 (호환성 유지)
+			if (!refreshToken) {
+				const altKey =
+					this.currentTokenType === 'login'
+						? TOKEN_STORAGE_KEYS.REFRESH_OAUTH2
+						: TOKEN_STORAGE_KEYS.REFRESH_LOGIN;
+				refreshToken = localStorage.getItem(altKey);
+				if (refreshToken) {
+					console.log('ApiClient: Found refresh token in alternative storage key:', altKey);
+				}
+			}
+
+			console.log('ApiClient: Getting refresh token from localStorage:', !!refreshToken);
+			return refreshToken;
 		}
+		console.log('ApiClient: Window not available, returning null');
 		return null;
 	}
 
@@ -259,13 +285,25 @@ export abstract class BaseApi {
 
 	protected setRefreshToken(refreshToken: string): void {
 		if (typeof window !== 'undefined') {
-			localStorage.setItem(APP_CONSTANTS.REFRESH_TOKEN_STORAGE_KEY, refreshToken);
+			const refreshKey =
+				this.currentTokenType === 'login'
+					? TOKEN_STORAGE_KEYS.REFRESH_LOGIN
+					: TOKEN_STORAGE_KEYS.REFRESH_OAUTH2;
+			console.log(
+				'ApiClient: Setting refresh token to localStorage for type:',
+				this.currentTokenType
+			);
+			localStorage.setItem(refreshKey, refreshToken);
+			console.log('ApiClient: Refresh token set successfully');
 		}
 	}
 
 	protected removeRefreshToken(): void {
 		if (typeof window !== 'undefined') {
-			localStorage.removeItem(APP_CONSTANTS.REFRESH_TOKEN_STORAGE_KEY);
+			console.log('ApiClient: Removing refresh tokens from localStorage');
+			localStorage.removeItem(TOKEN_STORAGE_KEYS.REFRESH_LOGIN);
+			localStorage.removeItem(TOKEN_STORAGE_KEYS.REFRESH_OAUTH2);
+			console.log('ApiClient: Refresh tokens removed successfully');
 		}
 	}
 

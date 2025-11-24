@@ -1,6 +1,17 @@
 <script lang="ts">
 	import { Card, Badge } from '$lib';
 	import Chart from '$lib/components/Chart.svelte';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faClock,
+		faChartLine,
+		faChartBar,
+		faCalendar,
+		faShieldAlt,
+		faUsers,
+		faChartPie,
+		faTachometerAlt
+	} from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		dashboardStats: {
@@ -42,7 +53,7 @@
 	<Card class="transition-shadow duration-300 hover:shadow-lg">
 		<div class="mb-4 flex items-center justify-between">
 			<h3 class="text-lg font-semibold text-gray-900">
-				<i class="fas fa-clock mr-2 text-stone-600"></i>
+				<FontAwesomeIcon icon={faClock} class="mr-2 text-stone-600" />
 				24시간 토큰 발급 추이
 			</h3>
 			<Badge variant="info" size="sm">실시간</Badge>
@@ -122,7 +133,7 @@
 		{:else}
 			<div class="flex h-80 items-center justify-center rounded-lg bg-gray-50 text-gray-500">
 				<div class="text-center">
-					<i class="fas fa-chart-line mb-3 text-4xl opacity-50"></i>
+					<FontAwesomeIcon icon={faChartLine} class="mb-3 text-4xl opacity-50" />
 					<p class="font-medium">최근 24시간 동안</p>
 					<p class="text-sm">토큰 발급 기록이 없습니다</p>
 				</div>
@@ -134,7 +145,7 @@
 	<Card class="transition-shadow duration-300 hover:shadow-lg">
 		<div class="mb-4 flex items-center justify-between">
 			<h3 class="text-lg font-semibold text-gray-900">
-				<i class="fas fa-chart-bar mr-2 text-stone-600"></i>
+				<FontAwesomeIcon icon={faChartBar} class="mr-2 text-stone-600" />
 				피크 시간 분석
 			</h3>
 			<Badge variant="default" size="sm">고급 분석</Badge>
@@ -228,7 +239,7 @@
 		{:else}
 			<div class="flex h-80 items-center justify-center rounded-lg bg-gray-50 text-gray-500">
 				<div class="text-center">
-					<i class="fas fa-chart-bar mb-3 text-4xl opacity-50"></i>
+					<FontAwesomeIcon icon={faChartBar} class="mb-3 text-4xl opacity-50" />
 					<p class="font-medium">피크 시간 분석</p>
 					<p class="text-sm">데이터가 충분하지 않습니다</p>
 				</div>
@@ -240,7 +251,7 @@
 	<Card class="transition-shadow duration-300 hover:shadow-lg">
 		<div class="mb-4 flex items-center justify-between">
 			<h3 class="text-lg font-semibold text-gray-900">
-				<i class="fas fa-calendar mr-2 text-neutral-600"></i>
+				<FontAwesomeIcon icon={faCalendar} class="mr-2 text-neutral-600" />
 				30일 토큰 발급 추이
 			</h3>
 			<Badge variant="info" size="sm">
@@ -338,7 +349,7 @@
 		{:else}
 			<div class="flex h-80 items-center justify-center rounded-lg bg-gray-50 text-gray-500">
 				<div class="text-center">
-					<i class="fas fa-chart-bar mb-3 text-4xl opacity-50"></i>
+					<FontAwesomeIcon icon={faChartBar} class="mb-3 text-4xl opacity-50" />
 					<p class="font-medium">최근 30일 동안</p>
 					<p class="text-sm">토큰 발급 기록이 없습니다</p>
 				</div>
@@ -350,7 +361,7 @@
 	<Card class="transition-shadow duration-300 hover:shadow-lg">
 		<div class="mb-4 flex items-center justify-between">
 			<h3 class="text-lg font-semibold text-gray-900">
-				<i class="fas fa-shield-alt mr-2 text-stone-600"></i>
+				<FontAwesomeIcon icon={faShieldAlt} class="mr-2 text-stone-600" />
 				보안 위협 패턴
 			</h3>
 			<Badge variant="default" size="sm">보안</Badge>
@@ -433,7 +444,7 @@
 		{:else}
 			<div class="flex h-80 items-center justify-center rounded-lg bg-gray-50 text-gray-500">
 				<div class="text-center">
-					<i class="fas fa-shield-alt mb-3 text-4xl opacity-50"></i>
+					<FontAwesomeIcon icon={faShieldAlt} class="mb-3 text-4xl opacity-50" />
 					<p class="font-medium">보안 위협 패턴</p>
 					<p class="text-sm">위협 데이터가 없습니다</p>
 				</div>
@@ -445,7 +456,7 @@
 	<Card class="transition-shadow duration-300 hover:shadow-lg">
 		<div class="mb-4 flex items-center justify-between">
 			<h3 class="text-lg font-semibold text-gray-900">
-				<i class="fas fa-users mr-2 text-gray-600"></i>
+				<FontAwesomeIcon icon={faUsers} class="mr-2 text-gray-600" />
 				클라이언트별 토큰 사용량
 			</h3>
 			<Badge variant="secondary" size="sm">
@@ -522,7 +533,7 @@
 		{:else}
 			<div class="flex h-80 items-center justify-center rounded-lg bg-gray-50 text-gray-500">
 				<div class="text-center">
-					<i class="fas fa-chart-pie mb-3 text-4xl opacity-50"></i>
+					<FontAwesomeIcon icon={faChartPie} class="mb-3 text-4xl opacity-50" />
 					<p class="font-medium">등록된 클라이언트가</p>
 					<p class="text-sm">없거나 토큰 발급 기록이 없습니다</p>
 				</div>
@@ -534,7 +545,7 @@
 	<Card class="transition-shadow duration-300 hover:shadow-lg">
 		<div class="mb-4 flex items-center justify-between">
 			<h3 class="text-lg font-semibold text-gray-900">
-				<i class="fas fa-tachometer-alt mr-2 text-stone-600"></i>
+				<FontAwesomeIcon icon={faTachometerAlt} class="mr-2 text-stone-600" />
 				클라이언트 성능 분석
 			</h3>
 			<Badge variant="default" size="sm">성능</Badge>
@@ -580,7 +591,7 @@
 		{:else}
 			<div class="flex h-80 items-center justify-center rounded-lg bg-gray-50 text-gray-500">
 				<div class="text-center">
-					<i class="fas fa-tachometer-alt mb-3 text-4xl opacity-50"></i>
+					<FontAwesomeIcon icon={faTachometerAlt} class="mb-3 text-4xl opacity-50" />
 					<p class="font-medium">클라이언트 성능 분석</p>
 					<p class="text-sm">데이터가 충분하지 않습니다</p>
 				</div>

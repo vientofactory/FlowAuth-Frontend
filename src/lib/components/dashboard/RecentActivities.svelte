@@ -1,4 +1,22 @@
 <script lang="ts">
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faHistory,
+		faInbox,
+		faSignInAlt,
+		faExclamationTriangle,
+		faUserPlus,
+		faPlus,
+		faKey,
+		faEdit,
+		faBan,
+		faCircle,
+		faMapMarkerAlt,
+		faDesktop,
+		faSpinner
+	} from '@fortawesome/free-solid-svg-icons';
+	import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
+
 	type Activity = {
 		id: number;
 		type: string;
@@ -46,24 +64,24 @@
 	}: Props = $props();
 
 	// 활동 타입별 아이콘과 색상
-	function getActivityIcon(type: string): { icon: string; color: string } {
+	function getActivityIcon(type: string): { icon: IconDefinition; color: string } {
 		switch (type) {
 			case 'login':
-				return { icon: 'fas fa-sign-in-alt', color: 'bg-stone-100 text-stone-600' };
+				return { icon: faSignInAlt, color: 'bg-stone-100 text-stone-600' };
 			case 'login_failed':
-				return { icon: 'fas fa-exclamation-triangle', color: 'bg-red-100 text-red-600' };
+				return { icon: faExclamationTriangle, color: 'bg-red-100 text-red-600' };
 			case 'account_created':
-				return { icon: 'fas fa-user-plus', color: 'bg-neutral-100 text-neutral-600' };
+				return { icon: faUserPlus, color: 'bg-neutral-100 text-neutral-600' };
 			case 'client_created':
-				return { icon: 'fas fa-plus', color: 'bg-gray-100 text-gray-600' };
+				return { icon: faPlus, color: 'bg-gray-100 text-gray-600' };
 			case 'token_created':
-				return { icon: 'fas fa-key', color: 'bg-slate-100 text-slate-600' };
+				return { icon: faKey, color: 'bg-slate-100 text-slate-600' };
 			case 'client_updated':
-				return { icon: 'fas fa-edit', color: 'bg-zinc-100 text-zinc-600' };
+				return { icon: faEdit, color: 'bg-zinc-100 text-zinc-600' };
 			case 'token_revoked':
-				return { icon: 'fas fa-ban', color: 'bg-red-100 text-red-600' };
+				return { icon: faBan, color: 'bg-red-100 text-red-600' };
 			default:
-				return { icon: 'fas fa-circle', color: 'bg-gray-100 text-gray-600' };
+				return { icon: faCircle, color: 'bg-gray-100 text-gray-600' };
 		}
 	}
 
@@ -158,7 +176,7 @@
 <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
 	<div class="border-b border-gray-200 px-6 py-4">
 		<h3 class="flex items-center text-lg font-semibold text-gray-900">
-			<i class="fas fa-history mr-2 text-gray-500"></i>
+			<FontAwesomeIcon icon={faHistory} class="mr-2 text-gray-500" />
 			최근 활동
 		</h3>
 	</div>
@@ -180,7 +198,7 @@
 			</div>
 		{:else if activities.length === 0}
 			<div class="py-8 text-center">
-				<i class="fas fa-inbox mb-3 text-3xl text-gray-400"></i>
+				<FontAwesomeIcon icon={faInbox} class="mb-3 text-3xl text-gray-400" />
 				<p class="text-gray-500">최근 활동이 없습니다.</p>
 			</div>
 		{:else}
@@ -190,7 +208,7 @@
 					<div class="flex items-start space-x-3 rounded-lg p-3 transition-colors hover:bg-gray-50">
 						<div class="flex-shrink-0">
 							<div class="h-8 w-8 {iconData.color} flex items-center justify-center rounded-full">
-								<i class="{iconData.icon} text-sm"></i>
+								<FontAwesomeIcon icon={iconData.icon} class="text-sm" />
 							</div>
 						</div>
 						<div class="min-w-0 flex-1">
@@ -201,14 +219,14 @@
 								<div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-600">
 									{#if activity.metadata.ipAddress}
 										<span class="flex items-center">
-											<i class="fas fa-map-marker-alt mr-1 text-gray-400"></i>
+											<FontAwesomeIcon icon={faMapMarkerAlt} class="mr-1 text-gray-400" />
 											{activity.metadata.ipAddress}
 										</span>
 									{/if}
 									{#if activity.metadata.userAgent}
 										{@const uaInfo = parseUserAgent(activity.metadata.userAgent)}
 										<span class="flex items-center" title={activity.metadata.userAgent}>
-											<i class="fas fa-desktop mr-1 text-gray-400"></i>
+											<FontAwesomeIcon icon={faDesktop} class="mr-1 text-gray-400" />
 											{uaInfo.browser} • {uaInfo.os} • {uaInfo.device}
 										</span>
 									{/if}
@@ -230,10 +248,10 @@
 						disabled={isLoadingMore}
 					>
 						{#if isLoadingMore}
-							<i class="fas fa-spinner fa-spin mr-2"></i>
+							<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
 							불러오는 중...
 						{:else}
-							<i class="fas fa-plus mr-2"></i>
+							<FontAwesomeIcon icon={faPlus} class="mr-2" />
 							더 많은 활동 보기
 						{/if}
 					</button>

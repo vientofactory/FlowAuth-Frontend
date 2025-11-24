@@ -9,6 +9,15 @@
 	import { page } from '$app/stores';
 	import { env } from '$lib/config/env';
 	import { load, type ReCaptchaInstance } from 'recaptcha-v3';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faMobileAlt,
+		faKey,
+		faArrowLeft,
+		faEnvelope,
+		faLock,
+		faSignInAlt
+	} from '@fortawesome/free-solid-svg-icons';
 	import './+page.css';
 
 	// 폼 검증 필드들
@@ -326,7 +335,7 @@
 								? 'bg-white text-stone-600 shadow-sm'
 								: 'text-gray-500 hover:text-gray-700'}"
 						>
-							<i class="fas fa-mobile-alt mr-2"></i>
+							<FontAwesomeIcon icon={faMobileAlt} class="mr-2" />
 							토큰
 						</button>
 						<button
@@ -337,7 +346,7 @@
 								? 'bg-white text-stone-600 shadow-sm'
 								: 'text-gray-500 hover:text-gray-700'}"
 						>
-							<i class="fas fa-key mr-2"></i>
+							<FontAwesomeIcon icon={faKey} class="mr-2" />
 							백업 코드
 						</button>
 					</div>
@@ -356,7 +365,7 @@
 							error={twoFactorTokenField.error}
 							maxlength={6}
 							inputmode="numeric"
-							icon="fas fa-mobile-alt"
+							icon={faMobileAlt}
 							class="text-center font-mono text-lg tracking-wider"
 							autocomplete="off"
 							oninput={handleTokenInput}
@@ -372,7 +381,7 @@
 							placeholder="ABCD-1234-EFGH-5678"
 							bind:value={backupCodeField.value}
 							error={backupCodeField.error}
-							icon="fas fa-key"
+							icon={faKey}
 							class="text-center font-mono text-lg tracking-wider"
 							hint="백업 코드를 입력하세요 (한 번만 사용 가능)"
 							autocomplete="off"
@@ -399,7 +408,7 @@
 							disabled={isTwoFactorLoading}
 							class="w-full"
 						>
-							<i class="fas fa-arrow-left mr-2"></i>
+							<FontAwesomeIcon icon={faArrowLeft} class="mr-2" />
 							로그인으로 돌아가기
 						</Button>
 					</div>
@@ -415,7 +424,7 @@
 						placeholder="your@email.com"
 						bind:value={emailField.value}
 						error={emailField.error}
-						icon="fas fa-envelope"
+						icon={faEnvelope}
 						oninput={() => emailField.validate()}
 						disabled={isLoading}
 						required
@@ -429,7 +438,7 @@
 						placeholder="비밀번호를 입력하세요"
 						bind:value={passwordField.value}
 						error={passwordField.error}
-						icon="fas fa-lock"
+						icon={faLock}
 						oninput={() => passwordField.validate()}
 						disabled={isLoading}
 						required
@@ -460,36 +469,13 @@
 						type="submit"
 						loading={isLoading}
 						loadingText="로그인 중..."
-						icon="fas fa-sign-in-alt"
+						icon={faSignInAlt}
 						class="w-full transform py-3 text-lg font-semibold shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl"
 					>
 						로그인
 					</LoadingButton>
 				</form>
 			{/if}
-
-			<!-- 소셜 로그인 (추후 확장 가능) -->
-			<!-- <div class="mt-8">
-        <div class="relative">
-          <div class="absolute inset-0 flex items-center">
-            <div class="w-full border-t border-gray-300"></div>
-          </div>
-          <div class="relative flex justify-center text-sm">
-            <span class="px-2 bg-white text-gray-500">또는</span>
-          </div>
-        </div>
-
-        <div class="mt-6 grid grid-cols-2 gap-3">
-          <button class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors duration-200">
-            <i class="fab fa-google mr-2 text-red-500"></i>
-            Google
-          </button>
-          <button class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors duration-200">
-            <i class="fab fa-github mr-2"></i>
-            GitHub
-          </button>
-        </div>
-      </div> -->
 
 			<div class="mt-6 text-center">
 				<a
@@ -516,7 +502,7 @@
 					data-sveltekit-preload-data
 					class="inline-flex items-center text-sm text-gray-500 transition-colors duration-200 hover:text-gray-700"
 				>
-					<i class="fas fa-arrow-left mr-1"></i>
+					<FontAwesomeIcon icon={faArrowLeft} class="mr-1" />
 					홈으로 돌아가기
 				</a>
 			</div>

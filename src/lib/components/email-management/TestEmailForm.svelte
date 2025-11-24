@@ -1,5 +1,19 @@
 <script lang="ts">
 	import { LoadingSpinner, Button } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faHandPaper,
+		faEnvelopeOpenText,
+		faKey,
+		faShieldAlt,
+		faPlusCircle,
+		faExclamationTriangle,
+		faEnvelope,
+		faUser,
+		faFileAlt,
+		faChevronDown,
+		faPaperPlane
+	} from '@fortawesome/free-solid-svg-icons';
 
 	interface TestEmailRequest {
 		to: string;
@@ -18,12 +32,12 @@
 
 	// 사용 가능한 이메일 템플릿
 	const emailTemplates = [
-		{ value: 'welcome', label: '환영 이메일', icon: 'fas fa-hand-wave' },
-		{ value: 'email-verification', label: '이메일 인증', icon: 'fas fa-envelope-open-text' },
-		{ value: 'password-reset', label: '비밀번호 재설정', icon: 'fas fa-key' },
-		{ value: '2fa-enabled', label: '2FA 활성화', icon: 'fas fa-shield-alt' },
-		{ value: 'client-created', label: '클라이언트 생성', icon: 'fas fa-plus-circle' },
-		{ value: 'security-alert', label: '보안 알림', icon: 'fas fa-exclamation-triangle' }
+		{ value: 'welcome', label: '환영 이메일', icon: faHandPaper },
+		{ value: 'email-verification', label: '이메일 인증', icon: faEnvelopeOpenText },
+		{ value: 'password-reset', label: '비밀번호 재설정', icon: faKey },
+		{ value: '2fa-enabled', label: '2FA 활성화', icon: faShieldAlt },
+		{ value: 'client-created', label: '클라이언트 생성', icon: faPlusCircle },
+		{ value: 'security-alert', label: '보안 알림', icon: faExclamationTriangle }
 	] as const;
 
 	function handleSubmit(event: SubmitEvent) {
@@ -44,7 +58,7 @@
 			</label>
 			<div class="relative">
 				<div class="absolute inset-y-0 left-0 flex items-center pl-3">
-					<i class="fas fa-envelope text-gray-400"></i>
+					<FontAwesomeIcon icon={faEnvelope} class="text-gray-400" />
 				</div>
 				<input
 					id="test-email-to"
@@ -63,7 +77,7 @@
 			</label>
 			<div class="relative">
 				<div class="absolute inset-y-0 left-0 flex items-center pl-3">
-					<i class="fas fa-user text-gray-400"></i>
+					<FontAwesomeIcon icon={faUser} class="text-gray-400" />
 				</div>
 				<input
 					id="test-email-username"
@@ -83,9 +97,9 @@
 			<div class="relative">
 				<div class="absolute inset-y-0 left-0 flex items-center pl-3">
 					{#if selectedTemplate}
-						<i class="{selectedTemplate.icon} text-gray-400"></i>
+						<FontAwesomeIcon icon={selectedTemplate.icon} class="text-gray-400" />
 					{:else}
-						<i class="fas fa-file-alt text-gray-400"></i>
+						<FontAwesomeIcon icon={faFileAlt} class="text-gray-400" />
 					{/if}
 				</div>
 				<select
@@ -98,7 +112,7 @@
 					{/each}
 				</select>
 				<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-					<i class="fas fa-chevron-down text-gray-400"></i>
+					<FontAwesomeIcon icon={faChevronDown} class="text-gray-400" />
 				</div>
 			</div>
 		</div>
@@ -108,7 +122,7 @@
 	{#if selectedTemplate}
 		<div class="rounded-lg border border-stone-200 bg-stone-50 p-4">
 			<div class="mb-2 flex items-center gap-2">
-				<i class="{selectedTemplate.icon} text-stone-600"></i>
+				<FontAwesomeIcon icon={selectedTemplate.icon} class="text-stone-600" />
 				<span class="text-sm font-medium text-stone-700">선택된 템플릿</span>
 			</div>
 			<p class="text-sm text-stone-600">{selectedTemplate.label}</p>
@@ -126,7 +140,7 @@
 				<LoadingSpinner size="sm" class="mr-2" />
 				전송 중...
 			{:else}
-				<i class="fas fa-paper-plane mr-2"></i>
+				<FontAwesomeIcon icon={faPaperPlane} class="mr-2" />
 				전송
 			{/if}
 		</Button>

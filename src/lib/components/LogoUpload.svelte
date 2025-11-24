@@ -2,6 +2,18 @@
 	import { Button } from '$lib';
 	import { apiClient } from '$lib';
 	import { env } from '$lib/config/env';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faUpload,
+		faTimes,
+		faTrash,
+		faSpinner,
+		faExclamationTriangle,
+		faClock,
+		faCheckCircle,
+		faUndo,
+		faImage
+	} from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		selectedFile: File | null;
@@ -262,7 +274,7 @@
 					class="h-10 shrink-0"
 					aria-label="로고 파일 선택"
 				>
-					<i class="fas fa-upload mr-2"></i>
+					<FontAwesomeIcon icon={faUpload} class="mr-2" />
 					파일 선택
 				</Button>
 
@@ -284,7 +296,7 @@
 							disabled={isUploading}
 							class="shrink-0"
 						>
-							<i class="fas fa-times"></i>
+							<FontAwesomeIcon icon={faTimes} />
 						</Button>
 					</div>
 				{/if}
@@ -344,7 +356,7 @@
 						<div
 							class="flex h-16 w-16 items-center justify-center rounded-md border-2 border-dashed border-red-300 bg-red-50"
 						>
-							<i class="fas fa-trash text-2xl text-red-400"></i>
+							<FontAwesomeIcon icon={faTrash} class="text-2xl text-red-400" />
 						</div>
 						<span
 							class="absolute -top-2 -right-2 rounded bg-red-500 px-1 py-0.5 text-xs text-white"
@@ -380,16 +392,16 @@
 				<div class="flex-1">
 					<p class="text-sm text-gray-600">
 						{#if isUploading}
-							<i class="fas fa-spinner fa-spin mr-2 text-blue-500"></i>
+							<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin text-blue-500" />
 							<span class="font-medium text-blue-600">로고를 업로드하고 있습니다...</span>
 						{:else if logoMarkedForDeletion}
-							<i class="fas fa-exclamation-triangle mr-2 text-red-500"></i>
+							<FontAwesomeIcon icon={faExclamationTriangle} class="mr-2 text-red-500" />
 							<span class="font-medium text-red-600">저장 시 로고가 삭제됩니다</span>
 						{:else if previewUrl}
-							<i class="fas fa-clock mr-2 text-orange-500"></i>
+							<FontAwesomeIcon icon={faClock} class="mr-2 text-orange-500" />
 							저장 시 자동으로 업로드됩니다.
 						{:else if existingLogoUri && existingLogoUri.trim()}
-							<i class="fas fa-check-circle mr-2 text-green-500"></i>
+							<FontAwesomeIcon icon={faCheckCircle} class="mr-2 text-green-500" />
 							등록된 로고
 						{/if}
 					</p>
@@ -405,7 +417,7 @@
 								disabled={isUploading}
 								class="text-green-600 hover:border-green-300 hover:text-green-700"
 							>
-								<i class="fas fa-undo mr-1"></i>
+								<FontAwesomeIcon icon={faUndo} class="mr-1" />
 								삭제 취소
 							</Button>
 						</div>
@@ -421,7 +433,7 @@
 								disabled={isUploading}
 								class="text-red-600 hover:border-red-300 hover:text-red-700"
 							>
-								<i class="fas fa-trash mr-1"></i>
+								<FontAwesomeIcon icon={faTrash} class="mr-1" />
 								로고 제거
 							</Button>
 						</div>
@@ -431,7 +443,7 @@
 		{:else}
 			<!-- 로고가 없을 때 표시할 상태 메시지 (선택사항) -->
 			<div class="py-2 text-sm text-gray-500">
-				<i class="fas fa-image mr-2"></i>
+				<FontAwesomeIcon icon={faImage} class="mr-2" />
 				등록된 로고가 없습니다.
 			</div>
 		{/if}

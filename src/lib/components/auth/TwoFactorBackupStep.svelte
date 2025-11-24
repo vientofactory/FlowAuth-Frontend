@@ -1,6 +1,14 @@
 <script lang="ts">
 	import Card from '$lib/components/Card.svelte';
 	import Button from '$lib/components/Button.svelte';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faShieldAlt,
+		faExclamationTriangle,
+		faDownload,
+		faCopy,
+		faCheck
+	} from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		backupCodes: string[];
@@ -55,7 +63,7 @@
 			<div
 				class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100"
 			>
-				<i class="fas fa-shield-alt text-xl text-yellow-600"></i>
+				<FontAwesomeIcon icon={faShieldAlt} class="text-xl text-yellow-600" />
 			</div>
 			<h2 class="mb-2 text-xl font-bold text-gray-900">3단계: 백업 코드 저장</h2>
 			<p class="mb-6 text-gray-600">인증 앱을 사용할 수 없을 때를 위한 백업 코드입니다.</p>
@@ -64,7 +72,7 @@
 		<!-- 경고 메시지 -->
 		<div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
 			<div class="flex items-start">
-				<i class="fas fa-exclamation-triangle mt-0.5 text-red-500"></i>
+				<FontAwesomeIcon icon={faExclamationTriangle} class="mt-0.5 text-red-500" />
 				<div class="ml-3">
 					<h3 class="font-semibold text-red-800">중요한 보안 사항</h3>
 					<ul class="mt-2 space-y-1 text-sm text-red-700">
@@ -94,11 +102,11 @@
 		<!-- 액션 버튼들 -->
 		<div class="mb-6 flex flex-col gap-3 sm:flex-row">
 			<Button variant="outline" onclick={downloadBackupCodes} class="flex-1">
-				<i class="fas fa-download mr-2"></i>
+				<FontAwesomeIcon icon={faDownload} class="mr-2" />
 				텍스트 파일로 다운로드
 			</Button>
 			<Button variant="outline" onclick={copyToClipboard} class="flex-1">
-				<i class="fas fa-copy mr-2"></i>
+				<FontAwesomeIcon icon={faCopy} class="mr-2" />
 				클립보드에 복사
 			</Button>
 		</div>
@@ -117,7 +125,7 @@
 
 		<div class="flex justify-center">
 			<Button onclick={onComplete} disabled={!downloaded} class="min-w-32">
-				<i class="fas fa-check mr-2"></i>
+				<FontAwesomeIcon icon={faCheck} class="mr-2" />
 				완료
 			</Button>
 		</div>

@@ -1,5 +1,15 @@
 <script lang="ts">
 	import { apiClient } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faEye,
+		faEyeSlash,
+		faCheckCircle,
+		faTimesCircle,
+		faCircle,
+		faSpinner,
+		faKey
+	} from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		onPasswordChanged?: () => void;
@@ -241,7 +251,7 @@
 						aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보이기'}
 						class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600"
 					>
-						<i class={showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'}></i>
+						<FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
 					</button>
 				</div>
 
@@ -274,9 +284,9 @@
 								<li class="flex items-center text-sm">
 									<div class="mr-3 flex-shrink-0">
 										{#if requirement.met}
-											<i class="fas fa-check-circle text-green-500"></i>
+											<FontAwesomeIcon icon={faCheckCircle} class="text-green-500" />
 										{:else}
-											<i class="fas fa-times-circle text-red-400"></i>
+											<FontAwesomeIcon icon={faTimesCircle} class="text-red-400" />
 										{/if}
 									</div>
 									<span class={requirement.met ? 'text-green-700' : 'text-gray-600'}>
@@ -291,23 +301,23 @@
 						<p class="mb-3 text-sm font-medium text-gray-700">비밀번호 요구사항</p>
 						<ul class="space-y-2 text-sm text-gray-600">
 							<li class="flex items-center">
-								<i class="fas fa-circle mr-3 text-xs text-gray-300"></i>
+								<FontAwesomeIcon icon={faCircle} class="mr-3 text-xs text-gray-300" />
 								최소 8자 이상
 							</li>
 							<li class="flex items-center">
-								<i class="fas fa-circle mr-3 text-xs text-gray-300"></i>
+								<FontAwesomeIcon icon={faCircle} class="mr-3 text-xs text-gray-300" />
 								소문자 포함
 							</li>
 							<li class="flex items-center">
-								<i class="fas fa-circle mr-3 text-xs text-gray-300"></i>
+								<FontAwesomeIcon icon={faCircle} class="mr-3 text-xs text-gray-300" />
 								대문자 포함
 							</li>
 							<li class="flex items-center">
-								<i class="fas fa-circle mr-3 text-xs text-gray-300"></i>
+								<FontAwesomeIcon icon={faCircle} class="mr-3 text-xs text-gray-300" />
 								숫자 포함
 							</li>
 							<li class="flex items-center">
-								<i class="fas fa-circle mr-3 text-xs text-gray-300"></i>
+								<FontAwesomeIcon icon={faCircle} class="mr-3 text-xs text-gray-300" />
 								특수문자 포함 (@$!%*?&)
 							</li>
 						</ul>
@@ -340,17 +350,17 @@
 						aria-label={showConfirmPassword ? '비밀번호 확인 숨기기' : '비밀번호 확인 보이기'}
 						class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600"
 					>
-						<i class={showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'}></i>
+						<FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
 					</button>
 				</div>
 
 				{#if confirmPassword}
 					<div class="mt-2 flex items-center">
 						{#if isConfirmPasswordValid}
-							<i class="fas fa-check-circle mr-2 text-green-500"></i>
+							<FontAwesomeIcon icon={faCheckCircle} class="mr-2 text-green-500" />
 							<p class="text-sm text-green-600">비밀번호가 일치합니다.</p>
 						{:else}
-							<i class="fas fa-times-circle mr-2 text-red-500"></i>
+							<FontAwesomeIcon icon={faTimesCircle} class="mr-2 text-red-500" />
 							<p class="text-sm text-red-600">비밀번호가 일치하지 않습니다.</p>
 						{/if}
 					</div>
@@ -384,10 +394,10 @@
 					class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-indigo-600"
 				>
 					{#if isChangingPassword}
-						<i class="fas fa-spinner fa-spin mr-2"></i>
+						<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
 						변경 중...
 					{:else}
-						<i class="fas fa-key mr-2"></i>
+						<FontAwesomeIcon icon={faKey} class="mr-2" />
 						비밀번호 변경
 					{/if}
 				</button>

@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { Card, Button } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 	interface QuickAction {
 		label: string;
-		icon: string;
+		icon: IconDefinition | string;
 		color: string;
 		action: () => void;
 	}
@@ -25,7 +27,11 @@
 				onclick={action.action}
 				class={`h-24 flex-col space-y-2 text-${action.color}-600 border-${action.color}-200 hover:bg-${action.color}-50`}
 			>
-				<i class="{action.icon} text-2xl"></i>
+				{#if typeof action.icon === 'string'}
+					<i class="{action.icon} text-2xl"></i>
+				{:else}
+					<FontAwesomeIcon icon={action.icon} class="text-2xl" />
+				{/if}
 				<span class="text-center text-sm font-medium whitespace-pre-line">{action.label}</span>
 			</Button>
 		{/each}

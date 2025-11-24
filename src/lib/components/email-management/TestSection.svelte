@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faEnvelope, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		onSendTest: () => void;
@@ -17,7 +19,7 @@
 				class="mb-2 flex items-center justify-center text-lg font-semibold text-gray-900 sm:justify-start"
 			>
 				<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100">
-					<i class="fas fa-envelope text-stone-600"></i>
+					<FontAwesomeIcon icon={faEnvelope} class="text-stone-600" />
 				</div>
 				이메일 테스트
 			</h3>
@@ -29,7 +31,7 @@
 			<div class="rounded-lg border border-yellow-200 bg-yellow-50/80 p-4 backdrop-blur-sm">
 				<div class="flex items-start gap-3">
 					<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-100">
-						<i class="fas fa-exclamation-triangle text-yellow-600"></i>
+						<FontAwesomeIcon icon={faExclamationTriangle} class="text-yellow-600" />
 					</div>
 					<div class="flex-1">
 						<p class="mb-1 text-sm font-medium text-yellow-800">테스트 주의사항</p>
@@ -47,7 +49,7 @@
 					onclick={onSendTest}
 					class="w-full bg-stone-600 hover:bg-stone-700 sm:w-auto"
 				>
-					<i class="fas fa-envelope mr-2"></i>
+					<FontAwesomeIcon icon={faEnvelope} class="mr-2" />
 					테스트 이메일 전송
 				</Button>
 			</div>

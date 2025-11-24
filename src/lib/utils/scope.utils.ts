@@ -1,4 +1,7 @@
 // OAuth2 스코프 정의 (백엔드와 동기화)
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { faIdBadge, faUser, faEnvelope, faKey } from '@fortawesome/free-solid-svg-icons';
+
 export const OAUTH2_SCOPES = {
 	// OpenID Connect
 	OPENID: 'openid',
@@ -10,7 +13,7 @@ export const OAUTH2_SCOPES = {
 export interface ScopeInfo {
 	name: string;
 	description: string;
-	icon: string;
+	icon: IconDefinition;
 	color: string;
 	risk: string;
 	category: string;
@@ -26,7 +29,7 @@ export const SCOPE_MAPPINGS: Record<string, ScopeInfo> = {
 	[OAUTH2_SCOPES.OPENID]: {
 		name: 'OpenID Connect',
 		description: '앱이 귀하의 신원을 확인하고 기본 프로필 정보를 읽을 수 있습니다',
-		icon: 'fa-id-badge',
+		icon: faIdBadge,
 		color: 'green',
 		risk: 'low',
 		category: 'OpenID',
@@ -35,7 +38,7 @@ export const SCOPE_MAPPINGS: Record<string, ScopeInfo> = {
 	[OAUTH2_SCOPES.PROFILE]: {
 		name: '프로필 정보 읽기',
 		description: '앱이 귀하의 이름, 생년월일, 지역, 사진 등의 프로필 정보를 읽을 수 있습니다',
-		icon: 'fa-user',
+		icon: faUser,
 		color: 'blue',
 		risk: 'medium',
 		category: 'Profile',
@@ -44,7 +47,7 @@ export const SCOPE_MAPPINGS: Record<string, ScopeInfo> = {
 	[OAUTH2_SCOPES.EMAIL]: {
 		name: '이메일 주소 읽기',
 		description: '앱이 귀하의 이메일 주소를 읽을 수 있습니다',
-		icon: 'fa-envelope',
+		icon: faEnvelope,
 		color: 'orange',
 		risk: 'medium',
 		category: 'Email',
@@ -70,7 +73,7 @@ export function getScopeInfo(scope: string): ScopeInfo {
 			.replace(/:/g, ' ')
 			.replace(/\b\w/g, (l) => l.toUpperCase()),
 		description: `앱이 ${scope.replace(/_/g, ' ').replace(/:/g, ' ')} 권한을 사용할 수 있습니다`,
-		icon: 'fa-key',
+		icon: faKey,
 		color: 'gray',
 		risk: 'unknown',
 		category: 'Unknown',

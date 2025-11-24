@@ -5,6 +5,8 @@
 	import LoadingButton from '$lib/components/ui/LoadingButton.svelte';
 	import { useFieldValidation, validators } from '$lib/composables/useFormValidation.svelte';
 	import { inputHandlers } from '$lib/utils/input.utils';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faKey, faInfoCircle, faArrowLeft, faCheck } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		loading?: boolean;
@@ -33,7 +35,7 @@
 	<div class="p-6">
 		<div class="text-center">
 			<div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-				<i class="fas fa-key text-xl text-green-600"></i>
+				<FontAwesomeIcon icon={faKey} class="text-xl text-green-600" />
 			</div>
 			<h2 class="mb-2 text-xl font-bold text-gray-900">2단계: 토큰 확인</h2>
 			<p class="mb-6 text-gray-600">인증 앱에서 생성된 6자리 토큰을 입력하세요.</p>
@@ -61,7 +63,7 @@
 
 			<div class="rounded-lg bg-blue-50 p-4">
 				<div class="flex items-start">
-					<i class="fas fa-info-circle mt-0.5 text-blue-500"></i>
+					<FontAwesomeIcon icon={faInfoCircle} class="mt-0.5 text-blue-500" />
 					<div class="ml-3">
 						<p class="text-sm text-blue-700">
 							<strong>참고:</strong> 토큰은 30초마다 새로 생성됩니다. 시간이 지나면 새로운 토큰을 입력해주세요.
@@ -72,7 +74,7 @@
 
 			<div class="flex justify-between">
 				<Button variant="outline" onclick={onBack} disabled={loading}>
-					<i class="fas fa-arrow-left mr-2"></i>
+					<FontAwesomeIcon icon={faArrowLeft} class="mr-2" />
 					이전
 				</Button>
 				<LoadingButton
@@ -81,7 +83,7 @@
 					disabled={!tokenField.value || tokenField.value.length !== 6}
 					loadingText="확인 중..."
 				>
-					<i class="fas fa-check mr-2"></i>
+					<FontAwesomeIcon icon={faCheck} class="mr-2" />
 					확인
 				</LoadingButton>
 			</div>

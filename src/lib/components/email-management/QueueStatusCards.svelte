@@ -1,5 +1,14 @@
 <script lang="ts">
 	import { Card } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faCog,
+		faClock,
+		faCheck,
+		faTimes,
+		faPause,
+		faPlay
+	} from '@fortawesome/free-solid-svg-icons';
 
 	interface EmailQueueStats {
 		active: number;
@@ -25,7 +34,7 @@
 			label: '처리 중',
 			value: queueStats.active,
 			color: 'from-stone-500 to-stone-600',
-			icon: 'fas fa-cog',
+			icon: faCog,
 			bgColor: 'bg-stone-100',
 			iconColor: 'text-stone-600'
 		},
@@ -33,7 +42,7 @@
 			label: '대기 중',
 			value: queueStats.waiting,
 			color: 'from-neutral-500 to-neutral-600',
-			icon: 'fas fa-clock',
+			icon: faClock,
 			bgColor: 'bg-neutral-100',
 			iconColor: 'text-neutral-600'
 		},
@@ -41,7 +50,7 @@
 			label: '완료됨',
 			value: queueStats.completed,
 			color: 'from-gray-500 to-gray-600',
-			icon: 'fas fa-check',
+			icon: faCheck,
 			bgColor: 'bg-gray-100',
 			iconColor: 'text-gray-600'
 		},
@@ -49,7 +58,7 @@
 			label: '실패함',
 			value: queueStats.failed,
 			color: 'from-slate-500 to-slate-600',
-			icon: 'fas fa-times',
+			icon: faTimes,
 			bgColor: 'bg-slate-100',
 			iconColor: 'text-slate-600'
 		},
@@ -57,7 +66,7 @@
 			label: '지연됨',
 			value: queueStats.delayed,
 			color: 'from-zinc-500 to-zinc-600',
-			icon: 'fas fa-pause',
+			icon: faPause,
 			bgColor: 'bg-zinc-100',
 			iconColor: 'text-zinc-600'
 		},
@@ -65,7 +74,7 @@
 			label: '큐 상태',
 			value: queueStats.paused > 0 ? '일시정지' : '실행 중',
 			color: queueStats.paused > 0 ? 'from-red-500 to-red-600' : 'from-green-500 to-green-600',
-			icon: queueStats.paused > 0 ? 'fas fa-pause' : 'fas fa-play',
+			icon: queueStats.paused > 0 ? faPause : faPlay,
 			bgColor: queueStats.paused > 0 ? 'bg-red-100' : 'bg-green-100',
 			iconColor: queueStats.paused > 0 ? 'text-red-600' : 'text-green-600'
 		}
@@ -96,7 +105,7 @@
 					</p>
 					<p class="mt-1 text-2xl font-bold">{card.value}</p>
 				</div>
-				<i class="{card.icon} text-3xl opacity-80"></i>
+				<FontAwesomeIcon icon={card.icon} class="text-3xl opacity-80" />
 			</div>
 		</Card>
 	{/each}

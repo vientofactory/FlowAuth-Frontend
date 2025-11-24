@@ -2,6 +2,8 @@
 	import { Modal, Button, Badge, Card } from '$lib';
 	import { decodeJWT, type TokenInfo } from '$lib/utils/jwt-utils';
 	import TokenDetails from './TokenDetails.svelte';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faKey, faTimes, faCopy } from '@fortawesome/free-solid-svg-icons';
 
 	interface TokenResponse {
 		access_token: string;
@@ -63,11 +65,11 @@
 	<div class="p-6">
 		<div class="mb-6 flex items-center justify-between">
 			<h2 class="flex items-center text-xl font-semibold text-gray-900">
-				<i class="fas fa-key mr-2 text-green-600"></i>
+				<FontAwesomeIcon icon={faKey} class="mr-2 text-green-600" />
 				토큰 정보
 			</h2>
 			<Button variant="secondary" size="sm" onclick={onClose}>
-				<i class="fas fa-times"></i>
+				<FontAwesomeIcon icon={faTimes} />
 			</Button>
 		</div>
 
@@ -157,7 +159,7 @@
 										size="sm"
 										onclick={() => copyToClipboard(tokenResponse.access_token!)}
 									>
-										<i class="fas fa-copy mr-1"></i>
+										<FontAwesomeIcon icon={faCopy} class="mr-1" />
 										복사
 									</Button>
 								</div>
@@ -178,7 +180,7 @@
 										size="sm"
 										onclick={() => copyToClipboard(tokenResponse.refresh_token!)}
 									>
-										<i class="fas fa-copy mr-1"></i>
+										<FontAwesomeIcon icon={faCopy} class="mr-1" />
 										복사
 									</Button>
 								</div>
@@ -199,7 +201,7 @@
 										size="sm"
 										onclick={() => copyToClipboard(tokenResponse.id_token!)}
 									>
-										<i class="fas fa-copy mr-1"></i>
+										<FontAwesomeIcon icon={faCopy} class="mr-1" />
 										복사
 									</Button>
 								</div>

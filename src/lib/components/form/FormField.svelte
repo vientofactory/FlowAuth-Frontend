@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+
 	interface Props {
 		label: string;
 		name: string;
@@ -9,7 +12,7 @@
 		required?: boolean;
 		disabled?: boolean;
 		hint?: string;
-		icon?: string;
+		icon?: IconDefinition | string;
 		maxlength?: number;
 		minlength?: number;
 		autocomplete?: HTMLInputElement['autocomplete'];
@@ -64,7 +67,11 @@
 <div class="form-field w-full">
 	<label for={inputId} class="mb-2 block text-sm font-medium text-gray-700">
 		{#if icon}
-			<i class="{icon} mr-2 text-blue-500"></i>
+			{#if typeof icon === 'string'}
+				<i class="{icon} mr-2 text-blue-500"></i>
+			{:else}
+				<FontAwesomeIcon {icon} class="mr-2 text-blue-500" />
+			{/if}
 		{/if}
 		{label}
 		{#if required}
@@ -94,12 +101,11 @@
 
 	{#if hasError}
 		<p class="mt-1 text-sm text-red-600" role="alert">
-			<i class="fas fa-exclamation-circle mr-1"></i>
-			{error}
+			⚠️ {error}
 		</p>
 	{:else if showHint}
-		{@const isLoading = hint.includes('fa-spinner') || hint.includes('확인 중')}
-		{@const isSuccess = hint.includes('fa-check') || hint.includes('사용 가능한')}
+		{@const isLoading = hint.includes('⏳') || hint.includes('확인 중')}
+		{@const isSuccess = hint.includes('✓') || hint.includes('사용 가능한')}
 		<p
 			class="mt-1 text-xs {isSuccess
 				? 'font-medium text-green-600'
@@ -107,7 +113,7 @@
 					? 'text-blue-600'
 					: 'text-gray-500'}"
 		>
-			{@html hint}
+			{hint}
 		</p>
 	{/if}
 </div>

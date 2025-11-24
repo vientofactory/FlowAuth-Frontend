@@ -1,11 +1,35 @@
 <script lang="ts">
 	import '../app.css';
+	import 'nprogress/nprogress.css';
+	import NProgress from 'nprogress';
+	import { beforeNavigate, afterNavigate } from '$app/navigation';
 	import favicon from '$lib/assets/favicon.ico';
 	import { ToastContainer, apiClient } from '$lib';
 	import { authStore } from '$lib/stores/auth';
+	import { apiRequestStore } from '$lib/stores/api';
 	import { onMount, onDestroy } from 'svelte';
 
 	let { children } = $props();
+
+	NProgress.configure({
+		minimum: 0.16
+	});
+
+	// Navigation 이벤트로 NProgress 제어
+	beforeNavigate(() => NProgress.start());
+	afterNavigate(() => NProgress.done());
+
+	// API 요청 상태로 NProgress 제어
+	$effect(() => {
+		const unsubscribe = apiRequestStore.subscribe((state) => {
+			if (state.isLoading) {
+				NProgress.start();
+			} else {
+				NProgress.done();
+			}
+		});
+		return unsubscribe;
+	});
 
 	onMount(async () => {
 		console.log('App: Starting initialization...');

@@ -1,5 +1,11 @@
 <script lang="ts">
 	import type { Client } from '$lib/types/oauth.types';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faInfoCircle,
+		faFileContract,
+		faExternalLinkAlt
+	} from '@fortawesome/free-solid-svg-icons';
 
 	export let client: Client;
 </script>
@@ -13,7 +19,9 @@
 				<div
 					class="flex h-6 w-6 items-center justify-center rounded-md bg-blue-100 sm:h-8 sm:w-8 sm:rounded-lg"
 				>
-					<i class="fas fa-info-circle text-sm text-blue-600" aria-hidden="true"></i>
+					<span aria-hidden="true"
+						><FontAwesomeIcon icon={faInfoCircle} class="text-sm text-blue-600" /></span
+					>
 				</div>
 			</div>
 			<div>
@@ -36,7 +44,9 @@
 				<div
 					class="flex h-6 w-6 items-center justify-center rounded-md bg-gray-100 sm:h-8 sm:w-8 sm:rounded-lg"
 				>
-					<i class="fas fa-file-contract text-sm text-gray-600" aria-hidden="true"></i>
+					<span aria-hidden="true"
+						><FontAwesomeIcon icon={faFileContract} class="text-sm text-gray-600" /></span
+					>
 				</div>
 			</div>
 			<div class="flex-1">
@@ -49,7 +59,9 @@
 							rel="noopener noreferrer"
 							class="inline-flex items-center rounded-md bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 transition-colors duration-200 hover:bg-gray-50 hover:text-gray-900 sm:px-3 sm:py-1.5 sm:text-sm"
 						>
-							<i class="fas fa-external-link-alt mr-1" aria-hidden="true"></i>
+							<span aria-hidden="true"
+								><FontAwesomeIcon icon={faExternalLinkAlt} class="mr-1" /></span
+							>
 							이용약관
 						</a>
 					{/if}
@@ -60,7 +72,9 @@
 							rel="noopener noreferrer"
 							class="inline-flex items-center rounded-md bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm ring-1 ring-gray-300 transition-colors duration-200 hover:bg-gray-50 hover:text-gray-900 sm:px-3 sm:py-1.5 sm:text-sm"
 						>
-							<i class="fas fa-external-link-alt mr-1" aria-hidden="true"></i>
+							<span aria-hidden="true"
+								><FontAwesomeIcon icon={faExternalLinkAlt} class="mr-1" /></span
+							>
 							개인정보처리방침
 						</a>
 					{/if}

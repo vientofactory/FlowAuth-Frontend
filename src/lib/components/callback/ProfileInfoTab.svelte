@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Button, Loading } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faUserCircle, faUser } from '@fortawesome/free-solid-svg-icons';
 
 	interface UserProfile {
 		sub: string;
@@ -54,7 +56,7 @@
 		</div>
 	{:else}
 		<div class="py-8 text-center">
-			<i class="fas fa-user-circle mb-4 text-4xl text-gray-400"></i>
+			<FontAwesomeIcon icon={faUserCircle} class="mb-4 text-4xl text-gray-400" />
 			<p class="mb-4 text-gray-500">
 				프로필 정보를 가져오려면 "프로필 가져오기" 버튼을 클릭하세요.
 			</p>
@@ -63,7 +65,7 @@
 					<Loading variant="spinner" size="sm" class="mr-2" />
 					프로필 가져오는 중...
 				{:else}
-					<i class="fas fa-user mr-2"></i>
+					<FontAwesomeIcon icon={faUser} class="mr-2" />
 					프로필 가져오기
 				{/if}
 			</Button>

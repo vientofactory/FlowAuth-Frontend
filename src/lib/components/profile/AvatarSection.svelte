@@ -2,6 +2,15 @@
 	import { Button, Modal } from '$lib';
 	import { env } from '$lib/config/env';
 	import type { User } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faUser,
+		faCamera,
+		faSpinner,
+		faTrash,
+		faUpload,
+		faExclamationTriangle
+	} from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		user: User;
@@ -55,7 +64,7 @@
 				<div
 					class="flex h-20 w-20 items-center justify-center rounded-full border-2 border-gray-200 bg-gray-200"
 				>
-					<i class="fas fa-user text-2xl text-gray-400"></i>
+					<FontAwesomeIcon icon={faUser} class="text-2xl text-gray-400" />
 				</div>
 			{/if}
 		</div>
@@ -75,7 +84,7 @@
 				disabled={isUploadingAvatar}
 				class="h-10"
 			>
-				<i class="fas fa-camera mr-2"></i>
+				<FontAwesomeIcon icon={faCamera} class="mr-2" />
 				사진 선택
 			</Button>
 
@@ -87,10 +96,10 @@
 					class="h-10 text-red-600 hover:bg-red-50 hover:text-red-700"
 				>
 					{#if isRemovingAvatar}
-						<i class="fas fa-spinner fa-spin mr-2"></i>
+						<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
 						제거 중...
 					{:else}
-						<i class="fas fa-trash mr-2"></i>
+						<FontAwesomeIcon icon={faTrash} class="mr-2" />
 						사진 제거
 					{/if}
 				</Button>
@@ -100,10 +109,10 @@
 				<div class="flex space-x-2">
 					<Button onclick={onUpload} disabled={isUploadingAvatar} class="h-10">
 						{#if isUploadingAvatar}
-							<i class="fas fa-spinner fa-spin mr-2"></i>
+							<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
 							업로드 중...
 						{:else}
-							<i class="fas fa-upload mr-2"></i>
+							<FontAwesomeIcon icon={faUpload} class="mr-2" />
 							업로드
 						{/if}
 					</Button>
@@ -132,7 +141,7 @@
 >
 	<div class="mb-4 flex items-center rounded-md bg-red-50 p-3">
 		<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-red-100">
-			<i class="fas fa-exclamation-triangle text-red-600"></i>
+			<FontAwesomeIcon icon={faExclamationTriangle} class="text-red-600" />
 		</div>
 		<p class="text-sm text-red-800">이 작업은 되돌릴 수 없습니다.</p>
 	</div>
@@ -150,10 +159,10 @@
 		</Button>
 		<Button variant="danger" onclick={onRemoveAvatar} disabled={isRemovingAvatar} class="flex-1">
 			{#if isRemovingAvatar}
-				<i class="fas fa-spinner fa-spin mr-2"></i>
+				<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
 				제거 중...
 			{:else}
-				<i class="fas fa-trash mr-2"></i>
+				<FontAwesomeIcon icon={faTrash} class="mr-2" />
 				제거
 			{/if}
 		</Button>

@@ -3,6 +3,15 @@
 	import type { User } from '$lib';
 	import { USER_TYPES } from '$lib/types/user.types';
 	import { PermissionUtils } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faUser,
+		faEnvelope,
+		faIdCard,
+		faShieldAlt,
+		faUserTag,
+		faEdit
+	} from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		user: User | null;
@@ -56,14 +65,14 @@
 				<div class="flex-1">
 					<h3 class="mb-4 flex items-center text-lg font-semibold text-gray-900">
 						<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100">
-							<i class="fas fa-user text-stone-600"></i>
+							<FontAwesomeIcon icon={faUser} class="text-stone-600" />
 						</div>
 						계정 정보
 					</h3>
 					<div class="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
 						<div class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm">
 							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100">
-								<i class="fas fa-user text-stone-600"></i>
+								<FontAwesomeIcon icon={faUser} class="text-stone-600" />
 							</div>
 							<div>
 								<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">사용자명</p>
@@ -72,7 +81,7 @@
 						</div>
 						<div class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm">
 							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-100">
-								<i class="fas fa-envelope text-neutral-600"></i>
+								<FontAwesomeIcon icon={faEnvelope} class="text-neutral-600" />
 							</div>
 							<div>
 								<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">이메일</p>
@@ -83,7 +92,7 @@
 							class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm sm:col-span-2 lg:col-span-1"
 						>
 							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100">
-								<i class="fas fa-id-card text-gray-600"></i>
+								<FontAwesomeIcon icon={faIdCard} class="text-gray-600" />
 							</div>
 							<div>
 								<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">이름</p>
@@ -92,7 +101,7 @@
 						</div>
 						<div class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm">
 							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
-								<i class="fas fa-shield-alt text-slate-600"></i>
+								<FontAwesomeIcon icon={faShieldAlt} class="text-slate-600" />
 							</div>
 							<div>
 								<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">역할</p>
@@ -109,7 +118,7 @@
 						</div>
 						<div class="flex items-center space-x-3 rounded-lg bg-white/60 p-3 backdrop-blur-sm">
 							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100">
-								<i class="fas fa-user-tag text-zinc-600"></i>
+								<FontAwesomeIcon icon={faUserTag} class="text-zinc-600" />
 							</div>
 							<div>
 								<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">유형</p>
@@ -130,7 +139,7 @@
 						onclick={onNavigateToProfile}
 						class="w-full transition-colors hover:border-stone-200 hover:bg-stone-50 sm:w-auto"
 					>
-						<i class="fas fa-edit mr-2"></i>
+						<FontAwesomeIcon icon={faEdit} class="mr-2" />
 						프로필 편집
 					</Button>
 				</div>

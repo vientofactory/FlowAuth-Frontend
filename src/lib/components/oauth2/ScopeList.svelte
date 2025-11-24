@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faKey, faCheck } from '@fortawesome/free-solid-svg-icons';
 	import { getScopeInfo, getScopeRiskColor, getScopeRiskText } from '$lib/utils/scope.utils';
 
 	export let scopes: string[];
@@ -7,7 +9,7 @@
 {#if scopes.length > 0}
 	<div class="mb-4 sm:mb-6">
 		<div class="mb-2 flex items-center sm:mb-3">
-			<i class="fas fa-key mr-1 text-lg text-indigo-600 sm:mr-2 sm:text-xl" aria-hidden="true"></i>
+			<FontAwesomeIcon icon={faKey} class="mr-1 text-lg text-indigo-600 sm:mr-2 sm:text-xl" />
 			<h3 class="text-base font-bold text-gray-900 sm:text-lg">요청된 권한</h3>
 		</div>
 
@@ -56,7 +58,7 @@
 						<div
 							class="flex h-4 w-4 items-center justify-center rounded-full bg-green-100 sm:h-5 sm:w-5"
 						>
-							<i class="fas fa-check text-xs text-green-600" aria-hidden="true"></i>
+							<FontAwesomeIcon icon={faCheck} class="text-xs text-green-600" />
 						</div>
 					</div>
 				</li>

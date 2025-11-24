@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { Button, Loading } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faCopy, faCircle } from '@fortawesome/free-solid-svg-icons';
+	import { faUser, faSearch, faIdCard } from '@fortawesome/free-solid-svg-icons';
 
 	interface TokenResponse {
 		access_token: string;
@@ -54,7 +57,7 @@
 					onclick={() => onCopyToClipboard(accessToken)}
 					class="text-xs"
 				>
-					<i class="fas fa-copy mr-1"></i>
+					<FontAwesomeIcon icon={faCopy} class="mr-1" />
 					복사
 				</Button>
 			</div>
@@ -72,9 +75,11 @@
 						>
 					</code>
 					<div class="mt-2 grid grid-cols-3 gap-2 text-xs">
-						<div class="text-red-600"><i class="fas fa-circle mr-1"></i>Header</div>
-						<div class="text-blue-600"><i class="fas fa-circle mr-1"></i>Payload</div>
-						<div class="text-green-600"><i class="fas fa-circle mr-1"></i>Signature</div>
+						<div class="text-red-600"><FontAwesomeIcon icon={faCircle} class="mr-1" />Header</div>
+						<div class="text-blue-600"><FontAwesomeIcon icon={faCircle} class="mr-1" />Payload</div>
+						<div class="text-green-600">
+							<FontAwesomeIcon icon={faCircle} class="mr-1" />Signature
+						</div>
 					</div>
 				</div>
 			{:else}
@@ -96,7 +101,7 @@
 						tokenResponse?.refresh_token && onCopyToClipboard(tokenResponse.refresh_token)}
 					class="text-xs"
 				>
-					<i class="fas fa-copy mr-1"></i>
+					<FontAwesomeIcon icon={faCopy} class="mr-1" />
 					복사
 				</Button>
 			</div>
@@ -117,7 +122,7 @@
 					onclick={() => onCopyToClipboard(idToken)}
 					class="text-xs"
 				>
-					<i class="fas fa-copy mr-1"></i>
+					<FontAwesomeIcon icon={faCopy} class="mr-1" />
 					복사
 				</Button>
 			</div>
@@ -135,9 +140,11 @@
 						>
 					</code>
 					<div class="mt-2 grid grid-cols-3 gap-2 text-xs">
-						<div class="text-red-600"><i class="fas fa-circle mr-1"></i>Header</div>
-						<div class="text-blue-600"><i class="fas fa-circle mr-1"></i>Payload</div>
-						<div class="text-green-600"><i class="fas fa-circle mr-1"></i>Signature</div>
+						<div class="text-red-600"><FontAwesomeIcon icon={faCircle} class="mr-1" />Header</div>
+						<div class="text-blue-600"><FontAwesomeIcon icon={faCircle} class="mr-1" />Payload</div>
+						<div class="text-green-600">
+							<FontAwesomeIcon icon={faCircle} class="mr-1" />Signature
+						</div>
 					</div>
 				</div>
 			{:else}
@@ -180,17 +187,17 @@
 				<Loading variant="spinner" size="sm" class="mr-2" />
 				프로필 가져오는 중...
 			{:else}
-				<i class="fas fa-user mr-2"></i>
+				<FontAwesomeIcon icon={faUser} class="mr-2" />
 				프로필 가져오기
 			{/if}
 		</Button>
 		<Button variant="outline" onclick={onAnalyzeToken} size="sm">
-			<i class="fas fa-search mr-2"></i>
+			<FontAwesomeIcon icon={faSearch} class="mr-2" />
 			액세스 토큰 분석
 		</Button>
 		{#if tokenResponse?.id_token}
 			<Button variant="outline" onclick={onAnalyzeIdToken} size="sm">
-				<i class="fas fa-id-card mr-2"></i>
+				<FontAwesomeIcon icon={faIdCard} class="mr-2" />
 				ID 토큰 분석
 			</Button>
 		{/if}

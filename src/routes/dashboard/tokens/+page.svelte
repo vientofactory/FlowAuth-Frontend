@@ -6,6 +6,23 @@
 	import { authState, authStore } from '$lib';
 	import type { User } from '$lib';
 	import { TOKEN_TYPES, type TokenType } from '$lib/types/authorization.types';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faKey,
+		faCheckCircle,
+		faClock,
+		faShieldAlt,
+		faList,
+		faBan,
+		faUser,
+		faCodeBranch,
+		faHashtag,
+		faCalendarPlus,
+		faCalendarTimes,
+		faRedo,
+		faInfoCircle,
+		faExclamationTriangle
+	} from '@fortawesome/free-solid-svg-icons';
 
 	let _user = $state<User | null>(null);
 	let tokens = $state<Token[]>([]);
@@ -202,7 +219,7 @@
 					<div
 						class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-stone-100 to-neutral-100"
 					>
-						<i class="fas fa-key text-lg text-stone-600"></i>
+						<FontAwesomeIcon icon={faKey} class="text-lg text-stone-600" />
 					</div>
 				</div>
 				<div class="ml-3 flex-1">
@@ -221,7 +238,7 @@
 					<div
 						class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-neutral-100 to-gray-100"
 					>
-						<i class="fas fa-check-circle text-lg text-neutral-600"></i>
+						<FontAwesomeIcon icon={faCheckCircle} class="text-lg text-neutral-600" />
 					</div>
 				</div>
 				<div class="ml-3 flex-1">
@@ -242,7 +259,7 @@
 					<div
 						class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-gray-100 to-stone-100"
 					>
-						<i class="fas fa-clock text-lg text-gray-600"></i>
+						<FontAwesomeIcon icon={faClock} class="text-lg text-gray-600" />
 					</div>
 				</div>
 				<div class="ml-3 flex-1">
@@ -263,7 +280,7 @@
 					<div
 						class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-slate-100 to-zinc-100"
 					>
-						<i class="fas fa-shield-alt text-lg text-slate-600"></i>
+						<FontAwesomeIcon icon={faShieldAlt} class="text-lg text-slate-600" />
 					</div>
 				</div>
 				<div class="ml-3 flex-1">
@@ -284,7 +301,7 @@
 			<div class="mb-6 flex items-center justify-between">
 				<h3 class="flex items-center text-lg font-semibold text-gray-900">
 					<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
-						<i class="fas fa-list text-slate-600"></i>
+						<FontAwesomeIcon icon={faList} class="text-slate-600" />
 					</div>
 					토큰 목록
 				</h3>
@@ -294,7 +311,7 @@
 						variant="outline"
 						class="h-10 w-full border-red-300 text-red-600 transition-colors hover:border-red-200 hover:bg-red-50 sm:h-11 sm:w-auto"
 					>
-						<i class="fas fa-ban mr-2"></i>
+						<FontAwesomeIcon icon={faBan} class="mr-2" />
 						{activeTab === TOKEN_TYPES.LOGIN ? '모든 로그인 토큰 취소' : '모든 OAuth2 토큰 취소'}
 					</Button>
 				</div>
@@ -306,12 +323,12 @@
 					{
 						id: TOKEN_TYPES.LOGIN,
 						label: `로그인 토큰 (${loginTokens.length})`,
-						icon: 'fas fa-user'
+						icon: faUser
 					},
 					{
 						id: TOKEN_TYPES.OAUTH2,
 						label: `OAuth2 토큰 (${oauth2Tokens.length})`,
-						icon: 'fas fa-code-branch'
+						icon: faCodeBranch
 					}
 				]}
 				{activeTab}
@@ -324,7 +341,7 @@
 					{:else if currentTokens.length === 0}
 						<div class="flex flex-col items-center justify-center py-12 text-center">
 							<div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-								<i class="fas fa-key text-2xl text-gray-400"></i>
+								<FontAwesomeIcon icon={faKey} class="text-2xl text-gray-400" />
 							</div>
 							<h4 class="mb-1 text-sm font-medium text-gray-900">
 								{activeTab === TOKEN_TYPES.LOGIN
@@ -369,7 +386,7 @@
 													<div
 														class="flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100"
 													>
-														<i class="fas fa-hashtag text-stone-600"></i>
+														<FontAwesomeIcon icon={faHashtag} class="text-stone-600" />
 													</div>
 													<div class="flex-1">
 														<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
@@ -383,7 +400,7 @@
 													<div
 														class="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-100"
 													>
-														<i class="fas fa-shield-alt text-neutral-600"></i>
+														<FontAwesomeIcon icon={faShieldAlt} class="text-neutral-600" />
 													</div>
 													<div class="flex-1">
 														<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
@@ -403,7 +420,7 @@
 													<div
 														class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100"
 													>
-														<i class="fas fa-calendar-plus text-slate-600"></i>
+														<FontAwesomeIcon icon={faCalendarPlus} class="text-slate-600" />
 													</div>
 													<div class="flex-1">
 														<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
@@ -419,7 +436,7 @@
 													<div
 														class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100"
 													>
-														<i class="fas fa-calendar-times text-gray-600"></i>
+														<FontAwesomeIcon icon={faCalendarTimes} class="text-gray-600" />
 													</div>
 													<div class="flex-1">
 														<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
@@ -438,7 +455,7 @@
 														<div
 															class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100"
 														>
-															<i class="fas fa-redo text-gray-600"></i>
+															<FontAwesomeIcon icon={faRedo} class="text-gray-600" />
 														</div>
 														<div class="flex-1">
 															<p class="text-xs font-medium tracking-wide text-gray-500 uppercase">
@@ -462,7 +479,7 @@
 													onclick={() => openRevokeModal(token)}
 													class="flex-1 border-red-300 text-red-600 transition-colors hover:border-red-200 hover:bg-red-50 sm:flex-none"
 												>
-													<i class="fas fa-ban mr-2"></i>
+													<FontAwesomeIcon icon={faBan} class="mr-2" />
 													<span class="hidden sm:inline">취소</span>
 												</Button>
 											{:else}
@@ -472,7 +489,7 @@
 													disabled
 													class="flex-1 cursor-not-allowed text-gray-400 sm:flex-none"
 												>
-													<i class="fas fa-clock mr-2"></i>
+													<FontAwesomeIcon icon={faClock} class="mr-2" />
 													<span class="hidden sm:inline">만료됨</span>
 												</Button>
 											{/if}
@@ -493,7 +510,7 @@
 		<div class="relative">
 			<h3 class="mb-6 flex items-center text-lg font-semibold text-gray-900">
 				<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100">
-					<i class="fas fa-info-circle text-stone-600"></i>
+					<FontAwesomeIcon icon={faInfoCircle} class="text-stone-600" />
 				</div>
 				{activeTab === TOKEN_TYPES.LOGIN ? '로그인 토큰' : 'OAuth2 토큰'} 관리 안내
 			</h3>
@@ -504,7 +521,7 @@
 						<div
 							class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-stone-100"
 						>
-							<i class="fas fa-user text-stone-600"></i>
+							<FontAwesomeIcon icon={faUser} class="text-stone-600" />
 						</div>
 						<div>
 							<h4 class="mb-2 text-base font-medium text-gray-900">로그인 토큰</h4>
@@ -516,7 +533,7 @@
 
 					<div class="flex items-start space-x-4 rounded-lg bg-white/60 p-4 backdrop-blur-sm">
 						<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100">
-							<i class="fas fa-redo text-gray-600"></i>
+							<FontAwesomeIcon icon={faRedo} class="text-gray-600" />
 						</div>
 						<div>
 							<h4 class="mb-2 text-base font-medium text-gray-900">세션 관리</h4>
@@ -530,7 +547,7 @@
 				<div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
 					<div class="flex items-start space-x-4 rounded-lg bg-white/60 p-4 backdrop-blur-sm">
 						<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-zinc-100">
-							<i class="fas fa-code-branch text-zinc-600"></i>
+							<FontAwesomeIcon icon={faCodeBranch} class="text-zinc-600" />
 						</div>
 						<div>
 							<h4 class="mb-2 text-base font-medium text-gray-900">OAuth2 토큰</h4>
@@ -544,7 +561,7 @@
 						<div
 							class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neutral-100"
 						>
-							<i class="fas fa-shield-alt text-neutral-600"></i>
+							<FontAwesomeIcon icon={faShieldAlt} class="text-neutral-600" />
 						</div>
 						<div>
 							<h4 class="mb-2 text-base font-medium text-gray-900">권한 범위</h4>
@@ -560,7 +577,7 @@
 				class="flex items-start space-x-4 rounded-lg border border-yellow-200 bg-white/60 p-4 backdrop-blur-sm"
 			>
 				<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-yellow-100">
-					<i class="fas fa-exclamation-triangle text-yellow-600"></i>
+					<FontAwesomeIcon icon={faExclamationTriangle} class="text-yellow-600" />
 				</div>
 				<div>
 					<h4 class="mb-2 text-base font-medium text-gray-900">보안 주의사항</h4>
@@ -670,7 +687,7 @@
 			</p>
 			<div class="rounded-lg bg-red-50 p-4">
 				<div class="flex items-center">
-					<i class="fas fa-exclamation-triangle mr-2 text-red-600"></i>
+					<FontAwesomeIcon icon={faExclamationTriangle} class="mr-2 text-red-600" />
 					<div class="text-sm text-red-800">
 						<strong>경고:</strong> 이 작업은 {selectedTokenType === TOKEN_TYPES.LOGIN
 							? '모든 로그인 세션을 종료'

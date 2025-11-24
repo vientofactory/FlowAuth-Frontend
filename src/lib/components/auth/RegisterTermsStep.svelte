@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faUserCheck, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 	interface Props {
 		termsAccepted: boolean;
 		privacyAccepted: boolean;
@@ -47,7 +49,7 @@
 	<!-- 입력 정보 요약 -->
 	<div class="rounded-lg border border-stone-200 bg-stone-50 p-4">
 		<h3 class="mb-4 flex items-center text-lg font-semibold text-gray-900">
-			<i class="fas fa-user-check mr-2 text-stone-600"></i>
+			<FontAwesomeIcon icon={faUserCheck} class="mr-2 text-stone-600" />
 			입력하신 정보를 확인해주세요
 		</h3>
 
@@ -96,7 +98,7 @@
 
 		<div class="mt-4 rounded-lg border border-gray-100 bg-white p-3">
 			<div class="flex items-start space-x-2">
-				<i class="fas fa-info-circle mt-0.5 text-gray-500"></i>
+				<FontAwesomeIcon icon={faInfoCircle} class="mt-0.5 text-gray-500" />
 				<div class="text-sm text-gray-600">
 					<strong>안내:</strong> 회원가입 완료 후 위 정보는 프로필 페이지에서 수정할 수 있습니다. 단,
 					사용자 유형은 변경할 수 없으니 신중히 선택해주세요.

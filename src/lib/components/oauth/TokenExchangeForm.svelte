@@ -2,6 +2,8 @@
 	import { Card, Button, Input, Loading } from '$lib';
 	import { useToast } from '$lib';
 	import { apiClient } from '$lib/utils/api';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faExchangeAlt } from '@fortawesome/free-solid-svg-icons';
 
 	interface TokenResponse {
 		access_token: string;
@@ -97,7 +99,7 @@
 <Card class="mb-6">
 	<div class="border-b border-gray-200 px-6 py-4">
 		<h3 class="flex items-center text-lg font-semibold text-gray-900">
-			<i class="fas fa-exchange-alt mr-2 text-blue-600"></i>
+			<FontAwesomeIcon icon={faExchangeAlt} class="mr-2 text-blue-600" />
 			토큰 교환 (Authorization Code Grant)
 		</h3>
 		<p class="mt-1 text-sm text-gray-600">인증 코드를 액세스 토큰으로 교환합니다.</p>
@@ -158,7 +160,7 @@
 					<Loading size="sm" class="mr-2" />
 					교환 중...
 				{:else}
-					<i class="fas fa-exchange-alt mr-2"></i>
+					<FontAwesomeIcon icon={faExchangeAlt} class="mr-2" />
 					토큰 교환
 				{/if}
 			</Button>

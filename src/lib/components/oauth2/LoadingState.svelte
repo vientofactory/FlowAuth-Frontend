@@ -1,5 +1,7 @@
 <script lang="ts">
 	import Loading from '$lib/components/Loading.svelte';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faShieldAlt } from '@fortawesome/free-solid-svg-icons';
 
 	export let message = '로딩 중...';
 	export let progress = 0;
@@ -14,7 +16,7 @@
 		<div
 			class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 shadow-lg"
 		>
-			<i class="fas fa-shield-alt animate-pulse text-2xl text-white"></i>
+			<FontAwesomeIcon icon={faShieldAlt} class="animate-pulse text-2xl text-white" />
 		</div>
 		{#if progress > 0}
 			<div class="absolute inset-0 rounded-full border-4 border-gray-200">

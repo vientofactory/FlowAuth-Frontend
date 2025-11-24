@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Button, Badge } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
 	interface TokenInfo {
 		header: {
@@ -147,13 +149,13 @@
 		</div>
 	{:else}
 		<div class="py-8 text-center">
-			<i class="fas fa-search mb-4 text-4xl text-gray-400"></i>
+			<FontAwesomeIcon icon={faSearch} class="mb-4 text-4xl text-gray-400" />
 			<p class="mb-4 text-gray-500">
 				{tokenAnalysisType === 'access' ? '액세스 토큰' : 'ID 토큰'}을 분석하려면 위의 버튼을
 				클릭하세요.
 			</p>
 			<Button onclick={tokenAnalysisType === 'access' ? onAnalyzeToken : onAnalyzeIdToken}>
-				<i class="fas fa-search mr-2"></i>
+				<FontAwesomeIcon icon={faSearch} class="mr-2" />
 				{tokenAnalysisType === 'access' ? '액세스 토큰' : 'ID 토큰'} 분석
 			</Button>
 		</div>

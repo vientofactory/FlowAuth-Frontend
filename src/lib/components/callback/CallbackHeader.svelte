@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faArrowLeft, faHome } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		onNavigateBack: () => void;
@@ -19,7 +21,7 @@
 					onclick={onNavigateBack}
 					class="text-gray-600 hover:text-gray-900"
 				>
-					<i class="fas fa-arrow-left mr-2"></i>
+					<FontAwesomeIcon icon={faArrowLeft} class="mr-2" />
 					OAuth2 테스터로
 				</Button>
 				<div class="h-6 w-px bg-gray-300"></div>
@@ -32,7 +34,7 @@
 					onclick={onGoToDashboard}
 					class="border-gray-300 text-gray-700 hover:bg-gray-50"
 				>
-					<i class="fas fa-home mr-2"></i>
+					<FontAwesomeIcon icon={faHome} class="mr-2" />
 					대시보드로
 				</Button>
 			</div>

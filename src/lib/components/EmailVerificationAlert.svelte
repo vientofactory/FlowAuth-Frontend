@@ -2,6 +2,13 @@
 	import { LoadingButton, apiClient, useToast } from '$lib';
 	import type { User } from '$lib/types/user.types';
 	import { createEventDispatcher } from 'svelte';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import {
+		faTimes,
+		faExclamationTriangle,
+		faSpinner,
+		faPaperPlane
+	} from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		user: User;
@@ -55,13 +62,13 @@
 			class="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full text-amber-600 transition-colors hover:bg-amber-100 hover:text-amber-800"
 			aria-label="알림 닫기"
 		>
-			<i class="fas fa-times text-sm"></i>
+			<FontAwesomeIcon icon={faTimes} class="text-sm" />
 		</button>
 
 		<div class="flex items-start space-x-3 pr-8">
 			<!-- 경고 아이콘 -->
 			<div class="flex h-6 w-6 shrink-0 items-center justify-center">
-				<i class="fas fa-exclamation-triangle text-amber-600"></i>
+				<FontAwesomeIcon icon={faExclamationTriangle} class="text-amber-600" />
 			</div>
 
 			<!-- 메시지 콘텐츠 -->
@@ -82,10 +89,10 @@
 						class="border-amber-300 bg-white text-amber-700 shadow-sm hover:border-amber-400 hover:bg-amber-50 focus:ring-amber-500"
 					>
 						{#if isResending}
-							<i class="fas fa-spinner fa-spin mr-2"></i>
+							<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
 							전송 중...
 						{:else}
-							<i class="fas fa-paper-plane mr-2"></i>
+							<FontAwesomeIcon icon={faPaperPlane} class="mr-2" />
 							인증 이메일 재전송
 						{/if}
 					</LoadingButton>

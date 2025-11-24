@@ -1,6 +1,8 @@
 <script lang="ts">
 	import ErrorMessage from './ErrorMessage.svelte';
 	import LoadingSpinner from './LoadingSpinner.svelte';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faRedo } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		isLoading?: boolean;
@@ -38,7 +40,7 @@
 					class="text-sm text-blue-600 hover:text-blue-500 focus:underline focus:outline-none"
 					onclick={onRetry}
 				>
-					<i class="fas fa-redo mr-1"></i>
+					<FontAwesomeIcon icon={faRedo} class="mr-1" />
 					다시 시도
 				</button>
 			</div>

@@ -15,6 +15,9 @@
 	import { oidcStore } from '$lib/stores/oidc';
 	import { LOCAL_STORAGE_KEYS, COOKIE_KEYS } from '@flowauth/shared';
 	import { getCookie } from '$lib/utils/cookie';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faInfo, faInfoCircle, faSpinner } from '@fortawesome/free-solid-svg-icons';
+	import { faCube } from '@fortawesome/free-solid-svg-icons';
 	import './+page.css';
 
 	let { data }: { data: PageData } = $props();
@@ -266,7 +269,7 @@
 								alt="{currentState.client?.name || 'FlowAuth'} 로고"
 								size="lg"
 								fallbackSrc="/logo_icon.png"
-								fallbackIcon="fa-cube"
+								fallbackIcon={faCube}
 								useIconFallback={logoUrl === null}
 								className="rounded-full border-2 border-white shadow-lg object-cover"
 							/>
@@ -313,7 +316,7 @@
 											scopeInfo.color
 										)}"
 									>
-										<i class="fas {scopeInfo.icon} text-sm"></i>
+										<FontAwesomeIcon icon={scopeInfo.icon} class="text-sm" />
 									</div>
 									<div class="flex-1">
 										<p class="text-sm font-medium text-gray-900">
@@ -330,7 +333,7 @@
 						<div class="py-4 text-center">
 							<div class="mb-3 flex items-center justify-center">
 								<div class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-									<i class="fas fa-info text-gray-400"></i>
+									<FontAwesomeIcon icon={faInfo} class="text-gray-400" />
 								</div>
 							</div>
 							<p class="text-sm text-gray-500">이 앱은 특별한 권한을 요청하지 않습니다</p>
@@ -341,7 +344,7 @@
 					<!-- 보안 알림 -->
 					<div class="mt-6 rounded-lg border border-stone-200 bg-stone-50 p-4">
 						<div class="flex items-start space-x-2">
-							<i class="fas fa-info-circle mt-0.5 text-sm text-stone-600"></i>
+							<FontAwesomeIcon icon={faInfoCircle} class="mt-0.5 text-sm text-stone-600" />
 							<div>
 								<p class="mb-1 text-sm font-medium text-stone-800">
 									신뢰할 수 있는 앱인지 확인하세요
@@ -371,7 +374,7 @@
 								class="flex-1 cursor-pointer rounded-lg border border-transparent bg-stone-600 px-4 py-3 text-sm font-medium text-white transition-all duration-200 hover:scale-[1.02] hover:bg-stone-700 focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
 							>
 								{#if currentState.submitting}
-									<i class="fas fa-spinner fa-spin mr-2"></i>
+									<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
 									승인 중...
 								{:else}
 									승인

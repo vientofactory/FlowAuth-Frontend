@@ -18,6 +18,20 @@
 	import { goto } from '$app/navigation';
 	import type { User } from '$lib';
 	import { usePermissions } from '$lib/composables/usePermissions';
+	import {
+		faBolt,
+		faCalendar,
+		faChartLine,
+		faClock,
+		faEnvelopeOpenText,
+		faKey,
+		faLink,
+		faPlusCircle,
+		faShieldAlt,
+		faTachometerAlt,
+		faUserEdit,
+		faUsers
+	} from '@fortawesome/free-solid-svg-icons';
 
 	let user = $state<User | null>(null);
 	let _isLoading = $state(true);
@@ -166,14 +180,14 @@
 				{
 					label: '클라이언트',
 					value: dashboardStats.totalClients,
-					icon: 'fas fa-users',
+					icon: faUsers,
 					color: 'from-stone-500 to-stone-600',
 					show: user.userType === 'developer'
 				},
 				{
 					label: '토큰',
 					value: dashboardStats.activeTokens,
-					icon: 'fas fa-key',
+					icon: faKey,
 					color: 'from-neutral-500 to-neutral-600',
 					show: true
 				},
@@ -185,21 +199,21 @@
 								day: 'numeric'
 							})
 						: 'N/A',
-					icon: 'fas fa-clock',
+					icon: faClock,
 					color: 'from-gray-500 to-gray-600',
 					show: true
 				},
 				{
 					label: '계정',
 					value: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('ko-KR') : 'N/A',
-					icon: 'fas fa-calendar',
+					icon: faCalendar,
 					color: 'from-slate-500 to-slate-600',
 					show: true
 				},
 				{
 					label: '권한',
 					value: displayRoleName,
-					icon: 'fas fa-shield-alt',
+					icon: faShieldAlt,
 					color: 'from-zinc-500 to-zinc-600',
 					show: true
 				}
@@ -210,19 +224,19 @@
 						? [
 								{
 									label: '클라이언트\n생성',
-									icon: 'fas fa-plus-circle',
+									icon: faPlusCircle,
 									color: 'blue',
 									action: navigateToClients
 								},
 								{
 									label: '토큰\n관리',
-									icon: 'fas fa-key',
+									icon: faKey,
 									color: 'green',
 									action: navigateToTokens
 								},
 								{
 									label: 'OAuth2\n테스터',
-									icon: 'fas fa-link',
+									icon: faLink,
 									color: 'orange',
 									action: navigateToOAuthTester
 								}
@@ -230,13 +244,13 @@
 						: [
 								{
 									label: '프로필\n편집',
-									icon: 'fas fa-user-edit',
+									icon: faUserEdit,
 									color: 'blue',
 									action: navigateToProfile
 								},
 								{
 									label: '토큰\n관리',
-									icon: 'fas fa-key',
+									icon: faKey,
 									color: 'green',
 									action: navigateToTokens
 								}
@@ -249,7 +263,7 @@
 				if (userPermissions && (userPermissions & 1073741824) === 1073741824) {
 					baseActions.push({
 						label: '이메일\n관리',
-						icon: 'fas fa-envelope-open-text',
+						icon: faEnvelopeOpenText,
 						color: 'purple',
 						action: navigateToEmailManagement
 					});
@@ -297,10 +311,10 @@
 
 	// 탭 설정
 	const tabs = [
-		{ id: 'overview', label: '개요', icon: 'fas fa-tachometer-alt' },
-		{ id: 'analytics', label: '분석', icon: 'fas fa-chart-line' },
-		{ id: 'activity', label: '최근 활동', icon: 'fas fa-clock' },
-		{ id: 'quick-actions', label: '빠른 작업', icon: 'fas fa-bolt' }
+		{ id: 'overview', label: '개요', icon: faTachometerAlt },
+		{ id: 'analytics', label: '분석', icon: faChartLine },
+		{ id: 'activity', label: '최근 활동', icon: faClock },
+		{ id: 'quick-actions', label: '빠른 작업', icon: faBolt }
 	];
 
 	let activeTab = $state('overview');

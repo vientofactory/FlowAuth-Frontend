@@ -1,5 +1,7 @@
 <script lang="ts" generics="T">
 	import type { Snippet } from 'svelte';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faCaretUp, faCaretDown, faInbox } from '@fortawesome/free-solid-svg-icons';
 
 	interface Column<T> {
 		key: keyof T;
@@ -94,16 +96,18 @@
 									<span>{column.label}</span>
 									{#if column.sortable}
 										<div class="flex flex-col">
-											<i
-												class="fas fa-caret-up text-xs"
-												class:text-stone-600={sortColumn === column.key && sortDirection === 'asc'}
-												class:text-gray-400={sortColumn !== column.key || sortDirection !== 'asc'}
-											></i>
-											<i
-												class="fas fa-caret-down -mt-1 text-xs"
-												class:text-stone-600={sortColumn === column.key && sortDirection === 'desc'}
-												class:text-gray-400={sortColumn !== column.key || sortDirection !== 'desc'}
-											></i>
+											<FontAwesomeIcon
+												icon={faCaretUp}
+												class="text-xs {sortColumn === column.key && sortDirection === 'asc'
+													? 'text-stone-600'
+													: 'text-gray-400'}"
+											/>
+											<FontAwesomeIcon
+												icon={faCaretDown}
+												class="-mt-1 text-xs {sortColumn === column.key && sortDirection === 'desc'
+													? 'text-stone-600'
+													: 'text-gray-400'}"
+											/>
 										</div>
 									{/if}
 								</div>
@@ -126,7 +130,7 @@
 						<tr>
 							<td colspan={columns.length} class="px-6 py-12 text-center text-sm text-gray-500">
 								<div class="flex flex-col items-center space-y-3">
-									<i class="fas fa-inbox text-3xl text-gray-300"></i>
+									<FontAwesomeIcon icon={faInbox} class="text-3xl text-gray-300" />
 									<p>{emptyMessage}</p>
 								</div>
 							</td>
@@ -171,7 +175,7 @@
 		{:else if sortedData.length === 0}
 			<div class="rounded-lg border border-gray-200 bg-white p-8 text-center shadow">
 				<div class="flex flex-col items-center space-y-3">
-					<i class="fas fa-inbox text-3xl text-gray-300"></i>
+					<FontAwesomeIcon icon={faInbox} class="text-3xl text-gray-300" />
 					<p class="text-sm text-gray-500">{emptyMessage}</p>
 				</div>
 			</div>

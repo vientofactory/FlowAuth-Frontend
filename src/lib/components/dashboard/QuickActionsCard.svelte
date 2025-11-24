@@ -1,9 +1,12 @@
 <script lang="ts">
 	import { Button } from '$lib';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faBolt } from '@fortawesome/free-solid-svg-icons';
+	import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 	interface QuickAction {
 		label: string;
-		icon: string;
+		icon: IconDefinition | string;
 		color: string;
 		action: () => void;
 	}
@@ -62,7 +65,7 @@
 				class="mb-2 flex items-center justify-center text-lg font-semibold text-gray-900 sm:justify-start"
 			>
 				<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100">
-					<i class="fas fa-bolt text-stone-600"></i>
+					<FontAwesomeIcon icon={faBolt} class="text-stone-600" />
 				</div>
 				빠른 작업
 			</h3>
@@ -84,7 +87,14 @@
 								class="flex h-12 w-12 items-center justify-center rounded-xl transition-all duration-300 {colorClass?.background ||
 									'bg-gray-100'} group-hover:scale-110 group-hover:shadow-lg"
 							>
-								<i class="text-xl {colorClass?.text || 'text-gray-600'} {action.icon}"></i>
+								{#if typeof action.icon === 'string'}
+									<i class="text-xl {colorClass?.text || 'text-gray-600'} {action.icon}"></i>
+								{:else}
+									<FontAwesomeIcon
+										icon={action.icon}
+										class="text-xl {colorClass?.text || 'text-gray-600'}"
+									/>
+								{/if}
 							</div>
 							<div
 								class="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-linear-to-br from-stone-400 to-gray-500 opacity-0 transition-opacity group-hover:opacity-100"

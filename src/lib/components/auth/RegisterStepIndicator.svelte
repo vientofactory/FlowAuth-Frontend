@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faCheck, faExclamationTriangle, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+
 	interface Props {
 		currentStep: number;
 		totalSteps: number;
@@ -58,7 +61,7 @@
 							: 'border-gray-300 bg-white text-gray-400'}"
 				>
 					{#if isCompleted}
-						<i class="fas fa-check text-xs"></i>
+						<FontAwesomeIcon icon={faCheck} class="text-xs" />
 					{:else}
 						{stepNumber}
 					{/if}
@@ -81,7 +84,7 @@
 		{#if !currentStepValid}
 			<div class="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
 				<div class="flex items-center">
-					<i class="fas fa-exclamation-triangle mr-2 text-amber-500"></i>
+					<FontAwesomeIcon icon={faExclamationTriangle} class="mr-2 text-amber-500" />
 					<div class="text-left">
 						<p class="text-sm text-amber-700">
 							<strong>완료 조건:</strong>
@@ -93,7 +96,7 @@
 		{:else}
 			<div class="mt-3 rounded-lg border border-stone-200 bg-stone-50 p-3">
 				<div class="flex items-center justify-center">
-					<i class="fas fa-check-circle mr-2 text-stone-500"></i>
+					<FontAwesomeIcon icon={faCheckCircle} class="mr-2 text-stone-500" />
 					<p class="text-sm text-stone-700">
 						<strong>모든 요구사항이 충족되었습니다!</strong> 다음 단계로 진행할 수 있습니다.
 					</p>

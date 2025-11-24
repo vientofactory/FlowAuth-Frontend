@@ -2,12 +2,15 @@
 	import { onMount } from 'svelte';
 	import { createEventDispatcher } from 'svelte';
 	import { apiClient } from '$lib/utils/api';
+	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import { faCube } from '@fortawesome/free-solid-svg-icons';
+	import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 	export let src: string = '';
 	export let alt: string = 'Logo';
 	export let size: 'sm' | 'md' | 'lg' | 'xl' = 'md';
 	export let fallbackSrc: string = '/logo_icon.png';
-	export let fallbackIcon: string = 'fa-cube';
+	export let fallbackIcon: IconDefinition = faCube;
 	export let useIconFallback: boolean = false;
 	export let clickable: boolean = false;
 	export let className: string = '';
@@ -99,7 +102,7 @@
 			on:keydown={handleKeyDown}
 			aria-label={alt}
 		>
-			<i class="fas {fallbackIcon} {iconSizeClasses[size]}"></i>
+			<FontAwesomeIcon icon={fallbackIcon} class={iconSizeClasses[size]} />
 		</button>
 	{:else}
 		<div
@@ -108,7 +111,7 @@
 			]} {className} flex items-center justify-center rounded-full bg-linear-to-br from-stone-100 to-gray-200 text-gray-600 shadow-sm"
 			aria-label={alt}
 		>
-			<i class="fas {fallbackIcon} {iconSizeClasses[size]}"></i>
+			<FontAwesomeIcon icon={fallbackIcon} class={iconSizeClasses[size]} />
 		</div>
 	{/if}
 {:else if clickable}
