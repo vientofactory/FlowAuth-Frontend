@@ -57,18 +57,20 @@ export abstract class BaseApi {
 			// JWT 토큰이 있으면 헤더에 추가 (이미 Authorization 헤더가 없는 경우만)
 			const token = this.getToken();
 			if (token && !(config.headers as Record<string, string>)?.Authorization) {
+				// Check if token needs proactive refresh
+				await this.checkAndRefreshTokenIfNeeded(token);
+
 				config.headers = {
 					...config.headers,
-					Authorization: `Bearer ${token}`
+					Authorization: `Bearer ${this.getToken() || token}` // Use refreshed token if available
 				};
 			}
 
 			const response = await fetch(url, config);
 
-			// Handle token expiration
+			// Handle token expiration - try automatic refresh first
 			if (response.status === 401) {
 				console.log('API Client: 401 error detected');
-				console.log('API Client: skipAuthRedirect =', skipAuthRedirect);
 
 				// 로그인 시도인 경우 2FA가 필요한지 먼저 확인
 				if (skipAuthRedirect) {
@@ -92,6 +94,21 @@ export abstract class BaseApi {
 					}
 				}
 
+				// Try automatic token refresh if we have a refresh token and this isn't a login attempt
+				if (!skipAuthRedirect && this.getRefreshToken()) {
+					console.log('API Client: Attempting automatic token refresh');
+					try {
+						await this.attemptTokenRefresh();
+						// Retry the original request with the new token
+						console.log('API Client: Token refresh successful, retrying original request');
+						return this.request<T>(endpoint, options, retryCount, skipAuthRedirect);
+					} catch (refreshError) {
+						console.log('API Client: Token refresh failed:', refreshError);
+						// Refresh failed, proceed with normal 401 handling
+					}
+				}
+
+				// Normal 401 handling - remove token and redirect
 				this.removeToken();
 
 				if (!skipAuthRedirect && typeof window !== 'undefined') {
@@ -386,6 +403,82 @@ export abstract class BaseApi {
 		} catch (error) {
 			console.log('[API] Session recovery failed:', error);
 			this.removeToken();
+		}
+	}
+
+	protected async checkAndRefreshTokenIfNeeded(token: string): Promise<void> {
+		try {
+			// Decode token to check expiry
+			const decoded = this.decodeToken(token);
+			if (!decoded) return;
+
+			const now = Math.floor(Date.now() / 1000);
+			const expiresIn = decoded.exp - now;
+
+			// Refresh if token expires in less than 5 minutes
+			const REFRESH_THRESHOLD = 5 * 60; // 5 minutes
+
+			if (expiresIn > 0 && expiresIn <= REFRESH_THRESHOLD) {
+				console.log(
+					`API Client: Token expires in ${expiresIn} seconds, attempting proactive refresh`
+				);
+				await this.attemptTokenRefresh();
+			}
+		} catch (error) {
+			console.warn('API Client: Failed to check token expiry for proactive refresh:', error);
+			// Don't throw - just continue with current token
+		}
+	}
+
+	protected decodeToken(token: string): { exp: number } | null {
+		try {
+			const payload = JSON.parse(atob(token.split('.')[1]));
+			return { exp: payload.exp };
+		} catch {
+			return null;
+		}
+	}
+
+	protected async attemptTokenRefresh(): Promise<void> {
+		const refreshToken = this.getRefreshToken();
+		if (!refreshToken) {
+			throw new Error('No refresh token available');
+		}
+
+		try {
+			console.log('API Client: Attempting token refresh with refresh token');
+			const response = await fetch(`${this.baseURL}/auth/refresh`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				credentials: 'include',
+				body: JSON.stringify({ refreshToken })
+			});
+
+			if (!response.ok) {
+				const errorData = await this.parseErrorResponse(response);
+				throw this.createErrorFromResponse(errorData, response.status);
+			}
+
+			const result = await response.json();
+			console.log('API Client: Token refresh successful');
+
+			// Update tokens
+			this.setToken(result.accessToken);
+			if (result.refreshToken) {
+				this.setRefreshToken(result.refreshToken);
+			}
+
+			// Dispatch session recovered event
+			if (typeof window !== 'undefined' && 'dispatchEvent' in window) {
+				window.dispatchEvent(new CustomEvent('session-recovered'));
+			}
+		} catch (error) {
+			console.error('API Client: Token refresh failed:', error);
+			// Clear all tokens on refresh failure
+			this.clearAllTokens();
+			throw error;
 		}
 	}
 
