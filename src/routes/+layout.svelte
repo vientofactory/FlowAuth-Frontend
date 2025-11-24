@@ -1,6 +1,8 @@
 <script lang="ts">
 	import '../app.css';
 	import 'nprogress/nprogress.css';
+	import '@fortawesome/fontawesome-svg-core/styles.css';
+	import { config } from '@fortawesome/fontawesome-svg-core';
 	import NProgress from 'nprogress';
 	import { beforeNavigate, afterNavigate } from '$app/navigation';
 	import favicon from '$lib/assets/favicon.ico';
@@ -8,6 +10,8 @@
 	import { authStore } from '$lib/stores/auth';
 	import { apiRequestStore } from '$lib/stores/api';
 	import { onMount, onDestroy } from 'svelte';
+
+	config.autoAddCss = false;
 
 	let { children } = $props();
 
