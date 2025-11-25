@@ -1,4 +1,5 @@
 <script lang="ts">
+	import './+page.css';
 	import { onMount } from 'svelte';
 	import Card from '$lib/components/Card.svelte';
 	import LoadingState from '$lib/components/oauth2/LoadingState.svelte';
@@ -19,15 +20,21 @@
 	import { faCube } from '@fortawesome/free-solid-svg-icons';
 	import { faIdBadge } from '@fortawesome/free-solid-svg-icons';
 	import { SCOPE_DESCRIPTIONS } from '$lib/constants/authorization.constants';
-	import './+page.css';
+	import type { Writable } from 'svelte/store';
 
 	let { data }: { data: PageData } = $props();
+
+	// 설명 중략 처리 설정
+	const DESCRIPTION_MAX_LENGTH = 80; // 모바일에서 약 3-4줄
+	const DESCRIPTION_PREVIEW_LENGTH = 20; // 미리보기 길이
+
+	// 타임아웃 설정
+	const LOADING_TIMEOUT_MS = 30000; // 30초
 
 	// OAuth2 파라미터 누락 에러 처리
 	const oauth2ParamError = data && 'error' in data && data.error;
 
-	// 권한 부여 훅 및 상태: 파라미터가 정상일 때만 사용
-	import type { Writable } from 'svelte/store';
+	// 권한 부여 훅 및 상태
 	let authState: Writable<AuthorizationState> | null = null;
 	let handleConsent: ((approved: boolean) => void) | null = null;
 	let retryAuthorization: (() => void) | null = null;
@@ -50,16 +57,12 @@
 	// 설명 표시 상태 관리
 	let isDescriptionExpanded = $state(false);
 
-	// 설명 중략 처리 설정
-	const DESCRIPTION_MAX_LENGTH = 80; // 모바일에서 약 3-4줄
-	const DESCRIPTION_PREVIEW_LENGTH = 20; // 미리보기 길이
-
-	// 로고 URL을 리액티브하게 계산 (파라미터 에러 시 null)
+	// 로고 URL을 리액티브하게 계산
 	let logoUrl = $derived(
 		!oauth2ParamError && currentState?.client ? getLogoUrl(currentState.client.logoUri) : null
 	);
 
-	// Function to extract host from redirect URI
+	// URI에서 호스트네임 추출
 	function getRedirectHost(redirectUri?: string): string {
 		if (!redirectUri) return 'N/A';
 		try {
@@ -70,7 +73,7 @@
 		}
 	}
 
-	// Function to convert logo URI to absolute URL
+	// 로고 URL 처리
 	function getLogoUrl(logoUri?: string): string | null {
 		if (!logoUri || !logoUri.trim()) {
 			return null;
@@ -93,17 +96,16 @@
 			new URL(trimmedUri);
 			return trimmedUri;
 		} catch {
-			// 유효하지 않은 URL인 경우 null 반환
 			return null;
 		}
 	}
 
-	// Function to check if description needs truncation
+	// 애플리케이션 설명을 잘라야 하는지 구분
 	function needsTruncation(description?: string): boolean {
 		return (description?.length || 0) > DESCRIPTION_MAX_LENGTH;
 	}
 
-	// Function to get truncated description
+	// 애플리케이션 설명을 자르는 함수
 	function getTruncatedDescription(description?: string): string {
 		if (!description) return '';
 		if (description.length <= DESCRIPTION_MAX_LENGTH) return description;
@@ -120,7 +122,7 @@
 		return description.substring(0, lastSpace) + '...';
 	}
 
-	// Function to get display description based on expanded state
+	// 확장된 상태를 기반으로 디스플레이 설명 가져오기
 	function getDisplayDescription(description?: string): string {
 		if (!description) return '';
 
@@ -131,7 +133,6 @@
 		return getTruncatedDescription(description);
 	}
 
-	// Function to toggle description expansion
 	function toggleDescription() {
 		isDescriptionExpanded = !isDescriptionExpanded;
 	}
@@ -150,7 +151,9 @@
 			const loginUrl = `${ROUTES.LOGIN}?returnUrl=${encodeURIComponent(currentUrl)}`;
 			window.location.href = loginUrl;
 			return;
-		} // OIDC 파라미터가 있는 경우 nonce와 state 생성
+		}
+
+		// OIDC 파라미터가 있는 경우 nonce와 state 생성
 		const urlParams = new URLSearchParams(window.location.search);
 		const responseType = urlParams.get('response_type');
 
@@ -161,7 +164,7 @@
 		console.log('[Page] Component mounted, starting authorization data load');
 		if (loadAuthorizationData) loadAuthorizationData();
 
-		// 추가 안전장치: 45초 후에도 로딩 중이면 강제로 에러 상태로 전환
+		// 무한 로딩 방지
 		setTimeout(() => {
 			if (authState) {
 				authState.update((current) => {
@@ -181,7 +184,7 @@
 					return curr;
 				});
 			}
-		}, 45000);
+		}, LOADING_TIMEOUT_MS);
 
 		return unsubscribe;
 	});
@@ -210,7 +213,7 @@
 </script>
 
 <svelte:head>
-	<title>Authorize Application - FlowAuth</title>
+	<title>애플리케이션 승인 - FlowAuth</title>
 </svelte:head>
 
 <div
@@ -235,12 +238,6 @@
 			</Card>
 		{:else if currentState?.loading}
 			<Card class="border-0 bg-white/95 shadow-xl backdrop-blur-sm">
-				<!-- 로딩 중에도 계정 정보 표시 -->
-				<AccountSwitcher
-					currentUser={currentState.currentUser}
-					loading={currentState.currentUser === null}
-					onAccountSwitch={handleAccountSwitch}
-				/>
 				<LoadingState
 					message={currentState.loadingProgress < 50
 						? '보안 검증을 준비하고 있습니다...'
