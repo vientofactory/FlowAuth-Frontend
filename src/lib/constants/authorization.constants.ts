@@ -21,6 +21,17 @@ export const SCOPE_DESCRIPTIONS: Record<string, ScopeInfo> = {
 	}
 };
 
+// 기본 스코프 fallback
+export const DEFAULT_SCOPES = [
+	{ id: 'openid', name: 'OpenID Connect', description: 'OpenID Connect 인증을 위한 기본 스코프' },
+	{
+		id: 'profile',
+		name: '프로필 정보 읽기',
+		description: '사용자 프로필 정보 (이름, 생년월일, 지역, 사진 등) 접근'
+	},
+	{ id: 'email', name: '이메일 주소 읽기', description: '사용자 이메일 주소 접근' }
+] as const;
+
 export const LOADING_MESSAGES = {
 	VALIDATING: '인가 요청을 검증하고 있습니다...',
 	PROCESSING: '동의 처리 중... 잠시만 기다려주세요'
