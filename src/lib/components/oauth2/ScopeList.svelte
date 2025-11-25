@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import { faKey, faCheck } from '@fortawesome/free-solid-svg-icons';
-	import { getScopeInfo, getScopeRiskColor, getScopeRiskText } from '$lib/utils/scope.utils';
 
 	export let scopes: string[];
 </script>
@@ -15,46 +14,29 @@
 
 		<ul class="space-y-2 sm:space-y-3" role="list" aria-label="요청된 권한 목록">
 			{#each scopes as scopeName (scopeName)}
-				{@const scopeInfo = getScopeInfo(scopeName)}
 				<li
 					class="group permission-card flex items-start space-x-2 rounded-md border border-gray-200 bg-white p-2.5 shadow-sm transition-all duration-200 hover:border-indigo-200 hover:shadow-md sm:space-x-3 sm:rounded-lg sm:p-3"
 					role="listitem"
 					aria-describedby="scope-{scopeName}-desc"
 				>
-					<div class="flex-shrink-0">
+					<div class="shrink-0">
 						<div
-							class="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-r from-indigo-500 to-purple-600 shadow-sm sm:h-8 sm:w-8"
+							class="flex h-7 w-7 items-center justify-center rounded-md bg-linear-to-r from-indigo-500 to-purple-600 shadow-sm sm:h-8 sm:w-8"
 						>
-							<i class="{scopeInfo.icon} text-xs text-white" aria-hidden="true"></i>
+							<FontAwesomeIcon icon={faKey} class="text-xs text-white" />
 						</div>
 					</div>
 
 					<div class="min-w-0 flex-1">
 						<div class="mb-0.5 flex items-center space-x-1.5 sm:mb-1 sm:space-x-2">
 							<h4 class="text-xs font-semibold text-gray-900 sm:text-sm">{scopeName}</h4>
-							<span
-								class="inline-flex items-center rounded px-1 py-0.5 text-xs font-medium sm:px-1.5 {getScopeRiskColor(
-									scopeInfo.risk
-								)}"
-							>
-								{scopeInfo.category}
-							</span>
-							{#if scopeInfo.risk}
-								<span
-									class="inline-flex items-center rounded px-1 py-0.5 text-xs font-medium sm:px-1.5 {getScopeRiskColor(
-										scopeInfo.risk
-									)}"
-								>
-									{getScopeRiskText(scopeInfo.risk)}
-								</span>
-							{/if}
 						</div>
 						<p class="text-xs leading-relaxed text-gray-600" id="scope-{scopeName}-desc">
-							{scopeInfo.description}
+							앱이 {scopeName} 권한을 사용할 수 있습니다
 						</p>
 					</div>
 
-					<div class="flex-shrink-0">
+					<div class="shrink-0">
 						<div
 							class="flex h-4 w-4 items-center justify-center rounded-full bg-green-100 sm:h-5 sm:w-5"
 						>

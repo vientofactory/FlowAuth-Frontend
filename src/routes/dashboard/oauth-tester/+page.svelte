@@ -9,7 +9,6 @@
 	import { USER_TYPES } from '$lib/types/user.types';
 	import { authState } from '$lib';
 	import type { User } from '$lib';
-	import { SCOPE_MAPPINGS, OAUTH2_SCOPES } from '$lib/utils/scope.utils';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import {
 		faExclamationCircle,
@@ -113,28 +112,32 @@
 		try {
 			scopesLoading = true;
 			scopesError = null;
-			// scope.utils.ts에서 정의된 스코프들을 사용
-			availableScopes = Object.values(OAUTH2_SCOPES).map((scopeId) => {
-				const scopeInfo = SCOPE_MAPPINGS[scopeId];
-				return {
-					id: scopeId,
-					name: scopeInfo?.name || scopeId,
-					description: scopeInfo?.description || `앱이 ${scopeId} 권한을 사용할 수 있습니다`
-				};
-			});
-		} catch {
+			// 서버에서 스코프 목록을 가져옴
+			const serverScopes = await apiClient.getAvailableScopes();
+			availableScopes = serverScopes.map((scope) => ({
+				id: scope.id,
+				name: scope.name,
+				description: scope.description
+			}));
+		} catch (error) {
 			scopesError = '스코프 목록을 불러오는데 실패했습니다.';
 			toast.error('스코프 목록을 불러오는데 실패했습니다.');
+			console.error('Failed to load scopes:', error);
 
-			// 오류 시에도 동일한 스코프들 사용
-			availableScopes = Object.values(OAUTH2_SCOPES).map((scopeId) => {
-				const scopeInfo = SCOPE_MAPPINGS[scopeId];
-				return {
-					id: scopeId,
-					name: scopeInfo?.name || scopeId,
-					description: scopeInfo?.description || `앱이 ${scopeId} 권한을 사용할 수 있습니다`
-				};
-			});
+			// 오류 시에도 기본 스코프들로 폴백
+			availableScopes = [
+				{
+					id: 'openid',
+					name: 'OpenID Connect',
+					description: 'OpenID Connect 인증을 위한 기본 스코프'
+				},
+				{
+					id: 'profile',
+					name: '프로필 정보 읽기',
+					description: '사용자 프로필 정보 (이름, 생년월일, 지역, 사진 등) 접근'
+				},
+				{ id: 'email', name: '이메일 주소 읽기', description: '사용자 이메일 주소 접근' }
+			];
 		} finally {
 			scopesLoading = false;
 		}

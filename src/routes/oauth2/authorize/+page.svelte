@@ -11,13 +11,13 @@
 	import { ErrorType } from '$lib/types/authorization.types';
 	import type { PageData } from './$types';
 	import { env } from '$lib/config/env';
-	import { getScopeInfo } from '$lib/utils/scope.utils';
 	import { oidcStore } from '$lib/stores/oidc';
 	import { LOCAL_STORAGE_KEYS, COOKIE_KEYS } from '@flowauth/shared';
 	import { getCookie } from '$lib/utils/cookie';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import { faInfo, faInfoCircle, faSpinner } from '@fortawesome/free-solid-svg-icons';
 	import { faCube } from '@fortawesome/free-solid-svg-icons';
+	import { faIdBadge } from '@fortawesome/free-solid-svg-icons';
 	import './+page.css';
 
 	let { data }: { data: PageData } = $props();
@@ -57,22 +57,6 @@
 	let logoUrl = $derived(
 		!oauth2ParamError && currentState?.client ? getLogoUrl(currentState.client.logoUri) : null
 	);
-
-	// 스코프 아이콘 색상 클래스 가져오기 함수
-	function getScopeColorClasses(color: string) {
-		const colorMap = {
-			blue: 'bg-stone-100 text-stone-600',
-			orange: 'bg-neutral-100 text-neutral-600',
-			green: 'bg-gray-100 text-gray-600',
-			purple: 'bg-slate-100 text-slate-600',
-			indigo: 'bg-zinc-100 text-zinc-600',
-			red: 'bg-neutral-100 text-neutral-600',
-			gray: 'bg-gray-100 text-gray-600',
-			cyan: 'bg-stone-100 text-stone-600'
-		};
-
-		return colorMap[color as keyof typeof colorMap] || colorMap.gray;
-	}
 
 	// Function to extract host from redirect URI
 	function getRedirectHost(redirectUri?: string): string {
@@ -338,21 +322,18 @@
 					{#if currentState.scopes && currentState.scopes.length > 0}
 						<div class="space-y-3">
 							{#each currentState.scopes as scope, _index (scope)}
-								{@const scopeInfo = getScopeInfo(scope)}
 								<div class="transition-hover flex items-center space-x-3 rounded-lg bg-gray-50 p-3">
 									<div
-										class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full {getScopeColorClasses(
-											scopeInfo.color
-										)}"
+										class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-purple-600"
 									>
-										<FontAwesomeIcon icon={scopeInfo.icon} class="text-sm" />
+										<FontAwesomeIcon icon={faIdBadge} class="text-sm text-white" />
 									</div>
 									<div class="flex-1">
 										<p class="text-sm font-medium text-gray-900">
-											{scopeInfo.name}
+											{scope}
 										</p>
 										<p class="text-xs text-gray-600">
-											{scopeInfo.description}
+											앱이 {scope} 권한을 사용할 수 있습니다
 										</p>
 									</div>
 								</div>

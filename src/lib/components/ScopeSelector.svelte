@@ -1,50 +1,43 @@
 <script lang="ts">
-	import { getScopeInfo, OAUTH2_SCOPES } from '$lib/utils/scope.utils';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-	import {
-		faTimes,
-		faExclamationTriangle,
-		faCheck,
-		faPlus
-	} from '@fortawesome/free-solid-svg-icons';
+	import { faTimes, faCheck, faPlus, faKey } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		selectedScopes: string[];
 		onScopeToggle: (scope: string) => void;
+		availableScopes?: { id: string; name: string; description: string }[];
 		error?: string;
 		disabled?: boolean;
 	}
 
-	let { selectedScopes = $bindable([]), onScopeToggle, error, disabled = false }: Props = $props();
+	let {
+		selectedScopes = $bindable([]),
+		onScopeToggle,
+		availableScopes,
+		error,
+		disabled = false
+	}: Props = $props();
 
-	// 모든 스코프 목록 (scope.utils.ts에서 가져옴)
-	const allScopes = Object.values(OAUTH2_SCOPES);
-
-	// 스코프 아이콘 색상 클래스 가져오기 함수
-	function getScopeColorClasses(color: string) {
-		const colorMap = {
-			blue: 'bg-blue-100 text-blue-600 hover:bg-blue-200',
-			orange: 'bg-orange-100 text-orange-600 hover:bg-orange-200',
-			green: 'bg-green-100 text-green-600 hover:bg-green-200',
-			purple: 'bg-purple-100 text-purple-600 hover:bg-purple-200',
-			indigo: 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200',
-			red: 'bg-red-100 text-red-600 hover:bg-red-200',
-			gray: 'bg-gray-100 text-gray-600 hover:bg-gray-200',
-			cyan: 'bg-cyan-100 text-cyan-600 hover:bg-cyan-200'
-		};
-
-		return colorMap[color as keyof typeof colorMap] || colorMap.gray;
-	}
+	// 스코프 목록이 제공되지 않은 경우 기본 스코프들 사용 (하위 호환성)
+	const allScopes = availableScopes || [
+		{ id: 'openid', name: 'OpenID Connect', description: 'OpenID Connect 인증을 위한 기본 스코프' },
+		{
+			id: 'profile',
+			name: '프로필 정보 읽기',
+			description: '사용자 프로필 정보 (이름, 생년월일, 지역, 사진 등) 접근'
+		},
+		{ id: 'email', name: '이메일 주소 읽기', description: '사용자 이메일 주소 접근' }
+	];
 
 	// 스코프가 선택되었는지 확인
-	function isScopeSelected(scope: string): boolean {
-		return selectedScopes.includes(scope);
+	function isScopeSelected(scopeId: string): boolean {
+		return selectedScopes.includes(scopeId);
 	}
 
 	// 스코프 토글 핸들러
-	function handleScopeToggle(scope: string) {
+	function handleScopeToggle(scopeId: string) {
 		if (disabled) return;
-		onScopeToggle(scope);
+		onScopeToggle(scopeId);
 	}
 </script>
 
@@ -56,23 +49,24 @@
 		<div class="mb-3">
 			<p class="mb-2 text-xs text-gray-500">선택된 권한 ({selectedScopes.length})</p>
 			<div class="flex flex-wrap gap-2">
-				{#each selectedScopes as scope (scope)}
-					{@const scopeInfo = getScopeInfo(scope)}
-					<span
-						class="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700"
-					>
-						<FontAwesomeIcon icon={scopeInfo.icon} class="text-xs" />
-						{scopeInfo.name}
-						<button
-							type="button"
-							onclick={() => handleScopeToggle(scope)}
-							{disabled}
-							class="ml-1 text-blue-500 hover:text-blue-700"
-							aria-label="{scopeInfo.name} 제거"
+				{#each selectedScopes as scopeId (scopeId)}
+					{@const scope = allScopes.find((s) => s.id === scopeId)}
+					{#if scope}
+						<span
+							class="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700"
 						>
-							<FontAwesomeIcon icon={faTimes} class="text-xs" />
-						</button>
-					</span>
+							{scope.name}
+							<button
+								type="button"
+								onclick={() => handleScopeToggle(scopeId)}
+								{disabled}
+								class="ml-1 text-blue-500 hover:text-blue-700"
+								aria-label="{scope.name} 제거"
+							>
+								<FontAwesomeIcon icon={faTimes} class="text-xs" />
+							</button>
+						</span>
+					{/if}
 				{/each}
 			</div>
 		</div>
@@ -82,41 +76,32 @@
 	<div id="scope-selector" class="max-h-64 overflow-y-auto rounded-md border border-gray-200">
 		<div class="p-3">
 			<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-				{#each allScopes as scope (scope)}
-					{@const scopeInfo = getScopeInfo(scope)}
-					{@const isSelected = isScopeSelected(scope)}
+				{#each allScopes as scope (scope.id)}
+					{@const isSelected = isScopeSelected(scope.id)}
 					<button
 						type="button"
-						onclick={() => handleScopeToggle(scope)}
+						onclick={() => handleScopeToggle(scope.id)}
 						{disabled}
 						class="flex items-center space-x-3 rounded-lg border p-3 text-left transition-all hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none {isSelected
 							? 'border-blue-300 bg-blue-50'
 							: 'border-gray-200'}"
 					>
-						<div class="flex-shrink-0">
+						<div class="shrink-0">
 							<div
-								class="flex h-8 w-8 items-center justify-center rounded-full {getScopeColorClasses(
-									scopeInfo.color
-								)}"
+								class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600"
 							>
-								<FontAwesomeIcon icon={scopeInfo.icon} class="text-sm" />
+								<FontAwesomeIcon icon={faKey} class="text-sm text-white" />
 							</div>
 						</div>
 						<div class="min-w-0 flex-1">
 							<p class="truncate text-sm font-medium text-gray-900">
-								{scopeInfo.name}
+								{scope.name}
 							</p>
 							<p class="truncate text-xs text-gray-600">
-								{scopeInfo.description}
+								{scope.description}
 							</p>
-							{#if scopeInfo.sensitive}
-								<span class="mt-1 inline-flex items-center text-xs text-red-600">
-									<FontAwesomeIcon icon={faExclamationTriangle} class="mr-1" />
-									민감한 권한
-								</span>
-							{/if}
 						</div>
-						<div class="flex-shrink-0">
+						<div class="shrink-0">
 							{#if isSelected}
 								<FontAwesomeIcon icon={faCheck} class="text-blue-600" />
 							{:else}
