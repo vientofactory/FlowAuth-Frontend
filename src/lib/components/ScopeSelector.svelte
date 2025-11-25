@@ -107,46 +107,55 @@
 	{/if}
 
 	<!-- 스코프 선택 영역 -->
-	<div id="scope-selector" class="max-h-64 overflow-y-auto rounded-md border border-gray-200">
-		<div class="p-3">
-			<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-				{#each allScopes as scope (scope.id)}
-					{@const isSelected = isScopeSelected(scope.id)}
-					<button
-						type="button"
-						onclick={() => handleScopeToggle(scope.id)}
-						{disabled}
-						class="flex items-center space-x-3 rounded-lg border p-3 text-left transition-all hover:bg-gray-50 focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:outline-none {isSelected
-							? 'border-stone-300 bg-stone-50'
-							: 'border-gray-200'}"
-					>
-						<div class="shrink-0">
-							<div
-								class="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-r from-stone-500 to-stone-600"
-							>
-								<FontAwesomeIcon icon={faKey} class="text-sm text-white" />
-							</div>
-						</div>
-						<div class="min-w-0 flex-1">
-							<p class="truncate text-sm font-medium text-gray-900">
-								{scope.name}
-							</p>
-							<p class="truncate text-xs text-gray-600">
-								{scope.description}
-							</p>
-						</div>
-						<div class="shrink-0">
-							{#if isSelected}
-								<FontAwesomeIcon icon={faCheck} class="text-stone-600" />
-							{:else}
-								<FontAwesomeIcon icon={faPlus} class="text-gray-400" />
-							{/if}
-						</div>
-					</button>
-				{/each}
+	{#if _isLoadingScopes}
+		<div class="flex items-center justify-center py-8">
+			<div class="flex items-center space-x-2 text-gray-500">
+				<div class="h-6 w-6 animate-spin rounded-full border-b-2 border-blue-500"></div>
+				<span class="text-sm">권한 목록을 불러오는 중...</span>
 			</div>
 		</div>
-	</div>
+	{:else}
+		<div id="scope-selector" class="max-h-64 overflow-y-auto rounded-md border border-gray-200">
+			<div class="p-3">
+				<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+					{#each allScopes as scope (scope.id)}
+						{@const isSelected = isScopeSelected(scope.id)}
+						<button
+							type="button"
+							onclick={() => handleScopeToggle(scope.id)}
+							{disabled}
+							class="flex items-center space-x-3 rounded-lg border p-3 text-left transition-all hover:bg-gray-50 focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:outline-none {isSelected
+								? 'border-stone-300 bg-stone-50'
+								: 'border-gray-200'}"
+						>
+							<div class="shrink-0">
+								<div
+									class="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-r from-stone-500 to-stone-600"
+								>
+									<FontAwesomeIcon icon={faKey} class="text-sm text-white" />
+								</div>
+							</div>
+							<div class="min-w-0 flex-1">
+								<p class="truncate text-sm font-medium text-gray-900">
+									{scope.name}
+								</p>
+								<p class="truncate text-xs text-gray-600">
+									{scope.description}
+								</p>
+							</div>
+							<div class="shrink-0">
+								{#if isSelected}
+									<FontAwesomeIcon icon={faCheck} class="text-stone-600" />
+								{:else}
+									<FontAwesomeIcon icon={faPlus} class="text-gray-400" />
+								{/if}
+							</div>
+						</button>
+					{/each}
+				</div>
+			</div>
+		</div>
+	{/if}
 
 	{#if error}
 		<p class="mt-1 text-sm text-red-600">{error}</p>
