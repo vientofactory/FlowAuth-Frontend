@@ -103,8 +103,9 @@ export {
 	PERMISSION_NAMES
 } from './utils/permissions';
 
-// Types - re-export from specific type files
-export type { User, USER_TYPES } from './types/user.types';
+// Types - re-export from shared package
+export type { User } from '@flowauth/shared';
+export { USER_TYPES } from '@flowauth/shared';
 
 export interface LoginData {
 	email: string;

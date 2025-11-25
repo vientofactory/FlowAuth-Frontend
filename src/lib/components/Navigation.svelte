@@ -2,7 +2,7 @@
 	import { authState, authStore, Button, profileUser, isProfileInitialized } from '$lib';
 	import { onMount } from 'svelte';
 	import type { User } from '$lib';
-	import { USER_TYPES, PERMISSIONS } from '$lib/types/user.types';
+	import { USER_TYPES, PERMISSIONS } from '$lib';
 	import { env } from '$lib/config/env';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import {
@@ -393,7 +393,7 @@
 															<span
 																class="inline-flex items-center rounded-md bg-stone-50 px-1.5 py-0.5 text-xs font-medium text-stone-700 ring-1 ring-stone-200"
 															>
-																{user.userType === USER_TYPES.DEVELOPER ? '개발자' : '일반 사용자'}
+																{user.userType === USER_TYPES.DEVELOPER ? '개발자' : '사용자'}
 															</span>
 														{/if}
 													</div>

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { FormField } from '$lib';
-	import { USER_TYPES } from '$lib/types/user.types';
+	import { USER_TYPES } from '$lib';
 	import type { FieldValidation } from '$lib/composables/useFormValidation.svelte';
 
 	interface Props {

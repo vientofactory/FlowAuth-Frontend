@@ -3,7 +3,7 @@
 	import { useFieldValidation, useFormValidation, validators } from '$lib';
 	import type { CreateUserDto } from '$lib';
 	import { goto } from '$app/navigation';
-	import { USER_TYPES } from '$lib/types/user.types';
+	import { USER_TYPES } from '$lib';
 	import { env } from '$lib/config/env';
 	import { onMount } from 'svelte';
 	import { load, type ReCaptchaInstance } from 'recaptcha-v3';

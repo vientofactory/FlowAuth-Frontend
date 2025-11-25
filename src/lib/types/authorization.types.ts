@@ -1,5 +1,5 @@
 import type { Client } from '$lib/types/oauth.types';
-import type { User } from '$lib/types/user.types';
+import type { User } from '$lib';
 import type { ErrorCode } from '@flowauth/shared';
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 

@@ -4,7 +4,7 @@
 	import { page } from '$app/stores';
 	import Footer from '$lib/components/Footer.svelte';
 	import type { User } from '$lib';
-	import { USER_TYPES, PERMISSIONS } from '$lib/types/user.types';
+	import { USER_TYPES, PERMISSIONS } from '$lib';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import {
 		faTachometerAlt,

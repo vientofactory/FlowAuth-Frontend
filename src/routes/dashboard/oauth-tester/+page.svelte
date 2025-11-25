@@ -6,7 +6,7 @@
 	import { createApiUrl } from '$lib/config/env';
 	import { CryptoUtils } from '$lib/utils/crypto.util';
 	import type { Client } from '$lib/types/oauth.types';
-	import { USER_TYPES } from '$lib/types/user.types';
+	import { USER_TYPES } from '$lib';
 	import { authState } from '$lib';
 	import type { User } from '$lib';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';

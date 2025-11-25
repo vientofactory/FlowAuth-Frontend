@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { LoadingButton, apiClient, useToast } from '$lib';
-	import type { User } from '$lib/types/user.types';
+	import type { User } from '$lib';
 	import { createEventDispatcher } from 'svelte';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import {

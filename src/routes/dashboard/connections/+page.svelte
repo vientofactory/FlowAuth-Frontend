@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { apiClient } from '$lib/utils/api';
 	import { DashboardLayout, Modal, authState, DashboardSkeleton } from '$lib';
-	import { USER_TYPES } from '$lib/types/user.types';
+	import { USER_TYPES } from '$lib';
 	import { env } from '$lib/config/env';
 	import type { ConnectedAppDto } from '$lib/types/dashboard';
 	import type { User } from '$lib';

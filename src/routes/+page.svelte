@@ -4,7 +4,7 @@
 	import { goto } from '$app/navigation';
 	import { authState } from '$lib/stores/auth';
 	import { onMount } from 'svelte';
-	import { USER_TYPES } from '$lib/types/user.types';
+	import { USER_TYPES } from '$lib';
 	import type { User } from '$lib';
 	import './+page.css';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';

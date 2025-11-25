@@ -4,7 +4,7 @@ import { profileStore } from '$lib/stores/profile';
 import { parseError } from '../utils/error.utils';
 import { ERROR_MESSAGES } from '../constants/authorization.constants';
 import { ROUTES } from '../constants/app.constants';
-import type { User } from '$lib/types/user.types';
+import type { User } from '$lib';
 interface AuthorizePageData {
 	authorizeParams: {
 		client_id: string;

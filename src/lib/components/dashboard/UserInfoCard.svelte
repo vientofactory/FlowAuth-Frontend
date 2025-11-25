@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button, Badge } from '$lib';
 	import type { User } from '$lib';
-	import { USER_TYPES } from '$lib/types/user.types';
+	import { USER_TYPES } from '$lib';
 	import { PermissionUtils } from '$lib';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import {

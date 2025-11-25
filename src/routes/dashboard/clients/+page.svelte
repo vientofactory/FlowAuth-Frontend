@@ -3,8 +3,8 @@
 	import { useToast } from '$lib';
 	import { onMount } from 'svelte';
 	import type { Client } from '$lib/types/oauth.types';
-	import type { User } from '$lib/types/user.types';
-	import { USER_TYPES } from '$lib/types/user.types';
+	import type { User } from '$lib';
+	import { USER_TYPES } from '$lib';
 	import { authState } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
 	import { env } from '$lib/config/env';

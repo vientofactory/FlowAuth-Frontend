@@ -2,7 +2,7 @@
 	import UserInfoCard from './UserInfoCard.svelte';
 	import EmailSystemStatus from './EmailSystemStatus.svelte';
 	import { usePermissions } from '$lib/composables/usePermissions';
-	import type { User } from '$lib/types/user.types';
+	import type { User } from '$lib';
 
 	interface Props {
 		user: User | null;

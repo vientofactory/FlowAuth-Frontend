@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { User } from '$lib/types/user.types';
+	import type { User } from '$lib';
 	import Logo from '$lib/components/Logo.svelte';
 	import { env } from '$lib/config/env';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
