@@ -205,8 +205,8 @@
 		redirectUrisError = result.message || '';
 	}
 
-	function validateScopesField() {
-		const result = validateScopesUtil(scopesValue);
+	async function validateScopesField() {
+		const result = await validateScopesUtil(scopesValue);
 		scopesError = result.message || '';
 	}
 
@@ -236,8 +236,8 @@
 		editRedirectUrisError = result.message || '';
 	}
 
-	function validateEditScopesField() {
-		const result = validateEditScopesUtil(editScopes);
+	async function validateEditScopesField() {
+		const result = await validateEditScopesUtil(editScopes);
 		editScopesError = result.message || '';
 	}
 

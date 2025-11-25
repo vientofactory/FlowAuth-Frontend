@@ -73,7 +73,7 @@ export function validateRedirectUrisField(redirectUris: string): ValidationResul
 }
 
 // 스코프 검증
-export function validateScopesField(scopes: string): ValidationResult {
+export async function validateScopesField(scopes: string): Promise<ValidationResult> {
 	if (!scopes.trim()) {
 		return {
 			isValid: false,
@@ -86,7 +86,7 @@ export function validateScopesField(scopes: string): ValidationResult {
 		.map((scope) => scope.trim())
 		.filter((scope) => scope.length > 0);
 
-	const result = validateScopes(scopesArray);
+	const result = await validateScopes(scopesArray);
 	return {
 		isValid: result.isValid,
 		message: result.isValid ? '' : result.message || ''
@@ -133,11 +133,11 @@ export function validatePolicyUriField(policyUri: string): ValidationResult {
 }
 
 // 폼 전체 검증
-export function validateClientForm(formData: ClientFormData): ClientFormErrors {
+export async function validateClientForm(formData: ClientFormData): Promise<ClientFormErrors> {
 	return {
 		clientName: validateClientNameField(formData.clientName).message || '',
 		redirectUris: validateRedirectUrisField(formData.redirectUris).message || '',
-		scopes: validateScopesField(formData.scopes).message || '',
+		scopes: (await validateScopesField(formData.scopes)).message || '',
 		logoUri: validateLogoUriField(formData.logoUri).message || '',
 		termsOfServiceUri: validateTermsOfServiceUriField(formData.termsOfServiceUri).message || '',
 		policyUri: validatePolicyUriField(formData.policyUri).message || ''
@@ -195,7 +195,7 @@ export function validateEditRedirectUrisField(redirectUris: string): ValidationR
 	return { isValid: true };
 }
 
-export function validateEditScopesField(scopes: string): ValidationResult {
+export async function validateEditScopesField(scopes: string): Promise<ValidationResult> {
 	console.log('validateEditScopesField - editScopes:', scopes);
 	if (!scopes.trim()) {
 		return {
@@ -210,7 +210,7 @@ export function validateEditScopesField(scopes: string): ValidationResult {
 		.filter((scope) => scope.length > 0);
 
 	console.log('validateEditScopesField - parsed scopes:', scopesArray);
-	const result = validateScopes(scopesArray);
+	const result = await validateScopes(scopesArray);
 	return {
 		isValid: result.isValid,
 		message: result.isValid ? '' : result.message || ''

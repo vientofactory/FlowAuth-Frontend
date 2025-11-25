@@ -1,28 +1,23 @@
 import type { ScopeInfo } from '../types/authorization.types';
+import { faKey, faUser, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
 export const SCOPE_DESCRIPTIONS: Record<string, ScopeInfo> = {
-	read: {
-		icon: 'fas fa-eye',
-		description: '귀하의 기본 프로필 정보를 읽을 수 있습니다',
-		category: '읽기',
+	openid: {
+		name: 'OpenID Connect',
+		icon: faKey,
+		description: 'OpenID Connect 인증을 통해 귀하의 신원을 확인할 수 있습니다',
 		risk: 'low'
 	},
-	write: {
-		icon: 'fas fa-edit',
-		description: '귀하의 계정 정보를 수정할 수 있습니다',
-		category: '쓰기',
-		risk: 'high'
-	},
 	profile: {
-		icon: 'fas fa-user',
-		description: '이름, 프로필 사진 등의 개인정보에 접근할 수 있습니다',
-		category: '프로필',
+		name: '프로필 읽기',
+		icon: faUser,
+		description: '이름, 프로필 사진, 생년월일 등의 기본 프로필 정보에 접근할 수 있습니다',
 		risk: 'medium'
 	},
 	email: {
-		icon: 'fas fa-envelope',
-		description: '귀하의 이메일 주소에 접근할 수 있습니다',
-		category: '연락처',
+		name: '이메일 주소 읽기',
+		icon: faEnvelope,
+		description: '귀하의 이메일 주소와 이메일 인증 상태에 접근할 수 있습니다',
 		risk: 'medium'
 	}
 };

@@ -18,6 +18,7 @@
 	import { faInfo, faInfoCircle, faSpinner } from '@fortawesome/free-solid-svg-icons';
 	import { faCube } from '@fortawesome/free-solid-svg-icons';
 	import { faIdBadge } from '@fortawesome/free-solid-svg-icons';
+	import { SCOPE_DESCRIPTIONS } from '$lib/constants/authorization.constants';
 	import './+page.css';
 
 	let { data }: { data: PageData } = $props();
@@ -279,7 +280,7 @@
 						<div class="relative">
 							<Logo
 								src={logoUrl || ''}
-								alt="{currentState.client?.name || 'FlowAuth'} 로고"
+								alt="{currentState.client.name || 'FlowAuth'} 로고"
 								size="lg"
 								fallbackSrc="/logo_icon.png"
 								fallbackIcon={faCube}
@@ -291,7 +292,7 @@
 						<!-- 앱 이름과 설명 -->
 						<div>
 							<h1 class="mb-1 text-xl font-bold text-gray-900">
-								{currentState.client?.name || '알 수 없는 앱'}
+								{currentState.client.name || '알 수 없는 앱'}
 							</h1>
 							{#if currentState.client?.description}
 								<div class="mb-1 flex flex-col items-center space-y-1">
@@ -324,16 +325,20 @@
 							{#each currentState.scopes as scope, _index (scope)}
 								<div class="transition-hover flex items-center space-x-3 rounded-lg bg-gray-50 p-3">
 									<div
-										class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-purple-600"
+										class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-r from-indigo-500 to-purple-600"
 									>
-										<FontAwesomeIcon icon={faIdBadge} class="text-sm text-white" />
+										<FontAwesomeIcon
+											icon={SCOPE_DESCRIPTIONS[scope].icon || faIdBadge}
+											class="text-sm text-white"
+										/>
 									</div>
 									<div class="flex-1">
 										<p class="text-sm font-medium text-gray-900">
-											{scope}
+											{SCOPE_DESCRIPTIONS[scope].name || scope}
 										</p>
 										<p class="text-xs text-gray-600">
-											앱이 {scope} 권한을 사용할 수 있습니다
+											{SCOPE_DESCRIPTIONS[scope].description ||
+												`앱이 ${scope} 권한을 사용할 수 있습니다`}
 										</p>
 									</div>
 								</div>
