@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Loading from '$lib/components/Loading.svelte';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import { faShieldAlt } from '@fortawesome/free-solid-svg-icons';
 
@@ -31,7 +30,6 @@
 
 	<div class="space-y-2 text-center">
 		<h2 class="text-lg font-semibold text-gray-900">보안 검증 중</h2>
-		<Loading />
 		<p class="animate-pulse text-sm text-gray-600">{message}</p>
 		{#if progress > 0}
 			<div class="h-2 w-full rounded-full bg-gray-200">
