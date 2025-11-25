@@ -21,8 +21,8 @@
 	}: Props = $props();
 
 	let serverScopes = $state<{ id: string; name: string; description: string }[]>([]);
-	let isLoadingScopes = $state(false);
-	let scopeLoadError = $state<string | null>(null);
+	let _isLoadingScopes = $state(false);
+	let _scopeLoadError = $state<string | null>(null);
 
 	let allScopes = $state<{ id: string; name: string; description: string }[]>([]);
 
@@ -40,23 +40,24 @@
 		}
 
 		try {
-			isLoadingScopes = true;
-			scopeLoadError = null;
+			_isLoadingScopes = true;
+			_scopeLoadError = null;
 
 			const { apiClient } = await import('$lib');
 			const scopes = await apiClient.getAvailableScopes();
 
-			serverScopes = scopes.map((scope: any) => ({
-				id: scope.id,
-				name: scope.name || scope.id,
-				description: scope.description || `${scope.id} 권한`
+			serverScopes = scopes.map((scope: unknown) => ({
+				id: (scope as { id: string }).id,
+				name: (scope as { name?: string }).name || (scope as { id: string }).id,
+				description:
+					(scope as { description?: string }).description || `${(scope as { id: string }).id} 권한`
 			}));
 		} catch (error) {
 			console.error('스코프 목록 로드 실패:', error);
-			scopeLoadError = '스코프 목록을 불러오는데 실패했습니다.';
+			_scopeLoadError = '스코프 목록을 불러오는데 실패했습니다.';
 			serverScopes = [...DEFAULT_SCOPES];
 		} finally {
-			isLoadingScopes = false;
+			_isLoadingScopes = false;
 		}
 	}
 
