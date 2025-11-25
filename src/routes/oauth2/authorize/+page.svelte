@@ -325,7 +325,7 @@
 							{#each currentState.scopes as scope, _index (scope)}
 								<div class="transition-hover flex items-center space-x-3 rounded-lg bg-gray-50 p-3">
 									<div
-										class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-r from-indigo-500 to-purple-600"
+										class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-r from-stone-500 to-stone-600"
 									>
 										<FontAwesomeIcon
 											icon={SCOPE_DESCRIPTIONS[scope].icon || faIdBadge}

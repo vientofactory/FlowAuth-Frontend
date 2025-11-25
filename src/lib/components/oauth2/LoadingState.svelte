@@ -14,15 +14,15 @@
 >
 	<div class="relative">
 		<div
-			class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 shadow-lg"
+			class="flex h-20 w-20 items-center justify-center rounded-full bg-linear-to-r from-stone-500 to-stone-600 shadow-lg"
 		>
 			<FontAwesomeIcon icon={faShieldAlt} class="animate-pulse text-2xl text-white" />
 		</div>
 		{#if progress > 0}
 			<div class="absolute inset-0 rounded-full border-4 border-gray-200">
 				<div
-					class="rounded-full border-4 border-blue-500 transition-all duration-300"
-					style="border-radius: 50%; width: 100%; height: 100%; border-color: transparent transparent #3b82f6 #3b82f6; transform: rotate({progress *
+					class="rounded-full border-4 border-stone-500 transition-all duration-300"
+					style="border-radius: 50%; width: 100%; height: 100%; border-color: transparent transparent #6b7280 #6b7280; transform: rotate({progress *
 						3.6}deg);"
 				></div>
 			</div>
@@ -36,7 +36,7 @@
 		{#if progress > 0}
 			<div class="h-2 w-full rounded-full bg-gray-200">
 				<div
-					class="h-2 rounded-full bg-blue-600 transition-all duration-300"
+					class="h-2 rounded-full bg-stone-600 transition-all duration-300"
 					style="width: {progress}%"
 				></div>
 			</div>

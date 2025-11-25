@@ -1,6 +1,8 @@
 import type { ScopeInfo } from '../types/authorization.types';
 import { faKey, faUser, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
+// 일반 사용자의 명확한 권한 이해를 위한 스코프 정보 사전 정의
+// 사전 정의에 없는 경우 백엔드 응답으로 fallback
 export const SCOPE_DESCRIPTIONS: Record<string, ScopeInfo> = {
 	openid: {
 		name: 'OpenID Connect',
