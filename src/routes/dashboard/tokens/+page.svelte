@@ -472,27 +472,15 @@
 
 										<!-- 액션 버튼 -->
 										<div class="flex gap-2 sm:ml-4 sm:flex-col sm:gap-2">
-											{#if !isExpired(token)}
-												<Button
-													variant="outline"
-													size="sm"
-													onclick={() => openRevokeModal(token)}
-													class="flex-1 border-red-300 text-red-600 transition-colors hover:border-red-200 hover:bg-red-50 sm:flex-none"
-												>
-													<FontAwesomeIcon icon={faBan} class="mr-2" />
-													<span class="hidden sm:inline">취소</span>
-												</Button>
-											{:else}
-												<Button
-													variant="outline"
-													size="sm"
-													disabled
-													class="flex-1 cursor-not-allowed text-gray-400 sm:flex-none"
-												>
-													<FontAwesomeIcon icon={faClock} class="mr-2" />
-													<span class="hidden sm:inline">만료됨</span>
-												</Button>
-											{/if}
+											<Button
+												variant="outline"
+												size="sm"
+												onclick={() => openRevokeModal(token)}
+												class="flex-1 border-red-300 text-red-600 transition-colors hover:border-red-200 hover:bg-red-50 sm:flex-none"
+											>
+												<FontAwesomeIcon icon={faBan} class="mr-2" />
+												<span class="hidden sm:inline">취소</span>
+											</Button>
 										</div>
 									</div>
 								</div>
