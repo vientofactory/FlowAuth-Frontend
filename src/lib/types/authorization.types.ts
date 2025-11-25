@@ -14,7 +14,6 @@ export interface ScopeInfo {
 	name: string;
 	icon: IconDefinition;
 	description: string;
-	risk?: 'low' | 'medium' | 'high';
 }
 
 export interface AuthorizationState {

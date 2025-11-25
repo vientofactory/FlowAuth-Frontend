@@ -5,20 +5,17 @@ export const SCOPE_DESCRIPTIONS: Record<string, ScopeInfo> = {
 	openid: {
 		name: 'OpenID Connect',
 		icon: faKey,
-		description: 'OpenID Connect 인증을 통해 귀하의 신원을 확인할 수 있습니다',
-		risk: 'low'
+		description: 'OpenID Connect 인증을 통해 귀하의 신원을 확인할 수 있습니다'
 	},
 	profile: {
 		name: '프로필 읽기',
 		icon: faUser,
-		description: '이름, 프로필 사진, 생년월일 등의 기본 프로필 정보에 접근할 수 있습니다',
-		risk: 'medium'
+		description: '이름, 프로필 사진, 생년월일 등의 기본 프로필 정보에 접근할 수 있습니다'
 	},
 	email: {
 		name: '이메일 주소 읽기',
 		icon: faEnvelope,
-		description: '귀하의 이메일 주소와 이메일 인증 상태에 접근할 수 있습니다',
-		risk: 'medium'
+		description: '귀하의 이메일 주소와 이메일 인증 상태에 접근할 수 있습니다'
 	}
 };
 
