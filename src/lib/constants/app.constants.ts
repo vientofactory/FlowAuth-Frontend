@@ -2,8 +2,8 @@
 export const APP_CONSTANTS = {
 	API_BASE_URL: 'http://localhost:3000',
 	FRONTEND_URL: 'http://localhost:5174',
-	DEFAULT_RETRY_COUNT: 3,
-	DEFAULT_RETRY_DELAY: 1000, // 1 second
+	DEFAULT_RETRY_COUNT: 2, // 3에서 2로 감소
+	DEFAULT_RETRY_DELAY: 2000, // 1초에서 2초로 증가
 	TOKEN_STORAGE_KEY: 'auth_token',
 	REFRESH_TOKEN_STORAGE_KEY: 'refresh_token',
 	ID_TOKEN_STORAGE_KEY: 'id_token',

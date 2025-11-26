@@ -38,6 +38,8 @@
 	let selectedToken = $state<Token | null>(null);
 	let selectedTokenType = $state<TokenType | null>(null);
 	let _isRevoking = $state(false);
+	let revokePassword = $state('');
+	let passwordError = $state('');
 
 	const toast = useToast();
 
@@ -64,11 +66,15 @@
 	function closeRevokeModal() {
 		showRevokeModal = false;
 		selectedToken = null;
+		revokePassword = '';
+		passwordError = '';
 	}
 
 	function closeRevokeAllModal() {
 		showRevokeAllModal = false;
 		selectedTokenType = null;
+		revokePassword = '';
+		passwordError = '';
 	}
 
 	// 현재 세션 토큰인지 확인
@@ -113,8 +119,22 @@
 	async function confirmRevokeToken() {
 		if (!selectedToken) return;
 
+		// 비밀번호 검증
+		if (!revokePassword || revokePassword.trim() === '') {
+			passwordError = '비밀번호를 입력해주세요.';
+			return;
+		}
+
+		if (revokePassword.length < 8) {
+			passwordError = '비밀번호는 최소 8자 이상이어야 합니다.';
+			return;
+		}
+
+		// 에러 초기화
+		passwordError = '';
+
 		try {
-			await apiClient.revokeToken(selectedToken.id);
+			await apiClient.revokeToken(selectedToken.id, revokePassword.trim());
 			toast.success('토큰이 취소되었습니다.');
 
 			await loadTokens(); // 목록 새로고침
@@ -137,12 +157,25 @@
 	async function confirmRevokeAllTokens() {
 		if (!selectedTokenType) return;
 
+		// 비밀번호 검증 (필수)
+		if (!revokePassword || revokePassword.trim() === '') {
+			passwordError = '비밀번호를 입력해주세요.';
+			return;
+		}
+
+		if (revokePassword.length < 8) {
+			passwordError = '비밀번호는 최소 8자 이상이어야 합니다.';
+			return;
+		}
+
+		// 에러 초기화
+		passwordError = '';
+
 		const tokenTypeName = selectedTokenType === TOKEN_TYPES.LOGIN ? '로그인' : 'OAuth2';
 		_isRevoking = true;
 
 		try {
-			await apiClient.revokeAllTokensForType(selectedTokenType);
-
+			await apiClient.revokeAllTokensForType(selectedTokenType, revokePassword.trim());
 			toast.success(`모든 ${tokenTypeName} 토큰이 취소되었습니다.`);
 
 			// 로그인 토큰을 취소한 경우 로그아웃 처리
@@ -205,7 +238,7 @@
 
 <DashboardLayout
 	title="토큰 관리"
-	description="발급된 액세스 토큰과 리프레시 토큰을 관리하세요."
+	description="발급된 액세스 토큰을 관리하세요."
 	showBackButton={true}
 >
 	<!-- 통계 카드 -->
@@ -652,6 +685,33 @@
 					</div>
 				</div>
 			</div>
+
+			<!-- 비밀번호 확인 -->
+			<div class="rounded-lg bg-gray-50 p-4">
+				<label for="revoke-password" class="mb-2 block text-sm font-medium text-gray-700">
+					비밀번호 확인 (보안 강화)
+				</label>
+				<input
+					id="revoke-password"
+					type="password"
+					bind:value={revokePassword}
+					placeholder="계정 비밀번호를 입력하세요"
+					class="w-full rounded-md border px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none {passwordError
+						? 'border-red-300'
+						: 'border-gray-300'}"
+					required
+					oninput={() => (passwordError = '')}
+				/>
+				{#if passwordError}
+					<p class="mt-1 text-xs text-red-600">
+						{passwordError}
+					</p>
+				{:else}
+					<p class="mt-1 text-xs text-gray-600">
+						토큰 취소를 위해 계정 비밀번호를 확인합니다. 이는 보안을 강화하기 위한 조치입니다.
+					</p>
+				{/if}
+			</div>
 		</div>
 	{/if}
 </Modal>
@@ -682,6 +742,33 @@
 							: '모든 OAuth2 권한을 제거'}합니다.
 					</div>
 				</div>
+			</div>
+
+			<!-- 비밀번호 확인 -->
+			<div class="rounded-lg bg-gray-50 p-4">
+				<label for="revoke-all-password" class="mb-2 block text-sm font-medium text-gray-700">
+					비밀번호 확인 (필수)
+				</label>
+				<input
+					id="revoke-all-password"
+					type="password"
+					bind:value={revokePassword}
+					placeholder="계정 비밀번호를 입력하세요"
+					class="w-full rounded-md border px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none {passwordError
+						? 'border-red-300'
+						: 'border-gray-300'}"
+					required
+					oninput={() => (passwordError = '')}
+				/>
+				{#if passwordError}
+					<p class="mt-1 text-xs text-red-600">
+						{passwordError}
+					</p>
+				{:else}
+					<p class="mt-1 text-xs text-gray-600">
+						전체 토큰 취소를 위해 계정 비밀번호를 확인합니다. 이는 보안을 강화하기 위한 조치입니다.
+					</p>
+				{/if}
 			</div>
 		</div>
 	{/if}

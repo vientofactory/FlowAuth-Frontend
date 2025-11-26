@@ -11,6 +11,7 @@ import type {
 	TwoFactorVerifyResponse
 } from '$lib/types/2fa.types';
 import { BaseApi } from './base';
+import type { TokenType } from '$lib/types/authorization.types';
 import { parseBackendError } from '../error.utils';
 
 export class AuthApi extends BaseApi {
@@ -32,7 +33,7 @@ export class AuthApi extends BaseApi {
 					body: JSON.stringify(data)
 				},
 				0,
-				true
+				{ skipAuthRedirect: true }
 			);
 
 			this.setToken(result.accessToken, 'login');
@@ -59,7 +60,7 @@ export class AuthApi extends BaseApi {
 				body: JSON.stringify({ email, token })
 			},
 			0,
-			true
+			{ skipAuthRedirect: true }
 		);
 
 		this.setToken(result.accessToken);
@@ -80,7 +81,7 @@ export class AuthApi extends BaseApi {
 				body: JSON.stringify({ email, backupCode })
 			},
 			0,
-			true
+			{ skipAuthRedirect: true }
 		);
 
 		this.setToken(result.accessToken);
@@ -175,7 +176,7 @@ export class AuthApi extends BaseApi {
 	}
 
 	async changePassword(data: { currentPassword: string; newPassword: string }) {
-		return this.request('/profile/password', {
+		return this.sensitiveRequest('/profile/password', {
 			method: 'PUT',
 			body: JSON.stringify(data)
 		});
@@ -237,22 +238,31 @@ export class AuthApi extends BaseApi {
 		return this.request('/auth/tokens');
 	}
 
-	async revokeToken(tokenId: number) {
-		return this.request(`/auth/tokens/${tokenId}`, {
-			method: 'DELETE'
+	async revokeToken(tokenId: number, password?: string) {
+		const body = password ? JSON.stringify({ password }) : undefined;
+		return this.sensitiveRequest(`/auth/tokens/${tokenId}`, {
+			method: 'DELETE',
+			body
 		});
 	}
 
 	async revokeAllTokens() {
-		return this.request('/auth/tokens', {
+		return this.sensitiveRequest('/auth/tokens', {
 			method: 'DELETE'
 		});
 	}
 
-	async revokeAllTokensForType(tokenType: string) {
-		return this.request(`/auth/tokens/type/${tokenType}`, {
-			method: 'DELETE'
-		});
+	async revokeAllTokensForType(tokenType: string, password: string) {
+		// tokenType에 따라 사용할 액세스 토큰 타입 결정
+		const accessTokenType = tokenType === 'oauth2' ? 'oauth2' : 'login';
+		return this.sensitiveRequest(
+			`/auth/tokens/type/${tokenType}`,
+			{
+				method: 'DELETE',
+				body: JSON.stringify({ password })
+			},
+			accessTokenType as TokenType
+		);
 	}
 
 	// 2FA 관련
@@ -263,7 +273,7 @@ export class AuthApi extends BaseApi {
 	}
 
 	async enableTwoFactor(data: TwoFactorEnableRequest): Promise<TwoFactorResponse> {
-		return this.request<TwoFactorResponse>('/auth/2fa/enable', {
+		return this.sensitiveRequest('/auth/2fa/enable', {
 			method: 'POST',
 			body: JSON.stringify(data)
 		});
@@ -286,8 +296,8 @@ export class AuthApi extends BaseApi {
 	}
 
 	async disableTwoFactor(data: TwoFactorDisableRequest): Promise<TwoFactorResponse> {
-		return this.request<TwoFactorResponse>('/auth/2fa/disable', {
-			method: 'DELETE',
+		return this.sensitiveRequest('/auth/2fa/disable', {
+			method: 'POST',
 			body: JSON.stringify(data)
 		});
 	}
@@ -296,29 +306,24 @@ export class AuthApi extends BaseApi {
 		return this.request<TwoFactorStatus>('/auth/2fa/status');
 	}
 
-	// 디버깅용
+	// 디버깅용 - 보안 경고
 	debugToken(): void {
 		if (typeof window !== 'undefined') {
-			const token = this.getToken();
+			console.warn('🔒 보안 경고: 이 애플리케이션은 민감한 인증 정보를 보호합니다.');
+			console.warn(
+				'🚫 경고: 콘솔에 임의의 코드를 입력하지 마세요. 악의적인 공격자가 토큰을 탈취할 수 있습니다.'
+			);
+			console.warn('💡 개발자용: 토큰 정보는 보안상의 이유로 콘솔에 출력되지 않습니다.');
+			console.warn(
+				'🔍 디버깅이 필요한 경우 개발자 도구의 Application > Local Storage에서 확인하세요.'
+			);
 
-			if (token) {
-				try {
-					const parts = token.split('.');
-					if (parts.length === 3) {
-						JSON.parse(atob(parts[1]));
-					}
-				} catch {
-					// Failed to decode token
-				}
-			}
+			// 토큰 존재 여부만 확인 (실제 토큰 값은 출력하지 않음)
+			const hasToken = !!this.getToken();
+			const hasRefreshToken = !!this.getRefreshToken();
 
-			document.cookie.split(';').reduce(
-				(acc, cookie) => {
-					const [key, value] = cookie.trim().split('=');
-					acc[key] = value;
-					return acc;
-				},
-				{} as Record<string, string>
+			console.log(
+				`토큰 상태: 액세스 토큰 ${hasToken ? '존재' : '없음'}, 리프레시 토큰 ${hasRefreshToken ? '존재' : '없음'}`
 			);
 		}
 	}
