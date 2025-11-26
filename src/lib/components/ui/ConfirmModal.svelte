@@ -34,7 +34,7 @@
 	</div>
 
 	{#snippet footer()}
-		<div class="flex justify-end space-x-3 bg-gray-50 px-6 py-4">
+		<div class="flex justify-end space-x-3 px-6 py-4">
 			<Button variant="outline" onclick={onCancel} disabled={loading}>
 				{cancelText}
 			</Button>
