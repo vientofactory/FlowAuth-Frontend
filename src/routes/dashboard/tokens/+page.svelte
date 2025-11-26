@@ -215,89 +215,93 @@
 	showBackButton={true}
 >
 	<!-- 통계 카드 -->
-	<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-		<!-- 총 토큰 -->
-		<div
-			class="relative overflow-hidden rounded-xl bg-linear-to-r from-stone-50 to-neutral-50 p-4 shadow-sm ring-1 ring-stone-100 transition-all duration-200 hover:shadow-md"
-		>
-			<div class="relative flex items-center">
-				<div class="shrink-0">
-					<div
-						class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-stone-100 to-neutral-100"
-					>
-						<FontAwesomeIcon icon={faKey} class="text-lg text-stone-600" />
+	{#if isLoading}
+		<DashboardSkeleton type="stats" count={4} class="mb-6" />
+	{:else}
+		<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+			<!-- 총 토큰 -->
+			<div
+				class="relative overflow-hidden rounded-xl bg-linear-to-r from-stone-50 to-neutral-50 p-4 shadow-sm ring-1 ring-stone-100 transition-all duration-200 hover:shadow-md"
+			>
+				<div class="relative flex items-center">
+					<div class="shrink-0">
+						<div
+							class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-stone-100 to-neutral-100"
+						>
+							<FontAwesomeIcon icon={faKey} class="text-lg text-stone-600" />
+						</div>
+					</div>
+					<div class="ml-3 flex-1">
+						<p class="text-sm font-medium text-gray-600">총 토큰</p>
+						<p class="text-2xl font-bold text-gray-900">{currentTokens.length}</p>
 					</div>
 				</div>
-				<div class="ml-3 flex-1">
-					<p class="text-sm font-medium text-gray-600">총 토큰</p>
-					<p class="text-2xl font-bold text-gray-900">{currentTokens.length}</p>
-				</div>
 			</div>
-		</div>
 
-		<!-- 활성 토큰 -->
-		<div
-			class="relative overflow-hidden rounded-xl bg-linear-to-r from-neutral-50 to-gray-50 p-4 shadow-sm ring-1 ring-neutral-100 transition-all duration-200 hover:shadow-md"
-		>
-			<div class="relative flex items-center">
-				<div class="shrink-0">
-					<div
-						class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-neutral-100 to-gray-100"
-					>
-						<FontAwesomeIcon icon={faCheckCircle} class="text-lg text-neutral-600" />
+			<!-- 활성 토큰 -->
+			<div
+				class="relative overflow-hidden rounded-xl bg-linear-to-r from-neutral-50 to-gray-50 p-4 shadow-sm ring-1 ring-neutral-100 transition-all duration-200 hover:shadow-md"
+			>
+				<div class="relative flex items-center">
+					<div class="shrink-0">
+						<div
+							class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-neutral-100 to-gray-100"
+						>
+							<FontAwesomeIcon icon={faCheckCircle} class="text-lg text-neutral-600" />
+						</div>
+					</div>
+					<div class="ml-3 flex-1">
+						<p class="text-sm font-medium text-gray-600">활성 토큰</p>
+						<p class="text-2xl font-bold text-gray-900">
+							{currentTokens.filter((t) => !isExpired(t)).length}
+						</p>
 					</div>
 				</div>
-				<div class="ml-3 flex-1">
-					<p class="text-sm font-medium text-gray-600">활성 토큰</p>
-					<p class="text-2xl font-bold text-gray-900">
-						{currentTokens.filter((t) => !isExpired(t)).length}
-					</p>
-				</div>
 			</div>
-		</div>
 
-		<!-- 만료된 토큰 -->
-		<div
-			class="relative overflow-hidden rounded-xl bg-linear-to-r from-gray-50 to-stone-50 p-4 shadow-sm ring-1 ring-gray-100 transition-all duration-200 hover:shadow-md"
-		>
-			<div class="relative flex items-center">
-				<div class="shrink-0">
-					<div
-						class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-gray-100 to-stone-100"
-					>
-						<FontAwesomeIcon icon={faClock} class="text-lg text-gray-600" />
+			<!-- 만료된 토큰 -->
+			<div
+				class="relative overflow-hidden rounded-xl bg-linear-to-r from-gray-50 to-stone-50 p-4 shadow-sm ring-1 ring-gray-100 transition-all duration-200 hover:shadow-md"
+			>
+				<div class="relative flex items-center">
+					<div class="shrink-0">
+						<div
+							class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-gray-100 to-stone-100"
+						>
+							<FontAwesomeIcon icon={faClock} class="text-lg text-gray-600" />
+						</div>
+					</div>
+					<div class="ml-3 flex-1">
+						<p class="text-sm font-medium text-gray-600">만료된 토큰</p>
+						<p class="text-2xl font-bold text-gray-900">
+							{currentTokens.filter((t) => isExpired(t)).length}
+						</p>
 					</div>
 				</div>
-				<div class="ml-3 flex-1">
-					<p class="text-sm font-medium text-gray-600">만료된 토큰</p>
-					<p class="text-2xl font-bold text-gray-900">
-						{currentTokens.filter((t) => isExpired(t)).length}
-					</p>
-				</div>
 			</div>
-		</div>
 
-		<!-- 클라이언트 수 -->
-		<div
-			class="relative overflow-hidden rounded-xl bg-linear-to-r from-slate-50 to-zinc-50 p-4 shadow-sm ring-1 ring-slate-100 transition-all duration-200 hover:shadow-md"
-		>
-			<div class="relative flex items-center">
-				<div class="shrink-0">
-					<div
-						class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-slate-100 to-zinc-100"
-					>
-						<FontAwesomeIcon icon={faShieldAlt} class="text-lg text-slate-600" />
+			<!-- 클라이언트 수 -->
+			<div
+				class="relative overflow-hidden rounded-xl bg-linear-to-r from-slate-50 to-zinc-50 p-4 shadow-sm ring-1 ring-slate-100 transition-all duration-200 hover:shadow-md"
+			>
+				<div class="relative flex items-center">
+					<div class="shrink-0">
+						<div
+							class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-slate-100 to-zinc-100"
+						>
+							<FontAwesomeIcon icon={faShieldAlt} class="text-lg text-slate-600" />
+						</div>
 					</div>
-				</div>
-				<div class="ml-3 flex-1">
-					<p class="text-sm font-medium text-gray-600">클라이언트 수</p>
-					<p class="text-2xl font-bold text-gray-900">
-						{new Set(currentTokens.map((t) => t.clientId).filter(Boolean)).size}
-					</p>
+					<div class="ml-3 flex-1">
+						<p class="text-sm font-medium text-gray-600">클라이언트 수</p>
+						<p class="text-2xl font-bold text-gray-900">
+							{new Set(currentTokens.map((t) => t.clientId).filter(Boolean)).size}
+						</p>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
+	{/if}
 
 	<!-- 토큰 목록 -->
 	<div
@@ -622,7 +626,7 @@
 					<div class="ml-3">
 						<h3 class="text-sm font-medium text-yellow-800">현재 로그인 세션 토큰입니다</h3>
 						<div class="mt-2 text-sm text-yellow-700">
-							<p>이 토큰을 취소하면 현재 로그인 세션이 종료됩니다. 계속하시겠습니까?</p>
+							<p>이 토큰을 취소하면 현재 로그인 세션이 종료됩니다.</p>
 						</div>
 					</div>
 				</div>

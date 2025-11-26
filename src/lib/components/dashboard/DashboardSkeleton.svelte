@@ -9,18 +9,24 @@
 </script>
 
 {#if type === 'stats'}
-	<!-- 실제 StatsCards와 일치하는 그리드 구조 -->
-	<div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 {className}">
-		{#each Array(count || 5) as _, i (i)}
+	<!-- 실제 ClientStats와 일치하는 그리드 구조 -->
+	<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 {className}">
+		{#each Array(count || 3) as _, i (i)}
 			<div
-				class="overflow-hidden rounded-xl bg-linear-to-br from-gray-200 to-gray-300 p-6 shadow-lg"
+				class="relative overflow-hidden rounded-xl bg-linear-to-r from-stone-50 to-gray-50 p-4 shadow-sm ring-1 ring-stone-100 transition-all duration-200 hover:shadow-md"
 			>
-				<div class="flex items-center justify-between">
-					<div class="flex-1">
-						<div class="mb-1 h-4 w-16 animate-pulse rounded bg-white/40"></div>
-						<div class="h-8 w-20 animate-pulse rounded bg-white/40"></div>
+				<div class="relative flex items-center">
+					<div class="shrink-0">
+						<div
+							class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-stone-100 to-gray-100"
+						>
+							<div class="h-5 w-5 animate-pulse rounded bg-stone-200"></div>
+						</div>
 					</div>
-					<div class="h-12 w-12 animate-pulse rounded bg-white/40"></div>
+					<div class="ml-3 flex-1">
+						<div class="mb-1 h-4 w-16 animate-pulse rounded bg-gray-200"></div>
+						<div class="h-6 w-12 animate-pulse rounded bg-gray-200"></div>
+					</div>
 				</div>
 			</div>
 		{/each}
@@ -91,7 +97,7 @@
 			<div class="space-y-4">
 				{#each Array(count || 3) as _, i (i)}
 					<div
-						class="group relative overflow-hidden rounded-lg border border-gray-100 bg-white/60 p-4 backdrop-blur-sm"
+						class="group relative overflow-hidden rounded-lg border border-gray-100 bg-white/60 p-4 backdrop-blur-sm transition-all duration-200 hover:bg-white/80 hover:shadow-sm"
 					>
 						<div
 							class="flex flex-col space-y-4 sm:flex-row sm:items-start sm:justify-between sm:space-y-0"
@@ -124,7 +130,7 @@
 
 							<!-- 액션 버튼들 -->
 							<div class="flex flex-wrap gap-2 sm:flex-col">
-								{#each Array(3) as _, j (j)}
+								{#each Array(4) as _, j (j)}
 									<div class="h-8 w-20 animate-pulse rounded bg-gray-200"></div>
 								{/each}
 							</div>

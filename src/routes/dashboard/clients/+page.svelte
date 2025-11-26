@@ -719,7 +719,7 @@
 	{/snippet}
 
 	{#if isLoading}
-		<DashboardSkeleton type="stats" />
+		<DashboardSkeleton type="stats" count={3} />
 	{:else}
 		<ClientStats {clients} />
 	{/if}
