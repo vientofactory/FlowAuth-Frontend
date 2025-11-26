@@ -21,7 +21,8 @@
 		faBars,
 		faSignInAlt,
 		faUserPlus,
-		faCog
+		faCog,
+		faSpinner
 	} from '@fortawesome/free-solid-svg-icons';
 	import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
@@ -57,6 +58,7 @@
 	let profileInitialized = $state(false);
 	let profileDropdownOpen = $state(false);
 	let initialAuthCheckDone = $state(false); // 초기 인증 확인 완료 여부
+	let isLoggingOut = $state(false);
 
 	// 프로필 스토어 구독
 	$effect(() => {
@@ -128,7 +130,11 @@
 	});
 
 	async function handleLogout() {
+		if (isLoggingOut) return; // Prevent multiple logout attempts
+
 		profileDropdownOpen = false;
+		isLoggingOut = true;
+
 		try {
 			await authStore.logout();
 
@@ -141,6 +147,8 @@
 
 			// 강제 페이지 새로고침으로 완전한 상태 초기화
 			window.location.replace('/');
+		} finally {
+			isLoggingOut = false;
 		}
 	}
 
@@ -424,11 +432,17 @@
 															item.action?.();
 															profileDropdownOpen = false;
 														}}
-														class="mx-1 flex w-full items-center rounded-md px-4 py-2.5 text-sm transition-colors duration-150 {item.danger
+														disabled={isLoggingOut}
+														class="mx-1 flex w-full cursor-pointer items-center rounded-md px-4 py-2.5 text-sm transition-colors duration-150 {item.danger
 															? 'text-red-600 hover:bg-red-50 hover:text-red-700'
 															: 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}"
 													>
-														{#if typeof item.icon === 'string'}
+														{#if isLoggingOut && item.label === '로그아웃'}
+															<FontAwesomeIcon
+																icon={faSpinner}
+																class="mr-3 w-4 animate-spin text-center"
+															/>
+														{:else if typeof item.icon === 'string'}
 															<i
 																class="{item.icon} mr-3 w-4 text-center {item.danger
 																	? ''
@@ -440,7 +454,9 @@
 																class="mr-3 w-4 text-center {item.danger ? '' : 'text-gray-400'}"
 															/>
 														{/if}
-														{item.label}
+														{isLoggingOut && item.label === '로그아웃'
+															? '로그아웃 중...'
+															: item.label}
 													</button>
 												{/if}
 											{/each}
@@ -619,10 +635,16 @@
 											handleLogout();
 											profileDropdownOpen = false;
 										}}
+										disabled={isLoggingOut}
 										class="mx-1 flex w-full items-center rounded-md px-4 py-2.5 text-sm text-red-600 transition-colors duration-150 hover:bg-red-50 hover:text-red-700"
 									>
-										<FontAwesomeIcon icon={faSignOutAlt} class="mr-3 w-4 text-center" />
-										로그아웃
+										{#if isLoggingOut}
+											<FontAwesomeIcon icon={faSpinner} class="mr-3 w-4 animate-spin text-center" />
+											로그아웃 중...
+										{:else}
+											<FontAwesomeIcon icon={faSignOutAlt} class="mr-3 w-4 text-center" />
+											로그아웃
+										{/if}
 									</button>
 								</div>
 							</div>
@@ -772,10 +794,16 @@
 								handleLogout();
 								mobileMenuOpen = false;
 							}}
+							disabled={isLoggingOut}
 							class="flex w-full items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
 						>
-							<FontAwesomeIcon icon={faSignOutAlt} class="mr-3 w-5 text-center" />
-							로그아웃
+							{#if isLoggingOut}
+								<FontAwesomeIcon icon={faSpinner} class="mr-3 w-5 animate-spin text-center" />
+								로그아웃 중...
+							{:else}
+								<FontAwesomeIcon icon={faSignOutAlt} class="mr-3 w-5 text-center" />
+								로그아웃
+							{/if}
 						</button>
 					</div>
 				{:else}
