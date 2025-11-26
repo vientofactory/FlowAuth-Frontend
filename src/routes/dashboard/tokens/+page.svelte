@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { DashboardLayout, Button, Badge, apiClient, Tabs, Modal, DashboardSkeleton } from '$lib';
+	import { DashboardLayout, Button, Badge, apiClient, Tabs, DashboardSkeleton } from '$lib';
+	import PasswordConfirmModal from '$lib/components/ui/PasswordConfirmModal.svelte';
 	import { useToast } from '$lib';
 	import { onMount, onDestroy } from 'svelte';
 	import type { Token } from '$lib/types/oauth.types';
@@ -39,7 +40,6 @@
 	let selectedTokenType = $state<TokenType | null>(null);
 	let _isRevoking = $state(false);
 	let _isRevokingSingle = $state(false);
-	let revokePassword = $state('');
 	let passwordError = $state('');
 
 	const toast = useToast();
@@ -67,14 +67,12 @@
 	function closeRevokeModal() {
 		showRevokeModal = false;
 		selectedToken = null;
-		revokePassword = '';
 		passwordError = '';
 	}
 
 	function closeRevokeAllModal() {
 		showRevokeAllModal = false;
 		selectedTokenType = null;
-		revokePassword = '';
 		passwordError = '';
 	}
 
@@ -116,28 +114,14 @@
 		}
 	}
 
-	// 모달에서 실제 취소 실행
-	async function confirmRevokeToken() {
-		if (!selectedToken) return;
-
-		// 비밀번호 검증
-		if (!revokePassword || revokePassword.trim() === '') {
-			passwordError = '비밀번호를 입력해주세요.';
-			return;
-		}
-
-		if (revokePassword.length < 8) {
-			passwordError = '비밀번호는 최소 8자 이상이어야 합니다.';
-			return;
-		}
-
-		// 에러 초기화
-		passwordError = '';
+	// PasswordConfirmModal용 핸들러
+	async function handleRevokeToken(password?: string) {
+		if (!selectedToken || !password) return;
 
 		_isRevokingSingle = true;
 
 		try {
-			await apiClient.revokeToken(selectedToken.id, revokePassword.trim());
+			await apiClient.revokeToken(selectedToken.id, password);
 			toast.success('토큰이 취소되었습니다.');
 
 			await loadTokens(); // 목록 새로고침
@@ -157,34 +141,20 @@
 		}
 	}
 
-	async function confirmRevokeAllTokens() {
-		if (!selectedTokenType) return;
-
-		// 비밀번호 검증 (필수)
-		if (!revokePassword || revokePassword.trim() === '') {
-			passwordError = '비밀번호를 입력해주세요.';
-			return;
-		}
-
-		if (revokePassword.length < 8) {
-			passwordError = '비밀번호는 최소 8자 이상이어야 합니다.';
-			return;
-		}
-
-		// 에러 초기화
-		passwordError = '';
+	// PasswordConfirmModal용 핸들러
+	async function handleRevokeAllTokens(password?: string) {
+		if (!selectedTokenType || !password) return;
 
 		const tokenTypeName = selectedTokenType === TOKEN_TYPES.LOGIN ? '로그인' : 'OAuth2';
 		_isRevoking = true;
 
 		try {
-			await apiClient.revokeAllTokensForType(selectedTokenType, revokePassword.trim());
+			await apiClient.revokeAllTokensForType(selectedTokenType, password);
 			toast.success(`모든 ${tokenTypeName} 토큰이 취소되었습니다.`);
 
 			// 로그인 토큰을 취소한 경우 로그아웃 처리
 			if (selectedTokenType === TOKEN_TYPES.LOGIN) {
 				await authStore.logout();
-				// 페이지 리다이렉트는 authStore.logout()에서 처리됨
 				return;
 			}
 
@@ -620,220 +590,106 @@
 </DashboardLayout>
 
 <!-- 단일 토큰 취소 모달 -->
-<Modal open={showRevokeModal} title="토큰 취소 확인" onClose={closeRevokeModal} size="sm">
+<PasswordConfirmModal
+	open={showRevokeModal}
+	title="토큰 취소 확인"
+	message="다음 토큰을 취소하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+	confirmText="취소"
+	cancelText="닫기"
+	confirmVariant="danger"
+	loading={_isRevokingSingle}
+	requirePassword={true}
+	passwordLabel="비밀번호 확인 (보안 강화)"
+	passwordPlaceholder="계정 비밀번호를 입력하세요"
+	{passwordError}
+	onConfirm={handleRevokeToken}
+	onCancel={closeRevokeModal}
+	on:passwordError={(e) => (passwordError = e.detail)}
+>
 	{#if selectedToken}
-		<div class="space-y-4">
-			<p class="text-sm text-gray-600">
-				다음 토큰을 취소하시겠습니까? 이 작업은 되돌릴 수 없습니다.
-			</p>
-			{#if isCurrentSessionToken(selectedToken)}
-				<div class="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-					<div class="flex">
-						<div class="shrink-0">
-							<svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-								<path
-									fill-rule="evenodd"
-									d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-									clip-rule="evenodd"
-								/>
-							</svg>
-						</div>
-						<div class="ml-3">
-							<h3 class="text-sm font-medium text-yellow-800">현재 로그인 세션 토큰입니다</h3>
-							<div class="mt-2 text-sm text-yellow-700">
-								<p>이 토큰을 취소하면 현재 로그인 세션이 종료됩니다. 계속하시겠습니까?</p>
-							</div>
-						</div>
+		{#if isCurrentSessionToken(selectedToken)}
+			<div class="mb-4 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+				<div class="flex">
+					<div class="shrink-0">
+						<svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+							<path
+								fill-rule="evenodd"
+								d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+								clip-rule="evenodd"
+							/>
+						</svg>
 					</div>
-				</div>
-			{/if}
-			<div class="rounded-lg bg-gray-50 p-4">
-				<div class="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-					<div>
-						<span class="font-medium text-gray-700">토큰 ID:</span>
-						<span class="ml-2 font-mono text-gray-900">{selectedToken.id}</span>
-					</div>
-					<div>
-						<span class="font-medium text-gray-700">토큰 타입:</span>
-						<Badge
-							variant={selectedToken.tokenType === TOKEN_TYPES.LOGIN ? 'success' : 'info'}
-							class="ml-2"
-						>
-							{selectedToken.tokenType === TOKEN_TYPES.LOGIN ? '로그인 토큰' : 'OAuth2 토큰'}
-						</Badge>
-						{#if isCurrentSessionToken(selectedToken)}
-							<Badge variant="success" class="ml-2">현재 세션</Badge>
-						{/if}
-					</div>
-					{#if selectedToken.client}
-						<div class="sm:col-span-2">
-							<span class="font-medium text-gray-700">클라이언트:</span>
-							<span class="ml-2 text-gray-900">{selectedToken.client.name}</span>
+					<div class="ml-3">
+						<h3 class="text-sm font-medium text-yellow-800">현재 로그인 세션 토큰입니다</h3>
+						<div class="mt-2 text-sm text-yellow-700">
+							<p>이 토큰을 취소하면 현재 로그인 세션이 종료됩니다. 계속하시겠습니까?</p>
 						</div>
-					{/if}
-					<div>
-						<span class="font-medium text-gray-700">만료일:</span>
-						<span class="ml-2 text-gray-900"
-							>{new Date(selectedToken.expiresAt).toLocaleString()}</span
-						>
 					</div>
 				</div>
 			</div>
-
-			<!-- 비밀번호 확인 -->
-			<div class="rounded-lg bg-gray-50 p-4">
-				<label for="revoke-password" class="mb-2 block text-sm font-medium text-gray-700">
-					비밀번호 확인 (보안 강화)
-				</label>
-				<input
-					id="revoke-password"
-					type="password"
-					bind:value={revokePassword}
-					placeholder="계정 비밀번호를 입력하세요"
-					class="w-full rounded-md border px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none {passwordError
-						? 'border-red-300'
-						: 'border-gray-300'}"
-					required
-					oninput={() => (passwordError = '')}
-					disabled={_isRevokingSingle}
-				/>
-				{#if passwordError}
-					<p class="mt-1 text-xs text-red-600">
-						{passwordError}
-					</p>
-				{:else}
-					<p class="mt-1 text-xs text-gray-600">
-						토큰 취소를 위해 계정 비밀번호를 확인합니다. 이는 보안을 강화하기 위한 조치입니다.
-					</p>
+		{/if}
+		<div class="rounded-lg bg-gray-50 p-4">
+			<div class="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
+				<div>
+					<span class="font-medium text-gray-700">토큰 ID:</span>
+					<span class="ml-2 font-mono text-gray-900">{selectedToken.id}</span>
+				</div>
+				<div>
+					<span class="font-medium text-gray-700">토큰 타입:</span>
+					<Badge
+						variant={selectedToken.tokenType === TOKEN_TYPES.LOGIN ? 'success' : 'info'}
+						class="ml-2"
+					>
+						{selectedToken.tokenType === TOKEN_TYPES.LOGIN ? '로그인 토큰' : 'OAuth2 토큰'}
+					</Badge>
+					{#if isCurrentSessionToken(selectedToken)}
+						<Badge variant="success" class="ml-2">현재 세션</Badge>
+					{/if}
+				</div>
+				{#if selectedToken.client}
+					<div class="sm:col-span-2">
+						<span class="font-medium text-gray-700">클라이언트:</span>
+						<span class="ml-2 text-gray-900">{selectedToken.client.name}</span>
+					</div>
 				{/if}
+				<div>
+					<span class="font-medium text-gray-700">만료일:</span>
+					<span class="ml-2 text-gray-900"
+						>{new Date(selectedToken.expiresAt).toLocaleString()}</span
+					>
+				</div>
 			</div>
 		</div>
 	{/if}
-
-	{#snippet footer()}
-		<div class="flex justify-end space-x-3 px-6 py-4">
-			<Button variant="outline" onclick={closeRevokeModal} disabled={_isRevokingSingle}>
-				취소
-			</Button>
-			<Button
-				variant="danger"
-				onclick={confirmRevokeToken}
-				disabled={_isRevokingSingle}
-				class="relative"
-			>
-				{#if _isRevokingSingle}
-					<div class="flex items-center">
-						<svg class="mr-2 h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-							<circle
-								class="opacity-25"
-								cx="12"
-								cy="12"
-								r="10"
-								stroke="currentColor"
-								stroke-width="4"
-							></circle>
-							<path
-								class="opacity-75"
-								fill="currentColor"
-								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-							></path>
-						</svg>
-						처리 중...
-					</div>
-				{:else}
-					취소
-				{/if}
-			</Button>
-		</div>
-	{/snippet}
-</Modal>
-
-<!-- 전체 토큰 취소 모달 -->
-<Modal
+</PasswordConfirmModal><!-- 전체 토큰 취소 모달 -->
+<PasswordConfirmModal
 	open={showRevokeAllModal}
 	title="전체 토큰 취소 확인"
-	onClose={closeRevokeAllModal}
-	size="sm"
+	message="{selectedTokenType === TOKEN_TYPES.LOGIN
+		? '모든 로그인 토큰'
+		: '모든 OAuth2 토큰'}을 취소하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+	confirmText="모두 취소"
+	cancelText="닫기"
+	confirmVariant="danger"
+	loading={_isRevoking}
+	requirePassword={true}
+	passwordLabel="비밀번호 확인 (필수)"
+	passwordPlaceholder="계정 비밀번호를 입력하세요"
+	{passwordError}
+	onConfirm={handleRevokeAllTokens}
+	onCancel={closeRevokeAllModal}
+	on:passwordError={(e) => (passwordError = e.detail)}
 >
 	{#if selectedTokenType}
-		<div class="space-y-4">
-			<p class="text-sm text-gray-600">
-				{selectedTokenType === TOKEN_TYPES.LOGIN ? '모든 로그인 토큰' : '모든 OAuth2 토큰'}을
-				취소하시겠습니까? 이 작업은 되돌릴 수 없습니다.
-			</p>
-			<div class="rounded-lg bg-red-50 p-4">
-				<div class="flex items-center">
-					<FontAwesomeIcon icon={faExclamationTriangle} class="mr-2 text-red-600" />
-					<div class="text-sm text-red-800">
-						<strong>경고:</strong> 이 작업은 {selectedTokenType === TOKEN_TYPES.LOGIN
-							? '모든 로그인 세션을 종료'
-							: '모든 OAuth2 권한을 제거'}합니다.
-					</div>
+		<div class="rounded-lg bg-red-50 p-4">
+			<div class="flex items-center">
+				<FontAwesomeIcon icon={faExclamationTriangle} class="mr-2 text-red-600" />
+				<div class="text-sm text-red-800">
+					<strong>경고:</strong> 이 작업은 {selectedTokenType === TOKEN_TYPES.LOGIN
+						? '모든 로그인 세션을 종료'
+						: '모든 OAuth2 권한을 제거'}합니다.
 				</div>
-			</div>
-
-			<!-- 비밀번호 확인 -->
-			<div class="rounded-lg bg-gray-50 p-4">
-				<label for="revoke-all-password" class="mb-2 block text-sm font-medium text-gray-700">
-					비밀번호 확인 (필수)
-				</label>
-				<input
-					id="revoke-all-password"
-					type="password"
-					bind:value={revokePassword}
-					placeholder="계정 비밀번호를 입력하세요"
-					class="w-full rounded-md border px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none {passwordError
-						? 'border-red-300'
-						: 'border-gray-300'}"
-					required
-					oninput={() => (passwordError = '')}
-					disabled={_isRevoking}
-				/>
-				{#if passwordError}
-					<p class="mt-1 text-xs text-red-600">
-						{passwordError}
-					</p>
-				{:else}
-					<p class="mt-1 text-xs text-gray-600">
-						전체 토큰 취소를 위해 계정 비밀번호를 확인합니다. 이는 보안을 강화하기 위한 조치입니다.
-					</p>
-				{/if}
 			</div>
 		</div>
 	{/if}
-
-	{#snippet footer()}
-		<div class="flex justify-end space-x-3 px-6 py-4">
-			<Button variant="outline" onclick={closeRevokeAllModal} disabled={_isRevoking}>닫기</Button>
-			<Button
-				variant="danger"
-				onclick={confirmRevokeAllTokens}
-				disabled={_isRevoking}
-				class="relative"
-			>
-				{#if _isRevoking}
-					<div class="flex items-center">
-						<svg class="mr-2 h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-							<circle
-								class="opacity-25"
-								cx="12"
-								cy="12"
-								r="10"
-								stroke="currentColor"
-								stroke-width="4"
-							></circle>
-							<path
-								class="opacity-75"
-								fill="currentColor"
-								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-							></path>
-						</svg>
-						처리 중...
-					</div>
-				{:else}
-					모두 취소
-				{/if}
-			</Button>
-		</div>
-	{/snippet}
-</Modal>
+</PasswordConfirmModal>
