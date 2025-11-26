@@ -38,6 +38,7 @@
 	let selectedToken = $state<Token | null>(null);
 	let selectedTokenType = $state<TokenType | null>(null);
 	let _isRevoking = $state(false);
+	let _isRevokingSingle = $state(false);
 	let revokePassword = $state('');
 	let passwordError = $state('');
 
@@ -133,6 +134,8 @@
 		// 에러 초기화
 		passwordError = '';
 
+		_isRevokingSingle = true;
+
 		try {
 			await apiClient.revokeToken(selectedToken.id, revokePassword.trim());
 			toast.success('토큰이 취소되었습니다.');
@@ -150,7 +153,7 @@
 			console.error('Failed to revoke token:', error);
 			toast.error('토큰 취소에 실패했습니다.');
 		} finally {
-			/* empty */
+			_isRevokingSingle = false;
 		}
 	}
 
@@ -617,16 +620,7 @@
 </DashboardLayout>
 
 <!-- 단일 토큰 취소 모달 -->
-<Modal
-	open={showRevokeModal}
-	title="토큰 취소 확인"
-	onConfirm={confirmRevokeToken}
-	onCancel={closeRevokeModal}
-	onClose={closeRevokeModal}
-	confirmText="취소"
-	cancelText="닫기"
-	confirmVariant="danger"
->
+<Modal open={showRevokeModal} title="토큰 취소 확인" onClose={closeRevokeModal} size="sm">
 	{#if selectedToken}
 		<div class="space-y-4">
 			<p class="text-sm text-gray-600">
@@ -701,6 +695,7 @@
 						: 'border-gray-300'}"
 					required
 					oninput={() => (passwordError = '')}
+					disabled={_isRevokingSingle}
 				/>
 				{#if passwordError}
 					<p class="mt-1 text-xs text-red-600">
@@ -714,18 +709,51 @@
 			</div>
 		</div>
 	{/if}
+
+	{#snippet footer()}
+		<div class="flex justify-end space-x-3 px-6 py-4">
+			<Button variant="outline" onclick={closeRevokeModal} disabled={_isRevokingSingle}>
+				취소
+			</Button>
+			<Button
+				variant="danger"
+				onclick={confirmRevokeToken}
+				disabled={_isRevokingSingle}
+				class="relative"
+			>
+				{#if _isRevokingSingle}
+					<div class="flex items-center">
+						<svg class="mr-2 h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+							<circle
+								class="opacity-25"
+								cx="12"
+								cy="12"
+								r="10"
+								stroke="currentColor"
+								stroke-width="4"
+							></circle>
+							<path
+								class="opacity-75"
+								fill="currentColor"
+								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+							></path>
+						</svg>
+						처리 중...
+					</div>
+				{:else}
+					취소
+				{/if}
+			</Button>
+		</div>
+	{/snippet}
 </Modal>
 
 <!-- 전체 토큰 취소 모달 -->
 <Modal
 	open={showRevokeAllModal}
 	title="전체 토큰 취소 확인"
-	onConfirm={confirmRevokeAllTokens}
-	onCancel={closeRevokeAllModal}
 	onClose={closeRevokeAllModal}
-	confirmText="모두 취소"
-	cancelText="닫기"
-	confirmVariant="danger"
+	size="sm"
 >
 	{#if selectedTokenType}
 		<div class="space-y-4">
@@ -759,6 +787,7 @@
 						: 'border-gray-300'}"
 					required
 					oninput={() => (passwordError = '')}
+					disabled={_isRevoking}
 				/>
 				{#if passwordError}
 					<p class="mt-1 text-xs text-red-600">
@@ -772,4 +801,39 @@
 			</div>
 		</div>
 	{/if}
+
+	{#snippet footer()}
+		<div class="flex justify-end space-x-3 px-6 py-4">
+			<Button variant="outline" onclick={closeRevokeAllModal} disabled={_isRevoking}>닫기</Button>
+			<Button
+				variant="danger"
+				onclick={confirmRevokeAllTokens}
+				disabled={_isRevoking}
+				class="relative"
+			>
+				{#if _isRevoking}
+					<div class="flex items-center">
+						<svg class="mr-2 h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+							<circle
+								class="opacity-25"
+								cx="12"
+								cy="12"
+								r="10"
+								stroke="currentColor"
+								stroke-width="4"
+							></circle>
+							<path
+								class="opacity-75"
+								fill="currentColor"
+								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+							></path>
+						</svg>
+						처리 중...
+					</div>
+				{:else}
+					모두 취소
+				{/if}
+			</Button>
+		</div>
+	{/snippet}
 </Modal>
