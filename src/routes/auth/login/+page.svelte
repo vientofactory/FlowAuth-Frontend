@@ -112,17 +112,18 @@
 
 		if (isLoading) return;
 
+		isLoading = true;
+
 		// reCAPTCHA 검증
 		if (env.RECAPTCHA_SITE_KEY && recaptchaInstance) {
 			try {
 				recaptchaToken = await recaptchaInstance.execute('login');
 			} catch {
 				toast.error('reCAPTCHA 검증에 실패했습니다. 다시 시도해주세요.');
+				isLoading = false;
 				return;
 			}
 		}
-
-		isLoading = true;
 
 		try {
 			await authStore.login(emailField.value, passwordField.value, recaptchaToken);
