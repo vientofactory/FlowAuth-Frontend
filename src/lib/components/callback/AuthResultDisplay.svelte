@@ -1,11 +1,6 @@
 <script lang="ts">
 	import { Card } from '$lib';
-	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-	import {
-		faExclamationTriangle,
-		faCheckCircle,
-		faInfoCircle
-	} from '@fortawesome/free-solid-svg-icons';
+	import Alert from '$lib/components/Alert.svelte';
 
 	interface Props {
 		error: string;
@@ -22,47 +17,31 @@
 	<h3 class="mb-4 text-lg font-semibold text-gray-900">인증 결과</h3>
 
 	{#if error}
-		<div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
-			<div class="flex items-center">
-				<FontAwesomeIcon icon={faExclamationTriangle} class="mr-2 text-red-600" />
-				<span class="font-medium text-red-800">인증 에러</span>
-			</div>
-			<p class="mt-1 text-red-700">{error}</p>
-		</div>
+		<Alert variant="error" title="인증 에러" message={error} />
 	{:else if responseType === 'code id_token'}
-		<div class="mb-4 rounded-lg border border-green-200 bg-green-50 p-4">
-			<div class="flex items-center">
-				<FontAwesomeIcon icon={faCheckCircle} class="mr-2 text-green-600" />
-				<span class="font-medium text-green-800">하이브리드 인증 성공 (Hybrid Grant)</span>
-			</div>
-			<p class="mt-1 text-green-700">인증 코드와 ID 토큰을 모두 받았습니다.</p>
-		</div>
+		<Alert
+			variant="success"
+			title="하이브리드 인증 성공 (Hybrid Grant)"
+			message="인증 코드와 ID 토큰을 모두 받았습니다."
+		/>
 	{:else if authCode}
-		<div class="mb-4 rounded-lg border border-green-200 bg-green-50 p-4">
-			<div class="flex items-center">
-				<FontAwesomeIcon icon={faCheckCircle} class="mr-2 text-green-600" />
-				<span class="font-medium text-green-800">인증 성공 (Authorization Code Grant)</span>
-			</div>
-			<p class="mt-1 text-green-700">인증 코드를 성공적으로 받았습니다.</p>
-		</div>
+		<Alert
+			variant="success"
+			title="인증 성공 (Authorization Code Grant)"
+			message="인증 코드를 성공적으로 받았습니다."
+		/>
 	{:else if implicitTokens}
-		<div class="mb-4 rounded-lg border border-green-200 bg-green-50 p-4">
-			<div class="flex items-center">
-				<FontAwesomeIcon icon={faCheckCircle} class="mr-2 text-green-600" />
-				<span class="font-medium text-green-800">토큰 수신 성공 (Implicit Grant)</span>
-			</div>
-			<p class="mt-1 text-green-700">
-				{responseType} 방식으로 토큰을 성공적으로 받았습니다.
-			</p>
-		</div>
+		<Alert
+			variant="success"
+			title="토큰 수신 성공 (Implicit Grant)"
+			message="{responseType} 방식으로 토큰을 성공적으로 받았습니다."
+		/>
 	{:else}
-		<div class="mb-4 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-			<div class="flex items-center">
-				<FontAwesomeIcon icon={faInfoCircle} class="mr-2 text-yellow-600" />
-				<span class="font-medium text-yellow-800">정보</span>
-			</div>
-			<p class="mt-1 text-yellow-700">인증 결과가 없습니다. OAuth2 테스터에서 인증을 시작하세요.</p>
-		</div>
+		<Alert
+			variant="info"
+			title="정보"
+			message="인증 결과가 없습니다. OAuth2 테스터에서 인증을 시작하세요."
+		/>
 	{/if}
 
 	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">

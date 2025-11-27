@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { DashboardLayout, Button, Badge, apiClient, Tabs, DashboardSkeleton } from '$lib';
 	import PasswordConfirmModal from '$lib/components/ui/PasswordConfirmModal.svelte';
+	import Alert from '$lib/components/Alert.svelte';
 	import { useToast } from '$lib';
 	import { onMount, onDestroy } from 'svelte';
 	import type { Token } from '$lib/types/oauth.types';
@@ -612,25 +613,9 @@
 >
 	{#if selectedToken}
 		{#if isCurrentSessionToken(selectedToken)}
-			<div class="mb-4 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-				<div class="flex">
-					<div class="shrink-0">
-						<svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-							<path
-								fill-rule="evenodd"
-								d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-								clip-rule="evenodd"
-							/>
-						</svg>
-					</div>
-					<div class="ml-3">
-						<h3 class="text-sm font-medium text-yellow-800">현재 로그인 세션 토큰입니다</h3>
-						<div class="mt-2 text-sm text-yellow-700">
-							<p>이 토큰을 취소하면 현재 로그인 세션이 종료됩니다.</p>
-						</div>
-					</div>
-				</div>
-			</div>
+			<Alert variant="warning" title="현재 로그인 세션 토큰입니다">
+				이 토큰을 취소하면 현재 로그인 세션이 종료됩니다.
+			</Alert>
 		{/if}
 		<div class="rounded-lg bg-gray-50 p-4">
 			<div class="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
@@ -685,15 +670,10 @@
 	on:passwordError={(e) => (passwordError = e.detail)}
 >
 	{#if selectedTokenType}
-		<div class="rounded-lg bg-red-50 p-4">
-			<div class="flex items-center">
-				<FontAwesomeIcon icon={faExclamationTriangle} class="mr-2 text-red-600" />
-				<div class="text-sm text-red-800">
-					<strong>경고:</strong> 이 작업은 {selectedTokenType === TOKEN_TYPES.LOGIN
-						? '모든 로그인 세션을 종료'
-						: '모든 OAuth2 권한을 제거'}합니다.
-				</div>
-			</div>
-		</div>
+		<Alert variant="error">
+			<strong>경고:</strong> 이 작업은 {selectedTokenType === TOKEN_TYPES.LOGIN
+				? '모든 로그인 세션을 종료'
+				: '모든 OAuth2 권한을 제거'}합니다.
+		</Alert>
 	{/if}
 </PasswordConfirmModal>

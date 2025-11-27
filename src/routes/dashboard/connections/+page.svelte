@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { apiClient } from '$lib/utils/api';
 	import { DashboardLayout, Modal, authState, DashboardSkeleton } from '$lib';
+	import Alert from '$lib/components/Alert.svelte';
 	import { USER_TYPES } from '$lib';
 	import { env } from '$lib/config/env';
 	import type { ConnectedAppDto } from '$lib/types/dashboard';
@@ -152,15 +153,7 @@
 			<DashboardSkeleton type="table" count={3} />
 		{:else if error}
 			<!-- 에러 상태 -->
-			<div class="rounded-lg border border-red-200 bg-red-50 p-6">
-				<div class="flex items-center">
-					<FontAwesomeIcon icon={faExclamationTriangle} class="mr-3 text-red-500" />
-					<div>
-						<h3 class="text-sm font-medium text-red-800">오류 발생</h3>
-						<p class="mt-1 text-sm text-red-700">{error}</p>
-					</div>
-				</div>
-			</div>
+			<Alert variant="error" title="오류 발생" message={error} />
 		{:else if apps.length === 0}
 			<!-- 빈 상태 -->
 			<div class="py-12 text-center">

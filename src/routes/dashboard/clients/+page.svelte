@@ -31,7 +31,7 @@
 	import ClientDeleteModal from '$lib/components/clients/ClientDeleteModal.svelte';
 	import ClientEditModal from '$lib/components/clients/ClientEditModal.svelte';
 	import ClientStatusModal from '$lib/components/clients/ClientStatusModal.svelte';
-	import AlertCard from '$lib/components/AlertCard.svelte';
+	import Alert from '$lib/components/Alert.svelte';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import { faPlus, faCode, faBook } from '@fortawesome/free-solid-svg-icons';
 	import { faGithub } from '@fortawesome/free-brands-svg-icons';
@@ -724,10 +724,10 @@
 		<ClientStats {clients} />
 	{/if}
 
-	<AlertCard
+	<Alert
 		variant="info"
 		title="SDK를 활용한 통합 안내"
-		description="FlowAuth와의 통합을 위해 SDK를 활용해보세요. 아래 링크에서 자세한 사용법을 확인할 수 있습니다."
+		message="FlowAuth와의 통합을 위해 SDK를 활용해보세요. 아래 링크에서 자세한 사용법을 확인할 수 있습니다."
 		icon={faCode}
 		links={[
 			{

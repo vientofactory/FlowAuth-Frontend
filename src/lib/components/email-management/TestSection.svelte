@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { Button } from '$lib';
+	import Alert from '$lib/components/Alert.svelte';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-	import { faEnvelope, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+	import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		onSendTest: () => void;
@@ -28,19 +29,9 @@
 
 		<div class="space-y-4">
 			<!-- 주의사항 -->
-			<div class="rounded-lg border border-yellow-200 bg-yellow-50/80 p-4 backdrop-blur-sm">
-				<div class="flex items-start gap-3">
-					<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-100">
-						<FontAwesomeIcon icon={faExclamationTriangle} class="text-yellow-600" />
-					</div>
-					<div class="flex-1">
-						<p class="mb-1 text-sm font-medium text-yellow-800">테스트 주의사항</p>
-						<p class="text-sm text-yellow-700">
-							테스트 이메일은 실제 사용자에게 전송됩니다. 테스트용 이메일 주소를 사용하세요.
-						</p>
-					</div>
-				</div>
-			</div>
+			<Alert variant="warning" title="테스트 주의사항">
+				테스트 이메일은 실제 사용자에게 전송됩니다. 테스트용 이메일 주소를 사용하세요.
+			</Alert>
 
 			<!-- 테스트 버튼 -->
 			<div class="flex justify-center sm:justify-start">

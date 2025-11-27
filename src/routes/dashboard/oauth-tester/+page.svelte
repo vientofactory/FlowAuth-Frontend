@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { DashboardLayout, Card, Button, apiClient } from '$lib';
+	import Alert from '$lib/components/Alert.svelte';
 	import { useToast } from '$lib';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { createApiUrl } from '$lib/config/env';
+	import { createApiUrl, env } from '$lib/config/env';
 	import { CryptoUtils } from '$lib/utils/crypto.util';
 	import type { Client } from '$lib/types/oauth.types';
 	import { USER_TYPES } from '$lib';
@@ -29,6 +30,8 @@
 		faChevronDown
 	} from '@fortawesome/free-solid-svg-icons';
 
+	const toast = useToast();
+
 	// 상태 변수들
 	let user = $state<User | null>(null);
 	let clients = $state<Client[]>([]);
@@ -48,7 +51,11 @@
 	let scopesLoading = $state(false);
 	let scopesError = $state<string | null>(null);
 
-	const toast = useToast();
+	// 테스트 콜백 URL 확인
+	let testCallbackUrl = $derived(`${env.FRONTEND_URL}/callback`);
+	let hasTestCallbackUrl = $derived(
+		selectedClient ? selectedClient.redirectUris.includes(testCallbackUrl) : false
+	);
 
 	// 스코프 관련 함수들
 	function getScopesString() {
@@ -150,6 +157,13 @@
 			return;
 		}
 
+		if (!hasTestCallbackUrl) {
+			toast.error(
+				'테스트 콜백 URL이 클라이언트에 설정되지 않았습니다. 먼저 클라이언트 설정에서 콜백 URL을 추가해주세요.'
+			);
+			return;
+		}
+
 		if (!selectedClient.redirectUris.length) {
 			toast.error('선택한 클라이언트에 리다이렉트 URI가 설정되지 않았습니다.');
 			return;
@@ -157,7 +171,7 @@
 
 		try {
 			const baseUrl = createApiUrl('/oauth2/authorize');
-			const redirectUri = selectedClient.redirectUris[0];
+			const redirectUri = hasTestCallbackUrl ? testCallbackUrl : selectedClient.redirectUris[0];
 			const state = CryptoUtils.generateRandomString(32);
 			let nonce: string | undefined;
 
@@ -282,8 +296,8 @@
 
 	function resetTest() {
 		selectedClient = null;
-		// 기본 스코프로 재설정 (서버에서 받아온 스코프들 중에서)
-		const defaultScopeIds = ['openid', 'profile', 'email'];
+		// 기본 스코프로 재설정
+		const defaultScopeIds = ['openid', 'profile'];
 		const validDefaultScopes = defaultScopeIds.filter((id) =>
 			availableScopes.some((scope) => scope.id === id)
 		);
@@ -302,7 +316,7 @@
 	description="OAuth2 인증 플로우를 테스트하고 검증하세요."
 	showBackButton={true}
 >
-	<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+	<div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
 		<!-- 설정 패널 -->
 		<Card>
 			<h3 class="mb-4 text-lg font-medium text-gray-900">테스트 설정</h3>
@@ -313,6 +327,27 @@
 					<label for="client-select" class="mb-2 block text-sm font-medium text-gray-700"
 						>클라이언트 선택 *</label
 					>
+
+					{#if selectedClient && !hasTestCallbackUrl}
+						<Alert
+							variant="warning"
+							title="테스트 콜백 URL 설정 필요"
+							message="OAuth2 테스터를 사용하려면 클라이언트의 리다이렉트 URI에 테스트 콜백 URL을 추가해야 합니다."
+							links={[
+								{
+									text: '클라이언트 설정으로 이동',
+									url: '/dashboard/clients',
+									icon: faArrowRight
+								}
+							]}
+						/>
+						<div class="mt-2 rounded-md bg-gray-50 p-3">
+							<p class="text-sm text-gray-600">
+								<strong>추가할 콜백 URL:</strong>
+								<code class="ml-2 rounded bg-gray-100 px-2 py-1 text-xs">{testCallbackUrl}</code>
+							</p>
+						</div>
+					{/if}
 
 					{#if isLoading}
 						<div class="p-4">

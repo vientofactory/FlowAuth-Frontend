@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Modal, Button } from '$lib';
+	import Alert from '$lib/components/Alert.svelte';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import { faExclamationTriangle, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons';
 
@@ -48,18 +49,10 @@
 {#snippet childrenSnippet()}
 	{#if token}
 		<div class="space-y-4">
-			<div class="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-				<div class="flex">
-					<FontAwesomeIcon icon={faExclamationTriangle} class="mt-0.5 mr-2 text-yellow-400" />
-					<div class="text-sm text-yellow-800">
-						<p class="mb-1 font-medium">주의사항</p>
-						<p>
-							토큰을 폐기하면 해당 토큰을 사용한 모든 인증이 즉시 무효화됩니다. 이 작업은 되돌릴 수
-							없습니다.
-						</p>
-					</div>
-				</div>
-			</div>
+			<Alert variant="warning" title="주의사항">
+				토큰을 폐기하면 해당 토큰을 사용한 모든 인증이 즉시 무효화됩니다. 이 작업은 되돌릴 수
+				없습니다.
+			</Alert>
 
 			<div class="rounded-lg bg-gray-50 p-4">
 				<h4 class="mb-3 font-medium text-gray-900">폐기할 토큰 정보</h4>
