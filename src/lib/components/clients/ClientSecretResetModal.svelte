@@ -81,22 +81,6 @@
 					</div>
 				</div>
 			</div>
-			<div class="flex justify-end space-x-3 pt-4">
-				<Button variant="outline" onclick={onClose} disabled={isLoading}>취소</Button>
-				<Button
-					onclick={onConfirm}
-					disabled={isLoading}
-					class="bg-red-600 hover:bg-red-700 focus:ring-red-500"
-				>
-					{#if isLoading}
-						<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
-						재설정 중...
-					{:else}
-						<FontAwesomeIcon icon={faSyncAlt} class="mr-2" />
-						네, 시크릿을 재설정합니다
-					{/if}
-				</Button>
-			</div>
 		{:else}
 			<div class="space-y-4">
 				<div class="rounded-md border border-green-200 bg-green-50 p-4">
@@ -157,9 +141,27 @@
 					</div>
 				</div>
 			</div>
-			<div class="flex justify-end">
-				<Button onclick={onClose}>확인</Button>
-			</div>
 		{/if}
 	</div>
+
+	{#snippet footer()}
+		{#if !newSecret}
+			<Button variant="outline" onclick={onClose} disabled={isLoading}>취소</Button>
+			<Button
+				onclick={onConfirm}
+				disabled={isLoading}
+				class="bg-red-600 hover:bg-red-700 focus:ring-red-500"
+			>
+				{#if isLoading}
+					<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
+					재설정 중...
+				{:else}
+					<FontAwesomeIcon icon={faSyncAlt} class="mr-2" />
+					네, 시크릿을 재설정합니다
+				{/if}
+			</Button>
+		{:else}
+			<Button onclick={onClose}>확인</Button>
+		{/if}
+	{/snippet}
 </Modal>

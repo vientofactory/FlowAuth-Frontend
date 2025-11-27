@@ -38,8 +38,9 @@
 				</Button>
 			</div>
 		</div>
-		<div class="flex justify-end">
-			<Button onclick={onClose}>확인</Button>
-		</div>
 	</div>
+
+	{#snippet footer()}
+		<Button onclick={onClose}>확인</Button>
+	{/snippet}
 </Modal>

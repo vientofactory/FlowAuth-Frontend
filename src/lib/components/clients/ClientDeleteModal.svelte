@@ -46,28 +46,29 @@
 				</div>
 			</div>
 		</div>
-		<div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
-			<Button
-				variant="outline"
-				onclick={onClose}
-				disabled={isDeleting}
-				class="h-10 w-full sm:h-11 sm:w-auto"
-			>
-				취소
-			</Button>
-			<Button
-				onclick={onConfirmDelete}
-				disabled={isDeleting}
-				class="h-10 w-full bg-red-600 text-white hover:bg-red-700 sm:h-11 sm:w-auto"
-			>
-				{#if isDeleting}
-					<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
-					삭제 중...
-				{:else}
-					<FontAwesomeIcon icon={faTrash} class="mr-2" />
-					삭제
-				{/if}
-			</Button>
-		</div>
 	</div>
+
+	{#snippet footer()}
+		<Button
+			variant="outline"
+			onclick={onClose}
+			disabled={isDeleting}
+			class="h-10 w-full sm:h-11 sm:w-auto"
+		>
+			취소
+		</Button>
+		<Button
+			onclick={onConfirmDelete}
+			disabled={isDeleting}
+			class="h-10 w-full bg-red-600 text-white hover:bg-red-700 sm:h-11 sm:w-auto"
+		>
+			{#if isDeleting}
+				<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
+				삭제 중...
+			{:else}
+				<FontAwesomeIcon icon={faTrash} class="mr-2" />
+				삭제
+			{/if}
+		</Button>
+	{/snippet}
 </Modal>

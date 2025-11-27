@@ -89,25 +89,27 @@
 					</div>
 				</div>
 			{/if}
-
-			<div class="flex justify-end space-x-3">
-				<Button variant="outline" onclick={onClose} disabled={isLoading}>취소</Button>
-				<Button
-					onclick={onConfirm}
-					disabled={isLoading}
-					class={actionColor === 'red'
-						? 'bg-red-600 hover:bg-red-700'
-						: 'bg-green-600 hover:bg-green-700'}
-				>
-					{#if isLoading}
-						<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
-						{actionText} 중...
-					{:else}
-						<FontAwesomeIcon icon={client.isActive ? faPause : faPlay} class="mr-2" />
-						{actionText}
-					{/if}
-				</Button>
-			</div>
 		{/if}
 	</div>
+
+	{#snippet footer()}
+		{#if client}
+			<Button variant="outline" onclick={onClose} disabled={isLoading}>취소</Button>
+			<Button
+				onclick={onConfirm}
+				disabled={isLoading}
+				class={actionColor === 'red'
+					? 'bg-red-600 hover:bg-red-700'
+					: 'bg-green-600 hover:bg-green-700'}
+			>
+				{#if isLoading}
+					<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
+					{actionText} 중...
+				{:else}
+					<FontAwesomeIcon icon={client.isActive ? faPause : faPlay} class="mr-2" />
+					{actionText}
+				{/if}
+			</Button>
+		{/if}
+	{/snippet}
 </Modal>
