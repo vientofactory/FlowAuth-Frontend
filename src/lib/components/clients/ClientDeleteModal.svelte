@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { Modal, Button } from '$lib';
+	import { Modal, ModalActions } from '$lib';
 	import type { Client } from '$lib/types/oauth.types';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-	import { faExclamationTriangle, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons';
+	import { faExclamationTriangle, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		showDeleteModal: boolean;
@@ -49,26 +49,14 @@
 	</div>
 
 	{#snippet footer()}
-		<Button
-			variant="outline"
-			onclick={onClose}
-			disabled={isDeleting}
-			class="h-10 w-full sm:h-11 sm:w-auto"
-		>
-			취소
-		</Button>
-		<Button
-			onclick={onConfirmDelete}
-			disabled={isDeleting}
-			class="h-10 w-full bg-red-600 text-white hover:bg-red-700 sm:h-11 sm:w-auto"
-		>
-			{#if isDeleting}
-				<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
-				삭제 중...
-			{:else}
-				<FontAwesomeIcon icon={faTrash} class="mr-2" />
-				삭제
-			{/if}
-		</Button>
+		<ModalActions
+			cancelText="취소"
+			confirmText="삭제"
+			confirmIcon={faTrash}
+			confirmVariant="danger"
+			loading={isDeleting}
+			onCancel={onClose}
+			onConfirm={onConfirmDelete}
+		/>
 	{/snippet}
 </Modal>

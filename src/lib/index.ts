@@ -2,6 +2,8 @@
 
 // Components
 export { default as Button } from './components/Button.svelte';
+export { default as ActionButton } from './components/ActionButton.svelte';
+export { default as ModalActions } from './components/ModalActions.svelte';
 export { default as Input } from './components/Input.svelte';
 export { default as Card } from './components/Card.svelte';
 export { default as Toast } from './components/Toast.svelte';

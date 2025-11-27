@@ -1,15 +1,14 @@
 <script lang="ts">
-	import { Modal, Button } from '$lib';
+	import { Modal, Button, ActionButton } from '$lib';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import {
 		faExclamationTriangle,
 		faExclamationCircle,
 		faInfoCircle,
-		faSpinner,
-		faSyncAlt,
 		faCheckCircle,
 		faShieldAlt,
-		faCopy
+		faCopy,
+		faSyncAlt
 	} from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
@@ -147,19 +146,15 @@
 	{#snippet footer()}
 		{#if !newSecret}
 			<Button variant="outline" onclick={onClose} disabled={isLoading}>취소</Button>
-			<Button
+			<ActionButton
+				loading={isLoading}
+				loadingText="재설정 중..."
+				defaultText="네, 시크릿을 재설정합니다"
+				defaultIcon={faSyncAlt}
+				variant="danger"
+				size="md"
 				onclick={onConfirm}
-				disabled={isLoading}
-				class="bg-red-600 hover:bg-red-700 focus:ring-red-500"
-			>
-				{#if isLoading}
-					<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
-					재설정 중...
-				{:else}
-					<FontAwesomeIcon icon={faSyncAlt} class="mr-2" />
-					네, 시크릿을 재설정합니다
-				{/if}
-			</Button>
+			/>
 		{:else}
 			<Button onclick={onClose}>확인</Button>
 		{/if}

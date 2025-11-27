@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { Modal, Button } from '$lib';
+	import { Modal, ModalActions } from '$lib';
 	import Alert from '$lib/components/Alert.svelte';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-	import { faExclamationTriangle, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons';
+	import { faExclamationTriangle, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 	interface TokenData {
 		id: number;
@@ -82,16 +82,15 @@
 {/snippet}
 
 {#snippet footerSnippet()}
-	<Button variant="outline" onclick={onCancel} disabled={isRevoking}>취소</Button>
-	<Button variant="danger" onclick={onConfirm} disabled={isRevoking} class="min-w-[80px]">
-		{#if isRevoking}
-			<FontAwesomeIcon icon={faSpinner} spin class="mr-1" />
-			폐기 중...
-		{:else}
-			<FontAwesomeIcon icon={faTrash} class="mr-1" />
-			폐기
-		{/if}
-	</Button>
+	<ModalActions
+		cancelText="취소"
+		confirmText="폐기"
+		confirmIcon={faTrash}
+		confirmVariant="danger"
+		loading={isRevoking}
+		{onCancel}
+		{onConfirm}
+	/>
 {/snippet}
 
 <Modal

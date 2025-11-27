@@ -330,23 +330,25 @@
 					>
 
 					{#if selectedClient && !hasTestCallbackUrl}
-						<Alert
-							variant="warning"
-							title="테스트 콜백 URL 설정 필요"
-							message="OAuth2 테스터를 사용하려면 클라이언트의 리다이렉트 URI에 테스트 콜백 URL을 추가해야 합니다."
-							links={[
-								{
-									text: '클라이언트 설정으로 이동',
-									url: '/dashboard/clients',
-									icon: faArrowRight
-								}
-							]}
-						/>
-						<div class="mt-2 rounded-md bg-gray-50 p-3">
-							<p class="text-sm text-gray-600">
-								<strong>추가할 콜백 URL:</strong>
-								<code class="ml-2 rounded bg-gray-100 px-2 py-1 text-xs">{testCallbackUrl}</code>
-							</p>
+						<div transition:slide>
+							<Alert
+								variant="warning"
+								title="테스트 콜백 URL 설정 필요"
+								message="OAuth2 테스터를 사용하려면 클라이언트의 리다이렉트 URI에 테스트 콜백 URL을 추가해야 합니다."
+								links={[
+									{
+										text: '클라이언트 설정으로 이동',
+										url: '/dashboard/clients',
+										icon: faArrowRight
+									}
+								]}
+							/>
+							<div class="mt-2 rounded-md bg-gray-50 p-3">
+								<p class="text-sm text-gray-600">
+									<strong>추가할 콜백 URL:</strong>
+									<code class="ml-2 rounded bg-gray-100 px-2 py-1 text-xs">{testCallbackUrl}</code>
+								</p>
+							</div>
 						</div>
 					{/if}
 

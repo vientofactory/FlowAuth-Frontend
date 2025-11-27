@@ -3,13 +3,7 @@
 	import type { User } from '$lib';
 	import type { DashboardStats } from '$lib/types/dashboard';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-	import {
-		faUsers,
-		faKey,
-		faClock,
-		faCalendar,
-		faShieldAlt
-	} from '@fortawesome/free-solid-svg-icons';
+	import { faUsers, faClock, faCalendar, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		user: User | null;
@@ -29,13 +23,6 @@
 			show: isDeveloper
 		},
 		{
-			label: '토큰',
-			value: dashboardStats.activeTokens,
-			icon: faKey,
-			color: 'from-neutral-500 to-neutral-600',
-			show: true
-		},
-		{
 			label: '로그인',
 			value: dashboardStats.lastLoginDate
 				? dashboardStats.lastLoginDate.toLocaleDateString('ko-KR', {
@@ -48,7 +35,7 @@
 			show: true
 		},
 		{
-			label: '계정',
+			label: '계정 생성일',
 			value: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('ko-KR') : 'N/A',
 			icon: faCalendar,
 			color: 'from-slate-500 to-slate-600',
@@ -64,7 +51,7 @@
 	].filter((stat) => stat.show);
 </script>
 
-<div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+<div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 	{#each stats as stat (stat.label)}
 		<Card class="bg-linear-to-br p-6 {stat.color} text-white">
 			<div class="flex items-center justify-between">

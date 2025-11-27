@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { LoadingSpinner, Button } from '$lib';
+	import { Button, ActionButton } from '$lib';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import {
 		faHandPaper,
@@ -131,18 +131,15 @@
 
 	<div class="flex justify-end gap-3 border-t border-gray-200 pt-6">
 		<Button variant="outline" onclick={onClose} disabled={isProcessing}>취소</Button>
-		<Button
+		<ActionButton
+			loading={isProcessing}
+			loadingText="전송 중..."
+			defaultText="전송"
+			defaultIcon={faPaperPlane}
+			variant="primary"
+			size="md"
 			type="submit"
-			disabled={isProcessing}
 			class="min-w-[120px] bg-stone-600 hover:bg-stone-700"
-		>
-			{#if isProcessing}
-				<LoadingSpinner size="sm" class="mr-2" />
-				전송 중...
-			{:else}
-				<FontAwesomeIcon icon={faPaperPlane} class="mr-2" />
-				전송
-			{/if}
-		</Button>
+		/>
 	</div>
 </form>

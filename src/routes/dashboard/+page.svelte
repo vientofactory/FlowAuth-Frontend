@@ -185,13 +185,6 @@
 					show: user.userType === 'developer'
 				},
 				{
-					label: '토큰',
-					value: dashboardStats.activeTokens,
-					icon: faKey,
-					color: 'from-neutral-500 to-neutral-600',
-					show: true
-				},
-				{
 					label: '로그인',
 					value: dashboardStats.lastLoginDate
 						? new Date(dashboardStats.lastLoginDate).toLocaleDateString('ko-KR', {
@@ -590,10 +583,6 @@
 
 	function navigateToEmailManagement() {
 		goto('/dashboard/email-management');
-	}
-
-	function _navigateToSettings() {
-		goto('/dashboard/settings');
 	}
 </script>
 
