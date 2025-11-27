@@ -80,21 +80,3 @@
 		onclick={onConfirm}
 	/>
 </div>
-
-<div class="flex {justifyClass} {gapClass} px-6 py-4 {className}">
-	{#if onCancel}
-		<Button variant="outline" {size} onclick={onCancel} disabled={disabled || loading}>
-			{cancelText}
-		</Button>
-	{/if}
-	<ActionButton
-		{loading}
-		loadingText={finalLoadingText}
-		defaultText={confirmText}
-		defaultIcon={confirmIcon}
-		variant={confirmVariant}
-		{size}
-		{disabled}
-		onclick={onConfirm}
-	/>
-</div>
