@@ -26,12 +26,12 @@
 	const actionColor = $derived(client?.isActive ? 'red' : 'green');
 </script>
 
-{#if show && client}
-	<Modal open={show} title="클라이언트 상태 변경" {onClose}>
-		<div class="space-y-4">
+<Modal open={show && !!client} title="클라이언트 상태 변경" {onClose}>
+	<div class="space-y-4">
+		{#if client}
 			<div class="rounded-md border border-gray-200 bg-gray-50 p-4">
 				<div class="flex">
-					<div class="flex-shrink-0">
+					<div class="shrink-0">
 						<FontAwesomeIcon
 							icon={client.isActive ? faPauseCircle : faPlayCircle}
 							class="text-gray-400"
@@ -52,7 +52,7 @@
 				<!-- 비활성화 경고 -->
 				<div class="rounded-md border border-yellow-200 bg-yellow-50 p-4">
 					<div class="flex">
-						<div class="flex-shrink-0">
+						<div class="shrink-0">
 							<FontAwesomeIcon icon={faExclamationTriangle} class="text-yellow-400" />
 						</div>
 						<div class="ml-3">
@@ -72,7 +72,7 @@
 				<!-- 활성화 정보 -->
 				<div class="rounded-md border border-green-200 bg-green-50 p-4">
 					<div class="flex">
-						<div class="flex-shrink-0">
+						<div class="shrink-0">
 							<FontAwesomeIcon icon={faCheckCircle} class="text-green-400" />
 						</div>
 						<div class="ml-3">
@@ -108,6 +108,6 @@
 					{/if}
 				</Button>
 			</div>
-		</div>
-	</Modal>
-{/if}
+		{/if}
+	</div>
+</Modal>

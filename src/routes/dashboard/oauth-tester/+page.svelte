@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { slide } from 'svelte/transition';
 	import { DashboardLayout, Card, Button, apiClient } from '$lib';
 	import Alert from '$lib/components/Alert.svelte';
 	import { useToast } from '$lib';
@@ -473,7 +474,7 @@
 
 					<!-- 스코프 선택기 -->
 					{#if showScopeSelector}
-						<div class="rounded-md border border-gray-200 bg-white p-4">
+						<div class="rounded-md border border-gray-200 bg-white p-4" transition:slide>
 							<div class="mb-3 flex items-center justify-between">
 								<h4 class="text-sm font-medium text-gray-900">사용 가능한 스코프</h4>
 								<div class="flex space-x-2">

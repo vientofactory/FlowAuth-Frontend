@@ -59,89 +59,104 @@
 	}
 </script>
 
-{#if open}
+<!-- Modal wrapper - always rendered for smooth transitions -->
+<div class="fixed inset-0 z-50" class:invisible={!open} class:visible={open}>
 	<!-- Backdrop overlay -->
 	<div
-		class="fixed inset-0 z-[60] bg-black/70 backdrop-blur-md transition-opacity"
+		class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300"
+		class:opacity-0={!open}
+		class:opacity-100={open}
 		onclick={handleBackdropClick}
 		role="presentation"
 	></div>
 
 	<!-- Modal container -->
 	<div
-		class="fixed inset-0 z-[70] overflow-y-auto"
+		class="fixed inset-0 overflow-y-auto transition-opacity duration-300"
+		class:opacity-0={!open}
+		class:opacity-100={open}
 		onkeydown={handleKeydown}
 		role="dialog"
-		aria-modal="true"
-		aria-labelledby={title ? 'modal-title' : undefined}
-		tabindex="-1"
+		aria-modal={open}
+		aria-labelledby={title && open ? 'modal-title' : undefined}
+		tabindex={open ? -1 : undefined}
 	>
 		<div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
 			<!-- Modal panel -->
 			<div
-				class="relative w-full transform overflow-hidden rounded-t-lg bg-white text-left shadow-xl transition-all sm:rounded-lg
+				class="relative w-full transform overflow-hidden rounded-t-lg bg-white text-left shadow-xl sm:rounded-lg
 				{sizeClasses[size]} {className}
-				max-h-[85vh] overflow-y-auto sm:my-8 sm:max-h-[90vh]"
+				max-h-[85vh] overflow-y-auto transition-all duration-300
+				ease-out sm:my-8 sm:max-h-[90vh]"
+				class:scale-90={!open}
+				class:scale-100={open}
+				class:opacity-0={!open}
+				class:opacity-100={open}
 			>
-				<!-- Mobile drag handle -->
-				<div class="mx-auto mt-3 block h-1 w-12 rounded-full bg-gray-300 sm:hidden"></div>
+				{#if open}
+					<!-- Mobile drag handle -->
+					<div class="mx-auto mt-3 block h-1 w-12 rounded-full bg-gray-300 sm:hidden"></div>
 
-				<!-- Header -->
-				{#if title || header}
-					<div class="border-b border-gray-200 px-4 py-3 sm:px-6 sm:py-4">
-						{#if header}
-							{@render header()}
-						{:else if title}
-							<div class="flex items-center justify-between">
-								<h3 id="modal-title" class="pr-4 text-base font-semibold text-gray-900 sm:text-lg">
-									{title}
-								</h3>
-								{#if onClose}
-									<button
-										type="button"
-										class="flex-shrink-0 rounded-md bg-white p-2 text-gray-400 hover:text-gray-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-										onclick={onClose}
+					<!-- Header -->
+					{#if title || header}
+						<div class="border-b border-gray-200 px-4 py-3 sm:px-6 sm:py-4">
+							{#if header}
+								{@render header()}
+							{:else if title}
+								<div class="flex items-center justify-between">
+									<h3
+										id="modal-title"
+										class="pr-4 text-base font-semibold text-gray-900 sm:text-lg"
 									>
-										<span class="sr-only">Close</span>
-										<FontAwesomeIcon icon={faTimes} class="h-4 w-4 sm:h-5 sm:w-5" />
-									</button>
-								{/if}
-							</div>
-						{/if}
-					</div>
-				{/if}
-
-				<!-- Body -->
-				<div class="px-4 py-4 sm:px-6 sm:py-6">
-					{#if children}
-						{@render children()}
+										{title}
+									</h3>
+									{#if onClose}
+										<button
+											type="button"
+											class="shrink-0 rounded-md bg-white p-2 text-gray-400 hover:text-gray-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+											onclick={onClose}
+										>
+											<span class="sr-only">Close</span>
+											<FontAwesomeIcon icon={faTimes} class="h-4 w-4 sm:h-5 sm:w-5" />
+										</button>
+									{/if}
+								</div>
+							{/if}
+						</div>
 					{/if}
-				</div>
 
-				<!-- Footer -->
-				{#if footer}
-					<div
-						class="flex flex-col gap-3 border-t border-gray-200 px-4 py-4 sm:flex-row sm:justify-end sm:space-x-3 sm:px-6 sm:py-4"
-					>
-						{@render footer()}
-					</div>
-				{:else if showFooter}
-					<div
-						class="flex flex-col gap-3 border-t border-gray-200 px-4 py-4 sm:flex-row sm:justify-end sm:space-x-3 sm:px-6 sm:py-4"
-					>
-						{#if onCancel}
-							<Button variant="outline" onclick={onCancel}>
-								{cancelText}
-							</Button>
-						{/if}
-						{#if onConfirm}
-							<Button variant={confirmVariant} onclick={onConfirm}>
-								{confirmText}
-							</Button>
+					<!-- Body -->
+					<div class="px-4 py-4 sm:px-6 sm:py-6">
+						{#if children}
+							{@render children()}
 						{/if}
 					</div>
+
+					<!-- Footer -->
+					{#if footer}
+						<div
+							class="flex flex-col gap-3 border-t border-gray-200 px-4 py-4 sm:flex-row sm:justify-end sm:space-x-3 sm:px-6 sm:py-4"
+						>
+							{@render footer()}
+						</div>
+					{:else if showFooter}
+						<div
+							class="flex flex-col gap-3 border-t border-gray-200 px-4 py-4 sm:flex-row sm:justify-end sm:space-x-3 sm:px-6 sm:py-4"
+						>
+							{#if onCancel}
+								<Button variant="outline" onclick={onCancel}>
+									{cancelText}
+								</Button>
+							{/if}
+							{#if onConfirm}
+								<Button variant={confirmVariant} onclick={onConfirm}>
+									{confirmText}
+								</Button>
+							{/if}
+						</div>
+					{/if}
 				{/if}
 			</div>
 		</div>
 	</div>
-{/if}
+</div>
