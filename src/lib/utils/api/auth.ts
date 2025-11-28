@@ -297,7 +297,7 @@ export class AuthApi extends BaseApi {
 
 	async disableTwoFactor(data: TwoFactorDisableRequest): Promise<TwoFactorResponse> {
 		return this.sensitiveRequest('/auth/2fa/disable', {
-			method: 'POST',
+			method: 'DELETE',
 			body: JSON.stringify(data)
 		});
 	}

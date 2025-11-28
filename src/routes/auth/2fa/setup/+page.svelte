@@ -188,7 +188,7 @@
 								<p>Google Authenticator, Authy 등의 인증 앱을 사용하여 QR 코드를 스캔하세요.</p>
 
 								<div class="qr-section">
-									<QRCode qrCodeUrl={setupData.qrCodeUrl} secret={setupData.secret} size={250} />
+									<QRCode qrCodeUrl={setupData.qrCodeUrl} secret={setupData.secret} />
 								</div>
 
 								<div class="instructions">

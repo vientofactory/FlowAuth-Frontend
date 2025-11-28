@@ -60,10 +60,10 @@
 </script>
 
 <!-- Modal wrapper - always rendered for smooth transitions -->
-<div class="fixed inset-0 z-50" class:invisible={!open} class:visible={open}>
+<div class="fixed inset-0 z-[60]" class:invisible={!open} class:visible={open}>
 	<!-- Backdrop overlay -->
 	<div
-		class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300"
+		class="fixed inset-0 bg-black/70 backdrop-blur-md transition-opacity duration-300"
 		class:opacity-0={!open}
 		class:opacity-100={open}
 		onclick={handleBackdropClick}
@@ -86,7 +86,7 @@
 			<div
 				class="relative w-full transform overflow-hidden rounded-t-lg bg-white text-left shadow-xl sm:rounded-lg
 				{sizeClasses[size]} {className}
-				max-h-[85vh] overflow-y-auto transition-all duration-300
+				max-h-[calc(100vh-4rem)] overflow-y-auto transition-all duration-300
 				ease-out sm:my-8 sm:max-h-[90vh]"
 				class:scale-90={!open}
 				class:scale-100={open}

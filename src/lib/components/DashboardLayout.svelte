@@ -526,7 +526,7 @@
 
 		<!-- 모바일 하단 네비게이션 -->
 		<div
-			class="fixed right-0 bottom-0 left-0 z-50 border-t border-gray-200 bg-white/95 backdrop-blur-sm lg:hidden"
+			class="fixed right-0 bottom-0 left-0 z-40 border-t border-gray-200 bg-white/95 backdrop-blur-sm lg:hidden"
 		>
 			<nav class="flex items-center justify-around px-1 py-1" aria-label="모바일 하단 메뉴">
 				{#each getMobileMenuItems() as item (item.href)}
