@@ -46,13 +46,17 @@
 	const toast = useToast();
 
 	// 토큰 타입별 필터링
-	let loginTokens = $derived(tokens.filter((token) => token.tokenType === TOKEN_TYPES.LOGIN).sort((a, b) => {
-		const aIsCurrent = isCurrentSessionToken(a);
-		const bIsCurrent = isCurrentSessionToken(b);
-		if (aIsCurrent && !bIsCurrent) return -1;
-		if (!aIsCurrent && bIsCurrent) return 1;
-		return 0;
-	}));
+	let loginTokens = $derived(
+		tokens
+			.filter((token) => token.tokenType === TOKEN_TYPES.LOGIN)
+			.sort((a, b) => {
+				const aIsCurrent = isCurrentSessionToken(a);
+				const bIsCurrent = isCurrentSessionToken(b);
+				if (aIsCurrent && !bIsCurrent) return -1;
+				if (!aIsCurrent && bIsCurrent) return 1;
+				return 0;
+			})
+	);
 	let oauth2Tokens = $derived(tokens.filter((token) => token.tokenType === TOKEN_TYPES.OAUTH2));
 	let currentTokens = $derived(activeTab === TOKEN_TYPES.LOGIN ? loginTokens : oauth2Tokens);
 
