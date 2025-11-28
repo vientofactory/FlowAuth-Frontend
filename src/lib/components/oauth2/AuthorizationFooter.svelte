@@ -32,7 +32,7 @@
 
 			<Button
 				variant="primary"
-				class="oauth-button h-10 flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-sm font-semibold shadow-md transition-all duration-200 hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg sm:h-12 sm:text-base"
+				class="oauth-button h-10 flex-1 bg-linear-to-r from-blue-600 to-indigo-600 text-sm font-semibold shadow-md transition-all duration-200 hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg sm:h-12 sm:text-base"
 				onclick={onApprove}
 				disabled={submitting}
 			>

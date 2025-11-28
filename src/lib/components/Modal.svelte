@@ -41,14 +41,11 @@
 	// 모달이 열릴 때 페이지 스크롤 방지
 	$effect(() => {
 		if (open) {
-			// 모달이 열릴 때 body 스크롤 방지
 			document.body.style.overflow = 'hidden';
 		} else {
-			// 모달이 닫힐 때 원래 상태로 복원
 			document.body.style.overflow = '';
 		}
 
-		// 컴포넌트가 unmount될 때 정리
 		return () => {
 			document.body.style.overflow = '';
 		};
@@ -75,18 +72,15 @@
 	}
 </script>
 
-<!-- Modal wrapper - always rendered for smooth transitions -->
-<div class="fixed inset-0 z-[60]" class:invisible={!open} class:visible={open}>
-	<!-- Backdrop overlay -->
+<!-- 공통 모달 래퍼 -->
+<div class="fixed inset-0 z-60" class:invisible={!open} class:visible={open}>
 	<div
-		class="fixed inset-0 bg-black/70 backdrop-blur-md transition-opacity duration-300"
+		class="fixed inset-0 bg-black/50 backdrop-blur-md transition-opacity duration-300"
 		class:opacity-0={!open}
 		class:opacity-100={open}
 		onclick={handleBackdropClick}
 		role="presentation"
 	></div>
-
-	<!-- Modal container -->
 	<div
 		class="fixed inset-0 overflow-y-auto transition-opacity duration-300"
 		class:opacity-0={!open}
@@ -98,7 +92,6 @@
 		tabindex={open ? -1 : undefined}
 	>
 		<div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-			<!-- Modal panel -->
 			<div
 				class="relative w-full transform overflow-hidden rounded-t-lg bg-white text-left shadow-xl sm:rounded-lg
 				{sizeClasses[size]} {className}
@@ -110,10 +103,7 @@
 				class:opacity-100={open}
 			>
 				{#if open}
-					<!-- Mobile drag handle -->
 					<div class="mx-auto mt-3 block h-1 w-12 rounded-full bg-gray-300 sm:hidden"></div>
-
-					<!-- Header -->
 					{#if title || header}
 						<div class="border-b border-gray-200 px-4 py-3 sm:px-6 sm:py-4">
 							{#if header}
@@ -140,15 +130,11 @@
 							{/if}
 						</div>
 					{/if}
-
-					<!-- Body -->
 					<div class="px-4 py-4 sm:px-6 sm:py-6">
 						{#if children}
 							{@render children()}
 						{/if}
 					</div>
-
-					<!-- Footer -->
 					{#if footer}
 						<div
 							class="flex flex-col gap-3 border-t border-gray-200 px-4 py-4 sm:flex-row sm:justify-end sm:space-x-3 sm:px-6 sm:py-4"

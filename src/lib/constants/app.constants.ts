@@ -84,9 +84,9 @@ export const UI_CONSTANTS = {
 // 스타일 상수들
 export const STYLE_CONSTANTS = {
 	GRADIENTS: {
-		PRIMARY: 'bg-gradient-to-r from-blue-600 to-indigo-600',
-		SECONDARY: 'bg-gradient-to-r from-slate-50 via-blue-50 to-indigo-100',
-		TEXT_PRIMARY: 'bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'
+		PRIMARY: 'bg-linear-to-r from-blue-600 to-indigo-600',
+		SECONDARY: 'bg-linear-to-r from-slate-50 via-blue-50 to-indigo-100',
+		TEXT_PRIMARY: 'bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'
 	},
 	BACKGROUND: {
 		PAGE: 'min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-100',

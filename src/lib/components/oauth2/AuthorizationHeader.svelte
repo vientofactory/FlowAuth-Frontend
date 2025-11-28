@@ -11,7 +11,7 @@
 		<div class="relative mb-3 sm:mb-4">
 			<div class="absolute inset-0 flex items-center justify-center">
 				<div
-					class="h-16 w-16 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 shadow-xl sm:h-20 sm:w-20"
+					class="h-16 w-16 rounded-full bg-linear-to-r from-blue-500 via-indigo-500 to-purple-600 shadow-xl sm:h-20 sm:w-20"
 				></div>
 			</div>
 			<div
@@ -24,7 +24,7 @@
 		</div>
 
 		<h1
-			class="mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-xl font-bold text-transparent sm:mb-3 sm:text-2xl"
+			class="mb-2 bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-xl font-bold text-transparent sm:mb-3 sm:text-2xl"
 			id="authorize-heading"
 		>
 			애플리케이션 인가

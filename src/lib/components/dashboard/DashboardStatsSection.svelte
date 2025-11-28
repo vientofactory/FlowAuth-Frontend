@@ -89,7 +89,7 @@
 			<div class="flex items-center">
 				<div class="flex-shrink-0">
 					<div
-						class={`flex h-16 w-16 items-center justify-center rounded-lg bg-gradient-to-r ${stat.color}`}
+						class={`flex h-16 w-16 items-center justify-center rounded-lg bg-linear-to-r ${stat.color}`}
 					>
 						<FontAwesomeIcon icon={stat.icon} class="text-2xl text-white" />
 					</div>

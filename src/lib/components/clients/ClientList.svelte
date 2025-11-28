@@ -44,7 +44,7 @@
 
 <!-- 클라이언트 목록 -->
 <div
-	class="relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-gray-50 p-6 shadow-sm ring-1 ring-gray-100"
+	class="relative overflow-hidden rounded-xl bg-linear-to-r from-slate-50 to-gray-50 p-6 shadow-sm ring-1 ring-gray-100"
 >
 	<div class="relative">
 		<div class="mb-6 flex items-center justify-between">

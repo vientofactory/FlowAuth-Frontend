@@ -25,7 +25,7 @@
 {#if isLoading}
 	<!-- 사용자 정보 카드 스켈레톤 -->
 	<div
-		class="relative overflow-hidden rounded-xl bg-gradient-to-r from-stone-50 to-gray-50 p-6 shadow-sm ring-1 ring-stone-100"
+		class="relative overflow-hidden rounded-xl bg-linear-to-r from-stone-50 to-gray-50 p-6 shadow-sm ring-1 ring-stone-100"
 	>
 		<div class="relative">
 			<div
@@ -56,7 +56,7 @@
 	</div>
 {:else if user}
 	<div
-		class="relative overflow-hidden rounded-xl bg-gradient-to-r from-stone-50 to-gray-50 p-6 shadow-sm ring-1 ring-stone-100"
+		class="relative overflow-hidden rounded-xl bg-linear-to-r from-stone-50 to-gray-50 p-6 shadow-sm ring-1 ring-stone-100"
 	>
 		<div class="relative">
 			<div

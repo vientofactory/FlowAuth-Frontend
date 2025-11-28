@@ -248,17 +248,17 @@
 					>
 						<!-- 아바타 스켈레톤 -->
 						<div
-							class="flex h-8 w-8 animate-pulse items-center justify-center rounded-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
+							class="flex h-8 w-8 animate-pulse items-center justify-center rounded-full bg-linear-to-r from-gray-200 via-gray-100 to-gray-200"
 						>
 							<div class="h-4 w-4 rounded-full bg-gray-300 opacity-60"></div>
 						</div>
 						<!-- 이름 텍스트 스켈레톤 -->
 						<div
-							class="hidden h-4 w-20 animate-pulse rounded bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 lg:block"
+							class="hidden h-4 w-20 animate-pulse rounded bg-linear-to-r from-gray-200 via-gray-100 to-gray-200 lg:block"
 						></div>
 						<!-- 화살표 아이콘 스켈레톤 -->
 						<div
-							class="h-3 w-3 animate-pulse rounded bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
+							class="h-3 w-3 animate-pulse rounded bg-linear-to-r from-gray-200 via-gray-100 to-gray-200"
 						></div>
 					</div>
 				{:else if isAuthenticated}
@@ -470,15 +470,15 @@
 								class="flex items-center space-x-2 rounded-full border border-gray-300 bg-white px-3 py-2 shadow-sm"
 							>
 								<div
-									class="flex h-8 w-8 animate-pulse items-center justify-center rounded-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
+									class="flex h-8 w-8 animate-pulse items-center justify-center rounded-full bg-linear-to-r from-gray-200 via-gray-100 to-gray-200"
 								>
 									<div class="h-4 w-4 rounded-full bg-gray-300 opacity-60"></div>
 								</div>
 								<div
-									class="hidden h-4 w-20 animate-pulse rounded bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 lg:block"
+									class="hidden h-4 w-20 animate-pulse rounded bg-linear-to-r from-gray-200 via-gray-100 to-gray-200 lg:block"
 								></div>
 								<div
-									class="h-3 w-3 animate-pulse rounded bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
+									class="h-3 w-3 animate-pulse rounded bg-linear-to-r from-gray-200 via-gray-100 to-gray-200"
 								></div>
 							</div>
 						{/if}
