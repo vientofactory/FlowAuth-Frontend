@@ -38,6 +38,22 @@
 		class: className = ''
 	}: ModalProps = $props();
 
+	// 모달이 열릴 때 페이지 스크롤 방지
+	$effect(() => {
+		if (open) {
+			// 모달이 열릴 때 body 스크롤 방지
+			document.body.style.overflow = 'hidden';
+		} else {
+			// 모달이 닫힐 때 원래 상태로 복원
+			document.body.style.overflow = '';
+		}
+
+		// 컴포넌트가 unmount될 때 정리
+		return () => {
+			document.body.style.overflow = '';
+		};
+	});
+
 	const sizeClasses = {
 		sm: 'max-w-md',
 		md: 'max-w-lg',
