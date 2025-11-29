@@ -45,7 +45,7 @@
 	let user = $state<User | null>(null);
 	let isAuthenticated = $state(false);
 	let unsubscribe: (() => void) | null = null;
-	let currentPath = $state('');
+	let currentPath = $derived(page.url.pathname);
 	let mobileMenuOpen = writable(false);
 
 	onMount(() => {
@@ -61,11 +61,6 @@
 		return () => {
 			document.removeEventListener('keydown', handleKeyDown);
 		};
-	});
-
-	// 현재 경로 구독
-	$effect(() => {
-		currentPath = page.url.pathname;
 	});
 
 	onDestroy(() => {
