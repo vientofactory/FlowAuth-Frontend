@@ -69,7 +69,6 @@ export { default as RevokeModal } from './components/tokens/RevokeModal.svelte';
 // Callback Components
 export { default as CallbackHeader } from './components/callback/CallbackHeader.svelte';
 export { default as AuthResultDisplay } from './components/callback/AuthResultDisplay.svelte';
-export { default as ImplicitTokenDisplay } from './components/callback/ImplicitTokenDisplay.svelte';
 export { default as UsageGuideSection } from './components/callback/UsageGuideSection.svelte';
 export { default as TokenInfoTab } from './components/callback/TokenInfoTab.svelte';
 export { default as ProfileInfoTab } from './components/callback/ProfileInfoTab.svelte';

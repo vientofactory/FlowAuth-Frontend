@@ -15,7 +15,6 @@
 
 	interface Props {
 		tokenResponse: TokenResponse | null;
-		implicitTokens: TokenResponse | null;
 		isTestingToken: boolean;
 		onCopyToClipboard: (text: string) => void;
 		onFetchUserProfile: () => void;
@@ -32,7 +31,6 @@
 
 	let {
 		tokenResponse,
-		implicitTokens,
 		isTestingToken,
 		onCopyToClipboard,
 		onFetchUserProfile,
@@ -41,8 +39,8 @@
 		formatJwtToken
 	}: Props = $props();
 
-	let accessToken = $derived(tokenResponse?.access_token || implicitTokens?.access_token);
-	let idToken = $derived(tokenResponse?.id_token || implicitTokens?.id_token);
+	let accessToken = $derived(tokenResponse?.access_token);
+	let idToken = $derived(tokenResponse?.id_token);
 </script>
 
 <div class="space-y-4">

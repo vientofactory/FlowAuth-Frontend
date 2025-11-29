@@ -424,17 +424,7 @@
 						class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
 					>
 						<option value="code">Authorization Code</option>
-						<option value="token">Implicit Grant (Access Token)</option>
-						<option value="id_token">Implicit Grant (ID Token)</option>
-						<option value="code id_token">Hybrid Flow (Code + ID Token)</option>
-						<option value="token id_token">Implicit Grant (Access Token + ID Token)</option>
 					</select>
-					{#if responseType.includes('id_token')}
-						<p class="mt-1 text-xs text-blue-600">
-							<FontAwesomeIcon icon={faInfoCircle} class="mr-1" />
-							OIDC 응답 타입입니다. openid 스코프가 필요합니다.
-						</p>
-					{/if}
 				</div>
 
 				<!-- Scopes -->

@@ -38,7 +38,6 @@
 	interface Props {
 		showTokenModal: boolean;
 		tokenResponse: TokenResponse | null;
-		implicitTokens: TokenResponse | null;
 		activeTab: string;
 		userProfile: UserProfile | null;
 		tokenInfo: TokenInfo | null;
@@ -64,7 +63,6 @@
 	let {
 		showTokenModal,
 		tokenResponse,
-		implicitTokens,
 		activeTab,
 		userProfile,
 		tokenInfo,
@@ -130,7 +128,6 @@
 			{#if activeTab === 'token'}
 				<TokenInfoTab
 					{tokenResponse}
-					{implicitTokens}
 					{isTestingToken}
 					{onCopyToClipboard}
 					{onFetchUserProfile}
