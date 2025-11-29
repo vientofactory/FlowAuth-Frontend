@@ -1,7 +1,6 @@
 <script lang="ts">
 	import Modal from '$lib/components/Modal.svelte';
 	import ModalActions from '$lib/components/ModalActions.svelte';
-	import { createEventDispatcher } from 'svelte';
 	import type { Snippet } from 'svelte';
 	import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
@@ -20,6 +19,7 @@
 		children?: Snippet;
 		onConfirm: (password?: string) => void;
 		onCancel: () => void;
+		onPasswordError?: (error: string) => void;
 	}
 
 	let {
@@ -36,43 +36,42 @@
 		passwordError = '',
 		children,
 		onConfirm,
-		onCancel
+		onCancel,
+		onPasswordError
 	}: Props = $props();
 
 	let password = $state('');
 
-	const dispatch = createEventDispatcher();
-
 	function handleConfirm() {
 		if (requirePassword && !password.trim()) {
-			dispatch('passwordError', '비밀번호를 입력해주세요.');
+			onPasswordError?.('비밀번호를 입력해주세요.');
 			return;
 		}
 
 		if (requirePassword && password.length < 8) {
-			dispatch('passwordError', '비밀번호는 최소 8자 이상이어야 합니다.');
+			onPasswordError?.('비밀번호는 최소 8자 이상이어야 합니다.');
 			return;
 		}
 
-		dispatch('passwordError', ''); // 에러 초기화
+		onPasswordError?.(''); // 에러 초기화
 		onConfirm(requirePassword ? password : undefined);
 	}
 
 	function handleCancel() {
 		password = '';
-		dispatch('passwordError', '');
+		onPasswordError?.('');
 		onCancel();
 	}
 
 	function handlePasswordInput() {
-		dispatch('passwordError', '');
+		onPasswordError?.('');
 	}
 
 	// 모달이 닫힐 때 상태 초기화
 	$effect(() => {
 		if (!open) {
 			password = '';
-			dispatch('passwordError', '');
+			onPasswordError?.('');
 		}
 	});
 </script>

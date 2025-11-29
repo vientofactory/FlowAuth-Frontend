@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { authState, Navigation, EmailVerificationAlert } from '$lib';
 	import { onMount, onDestroy } from 'svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
+	import { writable } from 'svelte/store';
 	import Footer from '$lib/components/Footer.svelte';
 	import type { User } from '$lib';
 	import { USER_TYPES, PERMISSIONS } from '$lib';
@@ -45,27 +46,26 @@
 	let isAuthenticated = $state(false);
 	let unsubscribe: (() => void) | null = null;
 	let currentPath = $state('');
-	let mobileMenuOpen = $state(false);
+	let mobileMenuOpen = writable(false);
 
 	onMount(() => {
 		unsubscribe = authState.subscribe((state) => {
 			user = state.user;
-			isLoading = !state.isInitialized || state.isLoading; // 초기화 완료 전이거나 실제 로딩 중인 경우
+			isLoading = !state.isInitialized || state.isLoading;
 			isAuthenticated = state.isAuthenticated;
-		});
-
-		// 현재 경로 구독
-		const pathUnsubscribe = page.subscribe(($page) => {
-			currentPath = $page.url.pathname;
 		});
 
 		// 키보드 이벤트 리스너 추가
 		document.addEventListener('keydown', handleKeyDown);
 
 		return () => {
-			pathUnsubscribe();
 			document.removeEventListener('keydown', handleKeyDown);
 		};
+	});
+
+	// 현재 경로 구독
+	$effect(() => {
+		currentPath = page.url.pathname;
 	});
 
 	onDestroy(() => {
@@ -90,7 +90,7 @@
 	}
 
 	function toggleMobileMenu() {
-		mobileMenuOpen = !mobileMenuOpen;
+		mobileMenuOpen.update((current) => !current);
 	}
 
 	// 메뉴 활성화 상태 확인 함수
@@ -101,8 +101,8 @@
 
 	// 키보드 이벤트 핸들러
 	function handleKeyDown(event: KeyboardEvent) {
-		if (event.key === 'Escape' && mobileMenuOpen) {
-			mobileMenuOpen = false;
+		if (event.key === 'Escape') {
+			mobileMenuOpen.set(false);
 		}
 	}
 
@@ -354,7 +354,7 @@
 		<Navigation showDashboardButton={false} />
 
 		<!-- 모바일 헤더 -->
-		<div class="sticky top-0 z-40 bg-white shadow-sm lg:hidden">
+		<div class="bg-white shadow-sm lg:hidden">
 			<div class="flex items-center justify-between px-4 py-3">
 				<div class="flex items-center space-x-3">
 					{#if showBackButton}
@@ -381,7 +381,7 @@
 						onclick={toggleMobileMenu}
 						class="flex h-10 w-10 items-center justify-center rounded-lg text-gray-600 transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none active:scale-95"
 						aria-label="메뉴 열기"
-						aria-expanded={mobileMenuOpen}
+						aria-expanded={$mobileMenuOpen}
 					>
 						<FontAwesomeIcon icon={faBars} class="text-lg" />
 					</button>
@@ -389,15 +389,15 @@
 			</div>
 
 			<!-- 모바일 메뉴 드롭다운 -->
-			{#if mobileMenuOpen}
+			{#if $mobileMenuOpen}
 				<!-- 백드롭 - 투명한 배경 -->
 				<div
-					class="mobile-backdrop fixed inset-0 top-16 z-40 bg-transparent transition-opacity duration-300 ease-out {mobileMenuOpen
+					class="mobile-backdrop fixed inset-0 top-16 z-40 bg-transparent transition-opacity duration-300 ease-out {$mobileMenuOpen
 						? 'opacity-100'
 						: 'pointer-events-none opacity-0'}"
-					onclick={() => (mobileMenuOpen = false)}
+					onclick={() => mobileMenuOpen.set(false)}
 					onkeydown={(e) => {
-						if (e.key === 'Escape') mobileMenuOpen = false;
+						if (e.key === 'Escape') mobileMenuOpen.set(false);
 					}}
 					role="button"
 					tabindex="0"
@@ -406,7 +406,7 @@
 
 				<!-- 드롭다운 메뉴 -->
 				<div
-					class="mobile-dropdown-shadow absolute top-full right-0 left-0 z-50 transform border-t border-gray-200 bg-white shadow-xl transition-all duration-300 ease-out {mobileMenuOpen
+					class="mobile-dropdown-shadow absolute top-full right-0 left-0 z-50 transform border-t border-gray-200 bg-white shadow-xl transition-all duration-300 ease-out {$mobileMenuOpen
 						? 'translate-y-0 opacity-100'
 						: 'pointer-events-none -translate-y-2 opacity-0'}"
 				>
@@ -419,7 +419,7 @@
 										{isMenuActive(item.href)
 										? 'menu-item-active border border-blue-200 bg-blue-50 text-blue-900 shadow-md'
 										: 'menu-item-inactive text-gray-700 hover:bg-gray-50 hover:text-gray-900 hover:shadow-md'}"
-									onclick={() => (mobileMenuOpen = false)}
+									onclick={() => mobileMenuOpen.set(false)}
 									role="menuitem"
 									aria-current={isMenuActive(item.href) ? 'page' : undefined}
 								>

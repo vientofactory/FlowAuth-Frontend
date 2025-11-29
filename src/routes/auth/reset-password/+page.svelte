@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
 	import { Card, Button, LoadingButton } from '$lib';
@@ -45,16 +45,20 @@
 
 	let token = '';
 
-	onMount(async () => {
+	$effect(() => {
 		if (!browser) return;
 
-		token = $page.url.searchParams.get('token') || '';
+		token = page.url.searchParams.get('token') || '';
 
 		if (!token) {
 			error = '비밀번호 재설정 토큰이 없습니다.';
 			loading = false;
 			return;
 		}
+	});
+
+	onMount(async () => {
+		if (!browser) return;
 
 		try {
 			// 토큰 유효성 확인

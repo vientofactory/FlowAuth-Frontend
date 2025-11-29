@@ -45,7 +45,7 @@
 </script>
 
 {#if fullscreen}
-	<div class="bg-opacity-75 fixed inset-0 z-[80] flex items-center justify-center bg-white">
+	<div class="bg-opacity-75 fixed inset-0 z-80 flex items-center justify-center bg-white">
 		<div class="flex flex-col items-center space-y-4">
 			{#if variant === 'spinner'}
 				<div
@@ -56,12 +56,12 @@
 			{:else if variant === 'dots'}
 				<div class="flex space-x-1">
 					<div
-						class="h-2 w-2 animate-bounce rounded-full bg-blue-600 [animation-delay:-0.3s]"
+						class="h-2 w-2 animate-bounce rounded-full bg-blue-500 [animation-delay:-0.3s]"
 					></div>
 					<div
-						class="h-2 w-2 animate-bounce rounded-full bg-blue-600 [animation-delay:-0.15s]"
+						class="h-2 w-2 animate-bounce rounded-full bg-blue-500 [animation-delay:-0.15s]"
 					></div>
-					<div class="h-2 w-2 animate-bounce rounded-full bg-blue-600"></div>
+					<div class="h-2 w-2 animate-bounce rounded-full bg-blue-500"></div>
 				</div>
 			{/if}
 			{#if text}
@@ -72,7 +72,7 @@
 {:else if variant === 'spinner'}
 	<div class="flex items-center justify-center space-x-2 {className}">
 		<div
-			class="animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 {sizeClasses[size]
+			class="animate-spin rounded-full border-2 border-gray-300 border-t-blue-500 {sizeClasses[size]
 				.spinner}"
 		></div>
 		{#if text}
@@ -82,9 +82,9 @@
 {:else if variant === 'dots'}
 	<div class="flex items-center justify-center space-x-2 {className}">
 		<div class="flex space-x-1">
-			<div class="h-2 w-2 animate-bounce rounded-full bg-blue-600 [animation-delay:-0.3s]"></div>
-			<div class="h-2 w-2 animate-bounce rounded-full bg-blue-600 [animation-delay:-0.15s]"></div>
-			<div class="h-2 w-2 animate-bounce rounded-full bg-blue-600"></div>
+			<div class="h-2 w-2 animate-bounce rounded-full bg-blue-500 [animation-delay:-0.3s]"></div>
+			<div class="h-2 w-2 animate-bounce rounded-full bg-blue-500 [animation-delay:-0.15s]"></div>
+			<div class="h-2 w-2 animate-bounce rounded-full bg-blue-500"></div>
 		</div>
 		{#if text}
 			<span class="text-gray-600 {sizeClasses[size].text}">{text}</span>

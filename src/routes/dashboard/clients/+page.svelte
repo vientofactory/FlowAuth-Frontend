@@ -33,7 +33,7 @@
 	import ClientStatusModal from '$lib/components/clients/ClientStatusModal.svelte';
 	import Alert from '$lib/components/Alert.svelte';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-	import { faPlus, faCode, faBook } from '@fortawesome/free-solid-svg-icons';
+	import { faPlus, faCode, faBook, faMinus } from '@fortawesome/free-solid-svg-icons';
 	import { faGithub } from '@fortawesome/free-brands-svg-icons';
 
 	let user = $state<User | null>(null);
@@ -711,7 +711,11 @@
 			<!-- 모바일에서는 기본 액션만 표시 -->
 			<div class="flex gap-2 lg:hidden">
 				<Button onclick={toggleCreateForm} class="min-w-0 flex-1 sm:flex-none">
-					<FontAwesomeIcon icon={faPlus} class="mr-1 sm:mr-2" />
+					{#if showCreateForm}
+						<FontAwesomeIcon icon={faMinus} class="mr-2" />
+					{:else}
+						<FontAwesomeIcon icon={faPlus} class="mr-2" />
+					{/if}
 					<span class="truncate">{showCreateForm ? '취소' : '클라이언트 추가'}</span>
 				</Button>
 			</div>
@@ -727,7 +731,7 @@
 	<Alert
 		variant="info"
 		title="SDK를 활용한 통합 안내"
-		message="FlowAuth와의 통합을 위해 SDK를 활용해보세요. 아래 링크에서 자세한 사용법을 확인할 수 있습니다."
+		message="FlowAuth와의 통합을 위해 OAuth2/OIDC 클라이언트 SDK를 활용해보세요. 아래 링크에서 자세한 사용법을 확인할 수 있습니다."
 		icon={faCode}
 		links={[
 			{

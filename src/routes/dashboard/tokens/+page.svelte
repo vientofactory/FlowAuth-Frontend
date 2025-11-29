@@ -619,7 +619,7 @@
 	{passwordError}
 	onConfirm={handleRevokeToken}
 	onCancel={closeRevokeModal}
-	on:passwordError={(e) => (passwordError = e.detail)}
+	onPasswordError={(error) => (passwordError = error)}
 >
 	{#if selectedToken}
 		{#if isCurrentSessionToken(selectedToken)}
@@ -677,7 +677,7 @@
 	{passwordError}
 	onConfirm={handleRevokeAllTokens}
 	onCancel={closeRevokeAllModal}
-	on:passwordError={(e) => (passwordError = e.detail)}
+	onPasswordError={(error) => (passwordError = error)}
 >
 	{#if selectedTokenType}
 		<Alert variant="error">
