@@ -2,6 +2,7 @@
 	import { DashboardLayout, Button, apiClient, DashboardSkeleton } from '$lib';
 	import { useToast } from '$lib';
 	import { onMount } from 'svelte';
+	import { slide } from 'svelte/transition';
 	import type { Client } from '$lib/types/oauth.types';
 	import type { User } from '$lib';
 	import { USER_TYPES } from '$lib';
@@ -706,22 +707,6 @@
 	title="클라이언트 관리"
 	description="OAuth2 클라이언트 애플리케이션을 관리하고 설정하세요."
 >
-	{#snippet headerActions()}
-		<div class="flex flex-col gap-2 sm:flex-row">
-			<!-- 모바일에서는 기본 액션만 표시 -->
-			<div class="flex gap-2 lg:hidden">
-				<Button onclick={toggleCreateForm} class="min-w-0 flex-1 sm:flex-none">
-					{#if showCreateForm}
-						<FontAwesomeIcon icon={faMinus} class="mr-2" />
-					{:else}
-						<FontAwesomeIcon icon={faPlus} class="mr-2" />
-					{/if}
-					<span class="truncate">{showCreateForm ? '취소' : '클라이언트 추가'}</span>
-				</Button>
-			</div>
-		</div>
-	{/snippet}
-
 	{#if isLoading}
 		<DashboardSkeleton type="stats" count={3} />
 	{:else}
@@ -747,31 +732,34 @@
 		]}
 	/>
 
-	<ClientCreateForm
-		{showCreateForm}
-		{isCreating}
-		bind:clientNameValue
-		bind:clientDescriptionValue
-		bind:redirectUrisValue
-		bind:scopesValue
-		bind:selectedScopes
-		bind:logoUriValue
-		bind:termsOfServiceUriValue
-		bind:policyUriValue
-		{clientNameError}
-		{redirectUrisError}
-		{scopesError}
-		{logoUriError}
-		{termsOfServiceUriError}
-		{policyUriError}
-		bind:selectedLogoFile
-		bind:logoPreviewUrl
-		cacheBuster={logoCacheBuster}
-		bind:recaptchaToken
-		onToggleCreateForm={toggleCreateForm}
-		onCreateClient={createClient}
-		onScopeToggle={handleScopeToggle}
-	/>
+	{#if showCreateForm}
+		<div transition:slide={{ duration: 300 }}>
+			<ClientCreateForm
+				{isCreating}
+				bind:clientNameValue
+				bind:clientDescriptionValue
+				bind:redirectUrisValue
+				bind:scopesValue
+				bind:selectedScopes
+				bind:logoUriValue
+				bind:termsOfServiceUriValue
+				bind:policyUriValue
+				{clientNameError}
+				{redirectUrisError}
+				{scopesError}
+				{logoUriError}
+				{termsOfServiceUriError}
+				{policyUriError}
+				bind:selectedLogoFile
+				bind:logoPreviewUrl
+				cacheBuster={logoCacheBuster}
+				bind:recaptchaToken
+				onToggleCreateForm={toggleCreateForm}
+				onCreateClient={createClient}
+				onScopeToggle={handleScopeToggle}
+			/>
+		</div>
+	{/if}
 
 	<ClientList
 		{clients}

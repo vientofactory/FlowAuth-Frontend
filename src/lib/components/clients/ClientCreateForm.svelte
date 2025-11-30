@@ -9,7 +9,6 @@
 	import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
-		showCreateForm: boolean;
 		isCreating: boolean;
 		clientNameValue: string;
 		clientDescriptionValue: string;
@@ -35,7 +34,6 @@
 	}
 
 	let {
-		showCreateForm,
 		isCreating,
 		clientNameValue = $bindable(),
 		clientDescriptionValue = $bindable(),
@@ -86,17 +84,16 @@
 	}
 </script>
 
-{#if showCreateForm}
-	<Card class="mb-4 sm:mb-6">
-		<div class="p-4 sm:p-6">
-			<h3 class="mb-4 text-base font-semibold text-gray-900 sm:text-lg">새 클라이언트 생성</h3>
-			<form
-				onsubmit={(e) => {
-					e.preventDefault();
-					onCreateClient();
-				}}
-				class="space-y-4"
-			>
+<Card class="mb-4 sm:mb-6">
+	<div class="p-4 sm:p-6">
+		<h3 class="mb-4 text-base font-semibold text-gray-900 sm:text-lg">새 클라이언트 생성</h3>
+		<form
+			onsubmit={(e) => {
+				e.preventDefault();
+				onCreateClient();
+			}}
+			class="space-y-4"
+		>
 				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 					<div class="sm:col-span-2">
 						<label for="clientName" class="mb-1 block text-sm font-medium text-gray-700">
@@ -225,4 +222,3 @@
 			</form>
 		</div>
 	</Card>
-{/if}
