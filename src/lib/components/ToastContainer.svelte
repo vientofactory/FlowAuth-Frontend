@@ -21,10 +21,18 @@
 		const newToasts = value.filter((t) => !toasts.find((existing) => existing.id === t.id));
 		newToasts.forEach((toastItem) => {
 			if (toastItem.duration && toastItem.duration > 0) {
+				const fadeDelay = Math.max(0, toastItem.duration - 300);
 				const timerId = setTimeout(() => {
-					toast.remove(toastItem.id);
-					timers.delete(toastItem.id);
-				}, toastItem.duration) as unknown as number;
+					// fadeOut을 true로 설정하여 out 트랜지션 시작
+					toastStore.update((toasts) =>
+						toasts.map((t) => (t.id === toastItem.id ? { ...t, fadeOut: true } : t))
+					);
+					// 트랜지션 duration 후 제거
+					setTimeout(() => {
+						toast.remove(toastItem.id);
+						timers.delete(toastItem.id);
+					}, 300);
+				}, fadeDelay) as unknown as number;
 				timers.set(toastItem.id, timerId);
 			}
 		});
@@ -113,13 +121,14 @@
 		class="toast-container fixed top-4 right-4 z-[9999] space-y-2"
 		style="z-index: 9999 !important;"
 	>
-		{#each toasts as toastItem (toastItem.id)}
+		{#each toasts.filter((t) => !t.fadeOut) as toastItem (toastItem.id)}
 			{@const colors = getColors(toastItem.type)}
 			{@const icon = getIcon(toastItem.type)}
 
 			<div
 				class="toast-item animate-slide-in-right flex items-center rounded-lg border-l-4 px-4 py-3 shadow-lg backdrop-blur-sm {colors.border} {colors.background}"
-				transition:fly={{ x: 300, duration: 300 }}
+				in:fly={{ x: 300, duration: 300 }}
+				out:fly={{ x: 300, duration: 300 }}
 				style="pointer-events: auto !important;"
 			>
 				<FontAwesomeIcon {icon} class="mr-3 {colors.icon}" />
@@ -146,6 +155,12 @@
 				>
 					<FontAwesomeIcon icon={faTimes} />
 				</button>
+				{#if toastItem.duration && toastItem.duration > 0}
+					<div
+						class="progress-bar {colors.icon}"
+						style="animation-duration: {toastItem.duration}ms;"
+					></div>
+				{/if}
 			</div>
 		{/each}
 	</div>
@@ -168,6 +183,24 @@
 		word-break: break-word;
 		z-index: 9999;
 		position: relative;
+	}
+
+	.progress-bar {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		height: 3px;
+		background: currentColor;
+		animation: progress linear forwards;
+	}
+
+	@keyframes progress {
+		from {
+			width: 100%;
+		}
+		to {
+			width: 0%;
+		}
 	}
 
 	@media (max-width: 640px) {

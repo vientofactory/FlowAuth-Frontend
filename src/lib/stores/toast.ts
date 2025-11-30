@@ -6,6 +6,7 @@ export interface ToastMessage {
 	type: 'success' | 'error' | 'info' | 'warning';
 	duration?: number;
 	timestamp: number;
+	fadeOut?: boolean;
 }
 
 // 토스트 메시지들을 관리하는 전역 스토어
@@ -31,7 +32,8 @@ class ToastManager {
 			message,
 			type,
 			duration: finalDuration,
-			timestamp: Date.now()
+			timestamp: Date.now(),
+			fadeOut: false
 		};
 
 		// 스토어에 토스트 추가
