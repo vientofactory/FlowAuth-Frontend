@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { authState, Navigation, EmailVerificationAlert } from '$lib';
 	import { onMount, onDestroy } from 'svelte';
-	import { page } from '$app/stores';
+	import { slide, fade } from 'svelte/transition';
+	import { cubicOut } from 'svelte/easing';
+	import { page } from '$app/state';
 	import Footer from '$lib/components/Footer.svelte';
 	import type { User } from '$lib';
-	import { USER_TYPES, PERMISSIONS } from '$lib/types/user.types';
+	import { USER_TYPES, PERMISSIONS } from '$lib';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import {
 		faTachometerAlt,
@@ -15,9 +17,7 @@
 		faUser,
 		faCog,
 		faArrowLeft,
-		faBars,
-		faCheck,
-		faChevronRight
+		faBars
 	} from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
@@ -44,26 +44,28 @@
 	let user = $state<User | null>(null);
 	let isAuthenticated = $state(false);
 	let unsubscribe: (() => void) | null = null;
-	let currentPath = $state('');
+	let currentPath = $derived(page.url.pathname);
 	let mobileMenuOpen = $state(false);
+
+	$effect(() => {
+		if (mobileMenuOpen) {
+			document.body.style.overflow = 'hidden';
+		} else {
+			document.body.style.overflow = '';
+		}
+	});
 
 	onMount(() => {
 		unsubscribe = authState.subscribe((state) => {
 			user = state.user;
-			isLoading = !state.isInitialized || state.isLoading; // 초기화 완료 전이거나 실제 로딩 중인 경우
+			isLoading = !state.isInitialized || state.isLoading;
 			isAuthenticated = state.isAuthenticated;
-		});
-
-		// 현재 경로 구독
-		const pathUnsubscribe = page.subscribe(($page) => {
-			currentPath = $page.url.pathname;
 		});
 
 		// 키보드 이벤트 리스너 추가
 		document.addEventListener('keydown', handleKeyDown);
 
 		return () => {
-			pathUnsubscribe();
 			document.removeEventListener('keydown', handleKeyDown);
 		};
 	});
@@ -101,7 +103,7 @@
 
 	// 키보드 이벤트 핸들러
 	function handleKeyDown(event: KeyboardEvent) {
-		if (event.key === 'Escape' && mobileMenuOpen) {
+		if (event.key === 'Escape') {
 			mobileMenuOpen = false;
 		}
 	}
@@ -354,7 +356,7 @@
 		<Navigation showDashboardButton={false} />
 
 		<!-- 모바일 헤더 -->
-		<div class="sticky top-0 z-40 bg-white shadow-sm lg:hidden">
+		<div class="bg-white shadow-sm lg:hidden">
 			<div class="flex items-center justify-between px-4 py-3">
 				<div class="flex items-center space-x-3">
 					{#if showBackButton}
@@ -379,7 +381,7 @@
 					{/if}
 					<button
 						onclick={toggleMobileMenu}
-						class="flex h-10 w-10 items-center justify-center rounded-lg text-gray-600 transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none active:scale-95"
+						class="relative z-45 flex h-10 w-10 items-center justify-center rounded-lg text-gray-600 transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none active:scale-95"
 						aria-label="메뉴 열기"
 						aria-expanded={mobileMenuOpen}
 					>
@@ -387,76 +389,59 @@
 					</button>
 				</div>
 			</div>
+		</div>
 
-			<!-- 모바일 메뉴 드롭다운 -->
-			{#if mobileMenuOpen}
-				<!-- 백드롭 - 투명한 배경 -->
+		<!-- 모바일 드롭다운 메뉴 -->
+		{#if mobileMenuOpen}
+			<div
+				class="fixed inset-0 z-40 lg:hidden"
+				onclick={() => (mobileMenuOpen = false)}
+				onkeydown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') mobileMenuOpen = false;
+				}}
+				role="button"
+				tabindex="0"
+			>
+				<!-- 백드롭 -->
 				<div
-					class="mobile-backdrop fixed inset-0 top-16 z-40 bg-transparent transition-opacity duration-300 ease-out {mobileMenuOpen
-						? 'opacity-100'
-						: 'pointer-events-none opacity-0'}"
-					onclick={() => (mobileMenuOpen = false)}
-					onkeydown={(e) => {
-						if (e.key === 'Escape') mobileMenuOpen = false;
-					}}
-					role="button"
-					tabindex="0"
-					aria-label="메뉴 닫기"
+					class="absolute top-16 right-0 bottom-0 left-0 bg-black/50"
+					transition:fade={{ duration: 300 }}
 				></div>
-
 				<!-- 드롭다운 메뉴 -->
 				<div
-					class="mobile-dropdown-shadow absolute top-full right-0 left-0 z-50 transform border-t border-gray-200 bg-white shadow-xl transition-all duration-300 ease-out {mobileMenuOpen
-						? 'translate-y-0 opacity-100'
-						: 'pointer-events-none -translate-y-2 opacity-0'}"
+					class="absolute top-16 right-0 left-0 border-b border-gray-200 bg-white shadow-lg"
+					transition:slide={{ duration: 300, easing: cubicOut }}
 				>
-					<nav class="mobile-nav-bg max-h-96 overflow-y-auto px-2 py-4" aria-label="모바일 메뉴">
-						<div class="space-y-2">
+					<div class="border-b border-gray-200 p-4">
+						<h3 class="text-lg font-semibold text-gray-900">대시보드 메뉴</h3>
+						<p class="text-sm text-gray-600">메뉴를 선택하세요</p>
+					</div>
+					<nav class="max-h-96 overflow-y-auto px-3 py-2">
+						<div class="space-y-1">
 							{#each dashboardMenuItems as item (item.href)}
 								<a
 									href={item.href}
-									class="group flex transform items-center rounded-xl px-4 py-4 text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.02] active:scale-[0.98]
+									class="group flex items-center rounded-lg px-3 py-3 text-sm font-medium transition-all duration-200 ease-in-out
 										{isMenuActive(item.href)
-										? 'menu-item-active border border-blue-200 bg-blue-50 text-blue-900 shadow-md'
-										: 'menu-item-inactive text-gray-700 hover:bg-gray-50 hover:text-gray-900 hover:shadow-md'}"
+										? 'bg-blue-100 text-blue-900 shadow-sm'
+										: 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}"
 									onclick={() => (mobileMenuOpen = false)}
-									role="menuitem"
-									aria-current={isMenuActive(item.href) ? 'page' : undefined}
 								>
-									<div
-										class="mr-4 flex h-10 w-10 transform items-center justify-center rounded-lg transition-all duration-200 ease-out group-hover:scale-110
-										{isMenuActive(item.href)
-											? 'bg-blue-100 text-blue-600 shadow-sm'
-											: 'bg-gray-100 text-gray-600 group-hover:bg-blue-50 group-hover:text-blue-600'}"
-									>
-										<FontAwesomeIcon
-											icon={item.icon}
-											class="text-lg transition-transform duration-200 group-hover:scale-110"
-										/>
-									</div>
+									<FontAwesomeIcon icon={item.icon} class="mr-3 h-5 w-5 shrink-0" />
 									<div class="flex-1">
-										<div class="font-semibold">{item.label}</div>
-										<div class="mt-0.5 text-xs text-gray-500">{item.description}</div>
+										<div class="font-medium">{item.label}</div>
+										<div class="text-xs text-gray-500">{item.description}</div>
 									</div>
 									{#if isMenuActive(item.href)}
-										<div
-											class="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 shadow-sm"
-										>
-											<FontAwesomeIcon icon={faCheck} class="text-xs text-blue-600" />
-										</div>
-									{:else}
-										<FontAwesomeIcon
-											icon={faChevronRight}
-											class="text-sm text-gray-400 transition-all duration-200 group-hover:translate-x-1 group-hover:text-gray-600"
-										/>
+										<div class="h-2 w-2 rounded-full bg-blue-600"></div>
 									{/if}
 								</a>
 							{/each}
 						</div>
 					</nav>
 				</div>
-			{/if}
-		</div>
+			</div>
+		{/if}
 
 		<div class="flex">
 			<!-- 데스크톱 사이드바 -->
@@ -526,7 +511,7 @@
 
 		<!-- 모바일 하단 네비게이션 -->
 		<div
-			class="fixed right-0 bottom-0 left-0 z-50 border-t border-gray-200 bg-white/95 backdrop-blur-sm lg:hidden"
+			class="fixed right-0 bottom-0 left-0 z-40 border-t border-gray-200 bg-white/95 backdrop-blur-sm lg:hidden"
 		>
 			<nav class="flex items-center justify-around px-1 py-1" aria-label="모바일 하단 메뉴">
 				{#each getMobileMenuItems() as item (item.href)}

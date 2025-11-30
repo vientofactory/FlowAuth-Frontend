@@ -28,7 +28,7 @@
 		</div>
 
 		<div class="mb-6 flex justify-center">
-			<QRCode qrCodeUrl={setupData.qrCodeUrl} secret={setupData.secret} size={250} />
+			<QRCode qrCodeUrl={setupData.qrCodeUrl} secret={setupData.secret} />
 		</div>
 
 		<div class="mb-6 rounded-lg bg-gray-50 p-4">

@@ -3,7 +3,6 @@
 	import {
 		CallbackHeader,
 		AuthResultDisplay,
-		ImplicitTokenDisplay,
 		UsageGuideSection,
 		TokenModal
 	} from '$lib/components/callback';
@@ -29,8 +28,6 @@
 	let error = $state('');
 	let isLoading = $state(true);
 
-	// Implicit Grant에서 Fragment로 받은 토큰들
-	let implicitTokens: TokenResponse | null = $state(null);
 	let responseType = $state(''); // 어떤 response type인지 추적
 
 	// 토큰 교환 폼
@@ -85,7 +82,6 @@
 		authCode: string;
 		oauthState: string;
 		error: string;
-		implicitTokens: TokenResponse | null;
 		responseType: string;
 	}
 
@@ -105,56 +101,22 @@
 		const state = urlParams.get('state') || '';
 		const urlError = urlParams.get('error') || '';
 
-		// URL Fragment 파싱 (Implicit Grant)
-		const hash = window.location.hash.substring(1);
-		const fragmentParams = new URLSearchParams(hash);
-
-		// Fragment에서 토큰 추출
-		const accessToken = fragmentParams.get('access_token');
-		const idToken = fragmentParams.get('id_token');
-		const tokenType = fragmentParams.get('token_type');
-		const expiresIn = fragmentParams.get('expires_in');
-		const scope = fragmentParams.get('scope');
-		const fragmentState = fragmentParams.get('state');
-		const fragmentError = fragmentParams.get('error');
-
 		// 최종 error 결정
-		const finalError = urlError || fragmentError;
+		const finalError = urlError;
 
-		// 최종 state 결정 (fragment에서 온 state가 우선)
-		const finalState = fragmentState || state;
+		// 최종 state 결정
+		const finalState = state;
 
 		// Response type 결정
 		let detectedResponseType = '';
-		if (code && idToken) {
-			detectedResponseType = 'code id_token'; // Hybrid Grant
-		} else if (code) {
+		if (code) {
 			detectedResponseType = 'code';
-		} else if (accessToken && idToken) {
-			detectedResponseType = 'token id_token';
-		} else if (accessToken) {
-			detectedResponseType = 'token';
-		} else if (idToken) {
-			detectedResponseType = 'id_token';
-		}
-
-		// Implicit Grant 토큰 객체 생성
-		let tokens: TokenResponse | null = null;
-		if (accessToken || idToken) {
-			tokens = {
-				access_token: accessToken || '',
-				token_type: tokenType || 'Bearer',
-				expires_in: expiresIn ? parseInt(expiresIn) : undefined,
-				scope: scope || undefined,
-				id_token: idToken || undefined
-			};
 		}
 
 		return {
 			authCode: code,
 			oauthState: finalState,
 			error: finalError || '',
-			implicitTokens: tokens,
 			responseType: detectedResponseType
 		};
 	}
@@ -257,21 +219,7 @@
 		authCode = oauthParams.authCode;
 		oauthState = oauthParams.oauthState;
 		error = oauthParams.error;
-		implicitTokens = oauthParams.implicitTokens;
 		responseType = oauthParams.responseType;
-
-		// Implicit Grant 또는 Hybrid Grant 성공 처리
-		if (implicitTokens) {
-			tokenResponse = implicitTokens;
-			showTokenModal = true;
-			activeTab = 'token';
-		}
-
-		// Hybrid Grant의 경우 ID 토큰을 먼저 표시하되, code 교환은 별도로 처리
-		if (responseType === 'code id_token' && implicitTokens?.id_token) {
-			showTokenModal = true;
-			activeTab = 'token';
-		}
 
 		// 저장된 OAuth 데이터 복원
 		const sessionData = restoreFromSessionStorage();
@@ -307,27 +255,14 @@
 		// 상태에 따른 토스트 메시지
 		if (error) {
 			toast.error(`OAuth2 인증 에러: ${error}`);
-		} else if (responseType === 'code id_token') {
-			toast.success('하이브리드 인증이 성공했습니다! ID 토큰을 확인하고 코드를 교환해보세요.');
 		} else if (authCode) {
 			toast.success('인증 코드를 받았습니다. 토큰으로 교환해보세요!');
-		} else if (implicitTokens) {
-			toast.success('토큰을 성공적으로 받았습니다! (Implicit Grant)');
-			cleanupBackupData();
 		}
 	});
 
 	// 토큰 교환 성공 핸들러
 	function handleTokenExchanged(response: TokenResponse) {
-		// Hybrid Grant의 경우 기존 ID 토큰을 유지
-		if (responseType === 'code id_token' && implicitTokens?.id_token) {
-			tokenResponse = {
-				...response,
-				id_token: implicitTokens.id_token
-			};
-		} else {
-			tokenResponse = response;
-		}
+		tokenResponse = response;
 
 		showTokenModal = true;
 		activeTab = 'token';
@@ -371,8 +306,7 @@
 
 	// 사용자 프로필 정보 가져오기
 	async function fetchUserProfile() {
-		// implicit grant와 authorization code grant 모두 지원
-		const accessToken = tokenResponse?.access_token || implicitTokens?.access_token;
+		const accessToken = tokenResponse?.access_token;
 
 		if (!accessToken) {
 			toast.error('유효한 액세스 토큰이 없습니다.');
@@ -397,8 +331,7 @@
 
 	// 토큰 정보 분석
 	function analyzeToken() {
-		// implicit grant와 authorization code grant 모두 지원
-		const accessToken = tokenResponse?.access_token || implicitTokens?.access_token;
+		const accessToken = tokenResponse?.access_token;
 
 		if (!accessToken) {
 			toast.error('유효한 액세스 토큰이 없습니다.');
@@ -418,8 +351,7 @@
 
 	// ID 토큰 정보 분석
 	function analyzeIdToken() {
-		// implicit grant와 authorization code grant 모두 지원
-		const idToken = tokenResponse?.id_token || implicitTokens?.id_token;
+		const idToken = tokenResponse?.id_token;
 
 		if (!idToken) {
 			toast.error('유효한 ID 토큰이 없습니다.');
@@ -487,7 +419,7 @@
 				</div>
 
 				<!-- 인증 결과 표시 -->
-				<AuthResultDisplay {error} {authCode} {implicitTokens} {responseType} {oauthState} />
+				<AuthResultDisplay {error} {authCode} {responseType} {oauthState} />
 
 				<!-- 토큰 교환 폼 (Authorization Code Grant 또는 Hybrid Grant에서 표시) -->
 				{#if authCode && (responseType === 'code' || responseType === 'code id_token')}
@@ -517,18 +449,8 @@
 					/>
 				{/if}
 
-				<!-- Implicit Grant 토큰 정보 (Hybrid Grant 제외) -->
-				{#if implicitTokens && responseType !== 'code id_token'}
-					<ImplicitTokenDisplay
-						{implicitTokens}
-						{isTestingToken}
-						onShowTokenModal={() => (showTokenModal = true)}
-						onFetchUserProfile={fetchUserProfile}
-					/>
-				{/if}
-
 				<!-- 사용 안내 -->
-				<UsageGuideSection {responseType} {implicitTokens} {authCode} />
+				<UsageGuideSection {responseType} {authCode} />
 			</div>
 		</main>
 	</div>
@@ -537,7 +459,6 @@
 	<TokenModal
 		{showTokenModal}
 		{tokenResponse}
-		{implicitTokens}
 		{activeTab}
 		{userProfile}
 		{tokenInfo}

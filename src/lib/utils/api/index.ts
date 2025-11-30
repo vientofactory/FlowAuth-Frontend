@@ -8,7 +8,7 @@ import { OAuthApi } from './oauth';
 import type { AuthorizeParams, AuthorizationInfo, ConsentRequest, ConsentResponse } from './oauth';
 import { EmailApi } from './email';
 import type { EmailQueueStats, EmailTestRequest, SMTPConnectionStatus, SMTPInfo } from './email';
-import type { ApiError } from './base';
+import type { ApiError, RequestOptions } from './base';
 import type { User, LoginData, CreateUserDto } from '$lib';
 import { API_ENDPOINTS } from '$lib/constants/app.constants';
 import type {
@@ -114,16 +114,16 @@ class ApiClient extends BaseApi {
 		return this.auth.getUserTokens();
 	}
 
-	async revokeToken(tokenId: number) {
-		return this.auth.revokeToken(tokenId);
+	async revokeToken(tokenId: number, password?: string) {
+		return this.auth.revokeToken(tokenId, password);
 	}
 
 	async revokeAllTokens() {
 		return this.auth.revokeAllTokens();
 	}
 
-	async revokeAllTokensForType(tokenType: string) {
-		return this.auth.revokeAllTokensForType(tokenType);
+	async revokeAllTokensForType(tokenType: string, password: string) {
+		return this.auth.revokeAllTokensForType(tokenType, password);
 	}
 
 	async setupTwoFactor(): Promise<TwoFactorSetup> {
@@ -468,9 +468,9 @@ class ApiClient extends BaseApi {
 		endpoint: string,
 		options: RequestInit = {},
 		retryCount = 0,
-		skipAuthRedirect = false
+		requestOptions: RequestOptions = {}
 	): Promise<T> {
-		return super.request<T>(endpoint, options, retryCount, skipAuthRedirect);
+		return super.request<T>(endpoint, options, retryCount, requestOptions);
 	}
 
 	async logout(): Promise<{ message: string }> {

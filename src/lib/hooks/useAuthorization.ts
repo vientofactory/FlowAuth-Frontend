@@ -4,7 +4,7 @@ import { profileStore } from '$lib/stores/profile';
 import { parseError } from '../utils/error.utils';
 import { ERROR_MESSAGES } from '../constants/authorization.constants';
 import { ROUTES } from '../constants/app.constants';
-import type { User } from '$lib/types/user.types';
+import type { User } from '$lib';
 interface AuthorizePageData {
 	authorizeParams: {
 		client_id: string;
@@ -83,7 +83,9 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 		try {
 			console.log('[Authorization] Starting authorization data load');
 			updateProgress(10);
-			await new Promise((resolve) => setTimeout(resolve, 100)); // 최소 로딩 시간(100ms)
+
+			// 최소 로딩 시간(100ms)
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			updateProgress(20);
 			console.log('[Authorization] Loading current user profile');
@@ -101,7 +103,9 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 			apiClient.debugToken();
 
 			updateProgress(60);
-			await new Promise((resolve) => setTimeout(resolve, 100)); // 최소 로딩 시간(100ms)
+
+			// 최소 로딩 시간(100ms)
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// 동의 정보 조회
 			updateProgress(85);
@@ -132,7 +136,9 @@ export function useAuthorization(data: AuthorizePageData): AuthorizationHookRetu
 			clearTimeout(timeoutId);
 
 			updateProgress(100);
-			await new Promise((resolve) => setTimeout(resolve, 200)); // 성공 상태 표시 시간
+
+			// 성공 상태 표시 시간
+			await new Promise((resolve) => setTimeout(resolve, 200));
 
 			console.log('[Authorization] Updating state with success data');
 			state.update((current) => ({

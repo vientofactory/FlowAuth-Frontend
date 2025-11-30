@@ -17,7 +17,7 @@
 </script>
 
 {#if advancedAnalytics?.predictiveInsights?.tokenDemand?.predicted > 0}
-	<Card class="border-l-4 border-l-indigo-400 bg-gradient-to-r from-indigo-50 to-purple-50">
+	<Card class="border-l-4 border-l-indigo-400 bg-linear-to-r from-indigo-50 to-purple-50">
 		<div class="flex items-start space-x-4">
 			<div class="shrink-0">
 				<div class="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100">

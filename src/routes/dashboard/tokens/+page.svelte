@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { DashboardLayout, Button, Badge, apiClient, Tabs, Modal, DashboardSkeleton } from '$lib';
+	import { DashboardLayout, Button, Badge, apiClient, Tabs, DashboardSkeleton } from '$lib';
+	import PasswordConfirmModal from '$lib/components/ui/PasswordConfirmModal.svelte';
+	import Alert from '$lib/components/Alert.svelte';
 	import { useToast } from '$lib';
 	import { onMount, onDestroy } from 'svelte';
 	import type { Token } from '$lib/types/oauth.types';
@@ -38,11 +40,23 @@
 	let selectedToken = $state<Token | null>(null);
 	let selectedTokenType = $state<TokenType | null>(null);
 	let _isRevoking = $state(false);
+	let _isRevokingSingle = $state(false);
+	let passwordError = $state('');
 
 	const toast = useToast();
 
 	// 토큰 타입별 필터링
-	let loginTokens = $derived(tokens.filter((token) => token.tokenType === TOKEN_TYPES.LOGIN));
+	let loginTokens = $derived(
+		tokens
+			.filter((token) => token.tokenType === TOKEN_TYPES.LOGIN)
+			.sort((a, b) => {
+				const aIsCurrent = isCurrentSessionToken(a);
+				const bIsCurrent = isCurrentSessionToken(b);
+				if (aIsCurrent && !bIsCurrent) return -1;
+				if (!aIsCurrent && bIsCurrent) return 1;
+				return 0;
+			})
+	);
 	let oauth2Tokens = $derived(tokens.filter((token) => token.tokenType === TOKEN_TYPES.OAUTH2));
 	let currentTokens = $derived(activeTab === TOKEN_TYPES.LOGIN ? loginTokens : oauth2Tokens);
 
@@ -64,11 +78,13 @@
 	function closeRevokeModal() {
 		showRevokeModal = false;
 		selectedToken = null;
+		passwordError = '';
 	}
 
 	function closeRevokeAllModal() {
 		showRevokeAllModal = false;
 		selectedTokenType = null;
+		passwordError = '';
 	}
 
 	// 현재 세션 토큰인지 확인
@@ -109,12 +125,14 @@
 		}
 	}
 
-	// 모달에서 실제 취소 실행
-	async function confirmRevokeToken() {
-		if (!selectedToken) return;
+	// PasswordConfirmModal용 핸들러
+	async function handleRevokeToken(password?: string) {
+		if (!selectedToken || !password) return;
+
+		_isRevokingSingle = true;
 
 		try {
-			await apiClient.revokeToken(selectedToken.id);
+			await apiClient.revokeToken(selectedToken.id, password);
 			toast.success('토큰이 취소되었습니다.');
 
 			await loadTokens(); // 목록 새로고침
@@ -130,25 +148,24 @@
 			console.error('Failed to revoke token:', error);
 			toast.error('토큰 취소에 실패했습니다.');
 		} finally {
-			/* empty */
+			_isRevokingSingle = false;
 		}
 	}
 
-	async function confirmRevokeAllTokens() {
-		if (!selectedTokenType) return;
+	// PasswordConfirmModal용 핸들러
+	async function handleRevokeAllTokens(password?: string) {
+		if (!selectedTokenType || !password) return;
 
 		const tokenTypeName = selectedTokenType === TOKEN_TYPES.LOGIN ? '로그인' : 'OAuth2';
 		_isRevoking = true;
 
 		try {
-			await apiClient.revokeAllTokensForType(selectedTokenType);
-
+			await apiClient.revokeAllTokensForType(selectedTokenType, password);
 			toast.success(`모든 ${tokenTypeName} 토큰이 취소되었습니다.`);
 
 			// 로그인 토큰을 취소한 경우 로그아웃 처리
 			if (selectedTokenType === TOKEN_TYPES.LOGIN) {
 				await authStore.logout();
-				// 페이지 리다이렉트는 authStore.logout()에서 처리됨
 				return;
 			}
 
@@ -205,93 +222,97 @@
 
 <DashboardLayout
 	title="토큰 관리"
-	description="발급된 액세스 토큰과 리프레시 토큰을 관리하세요."
+	description="발급된 액세스 토큰을 관리하세요."
 	showBackButton={true}
 >
 	<!-- 통계 카드 -->
-	<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-		<!-- 총 토큰 -->
-		<div
-			class="relative overflow-hidden rounded-xl bg-linear-to-r from-stone-50 to-neutral-50 p-4 shadow-sm ring-1 ring-stone-100 transition-all duration-200 hover:shadow-md"
-		>
-			<div class="relative flex items-center">
-				<div class="shrink-0">
-					<div
-						class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-stone-100 to-neutral-100"
-					>
-						<FontAwesomeIcon icon={faKey} class="text-lg text-stone-600" />
+	{#if isLoading}
+		<DashboardSkeleton type="stats" count={4} class="mb-6" />
+	{:else}
+		<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+			<!-- 총 토큰 -->
+			<div
+				class="relative overflow-hidden rounded-xl bg-linear-to-r from-stone-50 to-neutral-50 p-4 shadow-sm ring-1 ring-stone-100 transition-all duration-200 hover:shadow-md"
+			>
+				<div class="relative flex items-center">
+					<div class="shrink-0">
+						<div
+							class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-stone-100 to-neutral-100"
+						>
+							<FontAwesomeIcon icon={faKey} class="text-lg text-stone-600" />
+						</div>
+					</div>
+					<div class="ml-3 flex-1">
+						<p class="text-sm font-medium text-gray-600">총 토큰</p>
+						<p class="text-2xl font-bold text-gray-900">{currentTokens.length}</p>
 					</div>
 				</div>
-				<div class="ml-3 flex-1">
-					<p class="text-sm font-medium text-gray-600">총 토큰</p>
-					<p class="text-2xl font-bold text-gray-900">{currentTokens.length}</p>
-				</div>
 			</div>
-		</div>
 
-		<!-- 활성 토큰 -->
-		<div
-			class="relative overflow-hidden rounded-xl bg-linear-to-r from-neutral-50 to-gray-50 p-4 shadow-sm ring-1 ring-neutral-100 transition-all duration-200 hover:shadow-md"
-		>
-			<div class="relative flex items-center">
-				<div class="shrink-0">
-					<div
-						class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-neutral-100 to-gray-100"
-					>
-						<FontAwesomeIcon icon={faCheckCircle} class="text-lg text-neutral-600" />
+			<!-- 활성 토큰 -->
+			<div
+				class="relative overflow-hidden rounded-xl bg-linear-to-r from-neutral-50 to-gray-50 p-4 shadow-sm ring-1 ring-neutral-100 transition-all duration-200 hover:shadow-md"
+			>
+				<div class="relative flex items-center">
+					<div class="shrink-0">
+						<div
+							class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-neutral-100 to-gray-100"
+						>
+							<FontAwesomeIcon icon={faCheckCircle} class="text-lg text-neutral-600" />
+						</div>
+					</div>
+					<div class="ml-3 flex-1">
+						<p class="text-sm font-medium text-gray-600">활성 토큰</p>
+						<p class="text-2xl font-bold text-gray-900">
+							{currentTokens.filter((t) => !isExpired(t)).length}
+						</p>
 					</div>
 				</div>
-				<div class="ml-3 flex-1">
-					<p class="text-sm font-medium text-gray-600">활성 토큰</p>
-					<p class="text-2xl font-bold text-gray-900">
-						{currentTokens.filter((t) => !isExpired(t)).length}
-					</p>
-				</div>
 			</div>
-		</div>
 
-		<!-- 만료된 토큰 -->
-		<div
-			class="relative overflow-hidden rounded-xl bg-linear-to-r from-gray-50 to-stone-50 p-4 shadow-sm ring-1 ring-gray-100 transition-all duration-200 hover:shadow-md"
-		>
-			<div class="relative flex items-center">
-				<div class="shrink-0">
-					<div
-						class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-gray-100 to-stone-100"
-					>
-						<FontAwesomeIcon icon={faClock} class="text-lg text-gray-600" />
+			<!-- 만료된 토큰 -->
+			<div
+				class="relative overflow-hidden rounded-xl bg-linear-to-r from-gray-50 to-stone-50 p-4 shadow-sm ring-1 ring-gray-100 transition-all duration-200 hover:shadow-md"
+			>
+				<div class="relative flex items-center">
+					<div class="shrink-0">
+						<div
+							class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-gray-100 to-stone-100"
+						>
+							<FontAwesomeIcon icon={faClock} class="text-lg text-gray-600" />
+						</div>
+					</div>
+					<div class="ml-3 flex-1">
+						<p class="text-sm font-medium text-gray-600">만료된 토큰</p>
+						<p class="text-2xl font-bold text-gray-900">
+							{currentTokens.filter((t) => isExpired(t)).length}
+						</p>
 					</div>
 				</div>
-				<div class="ml-3 flex-1">
-					<p class="text-sm font-medium text-gray-600">만료된 토큰</p>
-					<p class="text-2xl font-bold text-gray-900">
-						{currentTokens.filter((t) => isExpired(t)).length}
-					</p>
-				</div>
 			</div>
-		</div>
 
-		<!-- 클라이언트 수 -->
-		<div
-			class="relative overflow-hidden rounded-xl bg-linear-to-r from-slate-50 to-zinc-50 p-4 shadow-sm ring-1 ring-slate-100 transition-all duration-200 hover:shadow-md"
-		>
-			<div class="relative flex items-center">
-				<div class="shrink-0">
-					<div
-						class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-slate-100 to-zinc-100"
-					>
-						<FontAwesomeIcon icon={faShieldAlt} class="text-lg text-slate-600" />
+			<!-- 클라이언트 수 -->
+			<div
+				class="relative overflow-hidden rounded-xl bg-linear-to-r from-slate-50 to-zinc-50 p-4 shadow-sm ring-1 ring-slate-100 transition-all duration-200 hover:shadow-md"
+			>
+				<div class="relative flex items-center">
+					<div class="shrink-0">
+						<div
+							class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-slate-100 to-zinc-100"
+						>
+							<FontAwesomeIcon icon={faShieldAlt} class="text-lg text-slate-600" />
+						</div>
 					</div>
-				</div>
-				<div class="ml-3 flex-1">
-					<p class="text-sm font-medium text-gray-600">클라이언트 수</p>
-					<p class="text-2xl font-bold text-gray-900">
-						{new Set(currentTokens.map((t) => t.clientId).filter(Boolean)).size}
-					</p>
+					<div class="ml-3 flex-1">
+						<p class="text-sm font-medium text-gray-600">클라이언트 수</p>
+						<p class="text-2xl font-bold text-gray-900">
+							{new Set(currentTokens.map((t) => t.clientId).filter(Boolean)).size}
+						</p>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
+	{/if}
 
 	<!-- 토큰 목록 -->
 	<div
@@ -472,27 +493,15 @@
 
 										<!-- 액션 버튼 -->
 										<div class="flex gap-2 sm:ml-4 sm:flex-col sm:gap-2">
-											{#if !isExpired(token)}
-												<Button
-													variant="outline"
-													size="sm"
-													onclick={() => openRevokeModal(token)}
-													class="flex-1 border-red-300 text-red-600 transition-colors hover:border-red-200 hover:bg-red-50 sm:flex-none"
-												>
-													<FontAwesomeIcon icon={faBan} class="mr-2" />
-													<span class="hidden sm:inline">취소</span>
-												</Button>
-											{:else}
-												<Button
-													variant="outline"
-													size="sm"
-													disabled
-													class="flex-1 cursor-not-allowed text-gray-400 sm:flex-none"
-												>
-													<FontAwesomeIcon icon={faClock} class="mr-2" />
-													<span class="hidden sm:inline">만료됨</span>
-												</Button>
-											{/if}
+											<Button
+												variant="outline"
+												size="sm"
+												onclick={() => openRevokeModal(token)}
+												class="flex-1 border-red-300 text-red-600 transition-colors hover:border-red-200 hover:bg-red-50 sm:flex-none"
+											>
+												<FontAwesomeIcon icon={faBan} class="mr-2" />
+												<span class="hidden sm:inline">취소</span>
+											</Button>
 										</div>
 									</div>
 								</div>
@@ -596,105 +605,85 @@
 </DashboardLayout>
 
 <!-- 단일 토큰 취소 모달 -->
-<Modal
+<PasswordConfirmModal
 	open={showRevokeModal}
 	title="토큰 취소 확인"
-	onConfirm={confirmRevokeToken}
-	onCancel={closeRevokeModal}
-	onClose={closeRevokeModal}
+	message="다음 토큰을 취소하시겠습니까? 이 작업은 되돌릴 수 없습니다."
 	confirmText="취소"
 	cancelText="닫기"
 	confirmVariant="danger"
+	loading={_isRevokingSingle}
+	requirePassword={true}
+	passwordLabel="비밀번호 확인 (보안 강화)"
+	passwordPlaceholder="계정 비밀번호를 입력하세요"
+	{passwordError}
+	onConfirm={handleRevokeToken}
+	onCancel={closeRevokeModal}
+	onPasswordError={(error) => (passwordError = error)}
 >
 	{#if selectedToken}
-		<div class="space-y-4">
-			<p class="text-sm text-gray-600">
-				다음 토큰을 취소하시겠습니까? 이 작업은 되돌릴 수 없습니다.
-			</p>
-			{#if isCurrentSessionToken(selectedToken)}
-				<div class="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-					<div class="flex">
-						<div class="shrink-0">
-							<svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-								<path
-									fill-rule="evenodd"
-									d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-									clip-rule="evenodd"
-								/>
-							</svg>
-						</div>
-						<div class="ml-3">
-							<h3 class="text-sm font-medium text-yellow-800">현재 로그인 세션 토큰입니다</h3>
-							<div class="mt-2 text-sm text-yellow-700">
-								<p>이 토큰을 취소하면 현재 로그인 세션이 종료됩니다. 계속하시겠습니까?</p>
-							</div>
-						</div>
-					</div>
+		{#if isCurrentSessionToken(selectedToken)}
+			<Alert variant="warning" title="현재 로그인 세션 토큰입니다">
+				이 토큰을 취소하면 현재 로그인 세션이 종료됩니다.
+			</Alert>
+		{/if}
+		<div class="rounded-lg bg-gray-50 p-4">
+			<div class="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
+				<div>
+					<span class="font-medium text-gray-700">토큰 ID:</span>
+					<span class="ml-2 font-mono text-gray-900">{selectedToken.id}</span>
 				</div>
-			{/if}
-			<div class="rounded-lg bg-gray-50 p-4">
-				<div class="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-					<div>
-						<span class="font-medium text-gray-700">토큰 ID:</span>
-						<span class="ml-2 font-mono text-gray-900">{selectedToken.id}</span>
-					</div>
-					<div>
-						<span class="font-medium text-gray-700">토큰 타입:</span>
-						<Badge
-							variant={selectedToken.tokenType === TOKEN_TYPES.LOGIN ? 'success' : 'info'}
-							class="ml-2"
-						>
-							{selectedToken.tokenType === TOKEN_TYPES.LOGIN ? '로그인 토큰' : 'OAuth2 토큰'}
-						</Badge>
-						{#if isCurrentSessionToken(selectedToken)}
-							<Badge variant="success" class="ml-2">현재 세션</Badge>
-						{/if}
-					</div>
-					{#if selectedToken.client}
-						<div class="sm:col-span-2">
-							<span class="font-medium text-gray-700">클라이언트:</span>
-							<span class="ml-2 text-gray-900">{selectedToken.client.name}</span>
-						</div>
+				<div>
+					<span class="font-medium text-gray-700">토큰 타입:</span>
+					<Badge
+						variant={selectedToken.tokenType === TOKEN_TYPES.LOGIN ? 'success' : 'info'}
+						class="ml-2"
+					>
+						{selectedToken.tokenType === TOKEN_TYPES.LOGIN ? '로그인 토큰' : 'OAuth2 토큰'}
+					</Badge>
+					{#if isCurrentSessionToken(selectedToken)}
+						<Badge variant="success" class="ml-2">현재 세션</Badge>
 					{/if}
-					<div>
-						<span class="font-medium text-gray-700">만료일:</span>
-						<span class="ml-2 text-gray-900"
-							>{new Date(selectedToken.expiresAt).toLocaleString()}</span
-						>
+				</div>
+				{#if selectedToken.client}
+					<div class="sm:col-span-2">
+						<span class="font-medium text-gray-700">클라이언트:</span>
+						<span class="ml-2 text-gray-900">{selectedToken.client.name}</span>
 					</div>
+				{/if}
+				<div>
+					<span class="font-medium text-gray-700">만료일:</span>
+					<span class="ml-2 text-gray-900"
+						>{new Date(selectedToken.expiresAt).toLocaleString()}</span
+					>
 				</div>
 			</div>
 		</div>
 	{/if}
-</Modal>
-
-<!-- 전체 토큰 취소 모달 -->
-<Modal
+</PasswordConfirmModal><!-- 전체 토큰 취소 모달 -->
+<PasswordConfirmModal
 	open={showRevokeAllModal}
 	title="전체 토큰 취소 확인"
-	onConfirm={confirmRevokeAllTokens}
-	onCancel={closeRevokeAllModal}
-	onClose={closeRevokeAllModal}
+	message="{selectedTokenType === TOKEN_TYPES.LOGIN
+		? '모든 로그인 토큰'
+		: '모든 OAuth2 토큰'}을 취소하시겠습니까? 이 작업은 되돌릴 수 없습니다."
 	confirmText="모두 취소"
 	cancelText="닫기"
 	confirmVariant="danger"
+	loading={_isRevoking}
+	requirePassword={true}
+	passwordLabel="비밀번호 확인 (필수)"
+	passwordPlaceholder="계정 비밀번호를 입력하세요"
+	{passwordError}
+	onConfirm={handleRevokeAllTokens}
+	onCancel={closeRevokeAllModal}
+	onPasswordError={(error) => (passwordError = error)}
 >
 	{#if selectedTokenType}
-		<div class="space-y-4">
-			<p class="text-sm text-gray-600">
-				{selectedTokenType === TOKEN_TYPES.LOGIN ? '모든 로그인 토큰' : '모든 OAuth2 토큰'}을
-				취소하시겠습니까? 이 작업은 되돌릴 수 없습니다.
-			</p>
-			<div class="rounded-lg bg-red-50 p-4">
-				<div class="flex items-center">
-					<FontAwesomeIcon icon={faExclamationTriangle} class="mr-2 text-red-600" />
-					<div class="text-sm text-red-800">
-						<strong>경고:</strong> 이 작업은 {selectedTokenType === TOKEN_TYPES.LOGIN
-							? '모든 로그인 세션을 종료'
-							: '모든 OAuth2 권한을 제거'}합니다.
-					</div>
-				</div>
-			</div>
-		</div>
+		<Alert variant="error">
+			<strong>경고:</strong> 이 작업은 {selectedTokenType === TOKEN_TYPES.LOGIN
+				? '모든 로그인 세션을 종료'
+				: '모든 OAuth2 권한을 제거'}합니다.
+		</Alert>
 	{/if}
-</Modal>
+</PasswordConfirmModal>

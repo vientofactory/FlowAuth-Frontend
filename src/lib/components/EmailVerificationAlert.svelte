@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { LoadingButton, apiClient, useToast } from '$lib';
-	import type { User } from '$lib/types/user.types';
-	import { createEventDispatcher } from 'svelte';
+	import type { User } from '$lib';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import {
 		faTimes,
@@ -21,7 +20,6 @@
 	let dismissed = $state(false);
 
 	const toast = useToast();
-	const dispatch = createEventDispatcher();
 
 	async function resendVerification() {
 		if (isResending || !user?.email) return;
@@ -43,7 +41,6 @@
 		if (onDismiss) {
 			onDismiss();
 		}
-		dispatch('dismiss');
 	}
 
 	// 이미 인증되었거나 사용자가 dismiss한 경우 표시하지 않음

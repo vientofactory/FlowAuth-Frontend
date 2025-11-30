@@ -1,31 +1,36 @@
 import type { ScopeInfo } from '../types/authorization.types';
+import { faKey, faUser, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
+// 일반 사용자의 명확한 권한 이해를 위한 스코프 정보 사전 정의
+// 사전 정의에 없는 경우 백엔드 응답으로 fallback
 export const SCOPE_DESCRIPTIONS: Record<string, ScopeInfo> = {
-	read: {
-		icon: 'fas fa-eye',
-		description: '귀하의 기본 프로필 정보를 읽을 수 있습니다',
-		category: '읽기',
-		risk: 'low'
-	},
-	write: {
-		icon: 'fas fa-edit',
-		description: '귀하의 계정 정보를 수정할 수 있습니다',
-		category: '쓰기',
-		risk: 'high'
+	openid: {
+		name: 'OpenID Connect',
+		icon: faKey,
+		description: 'OpenID Connect 인증을 통해 귀하의 신원을 확인할 수 있습니다'
 	},
 	profile: {
-		icon: 'fas fa-user',
-		description: '이름, 프로필 사진 등의 개인정보에 접근할 수 있습니다',
-		category: '프로필',
-		risk: 'medium'
+		name: '프로필 읽기',
+		icon: faUser,
+		description: '이름, 프로필 사진, 생년월일 등의 기본 프로필 정보에 접근할 수 있습니다'
 	},
 	email: {
-		icon: 'fas fa-envelope',
-		description: '귀하의 이메일 주소에 접근할 수 있습니다',
-		category: '연락처',
-		risk: 'medium'
+		name: '이메일 주소 읽기',
+		icon: faEnvelope,
+		description: '귀하의 이메일 주소와 이메일 인증 상태에 접근할 수 있습니다'
 	}
 };
+
+// 기본 스코프 fallback
+export const DEFAULT_SCOPES = [
+	{ id: 'openid', name: 'OpenID Connect', description: 'OpenID Connect 인증을 위한 기본 스코프' },
+	{
+		id: 'profile',
+		name: '프로필 정보 읽기',
+		description: '사용자 프로필 정보 (이름, 생년월일, 지역, 사진 등) 접근'
+	},
+	{ id: 'email', name: '이메일 주소 읽기', description: '사용자 이메일 주소 접근' }
+] as const;
 
 export const LOADING_MESSAGES = {
 	VALIDATING: '인가 요청을 검증하고 있습니다...',

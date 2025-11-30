@@ -1,10 +1,3 @@
-/**
- * 공통 검증 유틸리티 함수들
- * 백엔드 DTO의 검증 규칙과 일치하도록 구현
- */
-
-import { OAUTH2_SCOPES } from './scope.utils';
-
 export interface ValidationResult {
 	isValid: boolean;
 	message?: string;
@@ -180,21 +173,38 @@ export function validateLogoUrl(url: string): ValidationResult {
 }
 
 /**
- * 스코프 검증
+ * 스코프 검증 (동적 스코프 목록 사용)
  */
-export function validateScopes(scopes: string[]): ValidationResult {
+export async function validateScopes(scopes: string[]): Promise<ValidationResult> {
 	if (!scopes || scopes.length === 0) {
 		return { isValid: false, message: '최소 하나의 권한 범위를 선택해주세요.' };
 	}
 
-	const validScopes = Object.values(OAUTH2_SCOPES) as string[];
-	const invalidScopes = scopes.filter((scope) => !validScopes.includes(scope));
+	try {
+		// 동적으로 서버에서 스코프 목록을 가져와서 검증
+		const { apiClient } = await import('$lib');
+		const serverScopes = await apiClient.getAvailableScopes();
+		const validScopeIds = serverScopes.map((scope) => scope.id);
 
-	if (invalidScopes.length > 0) {
-		return { isValid: false, message: `유효하지 않은 권한 범위: ${invalidScopes.join(', ')}` };
+		const invalidScopes = scopes.filter((scope) => !validScopeIds.includes(scope));
+
+		if (invalidScopes.length > 0) {
+			return { isValid: false, message: `유효하지 않은 권한 범위: ${invalidScopes.join(', ')}` };
+		}
+
+		return { isValid: true };
+	} catch (error) {
+		console.error('스코프 검증 중 오류 발생:', error);
+		// 오류 발생 시 기본 스코프들로 폴백 검증
+		const fallbackScopes = ['openid', 'profile', 'email'];
+		const invalidScopes = scopes.filter((scope) => !fallbackScopes.includes(scope));
+
+		if (invalidScopes.length > 0) {
+			return { isValid: false, message: `유효하지 않은 권한 범위: ${invalidScopes.join(', ')}` };
+		}
+
+		return { isValid: true };
 	}
-
-	return { isValid: true };
 }
 
 /**

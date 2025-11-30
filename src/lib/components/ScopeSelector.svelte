@@ -1,50 +1,77 @@
 <script lang="ts">
-	import { getScopeInfo, OAUTH2_SCOPES } from '$lib/utils/scope.utils';
+	import { onMount } from 'svelte';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-	import {
-		faTimes,
-		faExclamationTriangle,
-		faCheck,
-		faPlus
-	} from '@fortawesome/free-solid-svg-icons';
+	import { faTimes, faCheck, faPlus, faKey } from '@fortawesome/free-solid-svg-icons';
+	import { DEFAULT_SCOPES } from '$lib/constants/authorization.constants';
 
 	interface Props {
 		selectedScopes: string[];
 		onScopeToggle: (scope: string) => void;
+		availableScopes?: { id: string; name: string; description: string }[];
 		error?: string;
 		disabled?: boolean;
 	}
 
-	let { selectedScopes = $bindable([]), onScopeToggle, error, disabled = false }: Props = $props();
+	let {
+		selectedScopes = $bindable([]),
+		onScopeToggle,
+		availableScopes,
+		error,
+		disabled = false
+	}: Props = $props();
 
-	// 모든 스코프 목록 (scope.utils.ts에서 가져옴)
-	const allScopes = Object.values(OAUTH2_SCOPES);
+	let serverScopes = $state<{ id: string; name: string; description: string }[]>([]);
+	let _isLoadingScopes = $state(false);
+	let _scopeLoadError = $state<string | null>(null);
 
-	// 스코프 아이콘 색상 클래스 가져오기 함수
-	function getScopeColorClasses(color: string) {
-		const colorMap = {
-			blue: 'bg-blue-100 text-blue-600 hover:bg-blue-200',
-			orange: 'bg-orange-100 text-orange-600 hover:bg-orange-200',
-			green: 'bg-green-100 text-green-600 hover:bg-green-200',
-			purple: 'bg-purple-100 text-purple-600 hover:bg-purple-200',
-			indigo: 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200',
-			red: 'bg-red-100 text-red-600 hover:bg-red-200',
-			gray: 'bg-gray-100 text-gray-600 hover:bg-gray-200',
-			cyan: 'bg-cyan-100 text-cyan-600 hover:bg-cyan-200'
-		};
+	let allScopes = $state<{ id: string; name: string; description: string }[]>([]);
 
-		return colorMap[color as keyof typeof colorMap] || colorMap.gray;
+	$effect(() => {
+		if (availableScopes && availableScopes.length > 0) {
+			allScopes = availableScopes;
+		} else {
+			allScopes = serverScopes;
+		}
+	});
+
+	async function loadScopes() {
+		if (availableScopes && availableScopes.length > 0) {
+			return;
+		}
+
+		try {
+			_isLoadingScopes = true;
+			_scopeLoadError = null;
+
+			const { apiClient } = await import('$lib');
+			const scopes = await apiClient.getAvailableScopes();
+
+			serverScopes = scopes.map((scope: unknown) => ({
+				id: (scope as { id: string }).id,
+				name: (scope as { name?: string }).name || (scope as { id: string }).id,
+				description:
+					(scope as { description?: string }).description || `${(scope as { id: string }).id} 권한`
+			}));
+		} catch (error) {
+			console.error('스코프 목록 로드 실패:', error);
+			_scopeLoadError = '스코프 목록을 불러오는데 실패했습니다.';
+			serverScopes = [...DEFAULT_SCOPES];
+		} finally {
+			_isLoadingScopes = false;
+		}
 	}
 
-	// 스코프가 선택되었는지 확인
-	function isScopeSelected(scope: string): boolean {
-		return selectedScopes.includes(scope);
+	onMount(() => {
+		loadScopes();
+	});
+
+	function isScopeSelected(scopeId: string): boolean {
+		return selectedScopes.includes(scopeId);
 	}
 
-	// 스코프 토글 핸들러
-	function handleScopeToggle(scope: string) {
+	function handleScopeToggle(scopeId: string) {
 		if (disabled) return;
-		onScopeToggle(scope);
+		onScopeToggle(scopeId);
 	}
 </script>
 
@@ -56,78 +83,79 @@
 		<div class="mb-3">
 			<p class="mb-2 text-xs text-gray-500">선택된 권한 ({selectedScopes.length})</p>
 			<div class="flex flex-wrap gap-2">
-				{#each selectedScopes as scope (scope)}
-					{@const scopeInfo = getScopeInfo(scope)}
-					<span
-						class="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700"
-					>
-						<FontAwesomeIcon icon={scopeInfo.icon} class="text-xs" />
-						{scopeInfo.name}
-						<button
-							type="button"
-							onclick={() => handleScopeToggle(scope)}
-							{disabled}
-							class="ml-1 text-blue-500 hover:text-blue-700"
-							aria-label="{scopeInfo.name} 제거"
+				{#each selectedScopes as scopeId (scopeId)}
+					{@const scope = allScopes.find((s) => s.id === scopeId)}
+					{#if scope}
+						<span
+							class="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2 py-1 text-xs font-medium text-stone-700"
 						>
-							<FontAwesomeIcon icon={faTimes} class="text-xs" />
-						</button>
-					</span>
+							{scope.name}
+							<button
+								type="button"
+								onclick={() => handleScopeToggle(scopeId)}
+								{disabled}
+								class="ml-1 text-stone-500 hover:text-stone-700"
+								aria-label="{scope.name} 제거"
+							>
+								<FontAwesomeIcon icon={faTimes} class="text-xs" />
+							</button>
+						</span>
+					{/if}
 				{/each}
 			</div>
 		</div>
 	{/if}
 
 	<!-- 스코프 선택 영역 -->
-	<div id="scope-selector" class="max-h-64 overflow-y-auto rounded-md border border-gray-200">
-		<div class="p-3">
-			<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-				{#each allScopes as scope (scope)}
-					{@const scopeInfo = getScopeInfo(scope)}
-					{@const isSelected = isScopeSelected(scope)}
-					<button
-						type="button"
-						onclick={() => handleScopeToggle(scope)}
-						{disabled}
-						class="flex items-center space-x-3 rounded-lg border p-3 text-left transition-all hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none {isSelected
-							? 'border-blue-300 bg-blue-50'
-							: 'border-gray-200'}"
-					>
-						<div class="flex-shrink-0">
-							<div
-								class="flex h-8 w-8 items-center justify-center rounded-full {getScopeColorClasses(
-									scopeInfo.color
-								)}"
-							>
-								<FontAwesomeIcon icon={scopeInfo.icon} class="text-sm" />
-							</div>
-						</div>
-						<div class="min-w-0 flex-1">
-							<p class="truncate text-sm font-medium text-gray-900">
-								{scopeInfo.name}
-							</p>
-							<p class="truncate text-xs text-gray-600">
-								{scopeInfo.description}
-							</p>
-							{#if scopeInfo.sensitive}
-								<span class="mt-1 inline-flex items-center text-xs text-red-600">
-									<FontAwesomeIcon icon={faExclamationTriangle} class="mr-1" />
-									민감한 권한
-								</span>
-							{/if}
-						</div>
-						<div class="flex-shrink-0">
-							{#if isSelected}
-								<FontAwesomeIcon icon={faCheck} class="text-blue-600" />
-							{:else}
-								<FontAwesomeIcon icon={faPlus} class="text-gray-400" />
-							{/if}
-						</div>
-					</button>
-				{/each}
+	{#if _isLoadingScopes}
+		<div class="flex items-center justify-center py-8">
+			<div class="flex items-center space-x-2 text-gray-500">
+				<div class="h-6 w-6 animate-spin rounded-full border-b-2 border-blue-500"></div>
+				<span class="text-sm">권한 목록을 불러오는 중...</span>
 			</div>
 		</div>
-	</div>
+	{:else}
+		<div id="scope-selector" class="max-h-64 overflow-y-auto rounded-md border border-gray-200">
+			<div class="p-3">
+				<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+					{#each allScopes as scope (scope.id)}
+						{@const isSelected = isScopeSelected(scope.id)}
+						<button
+							type="button"
+							onclick={() => handleScopeToggle(scope.id)}
+							{disabled}
+							class="flex items-center space-x-3 rounded-lg border p-3 text-left transition-all hover:bg-gray-50 focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:outline-none {isSelected
+								? 'border-stone-300 bg-stone-50'
+								: 'border-gray-200'}"
+						>
+							<div class="shrink-0">
+								<div
+									class="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-r from-stone-500 to-stone-600"
+								>
+									<FontAwesomeIcon icon={faKey} class="text-sm text-white" />
+								</div>
+							</div>
+							<div class="min-w-0 flex-1">
+								<p class="truncate text-sm font-medium text-gray-900">
+									{scope.name}
+								</p>
+								<p class="truncate text-xs text-gray-600">
+									{scope.description}
+								</p>
+							</div>
+							<div class="shrink-0">
+								{#if isSelected}
+									<FontAwesomeIcon icon={faCheck} class="text-stone-600" />
+								{:else}
+									<FontAwesomeIcon icon={faPlus} class="text-gray-400" />
+								{/if}
+							</div>
+						</button>
+					{/each}
+				</div>
+			</div>
+		</div>
+	{/if}
 
 	{#if error}
 		<p class="mt-1 text-sm text-red-600">{error}</p>

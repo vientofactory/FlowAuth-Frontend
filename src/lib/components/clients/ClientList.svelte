@@ -14,7 +14,8 @@
 		faKey,
 		faPause,
 		faPlay,
-		faTrash
+		faTrash,
+		faMinus
 	} from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
@@ -44,7 +45,7 @@
 
 <!-- 클라이언트 목록 -->
 <div
-	class="relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-50 to-gray-50 p-6 shadow-sm ring-1 ring-gray-100"
+	class="relative overflow-hidden rounded-xl bg-linear-to-r from-slate-50 to-gray-50 p-6 shadow-sm ring-1 ring-gray-100"
 >
 	<div class="relative">
 		<div class="mb-6 flex items-center justify-between">
@@ -55,7 +56,11 @@
 				클라이언트 목록
 			</h3>
 			<Button onclick={onToggleCreateForm} size="sm" class="hidden lg:inline-flex">
-				<FontAwesomeIcon icon={faPlus} class="mr-2" />
+				{#if showCreateForm}
+					<FontAwesomeIcon icon={faMinus} class="mr-2" />
+				{:else}
+					<FontAwesomeIcon icon={faPlus} class="mr-2" />
+				{/if}
 				{showCreateForm ? '취소' : '클라이언트 추가'}
 			</Button>
 		</div>

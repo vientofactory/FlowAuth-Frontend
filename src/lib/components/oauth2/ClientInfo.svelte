@@ -12,7 +12,7 @@
 
 {#if client.description}
 	<div
-		class="mb-4 rounded-lg border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-3 shadow-sm sm:mb-6 sm:rounded-xl"
+		class="mb-4 rounded-lg border border-blue-100 bg-linear-to-r from-blue-50 to-indigo-50 p-3 shadow-sm sm:mb-6 sm:rounded-xl"
 	>
 		<div class="flex items-start space-x-2 sm:space-x-3">
 			<div class="flex-shrink-0">

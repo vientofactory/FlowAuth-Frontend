@@ -2,7 +2,8 @@
 	import { onMount } from 'svelte';
 	import { apiClient } from '$lib/utils/api';
 	import { DashboardLayout, Modal, authState, DashboardSkeleton } from '$lib';
-	import { USER_TYPES } from '$lib/types/user.types';
+	import Alert from '$lib/components/Alert.svelte';
+	import { USER_TYPES } from '$lib';
 	import { env } from '$lib/config/env';
 	import type { ConnectedAppDto } from '$lib/types/dashboard';
 	import type { User } from '$lib';
@@ -152,15 +153,7 @@
 			<DashboardSkeleton type="table" count={3} />
 		{:else if error}
 			<!-- 에러 상태 -->
-			<div class="rounded-lg border border-red-200 bg-red-50 p-6">
-				<div class="flex items-center">
-					<FontAwesomeIcon icon={faExclamationTriangle} class="mr-3 text-red-500" />
-					<div>
-						<h3 class="text-sm font-medium text-red-800">오류 발생</h3>
-						<p class="mt-1 text-sm text-red-700">{error}</p>
-					</div>
-				</div>
-			</div>
+			<Alert variant="error" title="오류 발생" message={error} />
 		{:else if apps.length === 0}
 			<!-- 빈 상태 -->
 			<div class="py-12 text-center">
@@ -168,7 +161,7 @@
 				<h3 class="mb-2 text-lg font-medium text-gray-900">연결된 앱이 없습니다</h3>
 				<p class="mb-6 text-gray-600">
 					아직 어떤 앱에도 연결되지 않았습니다.<br />
-					OAuth2 애플리케이션을 사용하면 여기에 표시됩니다.
+					OAuth2 애플리케이션을 연결하면 여기에 표시됩니다.
 				</p>
 				{#if user?.userType === USER_TYPES.DEVELOPER}
 					<a
@@ -218,13 +211,17 @@
 							<div>
 								<h4 class="mb-2 text-sm font-medium text-gray-900">권한 범위</h4>
 								<div class="flex flex-wrap gap-1">
-									{#each app.scopes as scope (scope)}
-										<span
-											class="inline-flex items-center rounded-md bg-stone-100 px-2 py-1 text-xs font-medium text-stone-800"
-										>
-											{scope}
-										</span>
-									{/each}
+									{#if app.scopes && app.scopes.length > 0}
+										{#each app.scopes as scope (scope)}
+											<span
+												class="inline-flex items-center rounded-md bg-stone-100 px-2 py-1 text-xs font-medium text-stone-800"
+											>
+												{scope}
+											</span>
+										{/each}
+									{:else}
+										<span class="text-xs text-gray-400">권한 없음</span>
+									{/if}
 								</div>
 							</div>
 
@@ -236,6 +233,7 @@
 								</div>
 								<div class="flex justify-between">
 									<span>만료 일시:</span>
+									<!-- 리프래시 토큰 만료일 기준 -->
 									<span>{formatDate(app.expiresAt)}</span>
 								</div>
 							</div>

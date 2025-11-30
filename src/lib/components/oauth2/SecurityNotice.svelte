@@ -4,7 +4,7 @@
 </script>
 
 <div
-	class="mb-4 rounded-md border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-3 shadow-sm sm:mb-6 sm:rounded-lg sm:p-4"
+	class="mb-4 rounded-md border border-amber-200 bg-linear-to-r from-amber-50 to-orange-50 p-3 shadow-sm sm:mb-6 sm:rounded-lg sm:p-4"
 >
 	<div class="flex items-start space-x-2 sm:space-x-3">
 		<div class="flex-shrink-0">

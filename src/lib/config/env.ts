@@ -1,6 +1,9 @@
 // 환경변수 접근을 위한 유틸리티
 export const env = {
 	API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
+	FRONTEND_URL:
+		import.meta.env.VITE_FRONTEND_URL ||
+		(typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173'),
 	APP_NAME: import.meta.env.VITE_APP_NAME || 'FlowAuth',
 	APP_VERSION: import.meta.env.VITE_APP_VERSION || '1.0.0',
 	RECAPTCHA_SITE_KEY: import.meta.env.VITE_RECAPTCHA_SITE_KEY || ''

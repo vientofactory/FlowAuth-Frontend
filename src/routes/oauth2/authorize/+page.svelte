@@ -1,4 +1,5 @@
 <script lang="ts">
+	import './+page.css';
 	import { onMount } from 'svelte';
 	import Card from '$lib/components/Card.svelte';
 	import LoadingState from '$lib/components/oauth2/LoadingState.svelte';
@@ -11,58 +12,57 @@
 	import { ErrorType } from '$lib/types/authorization.types';
 	import type { PageData } from './$types';
 	import { env } from '$lib/config/env';
-	import { getScopeInfo } from '$lib/utils/scope.utils';
 	import { oidcStore } from '$lib/stores/oidc';
 	import { LOCAL_STORAGE_KEYS, COOKIE_KEYS } from '@flowauth/shared';
 	import { getCookie } from '$lib/utils/cookie';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import { faInfo, faInfoCircle, faSpinner } from '@fortawesome/free-solid-svg-icons';
 	import { faCube } from '@fortawesome/free-solid-svg-icons';
-	import './+page.css';
+	import { faIdBadge } from '@fortawesome/free-solid-svg-icons';
+	import { SCOPE_DESCRIPTIONS } from '$lib/constants/authorization.constants';
+	import type { Writable } from 'svelte/store';
 
 	let { data }: { data: PageData } = $props();
-
-	// 권한 부여 훅 사용
-	const {
-		state: authState,
-		handleConsent,
-		retryAuthorization,
-		loadAuthorizationData
-	} = useAuthorization(data);
-
-	// 상태 구독
-	let currentState = $state<AuthorizationState | null>(null);
-	const unsubscribe = authState.subscribe((value) => {
-		currentState = value;
-	});
-
-	// 설명 표시 상태 관리
-	let isDescriptionExpanded = $state(false);
 
 	// 설명 중략 처리 설정
 	const DESCRIPTION_MAX_LENGTH = 80; // 모바일에서 약 3-4줄
 	const DESCRIPTION_PREVIEW_LENGTH = 20; // 미리보기 길이
 
-	// 로고 URL을 리액티브하게 계산
-	let logoUrl = $derived(getLogoUrl(currentState?.client?.logoUri));
+	// 타임아웃 설정
+	const LOADING_TIMEOUT_MS = 30000; // 30초
 
-	// 스코프 아이콘 색상 클래스 가져오기 함수
-	function getScopeColorClasses(color: string) {
-		const colorMap = {
-			blue: 'bg-stone-100 text-stone-600',
-			orange: 'bg-neutral-100 text-neutral-600',
-			green: 'bg-gray-100 text-gray-600',
-			purple: 'bg-slate-100 text-slate-600',
-			indigo: 'bg-zinc-100 text-zinc-600',
-			red: 'bg-neutral-100 text-neutral-600',
-			gray: 'bg-gray-100 text-gray-600',
-			cyan: 'bg-stone-100 text-stone-600'
-		};
+	// OAuth2 파라미터 누락 에러 처리
+	const oauth2ParamError = data && 'error' in data && data.error;
 
-		return colorMap[color as keyof typeof colorMap] || colorMap.gray;
+	// 권한 부여 훅 및 상태
+	let authState: Writable<AuthorizationState> | null = null;
+	let handleConsent: ((approved: boolean) => void) | null = null;
+	let retryAuthorization: (() => void) | null = null;
+	let loadAuthorizationData: (() => void) | null = null;
+	let currentState = $state<AuthorizationState | null>(null);
+	let unsubscribe: (() => void) | null = null;
+
+	if (!oauth2ParamError && data && 'authorizeParams' in data) {
+		({
+			state: authState,
+			handleConsent,
+			retryAuthorization,
+			loadAuthorizationData
+		} = useAuthorization(data));
+		unsubscribe = authState.subscribe((value: AuthorizationState) => {
+			currentState = value;
+		});
 	}
 
-	// Function to extract host from redirect URI
+	// 설명 표시 상태 관리
+	let isDescriptionExpanded = $state(false);
+
+	// 로고 URL을 리액티브하게 계산
+	let logoUrl = $derived(
+		!oauth2ParamError && currentState?.client ? getLogoUrl(currentState.client.logoUri) : null
+	);
+
+	// URI에서 호스트네임 추출
 	function getRedirectHost(redirectUri?: string): string {
 		if (!redirectUri) return 'N/A';
 		try {
@@ -73,7 +73,7 @@
 		}
 	}
 
-	// Function to convert logo URI to absolute URL
+	// 로고 URL 처리
 	function getLogoUrl(logoUri?: string): string | null {
 		if (!logoUri || !logoUri.trim()) {
 			return null;
@@ -96,17 +96,16 @@
 			new URL(trimmedUri);
 			return trimmedUri;
 		} catch {
-			// 유효하지 않은 URL인 경우 null 반환
 			return null;
 		}
 	}
 
-	// Function to check if description needs truncation
+	// 애플리케이션 설명을 잘라야 하는지 구분
 	function needsTruncation(description?: string): boolean {
 		return (description?.length || 0) > DESCRIPTION_MAX_LENGTH;
 	}
 
-	// Function to get truncated description
+	// 애플리케이션 설명을 자르는 함수
 	function getTruncatedDescription(description?: string): string {
 		if (!description) return '';
 		if (description.length <= DESCRIPTION_MAX_LENGTH) return description;
@@ -123,7 +122,7 @@
 		return description.substring(0, lastSpace) + '...';
 	}
 
-	// Function to get display description based on expanded state
+	// 확장된 상태를 기반으로 디스플레이 설명 가져오기
 	function getDisplayDescription(description?: string): string {
 		if (!description) return '';
 
@@ -134,7 +133,6 @@
 		return getTruncatedDescription(description);
 	}
 
-	// Function to toggle description expansion
 	function toggleDescription() {
 		isDescriptionExpanded = !isDescriptionExpanded;
 	}
@@ -153,7 +151,9 @@
 			const loginUrl = `${ROUTES.LOGIN}?returnUrl=${encodeURIComponent(currentUrl)}`;
 			window.location.href = loginUrl;
 			return;
-		} // OIDC 파라미터가 있는 경우 nonce와 state 생성
+		}
+
+		// OIDC 파라미터가 있는 경우 nonce와 state 생성
 		const urlParams = new URLSearchParams(window.location.search);
 		const responseType = urlParams.get('response_type');
 
@@ -162,41 +162,44 @@
 		}
 
 		console.log('[Page] Component mounted, starting authorization data load');
-		loadAuthorizationData();
+		if (loadAuthorizationData) loadAuthorizationData();
 
-		// 추가 안전장치: 45초 후에도 로딩 중이면 강제로 에러 상태로 전환
+		// 무한 로딩 방지
 		setTimeout(() => {
-			authState.update((current) => {
-				if (current.loading) {
-					console.error('[Page] Force timeout: loading took too long');
-					return {
-						...current,
-						loading: false,
-						error: {
-							type: ErrorType.TIMEOUT_ERROR,
-							message: '보안 검증이 예상보다 오래 걸리고 있습니다. 페이지를 새로고침해주세요.',
-							retryable: false
-						}
-					};
-				}
-				return current;
-			});
-		}, 45000);
+			if (authState) {
+				authState.update((current) => {
+					const curr = current as AuthorizationState;
+					if (curr.loading) {
+						console.error('[Page] Force timeout: loading took too long');
+						return {
+							...curr,
+							loading: false,
+							error: {
+								type: ErrorType.TIMEOUT_ERROR,
+								message: '보안 검증이 예상보다 오래 걸리고 있습니다. 페이지를 새로고침해주세요.',
+								retryable: false
+							}
+						};
+					}
+					return curr;
+				});
+			}
+		}, LOADING_TIMEOUT_MS);
 
 		return unsubscribe;
 	});
 
 	// 이벤트 핸들러
 	function handleApprove() {
-		handleConsent(true);
+		if (handleConsent) handleConsent(true);
 	}
 
 	function handleDeny() {
-		handleConsent(false);
+		if (handleConsent) handleConsent(false);
 	}
 
 	function handleRetry() {
-		retryAuthorization();
+		if (retryAuthorization) retryAuthorization();
 	}
 
 	function handleGoBack() {
@@ -210,7 +213,7 @@
 </script>
 
 <svelte:head>
-	<title>Authorize Application - FlowAuth</title>
+	<title>애플리케이션 승인 - FlowAuth</title>
 </svelte:head>
 
 <div
@@ -219,14 +222,22 @@
 	aria-labelledby="authorize-heading"
 >
 	<div class="w-full max-w-md">
-		{#if currentState?.loading}
+		{#if oauth2ParamError}
+			<Card class="border-red-200 bg-white/95 shadow-xl backdrop-blur-sm">
+				<div class="p-8 text-center">
+					<FontAwesomeIcon icon={faInfoCircle} class="mb-4 text-3xl text-red-400" />
+					<h2 class="mb-2 text-lg font-bold text-red-700">잘못된 요청</h2>
+					<p class="mb-4 text-sm text-gray-700">{oauth2ParamError.message}</p>
+					<button
+						class="mt-2 rounded bg-stone-600 px-4 py-2 text-white hover:bg-stone-700"
+						onclick={() => (window.location.href = '/')}
+					>
+						홈으로 이동
+					</button>
+				</div>
+			</Card>
+		{:else if currentState?.loading}
 			<Card class="border-0 bg-white/95 shadow-xl backdrop-blur-sm">
-				<!-- 로딩 중에도 계정 정보 표시 -->
-				<AccountSwitcher
-					currentUser={currentState.currentUser}
-					loading={currentState.currentUser === null}
-					onAccountSwitch={handleAccountSwitch}
-				/>
 				<LoadingState
 					message={currentState.loadingProgress < 50
 						? '보안 검증을 준비하고 있습니다...'
@@ -266,7 +277,7 @@
 						<div class="relative">
 							<Logo
 								src={logoUrl || ''}
-								alt="{currentState.client?.name || 'FlowAuth'} 로고"
+								alt="{currentState.client.name || 'FlowAuth'} 로고"
 								size="lg"
 								fallbackSrc="/logo_icon.png"
 								fallbackIcon={faCube}
@@ -278,7 +289,7 @@
 						<!-- 앱 이름과 설명 -->
 						<div>
 							<h1 class="mb-1 text-xl font-bold text-gray-900">
-								{currentState.client?.name || '알 수 없는 앱'}
+								{currentState.client.name || '알 수 없는 앱'}
 							</h1>
 							{#if currentState.client?.description}
 								<div class="mb-1 flex flex-col items-center space-y-1">
@@ -309,21 +320,22 @@
 					{#if currentState.scopes && currentState.scopes.length > 0}
 						<div class="space-y-3">
 							{#each currentState.scopes as scope, _index (scope)}
-								{@const scopeInfo = getScopeInfo(scope)}
 								<div class="transition-hover flex items-center space-x-3 rounded-lg bg-gray-50 p-3">
 									<div
-										class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full {getScopeColorClasses(
-											scopeInfo.color
-										)}"
+										class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-r from-stone-500 to-stone-600"
 									>
-										<FontAwesomeIcon icon={scopeInfo.icon} class="text-sm" />
+										<FontAwesomeIcon
+											icon={SCOPE_DESCRIPTIONS[scope].icon || faIdBadge}
+											class="text-sm text-white"
+										/>
 									</div>
 									<div class="flex-1">
 										<p class="text-sm font-medium text-gray-900">
-											{scopeInfo.name}
+											{SCOPE_DESCRIPTIONS[scope].name || scope}
 										</p>
 										<p class="text-xs text-gray-600">
-											{scopeInfo.description}
+											{SCOPE_DESCRIPTIONS[scope].description ||
+												`앱이 ${scope} 권한을 사용할 수 있습니다`}
 										</p>
 									</div>
 								</div>

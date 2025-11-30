@@ -16,7 +16,7 @@
 	aria-live="assertive"
 >
 	<div
-		class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-red-500 to-pink-600 shadow-lg"
+		class="flex h-20 w-20 items-center justify-center rounded-full bg-linear-to-r from-red-500 to-pink-600 shadow-lg"
 	>
 		<FontAwesomeIcon icon={faExclamationTriangle} class="text-2xl text-white" />
 	</div>

@@ -8,8 +8,6 @@
 			oauthState: string;
 			oauthNonce: string;
 			error: string;
-			implicitAccessToken: string;
-			implicitIdToken: string;
 		}) => void;
 		onCallbackStart?: () => void;
 	}
@@ -27,25 +25,12 @@
 
 		// URL 파라미터에서 코드와 상태 추출
 		const urlParams = new URLSearchParams(window.location.search);
-		const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
 		let authCode = urlParams.get('code') || '';
 		let oauthState = urlParams.get('state') || '';
 		let oauthNonce = urlParams.get('nonce') || '';
 		let error = urlParams.get('error') || '';
 		let errorDescription = urlParams.get('error_description') || '';
-
-		// Implicit Grant의 경우 해시에서 토큰 추출
-		let implicitAccessToken = hashParams.get('access_token') || '';
-		let implicitIdToken = hashParams.get('id_token') || '';
-
-		// Implicit Grant 토큰 정보 표시
-		if (implicitIdToken) {
-			toast.success('ID 토큰을 받았습니다!');
-		}
-		if (implicitAccessToken) {
-			toast.success('액세스 토큰을 받았습니다!');
-		}
 
 		// 세션 스토리지에서 state, nonce 가져오기
 		const storedState = sessionStorage.getItem('state');
@@ -70,7 +55,7 @@
 			toast.error(`OAuth2 인증 에러: ${error}${errorDescription ? ` - ${errorDescription}` : ''}`);
 		} else if (authCode) {
 			toast.success('인증 코드를 받았습니다. 토큰으로 교환해보세요!');
-		} else if (!implicitAccessToken && !implicitIdToken) {
+		} else {
 			toast.info('인증 파라미터가 없습니다. OAuth2 인증을 시작해보세요.');
 		}
 
@@ -79,9 +64,7 @@
 			authCode,
 			oauthState,
 			oauthNonce,
-			error,
-			implicitAccessToken,
-			implicitIdToken
+			error
 		});
 	}
 

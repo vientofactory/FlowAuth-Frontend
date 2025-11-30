@@ -29,7 +29,7 @@
 </script>
 
 {#if securityMetrics?.alerts?.total > 0}
-	<Card class="border-l-4 border-l-red-400 bg-gradient-to-r from-red-50 to-orange-50">
+	<Card class="border-l-4 border-l-red-400 bg-linear-to-r from-red-50 to-orange-50">
 		<div class="flex items-start space-x-4">
 			<div class="shrink-0">
 				<div class="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">

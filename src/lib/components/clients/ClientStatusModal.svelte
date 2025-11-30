@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Modal, Button } from '$lib';
+	import { Modal, ModalActions } from '$lib';
 	import type { Client } from '$lib/types/oauth.types';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import {
@@ -7,7 +7,6 @@
 		faPlayCircle,
 		faExclamationTriangle,
 		faCheckCircle,
-		faSpinner,
 		faPause,
 		faPlay
 	} from '@fortawesome/free-solid-svg-icons';
@@ -26,12 +25,12 @@
 	const actionColor = $derived(client?.isActive ? 'red' : 'green');
 </script>
 
-{#if show && client}
-	<Modal open={show} title="클라이언트 상태 변경" {onClose}>
-		<div class="space-y-4">
+<Modal open={show && !!client} title="클라이언트 상태 변경" {onClose}>
+	<div class="space-y-4">
+		{#if client}
 			<div class="rounded-md border border-gray-200 bg-gray-50 p-4">
 				<div class="flex">
-					<div class="flex-shrink-0">
+					<div class="shrink-0">
 						<FontAwesomeIcon
 							icon={client.isActive ? faPauseCircle : faPlayCircle}
 							class="text-gray-400"
@@ -52,7 +51,7 @@
 				<!-- 비활성화 경고 -->
 				<div class="rounded-md border border-yellow-200 bg-yellow-50 p-4">
 					<div class="flex">
-						<div class="flex-shrink-0">
+						<div class="shrink-0">
 							<FontAwesomeIcon icon={faExclamationTriangle} class="text-yellow-400" />
 						</div>
 						<div class="ml-3">
@@ -72,7 +71,7 @@
 				<!-- 활성화 정보 -->
 				<div class="rounded-md border border-green-200 bg-green-50 p-4">
 					<div class="flex">
-						<div class="flex-shrink-0">
+						<div class="shrink-0">
 							<FontAwesomeIcon icon={faCheckCircle} class="text-green-400" />
 						</div>
 						<div class="ml-3">
@@ -89,25 +88,20 @@
 					</div>
 				</div>
 			{/if}
+		{/if}
+	</div>
 
-			<div class="flex justify-end space-x-3">
-				<Button variant="outline" onclick={onClose} disabled={isLoading}>취소</Button>
-				<Button
-					onclick={onConfirm}
-					disabled={isLoading}
-					class={actionColor === 'red'
-						? 'bg-red-600 hover:bg-red-700'
-						: 'bg-green-600 hover:bg-green-700'}
-				>
-					{#if isLoading}
-						<FontAwesomeIcon icon={faSpinner} class="mr-2 animate-spin" />
-						{actionText} 중...
-					{:else}
-						<FontAwesomeIcon icon={client.isActive ? faPause : faPlay} class="mr-2" />
-						{actionText}
-					{/if}
-				</Button>
-			</div>
-		</div>
-	</Modal>
-{/if}
+	{#snippet footer()}
+		{#if client}
+			<ModalActions
+				cancelText="취소"
+				confirmText={actionText}
+				confirmIcon={client.isActive ? faPause : faPlay}
+				confirmVariant={actionColor === 'red' ? 'danger' : 'primary'}
+				loading={isLoading}
+				onCancel={onClose}
+				{onConfirm}
+			/>
+		{/if}
+	{/snippet}
+</Modal>

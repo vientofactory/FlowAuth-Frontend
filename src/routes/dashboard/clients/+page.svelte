@@ -3,8 +3,8 @@
 	import { useToast } from '$lib';
 	import { onMount } from 'svelte';
 	import type { Client } from '$lib/types/oauth.types';
-	import type { User } from '$lib/types/user.types';
-	import { USER_TYPES } from '$lib/types/user.types';
+	import type { User } from '$lib';
+	import { USER_TYPES } from '$lib';
 	import { authState } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
 	import { env } from '$lib/config/env';
@@ -31,9 +31,9 @@
 	import ClientDeleteModal from '$lib/components/clients/ClientDeleteModal.svelte';
 	import ClientEditModal from '$lib/components/clients/ClientEditModal.svelte';
 	import ClientStatusModal from '$lib/components/clients/ClientStatusModal.svelte';
-	import AlertCard from '$lib/components/AlertCard.svelte';
+	import Alert from '$lib/components/Alert.svelte';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-	import { faPlus, faCode, faBook } from '@fortawesome/free-solid-svg-icons';
+	import { faPlus, faCode, faBook, faMinus } from '@fortawesome/free-solid-svg-icons';
 	import { faGithub } from '@fortawesome/free-brands-svg-icons';
 
 	let user = $state<User | null>(null);
@@ -205,8 +205,8 @@
 		redirectUrisError = result.message || '';
 	}
 
-	function validateScopesField() {
-		const result = validateScopesUtil(scopesValue);
+	async function validateScopesField() {
+		const result = await validateScopesUtil(scopesValue);
 		scopesError = result.message || '';
 	}
 
@@ -236,8 +236,8 @@
 		editRedirectUrisError = result.message || '';
 	}
 
-	function validateEditScopesField() {
-		const result = validateEditScopesUtil(editScopes);
+	async function validateEditScopesField() {
+		const result = await validateEditScopesUtil(editScopes);
 		editScopesError = result.message || '';
 	}
 
@@ -711,7 +711,11 @@
 			<!-- 모바일에서는 기본 액션만 표시 -->
 			<div class="flex gap-2 lg:hidden">
 				<Button onclick={toggleCreateForm} class="min-w-0 flex-1 sm:flex-none">
-					<FontAwesomeIcon icon={faPlus} class="mr-1 sm:mr-2" />
+					{#if showCreateForm}
+						<FontAwesomeIcon icon={faMinus} class="mr-2" />
+					{:else}
+						<FontAwesomeIcon icon={faPlus} class="mr-2" />
+					{/if}
 					<span class="truncate">{showCreateForm ? '취소' : '클라이언트 추가'}</span>
 				</Button>
 			</div>
@@ -719,15 +723,15 @@
 	{/snippet}
 
 	{#if isLoading}
-		<DashboardSkeleton type="stats" />
+		<DashboardSkeleton type="stats" count={3} />
 	{:else}
 		<ClientStats {clients} />
 	{/if}
 
-	<AlertCard
+	<Alert
 		variant="info"
 		title="SDK를 활용한 통합 안내"
-		description="FlowAuth와의 통합을 위해 SDK를 활용해보세요. 아래 링크에서 자세한 사용법을 확인할 수 있습니다."
+		message="FlowAuth와의 통합을 위해 OAuth2/OIDC 클라이언트 SDK를 활용해보세요. 아래 링크에서 자세한 사용법을 확인할 수 있습니다."
 		icon={faCode}
 		links={[
 			{

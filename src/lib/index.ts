@@ -2,6 +2,8 @@
 
 // Components
 export { default as Button } from './components/Button.svelte';
+export { default as ActionButton } from './components/ActionButton.svelte';
+export { default as ModalActions } from './components/ModalActions.svelte';
 export { default as Input } from './components/Input.svelte';
 export { default as Card } from './components/Card.svelte';
 export { default as Toast } from './components/Toast.svelte';
@@ -67,7 +69,6 @@ export { default as RevokeModal } from './components/tokens/RevokeModal.svelte';
 // Callback Components
 export { default as CallbackHeader } from './components/callback/CallbackHeader.svelte';
 export { default as AuthResultDisplay } from './components/callback/AuthResultDisplay.svelte';
-export { default as ImplicitTokenDisplay } from './components/callback/ImplicitTokenDisplay.svelte';
 export { default as UsageGuideSection } from './components/callback/UsageGuideSection.svelte';
 export { default as TokenInfoTab } from './components/callback/TokenInfoTab.svelte';
 export { default as ProfileInfoTab } from './components/callback/ProfileInfoTab.svelte';
@@ -103,8 +104,9 @@ export {
 	PERMISSION_NAMES
 } from './utils/permissions';
 
-// Types - re-export from specific type files
-export type { User, USER_TYPES } from './types/user.types';
+// Types - re-export from shared package
+export type { User } from '@flowauth/shared';
+export { USER_TYPES } from '@flowauth/shared';
 
 export interface LoginData {
 	email: string;

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
 	import { Card, Button, LoadingButton } from '$lib';
@@ -29,16 +29,20 @@
 
 	let token = '';
 
-	onMount(async () => {
+	$effect(() => {
 		if (!browser) return;
 
-		token = $page.url.searchParams.get('token') || '';
+		token = page.url.searchParams.get('token') || '';
 
 		if (!token) {
 			error = '유효하지 않은 인증 링크입니다.';
 			loading = false;
 			return;
 		}
+	});
+
+	onMount(async () => {
+		if (!browser) return;
 
 		await verifyEmail();
 	});

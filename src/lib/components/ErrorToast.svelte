@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
 	import type { ApiError } from '$lib/utils/error-handler';
 	import { getErrorActions } from '$lib/utils/error-handler';
 	import { Button } from '$lib';
@@ -21,14 +20,18 @@
 		showActions?: boolean;
 		autoClose?: boolean;
 		closeDuration?: number;
+		onClose?: () => void;
+		onAction?: (action: { action: string; error: ApiError }) => void;
 	}
 
-	let { error, showActions = true, autoClose = false, closeDuration = 5000 }: Props = $props();
-
-	const dispatch = createEventDispatcher<{
-		close: void;
-		action: { action: string; error: ApiError };
-	}>();
+	let {
+		error,
+		showActions = true,
+		autoClose = false,
+		closeDuration = 5000,
+		onClose,
+		onAction
+	}: Props = $props();
 
 	let isVisible = $state(true);
 
@@ -42,12 +45,12 @@
 	function handleClose() {
 		isVisible = false;
 		setTimeout(() => {
-			dispatch('close');
+			onClose?.();
 		}, 300); // 애니메이션 완료 후 닫기
 	}
 
 	function handleAction(actionType: string) {
-		dispatch('action', { action: actionType, error });
+		onAction?.({ action: actionType, error });
 	}
 
 	// 에러 타입에 따른 아이콘 반환

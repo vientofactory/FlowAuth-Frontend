@@ -1,21 +1,19 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { createEventDispatcher } from 'svelte';
 	import { apiClient } from '$lib/utils/api';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import { faCube } from '@fortawesome/free-solid-svg-icons';
 	import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 	export let src: string = '';
-	export let alt: string = 'Logo';
+	export let alt: string = 'Client Logo';
 	export let size: 'sm' | 'md' | 'lg' | 'xl' = 'md';
 	export let fallbackSrc: string = '/logo_icon.png';
 	export let fallbackIcon: IconDefinition = faCube;
 	export let useIconFallback: boolean = false;
 	export let clickable: boolean = false;
+	export let onClick: (() => void) | undefined = undefined;
 	export let className: string = '';
-
-	const dispatch = createEventDispatcher();
 
 	let imgElement: HTMLImageElement;
 	let _hasError = false;
@@ -73,15 +71,15 @@
 	}
 
 	function handleClick() {
-		if (clickable) {
-			dispatch('click');
+		if (clickable && onClick) {
+			onClick();
 		}
 	}
 
 	function handleKeyDown(event: KeyboardEvent) {
-		if (clickable && (event.key === 'Enter' || event.key === ' ')) {
+		if (clickable && onClick && (event.key === 'Enter' || event.key === ' ')) {
 			event.preventDefault();
-			dispatch('click');
+			onClick();
 		}
 	}
 

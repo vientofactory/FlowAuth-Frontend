@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Modal from '$lib/components/Modal.svelte';
-	import LoadingButton from './LoadingButton.svelte';
-	import Button from '$lib/components/Button.svelte';
+	import ModalActions from '$lib/components/ModalActions.svelte';
+	import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
 	interface Props {
 		open?: boolean;
@@ -34,18 +34,14 @@
 	</div>
 
 	{#snippet footer()}
-		<div class="flex justify-end space-x-3 bg-gray-50 px-6 py-4">
-			<Button variant="outline" onclick={onCancel} disabled={loading}>
-				{cancelText}
-			</Button>
-			<LoadingButton
-				variant={confirmVariant}
-				{loading}
-				onclick={onConfirm}
-				loadingText="처리 중..."
-			>
-				{confirmText}
-			</LoadingButton>
-		</div>
+		<ModalActions
+			{cancelText}
+			{confirmText}
+			confirmIcon={faCheck}
+			confirmVariant={confirmVariant === 'danger' ? 'danger' : 'primary'}
+			{loading}
+			{onCancel}
+			{onConfirm}
+		/>
 	{/snippet}
 </Modal>

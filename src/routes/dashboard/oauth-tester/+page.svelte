@@ -1,15 +1,16 @@
 <script lang="ts">
+	import { slide } from 'svelte/transition';
 	import { DashboardLayout, Card, Button, apiClient } from '$lib';
+	import Alert from '$lib/components/Alert.svelte';
 	import { useToast } from '$lib';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { createApiUrl } from '$lib/config/env';
+	import { createApiUrl, env } from '$lib/config/env';
 	import { CryptoUtils } from '$lib/utils/crypto.util';
 	import type { Client } from '$lib/types/oauth.types';
-	import { USER_TYPES } from '$lib/types/user.types';
+	import { USER_TYPES } from '$lib';
 	import { authState } from '$lib';
 	import type { User } from '$lib';
-	import { SCOPE_MAPPINGS, OAUTH2_SCOPES } from '$lib/utils/scope.utils';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import {
 		faExclamationCircle,
@@ -30,6 +31,8 @@
 		faChevronDown
 	} from '@fortawesome/free-solid-svg-icons';
 
+	const toast = useToast();
+
 	// 상태 변수들
 	let user = $state<User | null>(null);
 	let clients = $state<Client[]>([]);
@@ -49,7 +52,11 @@
 	let scopesLoading = $state(false);
 	let scopesError = $state<string | null>(null);
 
-	const toast = useToast();
+	// 테스트 콜백 URL 확인
+	let testCallbackUrl = $derived(`${env.FRONTEND_URL}/callback`);
+	let hasTestCallbackUrl = $derived(
+		selectedClient ? selectedClient.redirectUris.includes(testCallbackUrl) : false
+	);
 
 	// 스코프 관련 함수들
 	function getScopesString() {
@@ -113,28 +120,32 @@
 		try {
 			scopesLoading = true;
 			scopesError = null;
-			// scope.utils.ts에서 정의된 스코프들을 사용
-			availableScopes = Object.values(OAUTH2_SCOPES).map((scopeId) => {
-				const scopeInfo = SCOPE_MAPPINGS[scopeId];
-				return {
-					id: scopeId,
-					name: scopeInfo?.name || scopeId,
-					description: scopeInfo?.description || `앱이 ${scopeId} 권한을 사용할 수 있습니다`
-				};
-			});
-		} catch {
+			// 서버에서 스코프 목록을 가져옴
+			const serverScopes = await apiClient.getAvailableScopes();
+			availableScopes = serverScopes.map((scope) => ({
+				id: scope.id,
+				name: scope.name,
+				description: scope.description
+			}));
+		} catch (error) {
 			scopesError = '스코프 목록을 불러오는데 실패했습니다.';
 			toast.error('스코프 목록을 불러오는데 실패했습니다.');
+			console.error('Failed to load scopes:', error);
 
-			// 오류 시에도 동일한 스코프들 사용
-			availableScopes = Object.values(OAUTH2_SCOPES).map((scopeId) => {
-				const scopeInfo = SCOPE_MAPPINGS[scopeId];
-				return {
-					id: scopeId,
-					name: scopeInfo?.name || scopeId,
-					description: scopeInfo?.description || `앱이 ${scopeId} 권한을 사용할 수 있습니다`
-				};
-			});
+			// 오류 시에도 기본 스코프들로 폴백
+			availableScopes = [
+				{
+					id: 'openid',
+					name: 'OpenID Connect',
+					description: 'OpenID Connect 인증을 위한 기본 스코프'
+				},
+				{
+					id: 'profile',
+					name: '프로필 정보 읽기',
+					description: '사용자 프로필 정보 (이름, 생년월일, 지역, 사진 등) 접근'
+				},
+				{ id: 'email', name: '이메일 주소 읽기', description: '사용자 이메일 주소 접근' }
+			];
 		} finally {
 			scopesLoading = false;
 		}
@@ -147,6 +158,13 @@
 			return;
 		}
 
+		if (!hasTestCallbackUrl) {
+			toast.error(
+				'테스트 콜백 URL이 클라이언트에 설정되지 않았습니다. 먼저 클라이언트 설정에서 콜백 URL을 추가해주세요.'
+			);
+			return;
+		}
+
 		if (!selectedClient.redirectUris.length) {
 			toast.error('선택한 클라이언트에 리다이렉트 URI가 설정되지 않았습니다.');
 			return;
@@ -154,7 +172,7 @@
 
 		try {
 			const baseUrl = createApiUrl('/oauth2/authorize');
-			const redirectUri = selectedClient.redirectUris[0];
+			const redirectUri = hasTestCallbackUrl ? testCallbackUrl : selectedClient.redirectUris[0];
 			const state = CryptoUtils.generateRandomString(32);
 			let nonce: string | undefined;
 
@@ -279,8 +297,8 @@
 
 	function resetTest() {
 		selectedClient = null;
-		// 기본 스코프로 재설정 (서버에서 받아온 스코프들 중에서)
-		const defaultScopeIds = ['openid', 'profile', 'email'];
+		// 기본 스코프로 재설정
+		const defaultScopeIds = ['openid', 'profile'];
 		const validDefaultScopes = defaultScopeIds.filter((id) =>
 			availableScopes.some((scope) => scope.id === id)
 		);
@@ -299,7 +317,7 @@
 	description="OAuth2 인증 플로우를 테스트하고 검증하세요."
 	showBackButton={true}
 >
-	<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+	<div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
 		<!-- 설정 패널 -->
 		<Card>
 			<h3 class="mb-4 text-lg font-medium text-gray-900">테스트 설정</h3>
@@ -310,6 +328,29 @@
 					<label for="client-select" class="mb-2 block text-sm font-medium text-gray-700"
 						>클라이언트 선택 *</label
 					>
+
+					{#if selectedClient && !hasTestCallbackUrl}
+						<div transition:slide>
+							<Alert
+								variant="warning"
+								title="테스트 콜백 URL 설정 필요"
+								message="OAuth2 테스터를 사용하려면 클라이언트의 리다이렉트 URI에 테스트 콜백 URL을 추가해야 합니다."
+								links={[
+									{
+										text: '클라이언트 설정으로 이동',
+										url: '/dashboard/clients',
+										icon: faArrowRight
+									}
+								]}
+							/>
+							<div class="mt-2 rounded-md bg-gray-50 p-3">
+								<p class="text-sm text-gray-600">
+									<strong>추가할 콜백 URL:</strong>
+									<code class="ml-2 rounded bg-gray-100 px-2 py-1 text-xs">{testCallbackUrl}</code>
+								</p>
+							</div>
+						</div>
+					{/if}
 
 					{#if isLoading}
 						<div class="p-4">
@@ -383,17 +424,7 @@
 						class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
 					>
 						<option value="code">Authorization Code</option>
-						<option value="token">Implicit Grant (Access Token)</option>
-						<option value="id_token">Implicit Grant (ID Token)</option>
-						<option value="code id_token">Hybrid Flow (Code + ID Token)</option>
-						<option value="token id_token">Implicit Grant (Access Token + ID Token)</option>
 					</select>
-					{#if responseType.includes('id_token')}
-						<p class="mt-1 text-xs text-blue-600">
-							<FontAwesomeIcon icon={faInfoCircle} class="mr-1" />
-							OIDC 응답 타입입니다. openid 스코프가 필요합니다.
-						</p>
-					{/if}
 				</div>
 
 				<!-- Scopes -->
@@ -435,7 +466,7 @@
 
 					<!-- 스코프 선택기 -->
 					{#if showScopeSelector}
-						<div class="rounded-md border border-gray-200 bg-white p-4">
+						<div class="rounded-md border border-gray-200 bg-white p-4" transition:slide>
 							<div class="mb-3 flex items-center justify-between">
 								<h4 class="text-sm font-medium text-gray-900">사용 가능한 스코프</h4>
 								<div class="flex space-x-2">

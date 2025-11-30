@@ -1,6 +1,7 @@
 import type { Client } from '$lib/types/oauth.types';
-import type { User } from '$lib/types/user.types';
+import type { User } from '$lib';
 import type { ErrorCode } from '@flowauth/shared';
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 export const TOKEN_TYPES = {
 	LOGIN: 'login',
@@ -10,10 +11,9 @@ export const TOKEN_TYPES = {
 export type TokenType = (typeof TOKEN_TYPES)[keyof typeof TOKEN_TYPES];
 
 export interface ScopeInfo {
-	icon: string;
+	name: string;
+	icon: IconDefinition;
 	description: string;
-	category: string;
-	risk?: 'low' | 'medium' | 'high';
 }
 
 export interface AuthorizationState {

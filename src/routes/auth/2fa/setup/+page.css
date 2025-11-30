@@ -234,6 +234,14 @@
 	}
 }
 
+/* 아주 작은 모바일에서 더 컴팩트하게 */
+@media (max-width: 479px) {
+	.step-indicator {
+		padding: 0.5rem;
+		gap: 0.5rem;
+	}
+}
+
 /* 태블릿 */
 @media (min-width: 768px) {
 	.step-indicator {
@@ -287,6 +295,15 @@
 	transition: all 0.3s;
 }
 
+/* 매우 작은 모바일 */
+@media (max-width: 319px) {
+	.step-number {
+		width: 32px;
+		height: 32px;
+		font-size: 0.75rem;
+	}
+}
+
 /* 작은 모바일 */
 @media (min-width: 320px) {
 	.step-number {
@@ -321,7 +338,8 @@
 /* 모바일에서 더 작은 폰트 */
 @media (max-width: 479px) {
 	.step span {
-		font-size: 0.7rem;
+		font-size: 0.65rem;
+		line-height: 1.1;
 	}
 }
 
@@ -576,6 +594,14 @@
 	margin-bottom: 1rem;
 }
 
+/* 아주 작은 모바일에서는 1열로 표시 */
+@media (max-width: 479px) {
+	.codes-grid {
+		grid-template-columns: 1fr;
+		gap: 0.5rem;
+	}
+}
+
 .code-item {
 	display: flex;
 	align-items: center;
@@ -667,6 +693,15 @@
 	.token-input {
 		padding: 0.75rem;
 		font-size: 1.125rem;
+	}
+}
+
+/* 아주 작은 모바일에서 더 큰 터치 타겟 */
+@media (max-width: 375px) and (hover: none) and (pointer: coarse) {
+	.token-input {
+		padding: 1rem;
+		font-size: 1.25rem;
+		min-height: 56px;
 	}
 }
 
@@ -795,5 +830,30 @@
 	.code-item {
 		min-height: 48px;
 		padding: 0.75rem;
+	}
+}
+
+/* 아주 작은 모바일 터치 디바이스에서 더 큰 터치 타겟 */
+@media (max-width: 375px) and (hover: none) and (pointer: coarse) {
+	.step-number {
+		min-width: 52px;
+		min-height: 52px;
+	}
+
+	.token-input {
+		min-height: 56px;
+		padding: 1rem;
+		font-size: 1.25rem;
+	}
+
+	.actions :global(button) {
+		min-height: 52px;
+		padding: 1rem 2rem;
+		font-size: 1rem;
+	}
+
+	.code-item {
+		min-height: 52px;
+		padding: 1rem 0.75rem;
 	}
 }

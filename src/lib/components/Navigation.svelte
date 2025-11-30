@@ -2,7 +2,7 @@
 	import { authState, authStore, Button, profileUser, isProfileInitialized } from '$lib';
 	import { onMount } from 'svelte';
 	import type { User } from '$lib';
-	import { USER_TYPES, PERMISSIONS } from '$lib/types/user.types';
+	import { USER_TYPES, PERMISSIONS } from '$lib';
 	import { env } from '$lib/config/env';
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 	import {
@@ -21,7 +21,8 @@
 		faBars,
 		faSignInAlt,
 		faUserPlus,
-		faCog
+		faCog,
+		faSpinner
 	} from '@fortawesome/free-solid-svg-icons';
 	import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
@@ -57,6 +58,7 @@
 	let profileInitialized = $state(false);
 	let profileDropdownOpen = $state(false);
 	let initialAuthCheckDone = $state(false); // 초기 인증 확인 완료 여부
+	let isLoggingOut = $state(false);
 
 	// 프로필 스토어 구독
 	$effect(() => {
@@ -128,7 +130,11 @@
 	});
 
 	async function handleLogout() {
+		if (isLoggingOut) return; // Prevent multiple logout attempts
+
 		profileDropdownOpen = false;
+		isLoggingOut = true;
+
 		try {
 			await authStore.logout();
 
@@ -141,6 +147,8 @@
 
 			// 강제 페이지 새로고침으로 완전한 상태 초기화
 			window.location.replace('/');
+		} finally {
+			isLoggingOut = false;
 		}
 	}
 
@@ -240,17 +248,17 @@
 					>
 						<!-- 아바타 스켈레톤 -->
 						<div
-							class="flex h-8 w-8 animate-pulse items-center justify-center rounded-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
+							class="flex h-8 w-8 animate-pulse items-center justify-center rounded-full bg-linear-to-r from-gray-200 via-gray-100 to-gray-200"
 						>
 							<div class="h-4 w-4 rounded-full bg-gray-300 opacity-60"></div>
 						</div>
 						<!-- 이름 텍스트 스켈레톤 -->
 						<div
-							class="hidden h-4 w-20 animate-pulse rounded bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 lg:block"
+							class="hidden h-4 w-20 animate-pulse rounded bg-linear-to-r from-gray-200 via-gray-100 to-gray-200 lg:block"
 						></div>
 						<!-- 화살표 아이콘 스켈레톤 -->
 						<div
-							class="h-3 w-3 animate-pulse rounded bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
+							class="h-3 w-3 animate-pulse rounded bg-linear-to-r from-gray-200 via-gray-100 to-gray-200"
 						></div>
 					</div>
 				{:else if isAuthenticated}
@@ -393,7 +401,7 @@
 															<span
 																class="inline-flex items-center rounded-md bg-stone-50 px-1.5 py-0.5 text-xs font-medium text-stone-700 ring-1 ring-stone-200"
 															>
-																{user.userType === USER_TYPES.DEVELOPER ? '개발자' : '일반 사용자'}
+																{user.userType === USER_TYPES.DEVELOPER ? '개발자' : '사용자'}
 															</span>
 														{/if}
 													</div>
@@ -424,11 +432,17 @@
 															item.action?.();
 															profileDropdownOpen = false;
 														}}
-														class="mx-1 flex w-full items-center rounded-md px-4 py-2.5 text-sm transition-colors duration-150 {item.danger
+														disabled={isLoggingOut}
+														class="mx-1 flex w-full cursor-pointer items-center rounded-md px-4 py-2.5 text-sm transition-colors duration-150 {item.danger
 															? 'text-red-600 hover:bg-red-50 hover:text-red-700'
 															: 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}"
 													>
-														{#if typeof item.icon === 'string'}
+														{#if isLoggingOut && item.label === '로그아웃'}
+															<FontAwesomeIcon
+																icon={faSpinner}
+																class="mr-3 w-4 animate-spin text-center"
+															/>
+														{:else if typeof item.icon === 'string'}
 															<i
 																class="{item.icon} mr-3 w-4 text-center {item.danger
 																	? ''
@@ -440,7 +454,9 @@
 																class="mr-3 w-4 text-center {item.danger ? '' : 'text-gray-400'}"
 															/>
 														{/if}
-														{item.label}
+														{isLoggingOut && item.label === '로그아웃'
+															? '로그아웃 중...'
+															: item.label}
 													</button>
 												{/if}
 											{/each}
@@ -454,15 +470,15 @@
 								class="flex items-center space-x-2 rounded-full border border-gray-300 bg-white px-3 py-2 shadow-sm"
 							>
 								<div
-									class="flex h-8 w-8 animate-pulse items-center justify-center rounded-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
+									class="flex h-8 w-8 animate-pulse items-center justify-center rounded-full bg-linear-to-r from-gray-200 via-gray-100 to-gray-200"
 								>
 									<div class="h-4 w-4 rounded-full bg-gray-300 opacity-60"></div>
 								</div>
 								<div
-									class="hidden h-4 w-20 animate-pulse rounded bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 lg:block"
+									class="hidden h-4 w-20 animate-pulse rounded bg-linear-to-r from-gray-200 via-gray-100 to-gray-200 lg:block"
 								></div>
 								<div
-									class="h-3 w-3 animate-pulse rounded bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
+									class="h-3 w-3 animate-pulse rounded bg-linear-to-r from-gray-200 via-gray-100 to-gray-200"
 								></div>
 							</div>
 						{/if}
@@ -619,10 +635,16 @@
 											handleLogout();
 											profileDropdownOpen = false;
 										}}
+										disabled={isLoggingOut}
 										class="mx-1 flex w-full items-center rounded-md px-4 py-2.5 text-sm text-red-600 transition-colors duration-150 hover:bg-red-50 hover:text-red-700"
 									>
-										<FontAwesomeIcon icon={faSignOutAlt} class="mr-3 w-4 text-center" />
-										로그아웃
+										{#if isLoggingOut}
+											<FontAwesomeIcon icon={faSpinner} class="mr-3 w-4 animate-spin text-center" />
+											로그아웃 중...
+										{:else}
+											<FontAwesomeIcon icon={faSignOutAlt} class="mr-3 w-4 text-center" />
+											로그아웃
+										{/if}
 									</button>
 								</div>
 							</div>
@@ -772,10 +794,16 @@
 								handleLogout();
 								mobileMenuOpen = false;
 							}}
+							disabled={isLoggingOut}
 							class="flex w-full items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
 						>
-							<FontAwesomeIcon icon={faSignOutAlt} class="mr-3 w-5 text-center" />
-							로그아웃
+							{#if isLoggingOut}
+								<FontAwesomeIcon icon={faSpinner} class="mr-3 w-5 animate-spin text-center" />
+								로그아웃 중...
+							{:else}
+								<FontAwesomeIcon icon={faSignOutAlt} class="mr-3 w-5 text-center" />
+								로그아웃
+							{/if}
 						</button>
 					</div>
 				{:else}

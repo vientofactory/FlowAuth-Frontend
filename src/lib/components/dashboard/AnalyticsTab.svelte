@@ -1,6 +1,5 @@
 <script lang="ts">
 	import SecurityMetricsCard from './SecurityMetricsCard.svelte';
-	import InsightsCard from './InsightsCard.svelte';
 	import AnalyticsCharts from './AnalyticsCharts.svelte';
 	import PredictiveAnalyticsCard from './PredictiveAnalyticsCard.svelte';
 	import StatsSummaryCards from './StatsSummaryCards.svelte';
@@ -53,9 +52,6 @@
 	{:else}
 		<!-- 보안 메트릭 카드 -->
 		<SecurityMetricsCard {securityMetrics} />
-
-		<!-- 인사이트 카드 -->
-		<InsightsCard {dashboardStats} />
 
 		<!-- 메인 차트 그리드 -->
 		<AnalyticsCharts {dashboardStats} {tokenAnalytics} {securityMetrics} />

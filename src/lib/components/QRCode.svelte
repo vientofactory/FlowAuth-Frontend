@@ -3,17 +3,26 @@
 
 	let {
 		qrCodeUrl,
-		secret,
-		size = 200
+		secret
 	}: {
 		qrCodeUrl: string;
 		secret: string;
-		size?: number;
 	} = $props();
 
 	let canvas: HTMLCanvasElement | undefined = $state();
 	let isLoading = $state(true);
 	let error = $state<string | null>(null);
+
+	// 반응형 QR 코드 크기 계산
+	let size = $derived(
+		typeof window !== 'undefined'
+			? window.innerWidth < 480
+				? 180
+				: window.innerWidth < 768
+					? 220
+					: 280
+			: 220
+	);
 
 	// canvas가 준비되면 QR 코드를 로드
 	$effect(() => {
@@ -285,6 +294,33 @@
 		.copy-button {
 			align-self: flex-end;
 			min-width: 40px;
+		}
+	}
+
+	/* 작은 모바일 최적화 */
+	@media (max-width: 480px) {
+		.qr-code-container {
+			padding: 0.75rem;
+			gap: 0.75rem;
+		}
+
+		.qr-code-wrapper {
+			min-height: 160px;
+		}
+
+		.secret-section {
+			max-width: 100%;
+		}
+
+		.secret-input-wrapper {
+			flex-direction: column;
+			align-items: stretch;
+			gap: 0.5rem;
+		}
+
+		.copy-button {
+			width: 100%;
+			justify-content: center;
 		}
 	}
 
