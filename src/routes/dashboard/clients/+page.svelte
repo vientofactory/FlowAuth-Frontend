@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { DashboardLayout, Button, apiClient, DashboardSkeleton } from '$lib';
+	import { DashboardLayout, apiClient, DashboardSkeleton } from '$lib';
 	import { useToast } from '$lib';
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
@@ -33,8 +33,7 @@
 	import ClientEditModal from '$lib/components/clients/ClientEditModal.svelte';
 	import ClientStatusModal from '$lib/components/clients/ClientStatusModal.svelte';
 	import Alert from '$lib/components/Alert.svelte';
-	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
-	import { faPlus, faCode, faBook, faMinus } from '@fortawesome/free-solid-svg-icons';
+	import { faCode, faBook } from '@fortawesome/free-solid-svg-icons';
 	import { faGithub } from '@fortawesome/free-brands-svg-icons';
 
 	let user = $state<User | null>(null);

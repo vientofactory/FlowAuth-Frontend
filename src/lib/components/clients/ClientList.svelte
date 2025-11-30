@@ -50,7 +50,7 @@
 	<div class="relative">
 		<div class="mb-6 flex items-center justify-between">
 			<h3 class="flex items-center text-lg font-semibold text-gray-900">
-				<div class="mr-3 md:mr-4 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
+				<div class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 md:mr-4">
 					<FontAwesomeIcon icon={faList} class="text-slate-600" />
 				</div>
 				클라이언트 목록

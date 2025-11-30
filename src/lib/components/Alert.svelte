@@ -78,8 +78,12 @@
 					{#each links as link, i (i)}
 						<a
 							href={link.url}
-							target="_blank"
-							rel="noopener noreferrer"
+							target={link.url.startsWith('http://') || link.url.startsWith('https://')
+								? '_blank'
+								: undefined}
+							rel={link.url.startsWith('http://') || link.url.startsWith('https://')
+								? 'noopener noreferrer'
+								: undefined}
 							class="inline-flex items-center text-sm {v.text.replace(
 								'text-',
 								'hover:'
@@ -89,7 +93,9 @@
 								<FontAwesomeIcon icon={link.icon} class="mr-1" />
 							{/if}
 							{link.text}
-							<FontAwesomeIcon icon={faExternalLinkAlt} class="ml-1 text-xs" />
+							{#if link.url.startsWith('http://') || link.url.startsWith('https://')}
+								<FontAwesomeIcon icon={faExternalLinkAlt} class="ml-1 text-xs" />
+							{/if}
 						</a>
 					{/each}
 				</div>
@@ -107,8 +113,12 @@
 					{#each links as link, i (i)}
 						<a
 							href={link.url}
-							target="_blank"
-							rel="noopener noreferrer"
+							target={link.url.startsWith('http://') || link.url.startsWith('https://')
+								? '_blank'
+								: undefined}
+							rel={link.url.startsWith('http://') || link.url.startsWith('https://')
+								? 'noopener noreferrer'
+								: undefined}
 							class="inline-flex items-center text-sm {v.text.replace(
 								'text-',
 								'hover:'
@@ -118,7 +128,9 @@
 								<FontAwesomeIcon icon={link.icon} class="mr-1" />
 							{/if}
 							{link.text}
-							<FontAwesomeIcon icon={faExternalLinkAlt} class="ml-1 text-xs" />
+							{#if link.url.startsWith('http://') || link.url.startsWith('https://')}
+								<FontAwesomeIcon icon={faExternalLinkAlt} class="ml-1 text-xs" />
+							{/if}
 						</a>
 					{/each}
 				</div>
